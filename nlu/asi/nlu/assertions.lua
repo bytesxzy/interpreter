@@ -136,7 +136,7 @@ end
 -- turn raw temporal qualifiers into a validity interval (state relations) or an event time (event relations)
 local function apply_time(a, q, rel_obj, lex)
   a.former, a.current, a.tense = q.former, q.current, q.tense
-  local event = rel_obj and rel_obj.when ~= nil
+  local event = rel_obj and (rel_obj.when ~= nil or rel_obj.event == true or rel_obj.open == true)
   for _, t in ipairs(q.temporal or {}) do
     local op = t.op
     if event then
@@ -546,6 +546,13 @@ function A:extract(text, meta)
             apply_time(rec, q, rel_obj, lex)
             -- a clash between the entity's known type and the relation signature means the pattern misfired (e.g. a city as a "founder")
             local clash = (rec.from and rec.from.type_clash) or (rec.to and rec.to.type_clash)
+            if rel_obj and rel_obj.open then
+              rec.open_relation = true
+              -- an inferred relation is only trusted between two proper participants (entities or literals), never between generic nouns
+              local function proper(d) return d and (d.literal or (d.key and (d.key:sub(1, 8) == "mention:" or not d.key:find("^term:") and not d.key:find("^sense:")))) end
+              -- verb-based open relations connect proper participants only; "the X of Y is Z" (explicit relational noun) may have any value
+              if (a.pattern == "svo" or a.pattern == "passive_by") and not (proper(rec.from) and proper(rec.to)) then clash = true end
+            end
             local dedupe_key
             do
               local function dk(d) return d and (d.key or (d.literal and d.literal.text) or d.text) or "-" end

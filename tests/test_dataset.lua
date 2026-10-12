@@ -101,7 +101,7 @@ T.test("triples: structured rows become explicit assertions with an induced rela
   local found_capital, found_mascot
   for _, a in ipairs(kb.index.assertions) do
     if a.rel == "capital" then found_capital = a end
-    if a.rel == "mascot" then found_mascot = a end
+    if a.rel == "open:mascot" then found_mascot = a end
   end
   T.ok(found_capital and found_capital.structured and found_capital.to.key == "mention:quillbert", "known relation maps onto the lexicon relation")
   T.ok(found_mascot and found_mascot.induced_relation, "unknown relation is induced and marked as such")

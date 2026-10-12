@@ -133,7 +133,14 @@ function P.verb_analyses(S, c)
   for _, e in ipairs(c.relverbs) do add(e.lemma, e.vform, e, nil) end
   for _, r in ipairs(c.verbs or {}) do add(r.lemma, r.feat, nil, r.act) end
   if #out == 0 and c.single and c.kind == "word" and not next(c.cats) and #c.senses == 0 and #c.entities == 0 and #c.relnouns == 0 then
-    for _, g in ipairs(Morph.guess(c.unit.form)) do if g.pos == "verb" then add(g.lemma, g.feat, nil, nil, true) end end
+    local seen_feat = {}
+    for _, g in ipairs(Morph.guess(c.unit.form)) do
+      if g.pos == "verb" then
+        -- an unknown verb is an OPEN relation: represented under its own lemma, never mapped onto a familiar relation (one lemma per form)
+        local ol = g.lemma:gsub("e$", "")
+        add(g.lemma, g.feat, { kind = "relverb", rel = "open:" .. ol, subj = "to", vform = g.feat, lemma = g.lemma, open = true }, nil, true)
+      end
+    end
   end
   -- fill acts for relation verbs that are also speech-act verbs ("create", "launch", ...)
   for _, a in ipairs(out) do
@@ -302,6 +309,22 @@ P.backref_at = backref_at
 
 local parse_np
 
+-- an unknown head noun with an entity argument ("the mascot of Zorbland", "Zorbland's mascot") may name an OPEN relation
+local function open_relnoun_alt(np, arg)
+  if np.head_kind ~= "unknown" or not np.head or not np.head.single or np.from_verb then return nil end
+  if arg.head_kind ~= "entity" then return nil end
+  local w = np.head.unit.form
+  if #w < 3 or not w:match("^%a+$") then return nil end
+  local lemma = w
+  if lemma:match("s$") and not lemma:match("ss$") and #lemma > 3 then lemma = lemma:sub(1, -2) end
+  lemma = lemma:gsub("e$", "")
+  local cp = U.shallow(np)
+  cp.head_kind = "relnoun"
+  cp.relnouns = { { kind = "relnoun", rel = "open:" .. lemma, role = "to", lemma = lemma, num = (lemma ~= w) and "pl" or "sg", open = true } }
+  cp.open_relnoun = true
+  return cp
+end
+
 -- core NP (no possessor): [det|poss] modifiers* head [of-complement] [back-reference]
 local function parse_np_core(S, k, opts)
   local out = {}
@@ -466,6 +489,8 @@ local function parse_np_core(S, k, opts)
           cp.u2 = sub.u2; cp.c2 = sub.c2
           cp.score = np.score + sub.score * 0.3
           alts[#alts + 1] = cp
+          local ocp = open_relnoun_alt(cp, sub)
+          if ocp then ocp.score = cp.score - 0.2; alts[#alts + 1] = ocp end
         end
       end
     end
@@ -508,6 +533,8 @@ function parse_np(S, k, opts)
           cp.u1, cp.c1 = a.u1, a.c1
           cp.score = b.score + a.score * 0.3 + 0.2
           out[#out + 1] = cp
+          local ocp = open_relnoun_alt(cp, a)
+          if ocp then ocp.score = cp.score - 0.2; out[#out + 1] = ocp end
         end
       end
     end
@@ -567,8 +594,22 @@ function P.parse_vp(S, k, opts)
   local vc = C(S, j)
   if vc and not vc.masked and not (j > k and barrier(vc)) then
     local ana = P.verb_analyses(S, vc)
+    local last_aux = (aux[#aux] and aux[#aux].kind) or opts.aux_hint
+    -- after do-support / a modal the verb MUST be a base form: an entirely unknown word there is a base verb ("Why did the plan fail?")
+    if (last_aux == "do" or last_aux == "modal") and vc.single and vc.kind == "word" and not next(vc.cats) and #vc.senses == 0 and #vc.entities == 0
+      and #vc.relnouns == 0 and #vc.names == 0 and not vc.number and not vc.temporal then
+      local has_base = false
+      for _, a in ipairs(ana) do if a.form == "base" then has_base = true end end
+      if not has_base then
+        local ext = {}
+        for i, a in ipairs(ana) do ext[i] = a end
+        local ol = vc.unit.form:gsub("e$", "")
+        ext[#ext + 1] = { lemma = vc.unit.form, form = "base", guessed = true,
+          entries = { { kind = "relverb", rel = "open:" .. ol, subj = "to", vform = "base", lemma = vc.unit.form, open = true } } }
+        ana = ext
+      end
+    end
     if #ana > 0 then
-      local last_aux = (aux[#aux] and aux[#aux].kind) or opts.aux_hint
       local variants = {}
       for _, a in ipairs(ana) do
         local voice, ok = "active", false

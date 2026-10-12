@@ -97,7 +97,9 @@ function K:index_record(rec)
     local rel = self.lex:rel_by_name(t.relation)
     local induced = false
     if not rel then
-      rel = self.lex:induce_relation((t.relation:lower():gsub("[%s%-]+", "_"):gsub("[^%w_]", "")), { source = "induced" })
+      local norm = t.relation:lower():gsub("[%s%-]+", "_"):gsub("[^%w_]", "")
+      -- a relation named only by the data lives in the same "open:" namespace as relations inferred from unknown words in text or questions
+      rel = self.lex:induce_relation(norm, { id = "open:" .. norm:gsub("e$", ""), source = "induced" })
       induced = true
       self.rel_induced[rel.id] = self.rel_induced[rel.id] or { name = t.relation, records = {} }
       table.insert(self.rel_induced[rel.id].records, rec.id)

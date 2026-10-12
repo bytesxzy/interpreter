@@ -150,12 +150,15 @@ function M.guess(form)
     add(stem .. "e", "verb", "ing", 0.4)
     if stem:sub(-1) == stem:sub(-2, -2) then add(stem:sub(1, -2), "verb", "ing", 0.4) end
   end
-  if #form >= 4 and form:find("ied$") then add(form:sub(1, -4) .. "y", "verb", "past", 0.5)
+  if #form >= 4 and form:find("ied$") then add(form:sub(1, -4) .. "y", "verb", "past", 0.5); add(form:sub(1, -4) .. "y", "verb", "pp", 0.5)
   elseif #form >= 4 and form:find("ed$") then
     local stem = form:sub(1, -3)
-    add(stem, "verb", "past", 0.5)
-    add(stem .. "e", "verb", "past", 0.4)
-    if stem:sub(-1) == stem:sub(-2, -2) then add(stem:sub(1, -2), "verb", "past", 0.4) end
+    -- a regular -ed form is both the simple past and the past participle
+    for _, feat in ipairs({ "past", "pp" }) do
+      add(stem, "verb", feat, 0.5)
+      add(stem .. "e", "verb", feat, 0.4)
+      if stem:sub(-1) == stem:sub(-2, -2) then add(stem:sub(1, -2), "verb", feat, 0.4) end
+    end
   end
   local es_plural = form:find("[sxz]es$") or form:find("[cs]hes$")
   if #form >= 4 and form:find("ies$") then add(form:sub(1, -4) .. "y", "noun", "pl", 0.5); add(form:sub(1, -4) .. "y", "verb", "3sg", 0.4)

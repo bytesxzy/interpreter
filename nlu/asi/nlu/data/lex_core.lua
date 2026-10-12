@@ -351,6 +351,7 @@ domain education: school student students teacher teachers class classroom educa
 domain music: band singer song album concert guitar vocalist
 domain mythology: god goddess myth mythology roman greek legend messenger
 domain automotive: car cars engine vehicle sedan automobile driving
+domain color: color colour paint painting shade hue pigment dye palette red blue green yellow purple pink wall walls
 domain typography: letter letters uppercase lowercase font character typing
 domain history: history historical ancient empire kingdom dynasty century war revolution medieval
 

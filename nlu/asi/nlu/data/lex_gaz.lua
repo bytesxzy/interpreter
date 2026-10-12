@@ -64,7 +64,7 @@ entity company.microsoft: company | names=Microsoft | domain=technology; busines
 entity company.tesla: company | names=Tesla | domain=technology; automotive; business
 entity company.ibm: company | names=IBM | domain=technology; business
 entity company.meta: company | names=Meta; Meta Platforms | domain=technology; business
-entity color.orange: color | names=orange | domain=food
+entity color.orange: color | names=orange | domain=color; design; art; paint
 entity fruit.orange: fruit | names=orange; oranges | domain=food; biology
 entity company.orange_telecom: company | names=Orange | domain=business; technology
 ]==]

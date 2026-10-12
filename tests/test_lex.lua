@@ -293,4 +293,19 @@ T.test("spell index finds the right neighbours without scanning the vocabulary",
   T.eq(#sp:suggest("information"), 0)
 end)
 
+T.test("apostrophe-less contractions expand for matching while the surface text stays intact", function()
+  local Lex = require("asi.nlu.lex")
+  local an = Lex.analyze("whats the capital? I dont know. Im sure. IM me.")
+  local forms = {}
+  for _, u in ipairs(an.units) do forms[#forms + 1] = u.form end
+  T.eq(forms, { "what", "is", "the", "capital", "i", "do", "not", "know", "i", "am", "sure", "im", "me" })
+  T.eq(an.original, "whats the capital? I dont know. Im sure. IM me.")
+  -- the expanded units share the original byte span
+  T.eq(an.units[1].s, 1); T.eq(an.units[1].e, 5); T.eq(an.units[2].s, 1); T.eq(an.units[2].e, 5)
+  -- negation cue is recognised for the expanded "not"
+  local neg = false
+  for _, u in ipairs(an.units) do if u.form == "not" and u.neg_clitic then neg = true end end
+  T.ok(neg)
+end)
+
 os.exit(T.report("lex") and 0 or 1)

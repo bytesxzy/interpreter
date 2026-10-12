@@ -782,7 +782,7 @@ function F.statement(S, out)
       if objs[1] then use_np(h, objs[1]); h.statement.obj = objs[1] end
       for _, e in ipairs(vp.analysis.entries) do
         local rel = S.lex:get_rel(e.rel)
-        if rel and objs[1] then
+        if rel and objs[1] and not rel.open then
           h.rel, h.rel_obj = rel.id, rel
           h.roles[vp.voice == "passive" and other(e.subj) or e.subj] = snp
           h.roles[vp.voice == "passive" and e.subj or other(e.subj)] = objs[1]

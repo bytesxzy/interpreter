@@ -3,7 +3,7 @@
 --   type <name> < <parent>[, <parent>]
 --   class <cat>: w1 w2 ...                               closed-class word lists
 --   pron <form>: person=3 number=sg gender=n animate=0   pronoun features
---   rel <id>: from=<type> to=<type> | noun=a; b | noun_from=a; b | verb=lemma/subj=to; ... | prep=of; for | kinds=mod:rel_id; ...
+--   rel <id>: from=<type> to=<type> | event=1 (a one-off event or permanent fact: tense never makes it "past") | noun=a; b | noun_from=a; b | verb=lemma/subj=to; ... | prep=of; for | kinds=mod:rel_id; ...
 --             | when=<rel> | where=<rel> | label=<text> | derived=<rel> | weight=<n>
 --   sense <head>: <id> | pos=n|v|adj | type=<type> | domain=a; b | gloss=... | prior=0.5 | rel=<rel> | cs=1
 --   entity <id>: <type> | names=A; B | cs=A; B | domain=a; b | prior=0.5 | attr.k=v
@@ -306,7 +306,7 @@ function DIRECTIVES.rel(self, rest)
   end
   local r = { id = id, from = f.from, to = f.to, label = f.label or id:gsub("_", " "), nouns_to = list(f.noun), nouns_from = list(f.noun_from),
     verbs = {}, preps = list(f.prep), kinds = {}, when = f.when, where = f.where, how_many = f.how_many, derived = f.derived,
-    weight = tonumber(f.weight) or 1.0, source = f.source or "seed", symmetric = f.symmetric == "1", attr = f.attr == "1" }
+    weight = tonumber(f.weight) or 1.0, source = f.source or "seed", symmetric = f.symmetric == "1", attr = f.attr == "1", event = f.event == "1" }
   -- verb entries:  lemma/subj=to|from[/prep=in]   (prep => stative "X is VERB-ed PREP Y": X fills subj role, Y the other)
   for _, v in ipairs(list(f.verb)) do
     local lemma, attrs = v:match("^([^/]+)/(.*)$")
@@ -504,10 +504,33 @@ function L:directive(dir, rest, source, ln)
 end
 
 ---------------------------------------------------------------- queries
+-- An OPEN relation stands for a relation word the lexicon does not know ("paint", "mascot"): it is represented faithfully under its own name
+-- ("open:paint") instead of being mapped onto a familiar relation.  Created on demand, never listed among the lexicon's relations.
+L.OPEN_PREFIX = "open:"
+function L:open_relation(lemma)
+  lemma = lemma:gsub("e$", "")   -- "dance" / "danc(ed)" name the same open relation
+  local root = self
+  while root.parent do root = root.parent end
+  root.open_rels = root.open_rels or {}
+  local id = L.OPEN_PREFIX .. lemma
+  local r = root.open_rels[id]
+  if not r then
+    r = { id = id, from = "entity", to = "entity", label = lemma .. " (open relation)", nouns_to = {}, nouns_from = {}, verbs = {}, preps = {}, kinds = {}, weight = 0.5,
+      source = "open", open = true }
+    root.open_rels[id] = r
+  end
+  return r
+end
+
 function L:get_rel(id)
   local r = self.rels[id]
   if r then return r end
-  if self.parent then return self.parent:get_rel(id) end
+  if self.parent then
+    r = self.parent:get_rel(id)
+    if r then return r end
+  end
+  local lemma = id:match("^open:(.+)$")
+  if lemma then return self:open_relation(lemma) end
 end
 
 -- a relation designated by a dataset column / predicate string: id, label or one of its nouns ("Capital", "capital of", "CEO", "has_capital")
@@ -516,6 +539,21 @@ function L:rel_by_name(name)
   local r = self:get_rel(key)
   if r then return r end
   local plain = name:lower():gsub("[_%-]+", " "):gsub("^%s*has%s+", ""):gsub("%s+of%s*$", ""):gsub("%s+by%s*$", ""):gsub("^%s+", ""):gsub("%s+$", "")
+  -- passive-style column names ("founded_by", "acquired_by"): the relation whose verb has the subject in the `to` role
+  local pv = key:match("^(.-)_by$")
+  if pv then
+    local cands = { pv, (pv:gsub("ed$", "")), (pv:gsub("d$", "")), (pv:gsub("ied$", "y")) }
+    local lex = self
+    while lex do
+      for _, id in ipairs(lex.rel_order) do
+        local rel = lex.rels[id]
+        for _, v in ipairs(rel.verbs or {}) do
+          if v.subj == "to" and not v.prep then for _, c in ipairs(cands) do if v.lemma == c then return rel end end end
+        end
+      end
+      lex = lex.parent
+    end
+  end
   local lex = self
   while lex do
     for _, id in ipairs(lex.rel_order) do
@@ -693,13 +731,15 @@ end
 -- "founded_by" -> passive verb (found, subj=to); "ceo_of" -> noun "ceo"; "headquarters_location" -> noun; "has_capital" -> noun "capital"
 function L:induce_relation(name, spec)
   spec = spec or {}
-  if self:get_rel(name) and not spec.force then return self:get_rel(name), false end
+  local rid = spec.id or name
+  if self.rels[rid] and not spec.force then return self.rels[rid], false end
+  if not spec.id and self:get_rel(name) and not spec.force then return self:get_rel(name), false end
   local parts = {}
   for p in name:gsub("(%l)(%u)", "%1_%2"):lower():gmatch("[%a%d]+") do parts[#parts + 1] = p end
   local drop = { has = true, is = true, was = true, have = true, a = true, the = true }
   while #parts > 1 and drop[parts[1]] do table.remove(parts, 1) end
   local preps = { of = true, by = true, in_ = true, to = true, for_ = true, at = true, from = true, with = true }
-  local r = { id = name, from = spec.from or "entity", to = spec.to or "entity", label = name:gsub("_", " "), nouns_to = {}, nouns_from = {},
+  local r = { id = rid, from = spec.from or "entity", to = spec.to or "entity", label = (name:gsub("_", " ")), nouns_to = {}, nouns_from = {},
     verbs = {}, preps = {}, kinds = {}, weight = 0.7, source = "induced" }
   local last = parts[#parts]
   if #parts >= 2 and (last == "by") then
@@ -719,7 +759,7 @@ function L:induce_relation(name, spec)
     r.nouns_to[#r.nouns_to + 1] = table.concat(parts, " ")
     if #parts >= 2 then r.nouns_to[#r.nouns_to + 1] = parts[#parts] end
   end
-  for k, v in pairs(spec) do if k ~= "force" and r[k] == nil then r[k] = v end end
+  for k, v in pairs(spec) do if k ~= "force" and k ~= "id" and r[k] == nil then r[k] = v end end
   if spec.nouns then for _, n in ipairs(spec.nouns) do r.nouns_to[#r.nouns_to + 1] = n end end
   if spec.verbs then for _, v in ipairs(spec.verbs) do r.verbs[#r.verbs + 1] = v end end
   self:add_rel(r)

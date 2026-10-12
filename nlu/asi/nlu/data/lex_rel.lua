@@ -26,16 +26,16 @@ rel diameter: from=celestial_body to=number | noun=diameter | attr=1 | label=dia
 rel orbital_period: from=planet to=number | noun=orbital period | attr=1 | label=orbital period
 
 # ------------------------------------------------------------ organisations and people
-rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to | when=founded_on | label=founder
-rel founded_on: from=organization to=date | noun=founding date; founding year; foundation date; date of founding; year of founding | label=founding date
+rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to | when=founded_on | label=founder | event=1
+rel founded_on: from=organization to=date | noun=founding date; founding year; foundation date; date of founding; year of founding | label=founding date | event=1
 rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive | label=CEO
 rel leader: from=organization to=person | noun=leader; head; chief | verb=lead/subj=to; head/subj=to; run/subj=to; manage/subj=to | label=leader
 rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | label=headquarters
 rel member_of: from=agent to=organization | noun_from=member | verb=belong/subj=from/prep=to; join/subj=from | label=membership
 rel parent_org: from=organization to=organization | noun=parent company; parent organization; parent; owner | noun_from=subsidiary | verb=own/subj=to | label=parent organization
-rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to | when=acquired_on | label=acquirer
-rel acquired_on: from=organization to=date | noun=acquisition date; date of acquisition | label=acquisition date
-rel investor: from=organization to=agent | noun=investor; backer; funder | verb=invest/subj=to/prep=in; fund/subj=to; finance/subj=to; back/subj=to | label=investor
+rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to | when=acquired_on | label=acquirer | event=1
+rel acquired_on: from=organization to=date | noun=acquisition date; date of acquisition | label=acquisition date | event=1
+rel investor: from=organization to=agent | noun=investor; backer; funder | verb=invest/subj=to/prep=in; fund/subj=to; finance/subj=to; back/subj=to | label=investor | event=1
 rel employees: from=organization to=number | noun=employees; staff; headcount; workforce; number of employees; number of staff | how_many=employees | attr=1 | label=employees
 rel revenue: from=organization to=money | noun=revenue; sales; turnover; income | attr=1 | label=revenue
 rel industry: from=organization to=topic | noun=industry; sector | label=industry
@@ -47,20 +47,20 @@ rel employer: from=person to=organization | noun=employer | verb=work/subj=from/
 rel title: from=person to=role | noun=title; job; position | label=title
 rel nationality: from=person to=country | noun=nationality; citizenship | label=nationality
 rel spouse: from=person to=person | noun=spouse; husband; wife | verb=marry/subj=from | symmetric=1 | label=spouse
-rel birth_place: from=person to=place | noun=birthplace; place of birth | verb=bear/subj=from/prep=in | where=birth_place | label=birthplace
-rel birth_date: from=person to=date | noun=birthday; date of birth; birth date | when=birth_date | label=birth date
-rel death_date: from=person to=date | noun=date of death; death date | verb=die/subj=from | when=death_date | label=death date
+rel birth_place: from=person to=place | noun=birthplace; place of birth | verb=bear/subj=from/prep=in | where=birth_place | label=birthplace | event=1
+rel birth_date: from=person to=date | noun=birthday; date of birth; birth date | when=birth_date | label=birth date | event=1
+rel death_date: from=person to=date | noun=date of death; death date | verb=die/subj=from | when=death_date | label=death date | event=1
 rel age: from=agent to=number | noun=age | attr=1 | label=age
 
 # ------------------------------------------------------------ works, products, software
-rel author: from=work to=person | noun=author; writer | verb=write/subj=to; author/subj=to | label=author
-rel publisher: from=work to=organization | noun=publisher | verb=publish/subj=to | label=publisher
-rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to; paint/subj=to; compose/subj=to; sculpt/subj=to; build/subj=to; craft/subj=to | label=creator
-rel developer: from=software to=agent | noun=developer; maintainer; vendor | verb=develop/subj=to | label=developer
-rel inventor: from=product to=person | noun=inventor | verb=invent/subj=to | label=inventor
-rel discoverer: from=entity to=agent | noun=discoverer | verb=discover/subj=to | label=discoverer
-rel release: from=agent to=product | noun=release; product; launch | verb=release/subj=to; launch/subj=to; ship/subj=to; unveil/subj=to | label=release
-rel published_on: from=work to=date | noun=publication date; date of publication; release date | when=published_on | label=publication date
+rel author: from=work to=person | noun=author; writer | verb=write/subj=to; author/subj=to | label=author | event=1
+rel publisher: from=work to=organization | noun=publisher | verb=publish/subj=to | label=publisher | event=1
+rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to; paint/subj=to; compose/subj=to; sculpt/subj=to; build/subj=to; craft/subj=to | label=creator | event=1
+rel developer: from=software to=agent | noun=developer; maintainer | verb=develop/subj=to | label=developer | event=1
+rel inventor: from=product to=person | noun=inventor | verb=invent/subj=to | label=inventor | event=1
+rel discoverer: from=entity to=agent | noun=discoverer | verb=discover/subj=to | label=discoverer | event=1
+rel release: from=agent to=product | noun=release; product; launch | verb=release/subj=to; launch/subj=to; ship/subj=to; unveil/subj=to | label=release | event=1
+rel published_on: from=work to=date | noun=publication date; date of publication; release date | when=published_on | label=publication date | event=1
 rel price: from=product to=money | noun=price; cost | attr=1 | label=price
 rel type_of: from=entity to=concept | noun=type; kind; category; genre | label=type
 

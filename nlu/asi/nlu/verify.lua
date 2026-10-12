@@ -41,7 +41,7 @@ end
 -- is the relation a "state" (holds over a period) rather than an "event" (happened once)?
 local function is_event(kb, rel_id)
   local rel = kb.lex:get_rel(rel_id)
-  return rel ~= nil and rel.when ~= nil
+  return rel ~= nil and (rel.when ~= nil or rel.event == true or rel.open == true)
 end
 
 local function quote_of(a)
@@ -176,6 +176,7 @@ local function verify_assertions(kb, plan, reading, rel_id, known_role, ask_role
     if a.modality == "hypothetical" then fails[#fails + 1] = "hypothetical statement, not an assertion of fact" end
     if a.is_class then fails[#fails + 1] = "classification, not the requested relation" end
     if m == "candidate" then flags[#flags + 1] = "subject is ambiguous in the record" end
+    if a.open_relation then flags[#flags + 1] = "relation word is not in the lexicon (open relation '" .. tostring(a.rel) .. "')" end
     local ty, tywhy = type_check(kb, ans_desc, answer_type)
     checks.answer_type = ty
     if ty == "mismatch" then fails[#fails + 1] = tywhy elseif ty == "unknown" then flags[#flags + 1] = "answer type not established" end

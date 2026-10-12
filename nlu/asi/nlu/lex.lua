@@ -30,7 +30,15 @@ local IRREG_STEM = { ca = "can", wo = "will", sha = "shall", ai = "be" }
 local CLITIC_NORM = { s = "'s", re = "are", ve = "have", ll = "will", d = "would", m = "am" }
 local EXPAND = { gonna = { "going", "to" }, wanna = { "want", "to" }, gotta = { "got", "to" }, gimme = { "give", "me" },
   lemme = { "let", "me" }, dunno = { "do", "not", "know" }, kinda = { "kind", "of" }, sorta = { "sort", "of" },
-  outta = { "out", "of" }, lotta = { "lot", "of" }, hafta = { "have", "to" }, oughta = { "ought", "to" } }
+  outta = { "out", "of" }, lotta = { "lot", "of" }, hafta = { "have", "to" }, oughta = { "ought", "to" },
+  -- contractions typed without the apostrophe ("whats", "dont"): expanded for matching, the surface text is untouched
+  whats = { "what", "is" }, thats = { "that", "is" }, whos = { "who", "is" }, hows = { "how", "is" }, wheres = { "where", "is" }, theres = { "there", "is" },
+  heres = { "here", "is" }, dont = { "do", "not" }, doesnt = { "does", "not" }, didnt = { "did", "not" }, isnt = { "is", "not" }, arent = { "are", "not" },
+  wasnt = { "was", "not" }, werent = { "were", "not" }, cant = { "can", "not" }, wont = { "will", "not" }, wouldnt = { "would", "not" },
+  shouldnt = { "should", "not" }, couldnt = { "could", "not" }, hasnt = { "has", "not" }, havent = { "have", "not" }, hadnt = { "had", "not" },
+  im = { "i", "am" }, ive = { "i", "have" }, youre = { "you", "are" }, theyre = { "they", "are" }, weve = { "we", "have" }, youve = { "you", "have" },
+  theyve = { "they", "have" } }
+local EXPAND_LOWER_ONLY = S({ "im", "ive" })   -- "IM" / "IVE" are initialisms, not contractions
 local UNIT_SUFFIX = S({ "km", "kg", "m", "cm", "mm", "mg", "g", "ml", "l", "ms", "h", "hr", "hrs", "min", "gb", "mb", "kb", "tb",
   "hz", "khz", "mhz", "ghz", "mph", "kph", "kmh", "px", "pt", "usd", "eur", "gbp", "k", "bn", "mn", "x", "mi", "ft", "in", "lb",
   "lbs", "oz", "yr", "yrs", "wk", "mo", "w", "kw", "mw", "v", "a", "db", "pct" })
@@ -820,9 +828,9 @@ function Lex.build_units(an, opts)
           u.cap = UC.is_upper(c1)
           push(u)
         end
-      elseif EXPAND[t.lower] and t.kind == "word" and not t.compound then
+      elseif EXPAND[t.lower] and t.kind == "word" and not t.compound and not (EXPAND_LOWER_ONLY[t.lower] and t.text == t.text:upper()) then
         for pi, w in ipairs(EXPAND[t.lower]) do
-          push(with({ part = pi, raw = t.text, form = w, lower = w, s = t.s, e = t.e, cs = t.cs, ce = t.ce, expanded = true }))
+          push(with({ part = pi, raw = t.text, form = w, lower = w, s = t.s, e = t.e, cs = t.cs, ce = t.ce, expanded = true, neg_clitic = (w == "not") or nil }))
         end
       elseif t.neg_clitic or t.clitic then
         push(with({ raw = t.text, form = t.norm or t.fold, lower = t.norm or t.lower, s = t.s, e = t.e, cs = t.cs, ce = t.ce,
