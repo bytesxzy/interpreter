@@ -1,0 +1,162 @@
+# TEST split. Authored BEFORE the engine was ever run on it; frozen with a SHA-256 manifest (data/eval/MANIFEST.json); run once for the official
+# held-out number (see reports/heldout_log.md).  Gold edits after observing results are forbidden (reports/gold_changes.md must stay empty for this split).
+# Format: ID | category | text | gold
+# ------------------------------------------------------------------ basic factual relations (attested and unseen entities, varied phrasing)
+T001 | basic_factual | What is the capital of Kenya? | intent=factual_lookup; rel=capital; from=Kenya:country; ask=to; atype=city
+T002 | basic_factual | Which city serves as the capital of Norway? | rel=capital; from=Norway; ask=to
+T003 | basic_factual | Who is the founder of Quillon Labs? | rel=founder; from=Quillon Labs; ask=to
+T004 | basic_factual | What is the official language of Chile? | rel=official_language; from=Chile; ask=to
+T005 | basic_factual | What currency does Vietnam use? | rel=currency; from=Vietnam; ask=to
+T006 | basic_factual | Who wrote Moby Dick? | rel=author; from=Moby Dick; ask=to
+T007 | basic_factual | When did Marie Curie die? | rel=death_date; from=Marie Curie; ask=to
+T008 | basic_factual | Who is the CEO of Brindle Analytics? | rel=ceo; from=Brindle Analytics; ask=to; atype=person
+T009 | basic_factual | What is the population of Peru? | rel=population; from=Peru; ask=to
+T010 | basic_factual | Who discovered penicillin? | rel=discoverer; from=penicillin; ask=to
+T011 | basic_factual | What is the height of Mount Everest? | rel=height; from=Mount Everest; ask=to
+T012 | basic_factual | Who invented the airplane? | rel=inventor; from=airplane; ask=to
+T013 | basic_factual | What is the area of Iceland? | rel=area; from=Iceland; ask=to
+T014 | basic_factual | Who is the prime minister of Canada? | rel=prime_minister; from=Canada:country; ask=to
+T015 | basic_factual | Which city is the capital of Argentina? | rel=capital; from=Argentina; ask=to; atype=city
+T016 | basic_factual | Capital of Poland? | rel=capital; from=Poland; ask=to
+T017 | basic_factual | Name the author of Hamlet. | rel=author; from=Hamlet; ask=to
+T018 | basic_factual | How many employees does Tessaly Robotics have? | rel=employees; from=Tessaly Robotics; ask=to
+T019 | basic_factual | When was Oakhaven Partners founded? | rel=founded_on; from=Oakhaven Partners; ask=to
+T020 | basic_factual | Where is Pyrrhic Software headquartered? | rel=headquarters; from=Pyrrhic Software; ask=to
+# ------------------------------------------------------------------ direction of the relation
+T030 | direction | Which company did Mira Voss found? | rel=founder; to=Mira Voss; ask=from
+T031 | direction | Which firm was founded by Dana Lee? | rel=founder; to=Dana Lee; ask=from
+T032 | direction | Who did Beta Systems acquire? | rel=acquirer; to=Beta Systems; ask=from
+T033 | direction | Who acquired Gamma Corp? | rel=acquirer; from=Gamma Corp; ask=to
+T034 | direction | Who was Gamma Corp acquired by? | rel=acquirer; from=Gamma Corp; ask=to
+T035 | direction | Which company invested in Lumora Networks? | rel=investor; from=Lumora Networks; ask=to
+T036 | direction | Who does Alice Smith work for? | rel=employer; from=Alice Smith; ask=to
+T037 | direction | Who works for Marrow Systems? | rel=employer; to=Marrow Systems; ask=from
+T038 | direction | Which company has Omar Khan as its CEO? | rel=ceo; to=Omar Khan; ask=from
+# ------------------------------------------------------------------ multiword entities and concepts
+T040 | multiword | What is the capital of South Korea? | rel=capital; from=South Korea:country; ask=to
+T041 | multiword | Tell me about the Pacific Ocean. | intent=entity_description; subject=Pacific Ocean:ocean
+T042 | multiword | What is machine learning? | intent=definition; concept=machine learning
+T043 | multiword | What is natural language processing? | intent=definition; concept=natural language processing
+T044 | multiword | Who founded Bank of Zorbland? | rel=founder; from=Bank of Zorbland; ask=to
+T045 | multiword | What is a supply chain? | intent=definition; concept=supply chain
+T046 | multiword | What is the population of the United Kingdom? | rel=population; from=United Kingdom; ask=to
+T047 | multiword | What is the capital of Papua New Guinea? | rel=capital; from=Papua New Guinea; ask=to
+T048 | multiword | What is the stock market? | intent=definition; concept=stock market
+T049 | multiword | Define renewable energy. | intent=definition; concept=renewable energy
+# ------------------------------------------------------------------ ambiguous terms and sense disambiguation
+T050 | ambiguous | Tell me about Saturn. | amb=ambiguous; alts=planet.saturn|company.saturn_cars
+T051 | ambiguous | What is the orbital period of Saturn? | rel=orbital_period; from=Saturn:planet:planet.saturn; amb=resolved
+T052 | ambiguous | Tell me about Jaguar. | amb=ambiguous; alts=animal.jaguar|company.jaguar
+T053 | ambiguous | Where is Cambridge? | amb=ambiguous; alts=city.cambridge_uk|city.cambridge_ma
+T054 | ambiguous | Who founded Oracle? | rel=founder; from=Oracle:company:company.oracle; amb=resolved
+T055 | ambiguous | We were discussing planets in the solar system. Tell me about Venus. | subject=Venus:planet:planet.venus; amb=resolved
+T056 | ambiguous | What is the capital of Turkey? | rel=capital; from=Turkey:country:country.turkey; amb=resolved
+T057 | ambiguous | What does a python eat? | amb=ambiguous
+T058 | ambiguous | What is bank? | intent=definition; amb=ambiguous
+# ------------------------------------------------------------------ intent recognition
+T060 | intent | Find robotics startups in Finland. | intent=search; pos=geo:Finland
+T061 | intent | Compare Tessaly Robotics and Marrow Systems. | intent=comparison; items=Tessaly Robotics|Marrow Systems
+T062 | intent | Explain why the third attempt failed. | intent=causal_explanation; ctx=ordinal_reference
+T063 | intent | From now on, use the 2022 edition. | intent=instruction_update; inst=slot=version,persist=1
+T064 | intent | Can you define working capital? | intent=definition; concept=working capital
+T065 | intent | Is Berlin the capital of Germany? | intent=verification; rel=capital; from=Germany; to=Berlin
+T066 | intent | Did Mira Voss found Quillon Labs? | intent=verification; rel=founder; to=Mira Voss; from=Quillon Labs
+T067 | intent | Summarize the quarterly report. | intent=task
+T068 | intent | How does inflation work? | intent=explanation
+T069 | intent | Is Lyon in France? | intent=verification; rel=located_in; from=Lyon; to=France
+T070 | intent | I'm interested in Pyrrhic Software. | act=statement; intent=statement; focus=Pyrrhic Software
+# ------------------------------------------------------------------ negation and exclusions
+T080 | negation | I need the capital of Spain, not the biggest city. | rel=capital; from=Spain; neg=description:city
+T081 | negation | Find firms offering logistics services, but not firms that hire contractors. | intent=search; pos=relation:offers; neg=type:company+hires:contractor
+T082 | negation | List the results without duplicates. | neg=topic:duplicates
+T083 | negation | Which statements are not backed by the sources? | rel=supported_by; pol=negative; neg=none
+T084 | negation | Exclude agencies. | intent=instruction_update; neg=type:agency
+T085 | negation | Never include press releases. | intent=instruction_update; pol=negative
+T086 | negation | What is the capital of Australia, not Sydney? | rel=capital; from=Australia; neg=entity:sydney
+T087 | negation | Show me retailers that are not in Germany. | intent=search; neg=entity:germany
+T088 | negation | Find nonprofits except hospitals. | intent=search; neg=type:hospital
+# ------------------------------------------------------------------ temporal constraints
+T090 | temporal | What was the capital of Turkey in 1920? | rel=capital; from=Turkey; tc=in:1920
+T091 | temporal | Who was the CEO of Tessaly Robotics before 2010? | rel=ceo; from=Tessaly Robotics; tc=before:2010
+T092 | temporal | What is the former capital of Kazakhstan? | rel=capital; from=Kazakhstan; temporal=past
+T093 | temporal | Find companies founded after 2015. | intent=search; pos=temporal:founded_on; tc=after:2015
+T094 | temporal | Who founded Lumora Networks in 2008? | rel=founder; from=Lumora Networks; tc=in:2008
+T095 | temporal | Organizations established between 2000 and 2005 | intent=search; tc=between:2000-2005
+T096 | temporal | What was the population of Italy in 1980? | rel=population; from=Italy; tc=in:1980
+T097 | temporal | What is the current capital of Myanmar? | rel=capital; from=Myanmar; temporal=present
+T098 | temporal | What is the capital of Japan according to the 2019 dataset? | rel=capital; from=Japan; src=dataset:2019
+T099 | temporal | Who is the CEO of Tessaly Robotics as of 2021? | rel=ceo; from=Tessaly Robotics; tc=as_of:2021
+# ------------------------------------------------------------------ geography
+T100 | geographic | Find software companies in Brazil. | intent=search; pos=geo:Brazil
+T101 | geographic | Which universities are in Edinburgh? | rel=located_in; to=Edinburgh; ask=from; atype=university
+T102 | geographic | Where is Oakhaven Partners based? | rel=headquarters; from=Oakhaven Partners; ask=to
+T103 | geographic | Which companies are headquartered in Dublin? | rel=headquarters; to=Dublin; ask=from
+# ------------------------------------------------------------------ comparison
+T110 | comparative | Is Marrow Systems older than Lumora Networks? | intent=verification; items=Marrow Systems|Lumora Networks
+T111 | comparative | What differs between the draft and the final version? | intent=comparison; items=draft|final version
+T112 | comparative | Which is larger, Canada or Brazil? | intent=comparison; items=Canada|Brazil
+# ------------------------------------------------------------------ multi-hop
+T120 | multi_hop | Where was the founder of Quillon Labs born? | rel=birth_place; ask=to; chain=founder>birth_place
+T121 | multi_hop | What is the capital of the country where Mount Everest is? | rel=capital; ask=to; chain=located_in>capital
+T122 | multi_hop | Who is the CEO of the company that acquired Gamma Corp? | rel=ceo; ask=to; chain=acquirer>ceo
+# ------------------------------------------------------------------ multi-turn: pronouns, back-references, corrections, artifacts, memory (U: user, A: assistant; gold applies to the last turn)
+T130 | discourse | U: Let's talk about Marrow Systems. // U: Who founded it? | rel=founder; from=Marrow Systems; ref=it>Marrow Systems; unres=0
+T131 | discourse | U: Who founded it? | rel=founder; ref=it>unresolved; dep=ambiguous_missing_context; unres=1
+T132 | discourse | U: I'm looking at Lumora Networks, a telecom business. // U: Weather is nice. // U: Which company acquired the business I mentioned earlier? | rel=acquirer; from=Lumora Networks; ref=the business I mentioned earlier>Lumora Networks; unres=0
+T133 | discourse | U: Use the 2021 dataset. // U: Actually, use the 2024 dataset from now on. // U: Who founded Oakhaven Partners? | active=dataset:2024; inactive=dataset:2021; sel=+2024 dataset,-2021 dataset
+T134 | discourse | A: Two options: // A: Option 1: Use a queue. // A: Option 2: Use a lock. // U: Why did the second option fail? | ref=the second option>Option 2; unres=0
+T135 | discourse | U: Why did the third option fail? | ref=the third option>unresolved; unres=1
+T136 | discourse | U: Compare Pyrrhic Software and Lumora Networks. // U: Which one is bigger? | intent=comparison; ref=Which one is bigger?>resolved; unres=0
+T137 | discourse | U: Tell me about Mercury. // U: What is its atomic number? | rel=atomic_number; ref=its>unresolved
+T138 | discourse | U: We are studying planets. // U: Tell me about Mercury. | subject=Mercury:planet:planet.mercury; amb=resolved
+T139 | discourse | U: Do not include agencies. // U: Find organizations in Spain. | intent=search; sel=+agencies
+T140 | discourse | U: Never mind the earlier instruction. // U: Who founded Marrow Systems? | rel=founder; from=Marrow Systems
+T141 | discourse | U: We decided to use SQLite for the billing service. // U: What did we decide about the billing service? | intent=conversation_recall; sel=+SQLite
+# ------------------------------------------------------------------ instructions and corrections
+T150 | instruction | Please use the 2020 report. | intent=instruction_update; inst=slot=file,value=2020
+T151 | instruction | Actually, switch to the older version. | intent=instruction_update; inst=slot=version,corr=1
+T152 | instruction | Prioritize results from the last year. | intent=instruction_update
+T153 | instruction | Stick with the 2019 figures. | intent=instruction_update; inst=slot=figures,value=2019
+# ------------------------------------------------------------------ open-set entities and unsupported requests
+T160 | open_set | What is the capital of Velmoria? | rel=capital; from=Velmoria; ask=to; evid=1
+T161 | open_set | Who founded Krellix Dynamics? | rel=founder; from=Krellix Dynamics:organization; ask=to
+T162 | open_set | What is the population of Oldovia? | rel=population; from=Oldovia
+T163 | open_set | Who is the CEO of Nimbus Forge Ltd? | rel=ceo; from=Nimbus Forge Ltd
+T164 | open_set | Who composed the Moonlight Sonata? | rel!=capital; evid=1
+T165 | open_set | What is the mascot of Zorbland? | rel!=capital; evid=1
+# ------------------------------------------------------------------ spelling and typos
+T170 | spelling | What is the captial of Germnay? | rel=capital; from=Germnay:country
+T171 | spelling | Who foudned Quillon Labs? | rel=founder; from=Quillon Labs
+T172 | spelling | What is the pouplation of Brazil? | rel=population; from=Brazil
+T173 | spelling | What is the curency of Japan? | rel=currency; from=Japan
+T174 | spelling | wat is the capital of india | rel=capital; from=india
+T175 | spelling | Who is the CEO of Tessaly Robotcs? | rel=ceo; from=Tessaly Robotcs
+# ------------------------------------------------------------------ punctuation and case
+T180 | punctuation | what's the capital of portugal?? | rel=capital; from=portugal; ask=to
+T181 | punctuation | CAPITAL OF EGYPT | rel=capital; from=EGYPT; ask=to
+T182 | punctuation | What is the capital of Egypt... | rel=capital; from=Egypt; ask=to
+T183 | punctuation | (What is the capital of Egypt?) | rel=capital; from=Egypt; ask=to
+T184 | punctuation | Egypt, capital? | rel=capital; from=Egypt; ask=to
+T185 | punctuation | What   is  the capital   of Egypt ? | rel=capital; from=Egypt; ask=to
+# ------------------------------------------------------------------ minimal pairs
+T190 | minimal_pair | Capital of Italy | rel=capital; from=Italy; mm=cap2:eq
+T191 | minimal_pair | Former capital of Italy | rel=capital; from=Italy; temporal=past; mm=former2:ne:cap2
+T192 | minimal_pair | Cultural capital of Italy | rel=cultural_center; from=Italy; mm=cult2:ne:cap2
+T193 | minimal_pair | Capital punishment in Italy | intent=definition; concept=capital punishment; rel=-; mm=pun2:ne:cap2
+T194 | minimal_pair | What's Italy's capital? | rel=capital; from=Italy; mm=cap2:eq
+T195 | minimal_pair | Which city is the capital of Italy? | rel=capital; from=Italy; mm=cap2:eq
+T196 | minimal_pair | Financial capital of Italy | rel=financial_center; from=Italy; mm=fin2:ne:cap2
+# ------------------------------------------------------------------ multi-part requests
+T200 | multi_part | Find nonprofits founded before 2010 that offer education services, exclude hospitals, and prefer those seeking volunteers. | intent=search; pos=temporal:founded_on,relation:offers; tc=before:2010; neg=type:hospital; pref=seeking volunteers
+T201 | multi_part | Compare Tessaly Robotics and Marrow Systems, but only using their audited financial statements. | intent=comparison; items=Tessaly Robotics|Marrow Systems; src=statement
+T202 | multi_part | Explain why the first attempt failed, considering the instruction I gave before. | intent=causal_explanation; ctx=ordinal_reference
+# ------------------------------------------------------------------ conditional statements
+T210 | conditional | If Berlin is the capital of Germany, who is its mayor? | amb=ambiguous
+T211 | conditional | Unless the data is stale, use the 2024 dataset. | intent=instruction_update
+T212 | conditional | Who founded Marrow Systems, assuming it exists? | rel=founder; from=Marrow Systems
+# ------------------------------------------------------------------ malformed inputs
+T220 | malformed | !!! | status=no_interpretation
+T221 | malformed | ; ; ; | status=no_interpretation
+T222 | malformed | 987654 | status=no_interpretation
+T224 | malformed | the | status=no_interpretation
+T225 | malformed | and or but | status=no_interpretation

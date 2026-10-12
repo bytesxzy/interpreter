@@ -1,0 +1,23 @@
+{
+  "frozen": {
+    "test": true
+  },
+  "note": "splits are frozen by hash; the test split is run once for the official held-out figure (reports/heldout_log.md)",
+  "schema": "nlu.eval.manifest/1",
+  "splits": [
+    {
+      "bytes": 18459,
+      "cases": 135,
+      "file": "data/eval/dev.cases",
+      "name": "dev",
+      "sha256": "79437cc8616c23f5bf4cd535246cbc32785c2a0633e5596d42ce3282e64eb35a"
+    },
+    {
+      "bytes": 16699,
+      "cases": 140,
+      "file": "data/eval/test.cases",
+      "name": "test",
+      "sha256": "bd6516cc7e2a5e043d0d5bad21cbd62683314c414c538a89376d2bae566ae4a0"
+    }
+  ]
+}
