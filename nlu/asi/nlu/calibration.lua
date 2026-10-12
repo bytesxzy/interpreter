@@ -83,6 +83,7 @@ end
 
 ---------------------------------------------------------------- application
 function C.apply(model, x)
+  if model.method == "logistic" then return C.apply_features(model, x) end
   if model.method == "isotonic" then return apply_isotonic(model, x)
   elseif model.method == "platt" then return sigmoid(model.a * logit(x) + model.b)
   elseif model.method == "identity" then return x end
@@ -96,7 +97,11 @@ function C.identity() return { method = "identity", n = 0 } end
 function C.evaluate(samples, model, nbins)
   nbins = nbins or 10
   local pts = {}
-  for _, s in ipairs(samples) do pts[#pts + 1] = { p = model and C.apply(model, s.x) or s.x, y = s.y } end
+  for _, s in ipairs(samples) do
+    local p = s.x
+    if model then p = (model.method == "logistic") and C.apply_features(model, s.f) or C.apply(model, s.x) end
+    pts[#pts + 1] = { p = p, y = s.y }
+  end
   table.sort(pts, function(a, b) if a.p ~= b.p then return a.p < b.p end return a.y < b.y end)
   local n = #pts
   local out = { n = n, bins = {}, brier = 0, logloss = 0, accuracy = 0 }
@@ -151,6 +156,143 @@ function C.digest(samples)
   local parts = {}
   for _, s in ipairs(samples) do parts[#parts + 1] = string.format("%.6f:%d", s.x, s.y) end
   return U.sha256(table.concat(parts, ";"))
+end
+
+---------------------------------------------------------------- multi-feature logistic regression (ridge, IRLS; deterministic)
+-- samples: { f = {name -> number}, y = 0|1 }.  Features are standardised with the training mean / scale, so weights are comparable.
+-- `signs` (optional) = { feature -> +1 | -1 }: monotonicity constraints (a risk feature may never RAISE the predicted probability).  Enforced by an
+-- active-set loop: a feature whose fitted weight has the forbidden sign is removed (weight 0) and the model refitted.
+function C.fit_logistic(samples, names, lambda, signs)
+  if signs then
+    local active = {}
+    for _, nm in ipairs(names) do active[#active + 1] = nm end
+    for _ = 1, #names do
+      local m = C.fit_logistic_free(samples, active, lambda)
+      local bad
+      for j, nm in ipairs(active) do
+        local sg = signs[nm]
+        if sg and m.weights[j] * sg < -1e-9 then bad = j; break end
+      end
+      if not bad then
+        -- re-express over the full feature list (removed features carry weight 0) so the model is self-describing
+        local w, mean, scale = {}, {}, {}
+        local pos = {}
+        for j, nm in ipairs(active) do pos[nm] = j end
+        for j, nm in ipairs(names) do
+          local k = pos[nm]
+          w[j], mean[j], scale[j] = k and m.weights[k] or 0, k and m.mean[k] or 0, k and m.scale[k] or 1
+        end
+        m.names, m.weights, m.mean, m.scale, m.constraints = names, w, mean, scale, signs
+        return m
+      end
+      table.remove(active, bad)
+    end
+  end
+  return C.fit_logistic_free(samples, names, lambda)
+end
+
+function C.fit_logistic_free(samples, names, lambda)
+  lambda = lambda or 1.0
+  local d, n = #names, #samples
+  local mean, scale = {}, {}
+  for j, nm in ipairs(names) do
+    local sm = 0
+    for _, s in ipairs(samples) do sm = sm + (s.f[nm] or 0) end
+    mean[j] = sm / math.max(n, 1)
+    local sv = 0
+    for _, s in ipairs(samples) do sv = sv + ((s.f[nm] or 0) - mean[j]) ^ 2 end
+    scale[j] = math.sqrt(sv / math.max(n, 1))
+    if scale[j] < 1e-9 then scale[j] = 1 end
+  end
+  local w, b = {}, 0
+  for j = 1, d do w[j] = 0 end
+  local function row(s) local x = {}; for j, nm in ipairs(names) do x[j] = ((s.f[nm] or 0) - mean[j]) / scale[j] end return x end
+  local X = {}
+  for i, s in ipairs(samples) do X[i] = row(s) end
+  for _ = 1, 40 do
+    -- gradient and Hessian of the penalised log-likelihood (bias unpenalised); solve the (d+1)x(d+1) system by Gaussian elimination
+    local g, H = {}, {}
+    for a = 1, d + 1 do g[a] = 0; H[a] = {}; for c = 1, d + 1 do H[a][c] = 0 end end
+    for i, s in ipairs(samples) do
+      local z = b
+      for j = 1, d do z = z + w[j] * X[i][j] end
+      local p = sigmoid(z)
+      local r, v = s.y - p, math.max(p * (1 - p), 1e-6)
+      g[d + 1] = g[d + 1] + r
+      for a = 1, d do
+        g[a] = g[a] + r * X[i][a]
+        for c = 1, d do H[a][c] = H[a][c] + v * X[i][a] * X[i][c] end
+        H[a][d + 1] = H[a][d + 1] + v * X[i][a]
+        H[d + 1][a] = H[d + 1][a] + v * X[i][a]
+      end
+      H[d + 1][d + 1] = H[d + 1][d + 1] + v
+    end
+    for a = 1, d do g[a] = g[a] - lambda * w[a]; H[a][a] = H[a][a] + lambda end
+    H[d + 1][d + 1] = H[d + 1][d + 1] + 1e-6
+    -- solve H * delta = g
+    local M = {}
+    for a = 1, d + 1 do M[a] = {}; for c = 1, d + 1 do M[a][c] = H[a][c] end; M[a][d + 2] = g[a] end
+    for a = 1, d + 1 do
+      local piv = a
+      for r2 = a + 1, d + 1 do if math.abs(M[r2][a]) > math.abs(M[piv][a]) then piv = r2 end end
+      M[a], M[piv] = M[piv], M[a]
+      local diag = M[a][a]
+      if math.abs(diag) < 1e-12 then diag = 1e-12 end
+      for c = a, d + 2 do M[a][c] = M[a][c] / diag end
+      for r2 = 1, d + 1 do
+        if r2 ~= a then
+          local f = M[r2][a]
+          if f ~= 0 then for c = a, d + 2 do M[r2][c] = M[r2][c] - f * M[a][c] end end
+        end
+      end
+    end
+    local step = 0
+    for a = 1, d do w[a] = w[a] + M[a][d + 2]; step = step + math.abs(M[a][d + 2]) end
+    b = b + M[d + 1][d + 2]
+    step = step + math.abs(M[d + 1][d + 2])
+    if step < 1e-7 then break end
+  end
+  return { method = "logistic", names = names, mean = mean, scale = scale, weights = w, bias = b, lambda = lambda, n = n }
+end
+
+function C.apply_features(model, f)
+  local z = model.bias
+  for j, nm in ipairs(model.names) do z = z + model.weights[j] * (((f[nm] or 0) - model.mean[j]) / model.scale[j]) end
+  return sigmoid(z)
+end
+
+-- features of one main interpretation (all derived from computed quantities of the interpretation itself)
+function C.features(m)
+  local f = { semantic_raw = (m.confidence and m.confidence.semantic_raw) or 0, coverage = (m.confidence and m.confidence.coverage) or 0 }
+  f.repaired = (m.repairs and #m.repairs > 0) and 1 or 0
+  f.n_repairs = m.repairs and #m.repairs or 0
+  f.unknown_lowercase = (m.lexical and m.lexical.unknown_lowercase) or 0
+  f.open_relation = (m.relation and tostring(m.relation.id):sub(1, 5) == "open:") and 1 or 0
+  f.ambiguous = (m.ambiguity and m.ambiguity.state ~= "resolved") and 1 or 0
+  local fuzzy, min_ent, unresolved = 0, 1, 0
+  for _, r in pairs(m.roles or {}) do
+    for _, c in ipairs(r.candidates or {}) do if c.fuzzy then fuzzy = 1 end end
+    if r.candidates and r.candidates[1] and r.status ~= "ambiguous" then min_ent = math.min(min_ent, r.candidates[1].p or 1) end
+    if r.needs_antecedent then unresolved = 1 end
+  end
+  f.fuzzy_entity, f.min_entity, f.unresolved_ref = fuzzy, min_ent, unresolved
+  f.no_interpretation = (m.status ~= "ok") and 1 or 0
+  return f
+end
+
+function C.load_file(path)
+  local f = io.open(path, "rb")
+  if not f then return nil, "cannot read " .. tostring(path) end
+  local raw = f:read("a")
+  f:close()
+  local model, err = U.json_decode(raw)
+  if not model then return nil, err end
+  return model
+end
+
+-- adapter for asi.nlu.record when the model works on whole-interpretation features: the Record then reports `interpretation_correct`
+function C.record_adapter(model)
+  return { method = model.method, n = model.n, source = model.fit and model.fit.valid_for or "labelled data", model = model, maps = {} }
 end
 
 -- adapter for asi.nlu.record: { method, n, source, maps = { <component> = function(raw) -> calibrated } }

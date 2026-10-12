@@ -51,7 +51,7 @@ R.SPEC = {
     ambiguity_state = { type = "object", required = true, fields = { state = S.str, points = arr(S.tab) } },
     evidence_sufficiency = { type = "object", required = true, fields = { status = { type = "enum", values = { "answerable", "potentially_answerable", "ambiguous", "contradictory", "insufficient", "unsupported", "not_applicable" }, required = true },
       reasons = arr(S.str), notes = arr(S.str), answer = S.any } },
-    confidence = { type = "object", required = true, fields = { lexical_segmentation = S.tab, entity_identity = S.tab, semantic_interpretation = S.tab, memory_reference = S.tab, evidence_sufficiency = S.tab, calibration = S.str } },
+    confidence = { type = "object", required = true, fields = { lexical_segmentation = S.tab, entity_identity = S.tab, semantic_interpretation = S.tab, memory_reference = S.tab, evidence_sufficiency = S.tab, interpretation_correct = S.tab, calibration = S.str } },
     decision_provenance = { type = "array", required = true, of = S.tab },
     unresolved_requirements = { type = "array", required = true, of = S.tab },
     execution_cost = { type = "object", required = true, fields = { interpretation_work = S.num, retrieval = S.tab, status = S.str } },
@@ -143,6 +143,15 @@ local function confidence(result, m, evidence, calibration)
     local function apply(c, which)
       local f = calibration.maps and calibration.maps[which]
       if f and c then c.calibrated = f(c.raw) end
+    end
+    if calibration.model then
+      -- whole-interpretation calibration: P(primary reading correct) from interpretation-derived features, fitted and cross-validated offline
+      local Cal = require("asi.nlu.calibration")
+      local p = Cal.apply_features(calibration.model, Cal.features(m))
+      conf.interpretation_correct = { calibrated = U.round(p, 4), method = calibration.model.method, basis = calibration.model.fit and calibration.model.fit.target,
+        valid_for = calibration.model.fit and calibration.model.fit.valid_for, cross_fit_ece = calibration.model.fit and calibration.model.fit.cross_fit_ece_calibrated }
+      conf.calibration = "interpretation_correct is calibrated (" .. tostring(calibration.model.method) .. " over interpretation features, " .. tostring(calibration.n) ..
+        " labelled noisy examples; " .. tostring(calibration.source) .. "); the other components remain RAW scores, not probabilities"
     end
     apply(conf.semantic_interpretation, "semantic_interpretation")
     apply(conf.entity_identity, "entity_identity")

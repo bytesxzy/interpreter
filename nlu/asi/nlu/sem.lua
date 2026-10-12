@@ -364,6 +364,18 @@ function Sem.render(res, ctx)
   end
   interp.ambiguity = res.ambiguity
   interp.confidence = { semantic_raw = U.round(top.p, 4), coverage = U.round(top.coverage or 0, 3) }
+  do
+    -- lexical evidence about the surface: words the lexicon does not know (lower-case ones are the usual symptom of a misspelling)
+    local ua, ub = sentence_unit_range(S.an, res.sentence.id)
+    local unk_lower, unk_cap = 0, 0
+    if ua then
+      for k = ua, ub do
+        local u = S.an.units[k]
+        if u.unknown then if u.cap then unk_cap = unk_cap + 1 else unk_lower = unk_lower + 1 end end
+      end
+    end
+    interp.lexical = { unknown_lowercase = unk_lower, unknown_capitalised = unk_cap }
+  end
   if S.repairs then interp.repairs = U.map(S.repairs, function(r) return { kind = r.kind, from = r.from, to = r.to, word = r.word, dist = r.dist } end) end
   -- provenance: the computed factors of the winning hypothesis, plus explicit rejections
   local prov = {}

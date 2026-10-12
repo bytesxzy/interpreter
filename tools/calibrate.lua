@@ -29,7 +29,7 @@ local function collect(split)
   local samples, by_variant = {}, { original = { n = 0, ok = 0 }, perturbed = { n = 0, ok = 0 } }
   for _, cs in ipairs(load(split)) do
     if not cs.turns and cs.gold.status == nil and not cs.gold.mm then
-      local protect = X.protect_list(cs.gold)
+      local protect = X.protect_list(cs.gold, cs.text)
       local variants = { { text = cs.text, kind = "original" } }
       for v = 1, NV do
         local t, ops = X.perturb(cs.text, protect, rng, rng:int(1, 3))
@@ -41,8 +41,11 @@ local function collect(split)
         local r = rep.results[1]
         local m = r.interp
         local x = (m and m.confidence and m.confidence.semantic_raw) or 0
-        local y = r.ok and 1 or 0
-        samples[#samples + 1] = { x = x, y = y, id = cs.id, kind = v.kind }
+        -- PRIMARY correctness: every gold field except the ambiguity flags is satisfied (being more cautious than the gold -- flagging ambiguity -- is not an error)
+        local primary = true
+        for k, f in pairs(r.fields) do if not f.ok and k ~= "amb" and k ~= "alts" then primary = false end end
+        local y = primary and 1 or 0
+        samples[#samples + 1] = { x = x, y = y, id = cs.id, kind = v.kind, f = m and Cal.features(m) or { no_interpretation = 1 } }
         local b = by_variant[v.kind]
         b.n = b.n + 1; b.ok = b.ok + y
       end
@@ -73,42 +76,58 @@ local out = { "# Confidence calibration (interpretation correctness)", "",
   "The frozen test split is NOT used. Dev gold was used to tune the interpreter, so dev/original accuracy is optimistic by construction; the perturbed",
   "variants are what give the calibration data its errors. The calibration is valid only for this distribution of inputs.", "" }
 
+local FEATURES = { "semantic_raw", "coverage", "repaired", "n_repairs", "unknown_lowercase", "open_relation", "ambiguous", "fuzzy_entity", "min_entity", "unresolved_ref", "no_interpretation" }
+
+-- monotonicity priors: evidence of trouble can only LOWER the probability that the primary reading is right
+local SIGNS = { semantic_raw = 1, coverage = 1, min_entity = 1, repaired = -1, n_repairs = -1, unknown_lowercase = -1, open_relation = -1, ambiguous = -1,
+  fuzzy_entity = -1, unresolved_ref = -1, no_interpretation = -1 }
+
 local function summarize(label, fit, eval_set)
   local iso = Cal.fit_isotonic(fit)
   local platt = Cal.fit_platt(fit)
+  local logi = Cal.fit_logistic(fit, FEATURES, 1.0, SIGNS)
   local raw = Cal.evaluate(eval_set, nil)
-  local ev_iso, ev_pl = Cal.evaluate(eval_set, iso), Cal.evaluate(eval_set, platt)
+  local ev_iso, ev_pl, ev_lg = Cal.evaluate(eval_set, iso), Cal.evaluate(eval_set, platt), Cal.evaluate(eval_set, logi)
   local auc = Cal.auroc(eval_set)
+  local lg_scored = {}
+  for _, s in ipairs(eval_set) do lg_scored[#lg_scored + 1] = { x = Cal.apply_features(logi, s.f), y = s.y } end
+  local auc_lg = Cal.auroc(lg_scored)
   out[#out + 1] = "## " .. label
   out[#out + 1] = ""
   out[#out + 1] = "| scoring | n | accuracy | ECE | Brier | log-loss | AUROC |"
   out[#out + 1] = "|---|---|---|---|---|---|---|"
   out[#out + 1] = line("raw (uncalibrated)", raw, auc)
   out[#out + 1] = line("temperature/Platt", ev_pl, auc)
-  out[#out + 1] = line("isotonic", ev_iso, auc)
+  out[#out + 1] = line("isotonic on semantic_raw", ev_iso, auc)
+  out[#out + 1] = line("logistic over interpretation features", ev_lg, auc_lg)
+  out[#out + 1] = ""
+  local wl = {}
+  for j, nm in ipairs(logi.names) do wl[#wl + 1] = string.format("%s=%+.2f", nm, logi.weights[j]) end
+  out[#out + 1] = "Logistic weights (standardised features): " .. table.concat(wl, ", ") .. string.format(", bias=%+.2f", logi.bias)
   out[#out + 1] = ""
   out[#out + 1] = "Reliability of the RAW score on the evaluation set:"
   out[#out + 1] = ""
   out[#out + 1] = fmt_bins(raw)
   out[#out + 1] = ""
-  out[#out + 1] = "Reliability after isotonic calibration (evaluation set, not used for fitting):"
+  out[#out + 1] = "Reliability after logistic calibration (evaluation set, not used for fitting):"
   out[#out + 1] = ""
-  out[#out + 1] = fmt_bins(ev_iso)
+  out[#out + 1] = fmt_bins(ev_lg)
   out[#out + 1] = ""
-  return iso, platt, raw, ev_iso, ev_pl
+  return iso, platt, raw, ev_iso, ev_pl, logi, ev_lg
 end
 
-local _, _, raw_a, iso_a = summarize("Fit on dev variants, evaluate on val variants", dev, val)
-local _, _, raw_b, iso_b = summarize("Fit on val variants, evaluate on dev variants", val, dev)
+local _, _, raw_a, iso_a, _, _, lg_a = summarize("Fit on dev variants, evaluate on val variants", dev, val)
+local _, _, raw_b, iso_b, _, _, lg_b = summarize("Fit on val variants, evaluate on dev variants", val, dev)
 
 -- final model: all data; chosen method = the one with the lower cross-fit ECE
 local all = {}
 for _, s in ipairs(dev) do all[#all + 1] = s end
 for _, s in ipairs(val) do all[#all + 1] = s end
-local model = Cal.fit_isotonic(all)
-model.fit = { splits = { "dev", "val" }, variants_per_case = NV, seed = SEED, n = #all, digest = Cal.digest(all), target = "all gold fields satisfied",
-  predictor = "interpretation.confidence.semantic_raw", perturbations = X.OPS,
-  cross_fit_ece_raw = { U.round(raw_a.ece, 4), U.round(raw_b.ece, 4) }, cross_fit_ece_calibrated = { U.round(iso_a.ece, 4), U.round(iso_b.ece, 4) },
+local model = Cal.fit_logistic(all, FEATURES, 1.0, SIGNS)
+model.fit = { splits = { "dev", "val" }, variants_per_case = NV, seed = SEED, n = #all, digest = Cal.digest(all), target = "all gold fields satisfied except the ambiguity flags (primary reading correct)",
+  predictor = "logistic regression over interpretation-derived features (asi.nlu.calibration.features)", perturbations = X.OPS,
+  cross_fit_ece_raw = { U.round(raw_a.ece, 4), U.round(raw_b.ece, 4) }, cross_fit_ece_calibrated = { U.round(lg_a.ece, 4), U.round(lg_b.ece, 4) },
+  cross_fit_brier_raw = { U.round(raw_a.brier, 4), U.round(raw_b.brier, 4) }, cross_fit_brier_calibrated = { U.round(lg_a.brier, 4), U.round(lg_b.brier, 4) },
   valid_for = "noisy variants of the development/validation case distribution; NOT validated on other distributions" }
 local f = assert(io.open(opts.out, "w"))
 f:write(U.json_encode(model, { pretty = true, nan_null = true }))
@@ -123,7 +142,7 @@ for _, p in ipairs({ { "dev", dev_v }, { "val", val_v } }) do
   out[#out + 1] = string.format("| %s | %d/%d = %.3f | %d/%d = %.3f |", p[1], o.ok, o.n, o.n > 0 and o.ok / o.n or 0, q.ok, q.n, q.n > 0 and q.ok / q.n or 0)
 end
 out[#out + 1] = ""
-out[#out + 1] = string.format("Saved model: `%s` (isotonic, %d samples, %d steps, digest %s).", opts.out:gsub("^" .. root:gsub("%p", "%%%0") .. "/", ""), model.n, #model.steps, model.fit.digest:sub(1, 16))
+out[#out + 1] = string.format("Saved model: `%s` (logistic over %d features, %d samples, digest %s).", (opts.out:gsub("^" .. root:gsub("%p", "%%%0") .. "/", "")), #FEATURES, model.n, model.fit.digest:sub(1, 16))
 local rf = assert(io.open(opts.report, "w"))
 rf:write(table.concat(out, "\n") .. "\n")
 rf:close()

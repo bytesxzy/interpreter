@@ -101,9 +101,19 @@ function X.perturb(text, protect, rng, n_ops)
   return out, applied
 end
 
--- entity strings named by a gold table (the part before the first ':' of from/to/subject/... values, and the items of lists)
-function X.protect_list(gold)
+-- entity strings named by a gold table (the part before the first ':' of from/to/subject/... values, and the items of lists) plus every word of at least
+-- four letters that the gold itself embeds (topics of negations / preferences, instruction values): perturbing those would invalidate the gold
+function X.protect_list(gold, text)
   local out = {}
+  for _, k in ipairs({ "neg", "pos", "pref", "src", "inst", "tc", "ctx" }) do
+    local v = gold[k]
+    if v and text then
+      for w in v:gmatch("%a%a%a%a+") do
+        local lw = w:lower()
+        for tw in text:lower():gmatch("%a+") do if tw:sub(1, #lw) == lw or lw:sub(1, #tw) == tw and #tw >= 4 then out[#out + 1] = tw end end
+      end
+    end
+  end
   for _, k in ipairs({ "from", "to", "subject", "concept", "target", "focus", "object" }) do
     local v = gold[k]
     if v and v ~= "-" then out[#out + 1] = (v:match("^([^:]+)")) end

@@ -1,14 +1,36 @@
 {
+  "bias": 2.1259862652144079,
+  "constraints": {
+    "ambiguous": -1,
+    "coverage": 1,
+    "fuzzy_entity": -1,
+    "min_entity": 1,
+    "n_repairs": -1,
+    "no_interpretation": -1,
+    "open_relation": -1,
+    "repaired": -1,
+    "semantic_raw": 1,
+    "unknown_lowercase": -1,
+    "unresolved_ref": -1
+  },
   "fit": {
+    "cross_fit_brier_calibrated": [
+      0.070400000000000004,
+      0.094500000000000001
+    ],
+    "cross_fit_brier_raw": [
+      0.12590000000000001,
+      0.13189999999999999
+    ],
     "cross_fit_ece_calibrated": [
-      0.2898,
-      0.26250000000000001
+      0.058099999999999999,
+      0.053400000000000003
     ],
     "cross_fit_ece_raw": [
-      0.15579999999999999,
-      0.1552
+      0.17150000000000001,
+      0.11600000000000001
     ],
-    "digest": "414e9916febf8a7801bf331c8facd2dbf0675bea8cd186e90503ab8a1340093d",
+    "digest": "0c879c32088ffaff7af5e0cbf322c68b5b420a87799b207b2e7d67189a4c8b1f",
     "n": 1195,
     "perturbations": [
       "typo",
@@ -17,48 +39,69 @@
       "drop_punct",
       "drop_det"
     ],
-    "predictor": "interpretation.confidence.semantic_raw",
+    "predictor": "logistic regression over interpretation-derived features (asi.nlu.calibration.features)",
     "seed": 11,
     "splits": [
       "dev",
       "val"
     ],
-    "target": "all gold fields satisfied",
+    "target": "all gold fields satisfied except the ambiguity flags (primary reading correct)",
     "valid_for": "noisy variants of the development/validation case distribution; NOT validated on other distributions",
     "variants_per_case": 6
   },
-  "method": "isotonic",
+  "lambda": 1,
+  "mean": [
+    0.77771631799163154,
+    0.94937154811715507,
+    0,
+    0,
+    0.73807531380753133,
+    0.0041841004184100415,
+    0,
+    0,
+    0,
+    0,
+    0.018410041841004185
+  ],
+  "method": "logistic",
   "n": 1195,
-  "steps": [
-    {
-      "hi": 0.32069999999999999,
-      "lo": 0,
-      "n": 175,
-      "value": 0.028571428571428571
-    },
-    {
-      "hi": 0.47470000000000001,
-      "lo": 0.32419999999999999,
-      "n": 52,
-      "value": 0.38461538461538464
-    },
-    {
-      "hi": 0.67020000000000002,
-      "lo": 0.47810000000000002,
-      "n": 204,
-      "value": 0.49509803921568629
-    },
-    {
-      "hi": 0.68569999999999998,
-      "lo": 0.67049999999999998,
-      "n": 40,
-      "value": 0.67500000000000004
-    },
-    {
-      "hi": 1,
-      "lo": 0.68610000000000004,
-      "n": 724,
-      "value": 0.71823204419889508
-    }
+  "names": [
+    "semantic_raw",
+    "coverage",
+    "repaired",
+    "n_repairs",
+    "unknown_lowercase",
+    "open_relation",
+    "ambiguous",
+    "fuzzy_entity",
+    "min_entity",
+    "unresolved_ref",
+    "no_interpretation"
+  ],
+  "scale": [
+    0.21142241923966826,
+    0.19109513727917235,
+    1,
+    1,
+    0.97113899104841728,
+    0.064549157408123115,
+    1,
+    1,
+    1,
+    1,
+    0.13442883693767804
+  ],
+  "weights": [
+    0.71366347446986733,
+    1.3310192660905658,
+    0,
+    0,
+    -0.22034825496504959,
+    -0.50709332930271178,
+    0,
+    0,
+    0,
+    0,
+    -0.086593513128161534
   ]
 }
