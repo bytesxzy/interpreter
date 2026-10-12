@@ -142,9 +142,22 @@ function B.generate(opts)
   local rng = U.rng(opts.seed or 1)
   local n = opts.n_facts or 40
   local used = {}
+  local collisions = 0
   local function unique(make)
     for _ = 1, 50 do
       local x = make()
+      if not used[x] then used[x] = true; return x end
+    end
+    -- the syllable space is exhausted (large datasets): extend the name so that every entity stays distinct -- a name collision would be a genuine conflict
+    -- in the data, not an error of the system under test
+    for _ = 1, 1000 do
+      collisions = collisions + 1
+      local x = make()
+      local suffix = {}
+      local c = collisions
+      repeat suffix[#suffix + 1] = string.char(97 + c % 26); c = c // 26 until c == 0
+      local first, rest = x:match("^(%S+)(.*)$")
+      x = first .. table.concat(suffix) .. rest
       if not used[x] then used[x] = true; return x end
     end
     return make()

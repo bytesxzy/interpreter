@@ -142,6 +142,18 @@ function U.hash64(s)
   return string.format("%016x", h)
 end
 
+-- 128-bit non-cryptographic change-detection hash (two independent FNV-style lanes, one pass).  Used for per-record checksums, where the only requirement
+-- is that any edit changes the value; integrity claims (manifests, record integrity, dataset digests) use SHA-256.
+function U.hash128(s)
+  local a, b = -3750763034362895579, 0x6a09e667f3bcc908
+  for i = 1, #s do
+    local c = s:byte(i)
+    a = (a ~ c) * 0x100000001b3
+    b = (b ~ (c + 0x9e)) * 0x1000193 + (a >> 29)
+  end
+  return string.format("%016x%016x", a, b)
+end
+
 ---------------------------------------------------------------- deterministic PRNG (splitmix64)
 local Rng = {}
 Rng.__index = Rng

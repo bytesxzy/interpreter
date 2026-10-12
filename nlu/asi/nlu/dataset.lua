@@ -11,7 +11,7 @@ local UC = require("asi.nlu.unicode")
 local D = {}
 D.__index = D
 D.SCHEMA = "nlu.dataset/1"
-D.LIMITS = { max_record_bytes = 262144, max_fields = 256, max_records = 2000000, max_depth = 16 }
+D.LIMITS = { max_record_bytes = 262144, max_fields = 256, max_records = 2000000, max_depth = 16, sketch_bucket = 48, sketch_shared = 6 }
 
 local TEXT_NAMES = U.set({ "text", "body", "content", "description", "abstract", "summary", "title", "name", "headline", "note", "notes", "comment", "sentence", "passage", "statement", "claim" })
 local ID_NAMES = U.set({ "id", "uid", "key", "record_id", "doc_id", "document_id", "identifier", "uuid", "_id" })
@@ -277,7 +277,7 @@ function D:normalise(raw, map, source)
     end
   end
   -- checksum of the ORIGINAL fields (canonical JSON), so any change is detectable
-  rec.checksum = U.sha256(U.json_encode(fields, { nan_null = true }))
+  rec.checksum = U.hash128(U.json_encode(fields, { nan_null = true }))
   rec.text_key = norm_text_key(rec.text)
   return rec
 end
@@ -319,12 +319,17 @@ function D:add_normalised(list, report)
             if sk then
               local best, best_sim
               local cand_ids = {}
+              -- A shingle shared by very many records (boilerplate such as "... is mentioned in many reports") carries no duplicate evidence and would make
+              -- ingestion quadratic: buckets beyond D.LIMITS.sketch_bucket are skipped, and a candidate must share at least D.LIMITS.sketch_shared hashes.
               for _, h in ipairs(sk) do
-                for _, oid in ipairs(self.sketch_index[h] or {}) do cand_ids[oid] = (cand_ids[oid] or 0) + 1 end
+                local bucket = self.sketch_index[h]
+                if bucket and #bucket <= D.LIMITS.sketch_bucket then
+                  for _, oid in ipairs(bucket) do cand_ids[oid] = (cand_ids[oid] or 0) + 1 end
+                end
               end
               for oid, shared in pairs(cand_ids) do
                 local o = self.records[oid]
-                if oid ~= rec.id and o and o.sketch and not o.duplicate_of then
+                if shared >= D.LIMITS.sketch_shared and oid ~= rec.id and o and o.sketch and not o.duplicate_of then
                   local sim = sketch_sim(sk, o.sketch)
                   if sim >= 0.8 and (not best_sim or sim > best_sim or (sim == best_sim and oid < best)) then best, best_sim = oid, sim end
                 end
@@ -372,6 +377,14 @@ end
 
 -- stable digest over (id, checksum) pairs: changes whenever any record is added, changed or removed
 function D:digest()
+  -- cached per revision: every mutation (ingest / remove) bumps `revision`, so the cached digest can never be stale
+  if self._digest and self._digest_rev == self.revision then return self._digest end
+  local d = self:compute_digest()
+  self._digest, self._digest_rev = d, self.revision
+  return d
+end
+
+function D:compute_digest()
   local parts = {}
   local ids = U.copy(self.order)
   table.sort(ids)
