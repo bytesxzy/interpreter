@@ -36,8 +36,17 @@ local function negated_inclusion(S, k)
   if not j then return nil end
   local v = C(S, j)
   if not (v and v.single and not v.masked) then return nil end
+  -- "don't BOTHER including X" / "don't bother to include X"
+  local bother = 0
+  if v.unit.form == "bother" then
+    bother = 1
+    local t = C(S, j + 1)
+    if t and t.single and t.unit.form == "to" then bother = 2 end
+    v = C(S, j + bother)
+    if not (v and v.single and not v.masked) then return nil end
+  end
   for _, a in ipairs(P.verb_analyses(S, v)) do
-    if a.form == "base" and not a.guessed and (a.act == "include" or a.act == "retrieve" or a.act == "constraint" or NEG_WANT[a.lemma]) then return j - k + 1 end
+    if (a.form == "base" or (bother > 0 and a.form == "ing")) and not a.guessed and (a.act == "include" or a.act == "retrieve" or a.act == "constraint" or NEG_WANT[a.lemma]) then return j - k + 1 + bother end
   end
   return nil
 end

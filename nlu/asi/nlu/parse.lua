@@ -324,7 +324,7 @@ function P.is_function_chunk(S, c)
   local closed = cats.det or cats.prep or cats.conj or cats.aux_be or cats.aux_do or cats.aux_have or cats.modal or cats.wh or cats.pron
     or cats.pron_poss or cats.polite or cats.neg_word or cats.clitic_s or cats.adv or cats.particle or cats.poss_det
   if not closed then return false end
-  if c.cap then
+  if c.cap and c.unit.form ~= "i" then   -- the pronoun "I" is capitalised wherever it stands
     local prev = S.units[c.u1 - 1]
     local sentence_initial = (c.u1 == 1) or (prev and prev.sent ~= c.unit.sent)
     local sent = S.an.sentences[c.unit.sent or 0]
@@ -1071,7 +1071,7 @@ function P.strip_wrapper(S)
         if not (after and after.pre and after.pre:find("comma")) then n0 = nil end
       end
       if not (n0 and skip_units(n0)) then break end
-      w.kinds[#w.kinds + 1] = "lead_in"
+      w.lead_in = true       -- not a request wrapper: it must not turn the clause into a wrapper-led request"
     end
     S.first = k
   end

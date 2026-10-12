@@ -787,6 +787,7 @@ function F.instruction(S, out)
     if ch.temporal and (ch.temporal.kind == "persist" or ch.temporal.persist) then persist = true end
   end
   local REPLACE_VERBS = U.set({ "replace", "swap", "substitute", "change", "exchange" })
+  local PARTICLE_EXCLUDERS = U.set({ "keep", "leave", "take", "filter", "screen", "weed", "cut", "strike", "rule", "block", "hide", "push", "sort" })
   -- one clause: [please|just|then|also]* VERB [to|with|over to] NP        (also "replace THAT with NP")
   local function try_clause(k0, prefix_used, allow_ing)
     local kk = k0
@@ -817,7 +818,15 @@ function F.instruction(S, out)
         if #tries == 0 then for _, np in ipairs(P.parse_np(S, nk)) do tries[#tries + 1] = { np = np } end end
         for _, tr in ipairs(tries) do
           local np = tr.np
-          local h = newh(S, "instruction:" .. a.act, "instruction", "instruction_update", "instruct")
+          local act_eff = a.act
+          local ptc = C(S, np.nxt)
+          -- "KEEP hospitals OUT of ...", "LEAVE X OUT", "FILTER X OUT": a particle after the object turns the verb into an exclusion
+          if PARTICLE_EXCLUDERS[a.lemma] and ptc and ptc.single and not ptc.masked and (ptc.unit.form == "out" or ptc.unit.form == "off" or ptc.unit.form == "away") then
+            act_eff = "exclude"
+            tr.particle = np.nxt
+          end
+          local h = newh(S, "instruction:" .. act_eff, "instruction", "instruction_update", "instruct")
+          if tr.particle then h.used[tr.particle] = true end
           for _, s_ in ipairs(skipped) do h.used[s_] = true end
           for _, s_ in ipairs(prefix_used or {}) do h.used[s_] = true end
           for _, s_ in ipairs(pre) do h.used[s_] = true end
@@ -829,7 +838,8 @@ function F.instruction(S, out)
           else
             for _, m in ipairs(np.mods) do if m.kind == "mod" or m.kind == "ordinal" then value = value or { word = m.form, label = m.text } end end
           end
-          h.instruction = { verb = a.lemma, act = a.act, np = np, slot = slot, value = value, correction = correction, persist = persist }
+          h.instruction = { verb = a.lemma, act = act_eff, np = np, slot = slot, value = value, correction = correction, persist = persist }
+          if act_eff == "exclude" then h.polarity = "negative" end
           h.correction, h.persist = correction, persist
           if slot then addf(h, "resource_slot", 0.5, "instruction targets the '" .. slot .. "' slot") end
           if correction then addf(h, "correction_cue", 0.4, "explicit correction marker") end
