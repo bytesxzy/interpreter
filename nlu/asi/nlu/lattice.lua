@@ -223,17 +223,21 @@ function Lattice.build(an, lex, opts)
   local lat = { an = an, units = units, spans = spans, by_start = by_start, n = n }
 
   -- k-best covers: choose non-overlapping spans maximising total score; unit not in a span costs a small word score
-  function lat:covers(k)
+  -- covers(k [, a, b]): k-best covers of unit range [a, b] (default: everything); spans must lie inside the range
+  function lat:covers(k, a, b)
     k = k or 4
+    a, b = a or 1, b or n
     local W = 0.1
     -- best[p] = list of {score, span|nil, next_rank} for suffix starting at p, size <= k
-    local best = { [n + 1] = { { score = 0 } } }
-    for p = n, 1, -1 do
+    local best = { [b + 1] = { { score = 0 } } }
+    for p = b, a, -1 do
       local cand = {}
-      for rank, b in ipairs(best[p + 1]) do cand[#cand + 1] = { score = b.score + W, span = nil, nxt = p + 1, rank = rank } end
+      for rank, bb in ipairs(best[p + 1]) do cand[#cand + 1] = { score = bb.score + W, span = nil, nxt = p + 1, rank = rank } end
       for _, sp in ipairs(by_start[p] or {}) do
-        for rank, b in ipairs(best[sp.j + 1]) do
-          cand[#cand + 1] = { score = b.score + sp.score, span = sp, nxt = sp.j + 1, rank = rank }
+        if sp.j <= b then
+          for rank, bb in ipairs(best[sp.j + 1]) do
+            cand[#cand + 1] = { score = bb.score + sp.score, span = sp, nxt = sp.j + 1, rank = rank }
+          end
         end
       end
       table.sort(cand, function(a, b)
@@ -252,10 +256,10 @@ function Lattice.build(an, lex, opts)
       best[p] = keep
     end
     local out = {}
-    for rank = 1, #best[1] do
-      local chosen, p, r = {}, 1, rank
-      local total = best[1][rank].score
-      while p <= n do
+    for rank = 1, #best[a] do
+      local chosen, p, r = {}, a, rank
+      local total = best[a][rank].score
+      while p <= b do
         local c = best[p][r]
         chosen[#chosen + 1] = c.span or { i = p, j = p, kind = "word", readings = {}, score = W, text = an.original:sub(units[p].s, units[p].e) }
         p, r = c.nxt, c.rank
