@@ -10,7 +10,7 @@ local F = require("asi.nlu.frames2")
 local Sem = {}
 
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "focus", "statement", "np_only", "segment_only", "recall" }
+  "request", "instruction", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -199,6 +199,10 @@ function Sem.render(res, ctx)
   end
   interp.status = "ok"
   interp.speech_act = top.speech_act
+  -- a question put politely ("Could you tell me who ...", "I want to know ...") is a request for the answer
+  if interp.speech_act == "question" and S.wrapper then
+    for _, k in ipairs(S.wrapper.kinds) do if k == "polite_question" or k == "request_open" then interp.speech_act = "request" end end
+  end
   interp.intent, interp.op, interp.frame = top.intent, top.op, top.frame
   interp.wrapper = (S.wrapper and #S.wrapper.kinds > 0) and { kinds = S.wrapper.kinds, polite = S.wrapper.polite } or nil
   interp.relation = relation_info(S, top)

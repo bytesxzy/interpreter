@@ -1,0 +1,117 @@
+# VAL split: used for model-selection decisions (thresholds, ablation choices) -- never for the official held-out number. Entities and phrasings are
+# deliberately different from dev (and from test). Format: ID | category | text | gold
+# ------------------------------------------------------------------ basic factual
+V001 | basic_factual | What is the capital of Thailand? | rel=capital; from=Thailand:country; ask=to; atype=city
+V002 | basic_factual | Who is the founder of Nimbus Forge? | rel=founder; from=Nimbus Forge; ask=to
+V003 | basic_factual | What is the currency of Sweden? | rel=currency; from=Sweden; ask=to
+V004 | basic_factual | Who painted the Mona Lisa? | rel=creator; from=Mona Lisa; ask=to
+V005 | basic_factual | What is the population of Nigeria? | rel=population; from=Nigeria; ask=to
+V006 | basic_factual | Who is the CEO of Harrow Dynamics? | rel=ceo; from=Harrow Dynamics; ask=to
+V007 | basic_factual | What is the official language of Switzerland? | rel=official_language; from=Switzerland; ask=to
+V008 | basic_factual | Who developed the Linux kernel? | rel=developer; from=Linux kernel; ask=to
+V009 | basic_factual | What is the diameter of Jupiter? | rel=diameter; from=Jupiter; ask=to
+V010 | basic_factual | When was Vireo Labs founded? | rel=founded_on; from=Vireo Labs; ask=to
+V011 | basic_factual | Who is the head of state of Mexico? | rel=head_of_state; from=Mexico; ask=to
+V012 | basic_factual | Where is Calloway Systems headquartered? | rel=headquarters; from=Calloway Systems; ask=to
+V013 | basic_factual | Which city is Peru's capital? | rel=capital; from=Peru; ask=to; atype=city
+V014 | basic_factual | Name the capital city of Ethiopia. | rel=capital; from=Ethiopia; ask=to
+V015 | basic_factual | Could you tell me who founded Ostrava Robotics? | act=request; rel=founder; from=Ostrava Robotics; ask=to
+V016 | basic_factual | I want to know the population of Morocco. | rel=population; from=Morocco; ask=to
+# ------------------------------------------------------------------ direction
+V020 | direction | Which company did Rhea Patel found? | rel=founder; to=Rhea Patel; ask=from
+V021 | direction | Which company was started by Tomas Brandt? | rel=founder; to=Tomas Brandt; ask=from
+V022 | direction | Who bought Delmar Foods? | rel=acquirer; from=Delmar Foods; ask=to
+V023 | direction | Who did Harrow Dynamics purchase? | rel=acquirer; to=Harrow Dynamics; ask=from
+V024 | direction | Which organization employs Lena Fischer? | rel=employer; from=Lena Fischer; ask=to
+V025 | direction | Who backs Vireo Labs? | rel=investor; from=Vireo Labs; ask=to
+# ------------------------------------------------------------------ multiword
+V030 | multiword | What is the capital of New Zealand? | rel=capital; from=New Zealand; ask=to
+V031 | multiword | What is deep learning? | intent=definition; concept=deep learning
+V032 | multiword | What is cloud computing? | intent=definition; concept=cloud computing
+V033 | multiword | Tell me about the Indian Ocean. | intent=entity_description; subject=Indian Ocean
+V034 | multiword | What is the population of the Czech Republic? | rel=population; from=Czech Republic
+V035 | multiword | Who is the CEO of Bank of Brindle? | rel=ceo; from=Bank of Brindle
+# ------------------------------------------------------------------ ambiguity
+V040 | ambiguous | Tell me about Orange. | amb=ambiguous
+V041 | ambiguous | What is the capital of Georgia? | rel=capital; amb=ambiguous
+V042 | ambiguous | Who founded Shell? | rel=founder; from=Shell:company:company.shell; amb=resolved
+V043 | ambiguous | We were talking about cooking. What is an orange? | amb=resolved
+V044 | ambiguous | What is Python used for? | amb=ambiguous
+V045 | ambiguous | I am learning to program. What is Python? | subject=Python:programming_language:lang.python; amb=resolved
+# ------------------------------------------------------------------ intents
+V050 | intent | Find biotech startups in Denmark. | intent=search; pos=geo:Denmark
+V051 | intent | Compare Harrow Dynamics and Calloway Systems. | intent=comparison; items=Harrow Dynamics|Calloway Systems
+V052 | intent | Explain why the first draft failed. | intent=causal_explanation; ctx=ordinal_reference
+V053 | intent | Use the 2018 edition from now on. | intent=instruction_update; inst=slot=version,persist=1
+V054 | intent | Is Madrid the capital of Spain? | intent=verification; rel=capital; from=Spain; to=Madrid
+V055 | intent | Did Rhea Patel found Vireo Labs? | intent=verification; rel=founder; to=Rhea Patel; from=Vireo Labs
+V056 | intent | Tell me about Ostrava Robotics. | intent=entity_description; subject=Ostrava Robotics
+V057 | intent | What does inflation mean? | intent=definition
+V058 | intent | I am studying Harrow Dynamics. | act=statement; intent=statement; focus=Harrow Dynamics
+# ------------------------------------------------------------------ negation
+V060 | negation | I want the capital of Brazil, not the largest city. | rel=capital; from=Brazil; neg=description:city
+V061 | negation | Find vendors that sell hardware, but not vendors that hire interns. | intent=search; neg=type:company+hires:intern
+V062 | negation | Show the results without sponsored items. | neg=topic:sponsored
+V063 | negation | Exclude hospitals. | intent=instruction_update; neg=type:hospital
+V064 | negation | Do not include blogs. | intent=instruction_update; pol=negative
+V065 | negation | What is the capital of Canada, not Toronto? | rel=capital; from=Canada; neg=entity:toronto
+V066 | negation | Which claims are not supported by the evidence? | rel=supported_by; pol=negative; neg=none
+# ------------------------------------------------------------------ temporal
+V070 | temporal | What was the capital of Brazil in 1950? | rel=capital; from=Brazil; tc=in:1950
+V071 | temporal | Who was the CEO of Harrow Dynamics before 2005? | rel=ceo; from=Harrow Dynamics; tc=before:2005
+V072 | temporal | What is the former capital of Tanzania? | rel=capital; from=Tanzania; temporal=past
+V073 | temporal | Find companies founded after 2012. | intent=search; pos=temporal:founded_on; tc=after:2012
+V074 | temporal | Who founded Calloway Systems in 1998? | rel=founder; from=Calloway Systems; tc=in:1998
+V075 | temporal | What was the population of Spain in 1970? | rel=population; from=Spain; tc=in:1970
+V076 | temporal | What is the capital of Canada according to the 2018 dataset? | rel=capital; from=Canada; src=dataset:2018
+V077 | temporal | Organizations founded between 1990 and 1995 | intent=search; tc=between:1990-1995
+# ------------------------------------------------------------------ geography
+V080 | geographic | Find logistics companies in Poland. | intent=search; pos=geo:Poland
+V081 | geographic | Which universities are located in Oxford? | rel=located_in; to=Oxford; ask=from; atype=university
+V082 | geographic | Where is Delmar Foods based? | rel=headquarters; from=Delmar Foods; ask=to
+# ------------------------------------------------------------------ comparison and multi-hop
+V090 | comparative | Is Harrow Dynamics older than Vireo Labs? | intent=verification; items=Harrow Dynamics|Vireo Labs
+V091 | comparative | What changed between the old version and the new version? | intent=comparison; items=old version|new version
+V092 | multi_hop | Where was the founder of Vireo Labs born? | rel=birth_place; ask=to; chain=founder>birth_place
+V093 | multi_hop | Who is the CEO of the company that acquired Delmar Foods? | rel=ceo; ask=to; chain=acquirer>ceo
+V094 | multi_hop | What is the capital of the country where Mount Kilimanjaro is? | rel=capital; ask=to; chain=located_in>capital
+# ------------------------------------------------------------------ discourse (multi-turn)
+V100 | discourse | U: I'm researching Delmar Foods. // U: Who founded it? | rel=founder; from=Delmar Foods; ref=it>Delmar Foods; unres=0
+V101 | discourse | U: Who founded it? | rel=founder; ref=it>unresolved; unres=1
+V102 | discourse | U: I'm looking at Calloway Systems, a software business. // U: Good morning. // U: Which company acquired the business I mentioned earlier? | rel=acquirer; from=Calloway Systems; ref=the business I mentioned earlier>Calloway Systems; unres=0
+V103 | discourse | U: Use the 2016 dataset. // U: Actually, use the 2019 dataset from now on. // U: Who founded Vireo Labs? | active=dataset:2019; inactive=dataset:2016; sel=+2019 dataset,-2016 dataset
+V104 | discourse | A: Three ideas: // A: Idea 1: Cache. // A: Idea 2: Batch. // A: Idea 3: Shard. // U: Why did the third idea fail? | ref=the third idea>Idea 3; unres=0
+V105 | discourse | U: Why did the fourth idea fail? | ref=the fourth idea>unresolved; unres=1
+V106 | discourse | U: Compare Harrow Dynamics and Vireo Labs. // U: Which one is larger? | intent=comparison; ref=Which one is larger?>resolved; unres=0
+V107 | discourse | U: We decided to use PostgreSQL for the inventory service. // U: What did we decide about the inventory service? | intent=conversation_recall; sel=+PostgreSQL
+V108 | discourse | U: Do not include blogs. // U: Find companies in Italy. | intent=search; sel=+blogs
+V109 | discourse | U: Explain why the second solution failed, considering the correction I made earlier. | ref=the second solution>unresolved,the correction I made earlier>unresolved; unres=2
+# ------------------------------------------------------------------ instructions
+V110 | instruction | Use the 2017 report. | intent=instruction_update; inst=slot=file,value=2017
+V111 | instruction | Actually, switch to the newer version. | intent=instruction_update; inst=slot=version,corr=1
+V112 | instruction | Stick with the 2021 figures. | intent=instruction_update; inst=slot=figures,value=2021
+# ------------------------------------------------------------------ open-set
+V120 | open_set | What is the capital of Gondwanaland? | rel=capital; from=Gondwanaland; ask=to; evid=1
+V121 | open_set | Who founded Torvik Industries? | rel=founder; from=Torvik Industries:organization; ask=to
+V122 | open_set | What is the population of Narnia? | rel=population; from=Narnia
+V123 | open_set | Who composed the Ninth Symphony? | rel!=capital; evid=1
+# ------------------------------------------------------------------ spelling and punctuation
+V130 | spelling | What is the captial of Itlay? | rel=capital; from=Itlay:country
+V131 | spelling | Who foudned Vireo Labs? | rel=founder; from=Vireo Labs
+V132 | spelling | What is the curency of Sweden? | rel=currency; from=Sweden
+V133 | spelling | whats the capital of norway | rel=capital; from=norway
+V134 | punctuation | WHAT IS THE CAPITAL OF CHILE? | rel=capital; from=CHILE; ask=to
+V135 | punctuation | What is the capital of Chile ?? | rel=capital; from=Chile; ask=to
+V136 | punctuation | Chile - capital | rel=capital; from=Chile; ask=to
+# ------------------------------------------------------------------ minimal pairs
+V140 | minimal_pair | Capital of Germany | rel=capital; from=Germany; mm=cap3:eq
+V141 | minimal_pair | Former capital of Germany | rel=capital; from=Germany; temporal=past; mm=former3:ne:cap3
+V142 | minimal_pair | Economic capital of Germany | rel=economic_center; from=Germany; mm=eco3:ne:cap3
+V143 | minimal_pair | Capital punishment in Germany | intent=definition; concept=capital punishment; rel=-; mm=pun3:ne:cap3
+V144 | minimal_pair | What's Germany's capital? | rel=capital; from=Germany; mm=cap3:eq
+# ------------------------------------------------------------------ multi-part and malformed
+V150 | multi_part | Find startups founded after 2018 that offer analytics services, exclude agencies, and prefer those seeking investors. | intent=search; pos=temporal:founded_on,relation:offers; tc=after:2018; neg=type:agency
+V151 | multi_part | Compare Harrow Dynamics and Calloway Systems, but only using their audited accounts. | intent=comparison; items=Harrow Dynamics|Calloway Systems; src=statement
+V160 | malformed | ??? !!! | status=no_interpretation
+V161 | malformed | 424242 | status=no_interpretation
+V162 | malformed | of the in | status=no_interpretation

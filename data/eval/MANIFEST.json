@@ -13,6 +13,13 @@
       "sha256": "79437cc8616c23f5bf4cd535246cbc32785c2a0633e5596d42ce3282e64eb35a"
     },
     {
+      "bytes": 12011,
+      "cases": 100,
+      "file": "data/eval/val.cases",
+      "name": "val",
+      "sha256": "c4e21b0ef544b697766c1a596665f59ce8c7fe0704256c08dfec4d83b0ec9b53"
+    },
+    {
       "bytes": 16699,
       "cases": 140,
       "file": "data/eval/test.cases",

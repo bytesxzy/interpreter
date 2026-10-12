@@ -382,7 +382,11 @@ local function parse_np_core(S, k, opts)
       local mc, cl = run[z].c, run[z].cl
       local f = mc.unit and mc.unit.form or mc.form
       local entry = { chunk = mc, form = mc.form, text = mc.text }
-      if SUPERLATIVE_FORMS[mc.form] or (mc.single and mc.unit.form:find("est$") and (mc.adjs or S.lex:adj_reading(mc.unit.form:gsub("est$", "")))) then
+      -- "the first draft" / "the last version": before a conversational-artifact noun (solution, draft, version ...) "first" is the ordinal 1
+      local artifact_ordinal = mc.single and mc.unit.ordinal and next(S.lex:refclasses(head.c.form or "")) ~= nil
+      if artifact_ordinal then
+        np.ordinal = mc.unit.ordinal; entry.kind = "ordinal"
+      elseif SUPERLATIVE_FORMS[mc.form] or (mc.single and mc.unit.form:find("est$") and (mc.adjs or S.lex:adj_reading(mc.unit.form:gsub("est$", "")))) then
         np.superlative = mc.form; entry.kind = "superlative"
       elseif mc.single and (mc.unit.ordinal or (mc.number and mc.number.kind == "ordinal")) then
         np.ordinal = mc.unit.ordinal or (mc.number and mc.number.value); entry.kind = "ordinal"

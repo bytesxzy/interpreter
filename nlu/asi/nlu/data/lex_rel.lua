@@ -41,9 +41,9 @@ rel revenue: from=organization to=money | noun=revenue; sales; turnover; income 
 rel industry: from=organization to=topic | noun=industry; sector | label=industry
 rel offers: from=organization to=service | noun=offering; service | verb=offer/subj=from; provide/subj=from; sell/subj=from; supply/subj=from; deliver/subj=from; specialize/subj=from/prep=in | label=offers
 rel seeks: from=agent to=concept | verb=seek/subj=from; want/subj=from; need/subj=from; look/subj=from/prep=for; interest/subj=from/prep=in | label=interested in
-rel hires: from=organization to=role | verb=hire/subj=from; recruit/subj=from; employ/subj=from | label=hires
+rel hires: from=organization to=role | verb=hire/subj=from; recruit/subj=from | label=hires
 rel partner: from=organization to=organization | noun=partner; partnership; collaborator | verb=partner/subj=from/prep=with; collaborate/subj=from/prep=with; cooperate/subj=from/prep=with | symmetric=1 | label=partner
-rel employer: from=person to=organization | noun=employer | verb=work/subj=from/prep=for | label=employer
+rel employer: from=person to=organization | noun=employer | verb=work/subj=from/prep=for; employ/subj=to | label=employer
 rel title: from=person to=role | noun=title; job; position | label=title
 rel nationality: from=person to=country | noun=nationality; citizenship | label=nationality
 rel spouse: from=person to=person | noun=spouse; husband; wife | verb=marry/subj=from | symmetric=1 | label=spouse
@@ -55,7 +55,7 @@ rel age: from=agent to=number | noun=age | attr=1 | label=age
 # ------------------------------------------------------------ works, products, software
 rel author: from=work to=person | noun=author; writer | verb=write/subj=to; author/subj=to | label=author
 rel publisher: from=work to=organization | noun=publisher | verb=publish/subj=to | label=publisher
-rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to | label=creator
+rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to; paint/subj=to; compose/subj=to; sculpt/subj=to; build/subj=to; craft/subj=to | label=creator
 rel developer: from=software to=agent | noun=developer; maintainer; vendor | verb=develop/subj=to | label=developer
 rel inventor: from=product to=person | noun=inventor | verb=invent/subj=to | label=inventor
 rel discoverer: from=entity to=agent | noun=discoverer | verb=discover/subj=to | label=discoverer

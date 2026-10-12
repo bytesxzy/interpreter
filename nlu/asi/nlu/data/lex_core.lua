@@ -10,7 +10,11 @@ type company < organization
 type educational_institution < organization
 type university < educational_institution
 type school < educational_institution
-type government_body < organization
+type agency < organization
+type government_body < agency
+type hospital < organization
+type retailer < company
+type museum < organization
 type nonprofit < organization
 type place < entity
 type political_territory < place
@@ -337,7 +341,7 @@ domain politics: government president minister parliament election senate treaty
 domain finance: money invest investment investor investors stock bank banking financial finance loan interest fund funding capital equity asset assets venture
 domain economics: economy economic gdp inflation market trade supply demand
 domain law: law legal court judge crime criminal punishment penalty sentence prison jury attorney lawyer statute constitution legislation execution offense
-domain computing: code programming software language compiler runtime library framework api function variable developer algorithm database server python java javascript
+domain computing: code program programs programming programmer software language compiler runtime library framework api function variable developer algorithm database server python java javascript
 domain ai: neural model models training learning machine artificial intelligence deep dataset
 domain biology: animal species plant cell gene organism habitat predator tree forest rainforest wildlife
 domain food: eat food fruit juice coffee tea drink recipe cook kitchen flavor cooking sweet bean beans beverage
@@ -372,7 +376,7 @@ resource dataset: dataset; data set; data-set; corpus; data; database; collectio
 resource version: version; edition; release; revision; draft; build; iteration; variant
 resource file: file; document; doc; report; paper; table; spreadsheet; sheet; record; records
 resource source: source; reference; citation; article; publication; website; page
-resource statement: financial statement; financial statements; statement; statements; filing; filings; annual report
+resource statement: financial statement; financial statements; statement; statements; filing; filings; accounts; financial accounts; audited accounts; annual report
 resource model: model
 resource figures: figures; numbers; stats; statistics; metrics; results; findings; values
 resource solution: solution; answer; approach; option; method; attempt; proposal; candidate

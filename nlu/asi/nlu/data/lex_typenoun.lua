@@ -27,7 +27,21 @@ sense enterprise: enterprise.type | type=company | kind=typenoun
 sense startup: startup.type | type=company | kind=typenoun
 sense start-up: startup2.type | type=company | kind=typenoun
 sense institution: institution.type | type=organization | kind=typenoun
-sense agency: agency.type | type=government_body | kind=typenoun
+sense agency: agency.gov | type=government_body | kind=typenoun | domain=politics; government
+sense agency: agency.business | type=agency | kind=typenoun | domain=business; marketing; advertising
+sense hospital: hospital.type | type=hospital | kind=typenoun
+sense clinic: clinic.type | type=hospital | kind=typenoun
+sense museum: museum.type | type=museum | kind=typenoun
+sense vendor: vendor.type | type=company | kind=typenoun
+sense supplier: supplier.type | type=company | kind=typenoun
+sense retailer: retailer.type | type=retailer | kind=typenoun
+sense manufacturer: manufacturer.type | type=company | kind=typenoun
+sense distributor: distributor.type | type=company | kind=typenoun
+sense consultancy: consultancy.type | type=company | kind=typenoun
+sense charity: charity.type | type=nonprofit | kind=typenoun
+sense foundation: foundation.type | type=nonprofit | kind=typenoun
+sense library: library.type | type=organization | kind=typenoun
+sense bank: bank.org | type=company | kind=typenoun | domain=finance
 sense university: university.type | type=university | kind=typenoun
 sense college: college.type | type=educational_institution | kind=typenoun
 sense school: school.type | type=school | kind=typenoun

@@ -402,6 +402,21 @@ function F.np_only(S, out)
   if S.wrapper and #S.wrapper.kinds > 0 then return end -- wrapper-led requests are handled by F.request
   for _, np in ipairs(P.parse_np(S, S.first)) do
     from_object_np(S, out, np, nil, "fragment", {}, "fragment")
+    -- "Chile - capital" / "Egypt, capital?" : the argument comes first, the relational noun after a separator
+    if np.head_kind == "entity" and not np.of_arg and not np.possessor then
+      local nx = C(S, np.nxt)
+      if nx and nx.pre and (nx.pre:find("comma") or nx.pre:find("dash") or nx.pre:find("colon")) and not nx.masked then
+        for _, rn in ipairs(P.parse_np(S, np.nxt)) do
+          if rn.head_kind == "relnoun" and not rn.of_arg and not rn.possessor then
+            local cp = U.shallow(rn)
+            cp.of_arg, cp.comma_arg = np, true
+            cp.c1, cp.u1 = np.c1, np.u1
+            from_object_np(S, out, cp, nil, "fragment", {}, "fragment")
+            break
+          end
+        end
+      end
+    end
     -- "capital, France": a relational noun whose argument follows across a comma
     if np.head_kind == "relnoun" and not np.of_arg and not np.possessor then
       local nx = C(S, np.nxt)
@@ -527,6 +542,33 @@ function F.compare_q(S, out)
           h.requires_evidence = true
           addf(h, "comparative_adjective", 0.5, r.lemma .. " on " .. tostring(r.dim))
           out[#out + 1] = h
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "What does X mean?" / "What does X stand for?"
+function F.what_means(S, out)
+  local lex = S.lex
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh.wh == "what" and not wh.np and not wh.adverbial then
+      local ac = C(S, wh.nxt)
+      if ac and ac.single and cat(ac, "aux_do") and not ac.masked then
+        for _, np in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          local vc = C(S, np.nxt)
+          local n = vc and lex:cue_at("definition_verb", S.units, vc.u1)
+          if n then
+            local h = newh(S, "what_means:definition", "question", "definition", "define")
+            use(h, wh.c1, wh.c2); use(h, wh.nxt); use_np(h, np)
+            local consumed, k = 0, np.nxt
+            while C(S, k) and consumed < n do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); h.used[k] = true; k = k + 1 end
+            h.concept = np
+            h.requires_evidence = true
+            addf(h, "definition_question", 0.9, "'what does X mean' asks for the meaning of X")
+            F.mark_pron(h, np)
+            out[#out + 1] = h
+          end
         end
       end
     end
