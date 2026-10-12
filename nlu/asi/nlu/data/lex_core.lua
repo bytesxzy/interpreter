@@ -80,6 +80,7 @@ class conj: and or but nor yet so because although though while whereas if unles
 class pron: i me we us you he him she her it they them
 class pron_poss: mine ours yours hers theirs
 class pron_refl: myself yourself himself herself itself ourselves themselves
+class discourse: anyway anyhow thanks thank okay ok alright well so yes yeah yep nope sure right hmm indeed however therefore moreover meanwhile finally hello hi hey sorry perhaps maybe honestly basically obviously clearly luckily unfortunately besides otherwise afterwards furthermore nevertheless nonetheless thus hence overall generally typically usually sometimes mostly mainly cheers great perfect awesome interesting
 class pron_dem: this that these those
 class pron_indef: one ones someone somebody something anyone anybody anything everyone everybody everything nobody nothing none others
 class wh: what which who whom whose when where why how whether
@@ -131,6 +132,18 @@ verb locate: act=retrieve
 verb count: act=retrieve
 verb enumerate: act=retrieve
 verb pull: act=retrieve
+verb decide: act=discourse
+verb agree: act=discourse
+verb say: act=discourse
+verb conclude: act=discourse
+verb note: act=discourse
+verb settle: act=discourse
+verb rain: act=ambient
+verb snow: act=ambient
+verb drizzle: act=ambient
+verb hail: act=ambient
+verb thunder: act=ambient
+verb sleet: act=ambient
 verb tell: act=inform
 verb explain: act=inform
 verb describe: act=inform
@@ -299,8 +312,17 @@ cue request_open: i want; i need; i'd like; i would like; i'm looking for; i am 
 cue basis: considering; given; in light of; bearing in mind; keeping in mind; factoring in; taking
 cue backref_adv: earlier; before; previously; already; recently; yesterday; ago; then; originally
 cue comparison_set: both; each; either; neither; the two; these two; those two; the pair; all of them; the three
+cue recall_intro: remind me; do you remember; can you remember; can you recall; do you recall; i forgot; i don't remember; i can't remember; remind me of
+cue ambient_adj: cold; hot; warm; cool; sunny; cloudy; windy; rainy; foggy; snowy; stormy; humid; dry; late; early; dark; light; dusk; dawn; noon; midnight
+cue extrapose_adj: important; clear; obvious; likely; unlikely; possible; impossible; necessary; true; false; known; reported; rumored; said; believed; expected; surprising; interesting; essential; useful; difficult; easy; hard; good; bad; better; fine; worth; wise; unclear; certain; evident; apparent; unfortunate; great; nice
+cue extrapose_verb: seems; seem; seemed; appears; appear; appeared; looks; looked; turns out; turned out; happens; happened; matters; follows; remains
+cue extrapose_comp: that; to; whether; if; like; as if; for
+cue decision: we decided; i decided; we have decided; we've decided; i've decided; we agreed; i agreed; we chose; i chose; we picked; we selected; we settled on; let's go with; we'll use; we will use; the decision is; decided to; agreed to; agreed on
+cue decision_ref: decide; decided; decision; decisions; agree; agreed; agreement; chose; chosen; choose; picked; pick; selected; settled; resolved
+cue additive: also; as well; in addition; additionally; too; on top of that
+cue scoped: for this question; for this one; just this time; only this time; this once; for now only; for this request
 cue art_latest: latest; newest; most recent; final; current; revised; updated; new; recent; last; newer
-cue art_first: original; initial; earliest; oldest; starting
+cue art_first: first; original; initial; earliest; oldest; starting
 cue art_prev: previous; prior; preceding; earlier
 cue deictic_item: which one; which ones; the one; the ones; the other one; the former; the latter; the first; the second; the third; the last
 

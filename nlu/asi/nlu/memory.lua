@@ -47,14 +47,30 @@ end
 function M:ns_key() return table.concat({ self.ns.user, self.ns.project, self.ns.conversation }, "|") end
 
 ---------------------------------------------------------------- items + index
+-- deterministic light stemmer: inflection only (decided/decide/deciding -> decid), applied identically to items and queries
+local function stem(w)
+  if #w <= 3 then return w end
+  local s = w
+  if s:match("ies$") and #s > 4 then s = s:sub(1, -4) .. "y"
+  elseif s:match("ied$") and #s > 4 then s = s:sub(1, -4) .. "y"
+  elseif s:match("ing$") and #s > 5 then s = s:sub(1, -4)
+  elseif s:match("ed$") and #s > 4 then s = s:sub(1, -3)
+  elseif s:match("es$") and #s > 4 then s = s:sub(1, -3)
+  elseif s:match("s$") and not s:match("ss$") and #s > 3 then s = s:sub(1, -2) end
+  s = s:gsub("e$", "")
+  return s
+end
+M.stem = stem
+
 local function tokens_of(text)
   local out = {}
-  for w in text:lower():gmatch("[%w][%w']*") do if not STOP[w] then out[#out + 1] = w end end
+  for w in text:lower():gmatch("[%w][%w']*") do if not STOP[w] then out[#out + 1] = stem((w:gsub("'s$", ""))) end end
   return out
 end
 
 function M:begin_turn(speaker)
   self.turn = self.turn + 1
+  self.turn_entities = {}
   self.speaker = speaker or "user"
   self.revision = self.revision + 1
   return self.turn
@@ -150,7 +166,7 @@ end
 
 ---------------------------------------------------------------- entities and focus
 local function ref_key(r)
-  if not r then return nil end
+  if not r or r.deictic then return nil end
   if r.antecedent and r.antecedent.key then return r.antecedent.key end
   if r.resolved_id and (r.status == "resolved" or r.status == "unseen" or r.status == nil) then return r.resolved_id end
   return nil
@@ -167,13 +183,26 @@ function M:mention(key, info)
   if info.type and not e.type then e.type = info.type end
   if info.name and not e.names[info.name:lower()] then e.names[info.name:lower()] = info.name end
   if info.speaker == "user" then e.by_user = true end
+  if info.speaker then e.by_speaker = e.by_speaker or {}; e.by_speaker[info.speaker] = true end
   if info.plural then e.plural = true end
+  -- an entity is "weak" while its only evidence is a sentence-initial capital; any stronger mention clears the flag
+  if e.weak == nil then e.weak = info.weak or false elseif not info.weak then e.weak = false end
   self.seq = self.seq + 1
   e.last_turn, e.last_seq = self.turn, self.seq
+  if self.turn_entities then self.turn_entities[key] = true end
   local ms = e.mentions
   ms[#ms + 1] = { turn = self.turn, seq = self.seq, w = info.w or 0.25, role = info.role, speaker = info.speaker, sent = info.sent, text = info.name }
   if #ms > 40 then table.remove(ms, 1) end
   return e
+end
+
+-- classifying nouns the discourse attached to an entity ("Brindle Analytics, a small robotics business" -> business)
+function M:describe(key, head, text, speaker)
+  local e = self.entities[key]
+  if not e or not head then return end
+  e.descriptors = e.descriptors or {}
+  local st = stem(head)
+  if not e.descriptors[st] then e.descriptors[st] = { head = head, text = text, turn = self.turn, speaker = speaker } end
 end
 
 -- salience = sum of mention weights decayed by turn distance (and a small sentence-order tie-break)
@@ -191,6 +220,24 @@ local ARTIFACT_NOUN = { solution = "solution", approach = "solution", option = "
 local ORDINAL_WORD = { one = 1, two = 2, three = 3, four = 4, five = 5, six = 6, seven = 7, eight = 8, nine = 9, ten = 10,
   first = 1, second = 2, third = 3, fourth = 4, fifth = 5 }
 
+-- artifact classes a noun denotes (set).  The interpreter installs the lexicon's `refnoun` data as self.refclasses; the built-in map is the fallback.
+function M:classes_of(word)
+  word = word:lower()
+  local cands = { word }
+  if word:sub(-3) == "ies" then cands[#cands + 1] = word:sub(1, -4) .. "y" end
+  if word:sub(-2) == "es" then cands[#cands + 1] = word:sub(1, -3) end
+  if word:sub(-1) == "s" then cands[#cands + 1] = word:sub(1, -2) end
+  for _, w in ipairs(cands) do
+    local out
+    if self.refclasses then out = self.refclasses(w) else out = ARTIFACT_NOUN[w] and { [ARTIFACT_NOUN[w]] = true } or {} end
+    out = U.copy(out)
+    out.correction = nil -- corrections are memory items, not enumerable artifacts
+    out.message = nil
+    if next(out) then return out end
+  end
+  return {}
+end
+
 function M:register_artifact(class, ordinal, label, text, item)
   local list = self.artifacts[class]
   if not list then list = {}; self.artifacts[class] = list end
@@ -203,23 +250,25 @@ function M:extract_artifacts(text, item)
   local current_class
   for line in (text .. "\n"):gmatch("(.-)\r?\n") do
     local noun, label = line:match("^%s*[%*#%-]*%s*(%a+)%s+(%w+)%s*[:%.%)%-—]")
-    local cls = noun and ARTIFACT_NOUN[noun:lower()]
-    if cls and label then
+    local classes = noun and self:classes_of(noun) or {}
+    if next(classes) and label then
       local ord = tonumber(label) or ORDINAL_WORD[label:lower()] or (label:match("^%u$") and (label:byte() - 64)) or nil
-      if ord then self:register_artifact(cls, ord, noun .. " " .. label, line, item); n = n + 1 end
+      if ord then
+        for cls in pairs(classes) do self:register_artifact(cls, ord, noun .. " " .. label, line, item); n = n + 1 end
+      end
     else
       local num, rest = line:match("^%s*(%d+)[%.%)]%s+(.*)$")
       if num and current_class then
-        self:register_artifact(current_class, tonumber(num), current_class .. " " .. num, rest, item); n = n + 1
+        for cls in pairs(current_class) do self:register_artifact(cls, tonumber(num), cls .. " " .. num, rest, item); n = n + 1 end
       else
         local lower = line:lower()
         if lower:match(":%s*$") then
           current_class = nil
           for w in lower:gmatch("%a+") do
-            local c = ARTIFACT_NOUN[w] or (w:sub(-1) == "s" and ARTIFACT_NOUN[w:sub(1, -2)]) or (w:sub(-3) == "ies" and ARTIFACT_NOUN[w:sub(1, -4) .. "y"])
-            if c then current_class = c end
+            local c = self:classes_of(w)
+            if next(c) then current_class = c end
           end
-        elseif not line:match("^%s*$") and not line:match("^%s*%d+[%.%)]") then current_class = current_class end
+        end
       end
     end
   end
@@ -289,7 +338,7 @@ end
 local function collect_refs(interp)
   local out = {}
   local function add(ref, role, w)
-    if ref then out[#out + 1] = { ref = ref, role = role, w = w } end
+    if ref and not ref.deictic then out[#out + 1] = { ref = ref, role = role, w = w } end
   end
   for role, r in pairs(interp.roles or {}) do if not r.asked then add(r, "arg:" .. role, 0.5) end end
   add(interp.subject, "subject", 0.5)
@@ -318,10 +367,21 @@ function M:observe_sentence(interp, meta)
     if r.antecedent and r.antecedent.key then w = 0.35 end -- re-mention through a pronoun
     if key then
       local en = self:mention(key, { type = r.type or (r.antecedent and r.antecedent.type), name = (r.antecedent and r.antecedent.text) or r.text, w = w,
-        role = e.role, speaker = speaker, plural = r.plural, sent = meta.sent })
+        role = e.role, speaker = speaker, plural = r.plural, sent = meta.sent, weak = r.weak_name })
       keys[#keys + 1] = key
       if e.role == "focus" then self.focus = { key = key, turn = self.turn, text = r.text } end
     end
+  end
+  -- topic shift: the entity a request is about (description subject, looked-up entity) becomes the discourse focus
+  if not self.focus or self.focus.turn <= self.turn then
+    local topic, ttext
+    if interp.focus then topic, ttext = ref_key(interp.focus), interp.focus.text
+    elseif interp.intent == "entity_description" and interp.subject then topic, ttext = ref_key(interp.subject), interp.subject.text
+    elseif interp.intent == "factual_lookup" and interp.query and interp.roles then
+      local kr = interp.roles[interp.query.known_role or "from"]
+      topic, ttext = ref_key(kr), kr and kr.text
+    end
+    if topic and speaker == "user" then self.focus = { key = topic, turn = self.turn, text = ttext } end
   end
   if interp.intent == "comparison" and interp.items then
     local ks = {}
@@ -352,23 +412,22 @@ function M:observe_sentence(interp, meta)
       st.history[#st.history + 1] = created.id
     end
   end
-  -- revocation ("never mind", "stop using the 2023 dataset") --------------------------------------------------------------
-  if meta.revoke_cue and speaker == "user" then
-    local target
-    if interp.instruction and interp.instruction.slot then
-      local st = self.slots[interp.instruction.slot]
+  -- revocation ("never mind the dataset instruction", "scratch that") -- only with an identifiable target ---------------------------------
+  if meta.revoke and speaker == "user" then
+    local rv, target = meta.revoke, nil
+    if rv.slot then
+      local st = self.slots[rv.slot]
       target = st and st.active
-    end
-    if not target then
-      local best_turn, best_id = -1, nil
+    elseif rv.class or rv.bare then
+      -- the most recent standing user item; a bare "never mind" can only refer to the immediately preceding turn
+      local best_key
       for id in pairs(self.standing) do
         local it = self.items[id]
-        if it and it.status == "active" and it.speaker == "user" and it.turn < self.turn then
+        if it and it.status == "active" and it.speaker == "user" and it.turn < self.turn and (rv.class or it.turn == self.turn - 1) then
           local k = it.turn * 1000000 + (tonumber(id:sub(2)) or 0)
-          if k > best_turn then best_turn, best_id = k, id end
+          if not best_key or k > best_key then best_key, target = k, id end
         end
       end
-      target = best_id
     end
     if target then self:revoke(target, text) end
   end
@@ -393,10 +452,19 @@ function M:observe_sentence(interp, meta)
   return created
 end
 
+-- a stated decision (protected: never evicted, retrievable without repeating its wording)
+function M:note_decision(text, meta)
+  meta = meta or {}
+  return self:add({ layer = "task", kind = "decision", text = text, speaker = meta.speaker or self.speaker or "user", entities = meta.entities or {}, standing = false })
+end
+
 -- store the raw utterance (episodic layer) and its artifacts
 function M:note_utterance(text, speaker, meta)
   speaker = speaker or self.speaker or "user"
-  local item = self:add({ layer = "episodic", kind = "utterance", text = text, speaker = speaker })
+  local ents = {}
+  for k in pairs(self.turn_entities or {}) do ents[#ents + 1] = k end
+  table.sort(ents)
+  local item = self:add({ layer = "episodic", kind = "utterance", text = text, speaker = speaker, entities = ents })
   item.n_bytes = #text
   self:extract_artifacts(text, item)
   return item
@@ -442,6 +510,10 @@ function M:select(interp, opts)
     if e.ref.antecedent and e.ref.antecedent.key then keys[e.ref.antecedent.key] = true end
   end
   local terms = query_terms(interp)
+  -- the request's own content words are a (capped) lexical signal; they can rank candidates but never select one alone
+  local seen_t = {}
+  for _, t in ipairs(terms) do seen_t[t] = true end
+  for _, t in ipairs(tokens_of(interp.sentence and interp.sentence.text or "")) do if not seen_t[t] then seen_t[t] = true; terms[#terms + 1] = t end end
   local cand, n_cand = {}, 0
   local function want(id) if not cand[id] and self.items[id] then cand[id] = true; n_cand = n_cand + 1 end end
   for id in pairs(self.standing) do want(id) end
@@ -472,37 +544,49 @@ function M:select(interp, opts)
     elseif it.turn >= self.turn and it.kind == "utterance" then
       -- the current turn is the request itself, not memory
     else
-      local s, f = 0, {}
+      local st, so, f = 0, 0, {}   -- structural evidence (identity, standing constraints, typed references) vs soft evidence (recency, words)
+      if it.kind == "decision" and opts.decision_ref then st = st + 1.5; f.decision_reference = true end
       if it.kind == "instruction" or it.kind == "correction" or it.kind == "preference" then
         if self:slot_applicable(it.slot or "any", interp) or (not it.slot and it.kind == "preference") then
-          s = s + (it.standing and 3.0 or 2.0); f.standing_constraint = true
+          st = st + (it.standing and 3.0 or 2.0); f.standing_constraint = true
         end
       elseif it.kind == "prohibition" then
-        if interp.intent ~= "instruction_update" and interp.intent ~= "statement" then s = s + 2.5; f.standing_prohibition = true end
+        if interp.intent ~= "instruction_update" and interp.intent ~= "statement" then st = st + 2.5; f.standing_prohibition = true end
       end
       local shared = 0
       for _, k in ipairs(it.entities or {}) do if keys[k] then shared = shared + 1 end end
-      if shared > 0 then s = s + 2.0 * math.min(shared, 2); f.entity_identity = shared end
-      if it.rel and interp.relation and it.rel == interp.relation.id then s = s + 1.0; f.relation_match = true end
-      if self.focus and it.entities and #(interp.dependencies or {}) > 0 then
-        for _, k in ipairs(it.entities) do if k == self.focus.key then s = s + 0.8; f.focus_continuity = true break end end
+      if shared > 0 then st = st + 2.0 * math.min(shared, 2); f.entity_identity = shared end
+      if shared > 0 and it.rel and interp.relation and it.rel == interp.relation.id then st = st + 1.0; f.relation_match = true end
+      local dependent = #(interp.dependencies or {}) > 0
+      local recent_dep = false -- pronoun / comparison-set requests lean on the last couple of turns; back-references reach further and say so
+      for _, d in ipairs(interp.dependencies or {}) do if d.kind == "pronoun" or d.kind == "comparison_set" then recent_dep = true end end
+      if self.focus and it.entities and dependent then
+        for _, k in ipairs(it.entities) do if k == self.focus.key then st = st + 0.8; f.focus_continuity = true break end end
       end
+      if recent_dep and it.turn >= self.turn - 2 and (it.kind == "utterance" or it.kind == "fact") then st = st + 1.2; f.recent_window = true end
       if it.kind == "utterance" or it.kind == "fact" or it.kind == "decision" then
         local rec = 0.6 * (self.decay ^ (self.turn - it.turn))
-        if rec > 0.05 then s = s + rec; f.recency = U.round(rec, 3) end
+        if rec > 0.05 then so = so + rec; f.recency = U.round(rec, 3) end
       end
       local lex = self:bm25(terms, it)
-      if lex > 0 then local nl = math.min(1, lex / 6) * 0.8; s = s + nl; f.lexical = U.round(nl, 3) end
-      s = s + 0.3 * (it.reliability or 0.5)
-      if it.status == "speculative" then s = s - 0.7; f.speculative = true end
+      if lex > 0 then local nl = math.min(1, lex / 6) * 0.6; so = so + nl; f.lexical = U.round(nl, 3) end
+      so = so + 0.3 * (it.reliability or 0.5)
+      if it.status == "speculative" then so = so - 0.7; f.speculative = true end
+      local s = st + so
+      f.structural = U.round(st, 3)
       cands[#cands + 1] = { item = it, score = s, factors = f }
     end
   end
   table.sort(cands, function(a, b) if a.score ~= b.score then return a.score > b.score end return a.item.turn > b.item.turn end)
   local selected = {}
   for _, c in ipairs(cands) do
-    if c.score >= min_score and #selected < max_items then selected[#selected + 1] = c
-    else excluded[#excluded + 1] = { item = c.item, reason = c.score < min_score and string.format("relevance %.2f below threshold %.2f", c.score, min_score) or "over item budget", score = c.score } end
+    local structural = c.factors.structural or 0
+    if structural >= 0.8 and c.score >= min_score and #selected < max_items then selected[#selected + 1] = c
+    else
+      local why = structural < 0.8 and string.format("no structural link to the request (identity / standing constraint / typed reference); soft score %.2f", c.score)
+        or (c.score < min_score and string.format("relevance %.2f below threshold %.2f", c.score, min_score) or "over item budget")
+      excluded[#excluded + 1] = { item = c.item, reason = why, score = c.score }
+    end
   end
   return { selected = selected, excluded = excluded, n_candidates = n_cand, n_items = self.index.n }
 end
@@ -545,7 +629,9 @@ function M:classify_dependency(interp, coref)
   end
   -- dependencies no resolver looked at (e.g. coreference switched off) stay unresolved rather than silently self-contained
   for _, d in ipairs(interp.dependencies or {}) do
-    if not covered[d.text] and d.kind ~= "comparison_set" then add("ambiguous_missing_context"); unresolved = true end
+    if d.kind == "conversation_history" then
+      if coref and coref.recall_found then add("earlier_project_context") else add("ambiguous_missing_context"); unresolved = true end
+    elseif not covered[d.text] and d.kind ~= "comparison_set" then add("ambiguous_missing_context"); unresolved = true end
   end
   local has_dataset = false
   for _, s in ipairs((interp.constraints and interp.constraints.source) or {}) do if s.cue then has_dataset = true end end

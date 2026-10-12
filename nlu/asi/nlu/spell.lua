@@ -46,6 +46,7 @@ end
 function Spell:chain(parent) self.parent = parent; return self end
 
 function Spell:add(form, weight, kind)
+  self.rev = (self.rev or 0) + 1
   if not form or form == "" then return end
   local cur = self.words[form]
   if cur then
@@ -92,11 +93,30 @@ function Spell:_cands(form, maxd, deletes, cands, seen)
 end
 
 -- returns up to opts.limit candidates {form, dist, weight, kind, first_same, conf}
+function Spell:rev_total()
+  local r, sp = 0, self
+  while sp do r = r + (sp.rev or 0); sp = sp.parent end
+  return r
+end
+
 function Spell:suggest(form, o)
   o = o or {}
   local n = len(form)
   local maxd = o.max_edit or max_edit_for(n)
   if maxd == 0 or self:known(form) then return {} end
+  -- memoised per (form, edit budget, limit); the cache is dropped when any dictionary in the chain changes, and bounded
+  local rev = self:rev_total()
+  if self._cache_rev ~= rev or (self._cache_n or 0) > 4096 then self._cache, self._cache_n, self._cache_rev = {}, 0, rev end
+  local ck = form .. "\0" .. maxd .. "\0" .. (o.limit or 3)
+  local hit = self._cache[ck]
+  if hit then return hit end
+  local out = self:_suggest(form, n, maxd, o)
+  self._cache[ck] = out
+  self._cache_n = self._cache_n + 1
+  return out
+end
+
+function Spell:_suggest(form, n, maxd, o)
   local pre = form
   if n > PREFIX then pre = form:sub(1, utf8.offset(form, PREFIX + 1) - 1) end
   local cands = {}

@@ -533,6 +533,70 @@ function F.compare_q(S, out)
   end
 end
 
+---------------------------------------------------------------- recall questions about the conversation itself
+-- "What did we decide about the inventory service?"  "Why did we pick that for billing?"  "Remind me what I said about X."
+local RECALL_PREP = U.set({ "about", "on", "regarding", "for", "with", "to", "over", "around", "concerning" })
+function F.recall(S, out)
+  local lex = S.lex
+  local c0 = C(S, S.first)
+  if not c0 then return end
+  local k = S.first
+  local intro = lex:cue_at("recall_intro", S.units, c0.u1)
+  local intro_used = {}
+  if intro then
+    local consumed = 0
+    while C(S, k) and consumed < intro do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); intro_used[#intro_used + 1] = k; k = k + 1 end
+  end
+  for _, wh in ipairs(P.parse_wh(S, k)) do
+    local nk = wh.nxt
+    local aux = C(S, nk)
+    local has_aux = aux and aux.single and (cat(aux, "aux_do") or cat(aux, "aux_have")) and not aux.masked
+    if has_aux then nk = nk + 1 end
+    local sc = C(S, nk)
+    local pf = sc and sc.single and sc.unit.form
+    if pf == "we" or pf == "i" or pf == "you" then
+      for _, vp in ipairs(P.parse_vp(S, nk + 1, { aux_hint = has_aux and "do" or nil })) do
+        local v = lex.verbs[vp.lemma]
+        -- the construction itself (wh + do-support + first/second person subject) marks a question about the conversation; the verb only has to
+        -- be one that people use about what was said, chosen, proposed or planned
+        if v and (v.act == "discourse" or v.act == "inform" or v.act == "focus" or v.act == "constraint" or v.act == "task") then
+          local topic, object
+          local ek = vp.nxt
+          local ec = C(S, ek)
+          if ec and ec.single and RECALL_PREP[ec.unit.form] and not ec.masked then
+            for _, np in ipairs(P.parse_np(S, ek + 1)) do topic = np break end
+            if topic then ek = topic.nxt end
+          else
+            for _, np in ipairs(P.parse_np(S, ek)) do object = np break end
+            if object then
+              ek = object.nxt
+              local pc = C(S, ek)
+              if pc and pc.single and RECALL_PREP[pc.unit.form] and not pc.masked then
+                for _, np in ipairs(P.parse_np(S, ek + 1)) do topic = np break end
+                if topic then ek = topic.nxt end
+              end
+            end
+          end
+          local h = newh(S, "recall:wh", "question", "conversation_recall", "recall")
+          for _, u in ipairs(intro_used) do h.used[u] = true end
+          use(h, wh.c1, wh.c2)
+          if has_aux then use(h, wh.nxt) end
+          use(h, nk); for i = vp.c1, vp.c2 do h.used[i] = true end
+          if wh.np then F.use_np(h, wh.np) end
+          if topic then use_np(h, topic) end
+          if object then use_np(h, object) end
+          h.recall = { verb = vp.lemma, wh = wh.wh, participant = pf, topic = topic or object, object = object }
+          h.subject = topic or object
+          h.requires_context = true
+          if h.subject then F.mark_pron(h, h.subject) end
+          addf(h, "recall_construction", 0.9, "wh-question about what the participants said or decided ('" .. pf .. " " .. vp.lemma .. "')")
+          out[#out + 1] = h
+        end
+      end
+    end
+  end
+end
+
 ---------------------------------------------------------------- basis clause
 -- "..., considering the correction I made earlier"  /  "... given the revised budget"  /  "... taking X into account"
 -- The NP is an input the request must respect; it is kept as a (possibly context-dependent) argument, never dropped.

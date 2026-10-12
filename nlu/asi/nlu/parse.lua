@@ -56,22 +56,54 @@ P.cat = cat
 ---------------------------------------------------------------- domain evidence (shared by entity and sense disambiguation)
 -- domain -> list of unit indices carrying a cue word of that domain (whole analysis: neighbouring sentences count as context)
 function P.domain_profile(S)
-  if S.domain_profile then return S.domain_profile end
+  local an = S.an
+  if an._domain_profile then return an._domain_profile end
   local prof = {}
   for ui, u in ipairs(S.units) do
     for d in pairs(S.lex:domains_of(u.form)) do prof[d] = prof[d] or {}; table.insert(prof[d], ui) end
   end
-  S.domain_profile = prof
+  an._domain_profile = prof   -- a property of the analysis, shared by every sentence of it
   return prof
 end
 
--- number of distinct cue hits supporting any of `domains`, excluding the units of the mention itself (capped at 2 per domain)
+local function lower_bound(list, x)
+  local lo, hi = 1, #list + 1
+  while lo < hi do
+    local mid = (lo + hi) // 2
+    if list[mid] < x then lo = mid + 1 else hi = mid end
+  end
+  return lo
+end
+
+-- number of distinct cue hits supporting any of `domains`, excluding the units of the mention itself (capped at 2 per domain).
+-- Only cues within two sentences of the mention count: topical context is local, and the lookup stays O(log n) in message length.
 function P.domain_hits(S, ctx, domains, ex_u1, ex_u2)
   local prof = P.domain_profile(S)
+  local lo_u, hi_u = 1, #S.units
+  local sid = S.sentence and S.sentence.id
+  if sid then
+    local an = S.an
+    local r = an._ranges
+    if r then
+      local a = r[sid - 2] or r[sid - 1] or r[sid]
+      local b = r[sid + 2] or r[sid + 1] or r[sid]
+      if a then lo_u = a[1] end
+      if b then hi_u = b[2] end
+    end
+  end
   local total = 0
   for d in pairs(domains or {}) do
+    local list = prof[d]
     local own = 0
-    for _, ui in ipairs(prof[d] or {}) do if not (ex_u1 and ui >= ex_u1 and ui <= ex_u2) then own = own + 1 end end
+    if list then
+      local i = lower_bound(list, lo_u)
+      while list[i] and list[i] <= hi_u do
+        local ui = list[i]
+        if not (ex_u1 and ui >= ex_u1 and ui <= ex_u2) then own = own + 1 end
+        if own >= 2 then break end
+        i = i + 1
+      end
+    end
     local disc = (ctx and ctx.domains and ctx.domains[d]) or 0
     total = total + math.min(2, own + disc)
   end
@@ -174,7 +206,7 @@ local function entity_cands(S, c)
   for _, cd in ipairs(cands) do if not cd.fuzzy and cd.exact_case then attested_exact = true end end
   if not attested_exact then
     for _, r in ipairs(c.names) do
-      cands[#cands + 1] = { id = "mention:" .. c.form, type = r.type_guess, name = r.text, unseen = true, kind = "unseen",
+      cands[#cands + 1] = { id = "mention:" .. c.form, type = r.type_guess, name = r.text, unseen = true, weak = r.weak, kind = "unseen",
         domain = {}, prior = 0.3, head_cue = r.head_cue }
     end
   end
@@ -254,9 +286,17 @@ local function backref_at(S, m)
     end
   end
   if not j then return nil end
+  -- who produced the referent: first person -> the user, second person -> the assistant
+  local who
+  for k = m, math.min(j - 1, m + 2) do
+    local ck = C(S, k)
+    local f = ck and ck.unit and ck.unit.form
+    if f == "i" or f == "we" or f == "my" or f == "our" then who = "user" break
+    elseif f == "you" or f == "your" then who = "assistant" break end
+  end
   -- trailing temporal adverbs belong to the clause ("... I mentioned earlier")
   while C(S, j) and C(S, j).single and not barrier(C(S, j)) and S.lex:cue_at("backref_adv", S.units, C(S, j).u1) do j = j + 1 end
-  return j
+  return j, who
 end
 P.backref_at = backref_at
 
@@ -425,10 +465,10 @@ local function parse_np_core(S, k, opts)
       end
     end
     for _, a in ipairs(alts) do
-      local br = backref_at(S, a.nxt)
+      local br, who = backref_at(S, a.nxt)
       if br then
         local cp = U.shallow(a)
-        cp.backref = true
+        cp.backref, cp.backref_who = true, who
         -- right association: a discourse-linked clause attaches to the nearest noun ("the CEO of [the company I mentioned]")
         if a.of_arg and not a.of_arg.backref then cp.score = a.score - 0.5 end
         local last = C(S, br - 1)

@@ -9,7 +9,7 @@ local U = require("asi.nlu.util")
 local C = {}
 C.W = {
   salience = 1.0, recency = 0.45, focus = 0.8, topical = 0.2, user_intro = 0.1, type_fit = 0.6, unknown_animacy = -0.3,
-  plural_mismatch = -0.6, none_personal = 0.30, none_demonstrative = 0.45, temperature = 0.35, resolve_p = 0.60, resolve_margin = 0.30,
+  plural_mismatch = -0.6, none_personal = 0.30, none_demonstrative = 2.0, temperature = 0.35, resolve_p = 0.60, resolve_margin = 0.30,
 }
 
 local TOPICAL = U.set({ "focus", "subject", "stmt_subject", "clause_subject", "arg:from", "item", "chain_arg" })
@@ -55,6 +55,25 @@ function View:domain_profile()
     if total >= 1.5 then prof[d] = 2 elseif total >= 0.5 then prof[d] = 1 end
   end
   return prof
+end
+
+-- recency rank per entity: mentions within one sentence share a rank (their order is not a recency signal)
+local function recency_ranks(mem)
+  local keyed, seen = {}, {}
+  for key, e in pairs(mem.entities) do
+    local lm = e.mentions[#e.mentions]
+    local rk = (lm and lm.turn or 0) * 1000 + ((lm and lm.sent) or 0)
+    keyed[key] = rk
+    seen[rk] = true
+  end
+  local list = {}
+  for rk in pairs(seen) do list[#list + 1] = rk end
+  table.sort(list, function(a, b) return a > b end)
+  local rank_of = {}
+  for i, rk in ipairs(list) do rank_of[rk] = i end
+  local out = {}
+  for key, rk in pairs(keyed) do out[key] = rank_of[rk] end
+  return out
 end
 
 ---------------------------------------------------------------- agreement
@@ -104,11 +123,43 @@ local function softmax(scores, T)
   return ex
 end
 
+-- pleonastic "it": weather/ambient verbs ("It rained on the ferry"), ambient adjectives ("It was cold") and extraposition ("It is clear that ...",
+-- "It seems to ...") have no antecedent.  Closed word lists live in the lexicon (cue extrapose_* / ambient_adj, verb act=ambient).
+local function expletive_it(S, np, h)
+  local lex = S.lex
+  local P = require("asi.nlu.parse")
+  local c1 = np.c1
+  local nx = S.chunks[c1 + 1]
+  if not nx then return false end
+  for _, vp in ipairs(P.parse_vp(S, c1 + 1)) do
+    local v = lex.verbs[vp.lemma]
+    if v and v.act == "ambient" then return true end
+  end
+  local function is_cue(name, c) return c and c.single and lex:is_cue(name, c.unit.form) end
+  local k = c1 + 1
+  local is_be = nx.single and nx.cats and nx.cats.aux_be
+  if is_be then k = k + 1 end
+  while S.chunks[k] and S.chunks[k].cats and S.chunks[k].cats.adv do k = k + 1 end
+  local c = S.chunks[k]
+  if is_be and is_cue("ambient_adj", c) then return true end
+  if (is_be and is_cue("extrapose_adj", c)) or (not is_be and is_cue("extrapose_verb", nx)) then
+    for j = k, math.min(k + 4, #S.chunks) do
+      local cj = S.chunks[j]
+      if cj and cj.single and lex:is_cue("extrapose_comp", cj.unit.form) then return true end
+    end
+  end
+  return false
+end
+
 function View:pronoun_binding(S, ctx, np, expected, h, role, b)
   local mem, lex, W = self.mem, self.lex, C.W
   local feats = np.pron.feats or {}
   local form = np.pron.form:lower()
   b.discourse, b.pronoun = true, form
+  -- indefinites ("someone", "everything") are not anaphors; pleonastic "it" has no antecedent
+  local pcats = np.pron.cats or {}
+  if pcats.pron_indef and form ~= "one" and form ~= "ones" then b.status, b.fit, b.indefinite = "indefinite", 0.25, true return b end
+  if form == "it" and expletive_it(S, np, h) then b.status, b.fit, b.expletive = "expletive", 0.25, true return b end
   local person = tostring(feats.person or "3")
   if person == "1" or person == "2" then
     local who = person == "1" and "speaker" or "addressee"
@@ -123,13 +174,14 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
   local exclude = h and coarguments(H, S, ctx, h, np) or {}
   local reflexive = (np.pron.cats and np.pron.cats.pron_refl) == true
   if reflexive then exclude = {} end
-  -- recency ranks by sequence of last mention
+  local ranks = recency_ranks(mem)
   local order = {}
   for _, e in pairs(mem.entities) do order[#order + 1] = e end
-  table.sort(order, function(a, c) if (a.last_seq or 0) ~= (c.last_seq or 0) then return (a.last_seq or 0) > (c.last_seq or 0) end return a.key < c.key end)
+  table.sort(order, function(a, c) if ranks[a.key] ~= ranks[c.key] then return ranks[a.key] < ranks[c.key] end return a.key < c.key end)
   local live, rejected = {}, {}
-  for rank, e in ipairs(order) do
+  for _, e in ipairs(order) do
     local key = e.key
+    local rank = ranks[key]
     if exclude[key] then
       rejected[#rejected + 1] = { id = key, type = e.type, reasons = { "co-argument of the same predicate: a non-reflexive pronoun cannot corefer with it" } }
     else
@@ -141,9 +193,9 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
           rejected[#rejected + 1] = { id = key, type = e.type, reasons = { "type " .. tostring(e.type) .. " cannot fill " .. tostring(expected) } }
         else
           local reasons = {}
-          local sal = math.min(1, mem:salience(e))
+          local sal = math.min(1, mem:salience(e)) * (e.weak and 0.4 or 1)
           local s = W.salience * sal
-          reasons[#reasons + 1] = string.format("salience %.2f", sal)
+          reasons[#reasons + 1] = string.format("salience %.2f%s", sal, e.weak and " (weak: capitalisation is the only name evidence)" or "")
           local rec = W.recency / rank
           s = s + rec; reasons[#reasons + 1] = string.format("mention recency rank %d (+%.2f)", rank, rec)
           if mem.focus and mem.focus.key == key then
@@ -305,10 +357,12 @@ end
 function View:resolve_entity_backref(r, expected, exclude)
   local mem, lex, W = self.mem, self.lex, C.W
   local cands, rejected = {}, {}
+  local ranks = recency_ranks(mem)
   local order = {}
   for _, e in pairs(mem.entities) do order[#order + 1] = e end
-  table.sort(order, function(a, b) if (a.last_seq or 0) ~= (b.last_seq or 0) then return (a.last_seq or 0) > (b.last_seq or 0) end return a.key < b.key end)
-  for rank, e in ipairs(order) do
+  table.sort(order, function(a, b) if ranks[a.key] ~= ranks[b.key] then return ranks[a.key] < ranks[b.key] end return a.key < b.key end)
+  for _, e in ipairs(order) do
+    local rank = ranks[e.key]
     if exclude[e.key] then
       rejected[#rejected + 1] = { id = e.key, reason = "argument of the same request" }
     else
@@ -326,10 +380,27 @@ function View:resolve_entity_backref(r, expected, exclude)
         local s = 0.6 * fit; reasons[#reasons + 1] = string.format("type fit %.2f", fit)
         local rec = W.recency / rank; s = s + rec; reasons[#reasons + 1] = string.format("recency rank %d", rank)
         local sal = math.min(1, mem:salience(e)); s = s + 0.5 * sal; reasons[#reasons + 1] = string.format("salience %.2f", sal)
-        if e.by_user then s = s + 0.4; reasons[#reasons + 1] = "mentioned by the user (\"I mentioned\")" end
+        local who = r.backref_who
+        if who and e.by_speaker and e.by_speaker[who] then s = s + 0.4; reasons[#reasons + 1] = "introduced by the " .. who .. " (the clause says so)"
+        elseif who and e.by_speaker and not e.by_speaker[who] then s = s - 0.5; reasons[#reasons + 1] = "never mentioned by the " .. who end
+        if r.head and e.descriptors then
+          local best = 0
+          for _, d in pairs(e.descriptors) do best = math.max(best, C.descriptor_match(self, r.head, d)) end
+          if best > 0 then s = s + 1.2 * best; reasons[#reasons + 1] = string.format("described in the conversation as a matching kind of '%s' (%.1f)", r.head, best) end
+        end
+        if e.weak then s = s - 0.8; reasons[#reasons + 1] = "weak name evidence (sentence-initial capital only)" end
         cands[#cands + 1] = { id = e.key, type = e.type, name = e.names and next(e.names) and select(2, next(e.names)) or e.key, score = s, reasons = reasons, turn = e.last_turn }
       end
     end
+  end
+  -- an entity whose only evidence is a sentence-initial capital is a candidate of last resort, never a competitor of an established one
+  local strong = {}
+  for _, c in ipairs(cands) do if not (mem.entities[c.id] and mem.entities[c.id].weak) then strong[#strong + 1] = c end end
+  if #strong > 0 and #strong < #cands then
+    for _, c in ipairs(cands) do
+      if mem.entities[c.id] and mem.entities[c.id].weak then rejected[#rejected + 1] = { id = c.id, reason = "weak name evidence (sentence-initial capital only) while established entities exist" } end
+    end
+    cands = strong
   end
   table.sort(cands, function(a, b) if a.score ~= b.score then return a.score > b.score end return a.id < b.id end)
   if #cands > 0 then
@@ -337,6 +408,45 @@ function View:resolve_entity_backref(r, expected, exclude)
     for i, c in ipairs(cands) do c.p = ps[i] end
   end
   return cands, rejected
+end
+
+-- classifying descriptors attached to entity mentions by apposition ("X, a small robotics business") or copula ("X is a robotics company")
+-- items = { {key=, c1=, c2=}, ... } chunk ranges of entity mentions in state S
+function C.describe_entities(view, S, items, speaker)
+  local P = require("asi.nlu.parse")
+  local mem = view.mem
+  for _, it in ipairs(items) do
+    local k = it.c2 + 1
+    local c = S.chunks[k]
+    if c then
+      local copula = c.single and c.cats and (c.cats.aux_be == true) and not c.pre
+      local appos = c.pre and c.pre:find("comma") and c.single and c.cats and c.cats.det == true
+      if copula then k = k + 1; c = S.chunks[k] end
+      if c and (copula or appos) then
+        local det = c.single and c.cats and c.cats.det == true and (c.unit.form == "a" or c.unit.form == "an" or c.unit.form == "the")
+        if det then
+          for _, np in ipairs(P.parse_np(S, k)) do
+            if (np.head_kind == "typenoun" or np.head_kind == "unknown" or np.head_kind == "concept") and np.head then
+              mem:describe(it.key, np.head.form, P.span_text(S, np), speaker)
+              break
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- do two head nouns denote the same kind of thing? equal stems, or senses of compatible lexicon types
+function C.descriptor_match(view, head, d)
+  local Mem = require("asi.nlu.memory")
+  if Mem.stem(head) == Mem.stem(d.head) then return 1.0 end
+  local lex = view.lex
+  local ta, tb
+  for _, sn in ipairs(lex.sense_by_head[head] or {}) do ta = ta or sn.type end
+  for _, sn in ipairs(lex.sense_by_head[d.head] or {}) do tb = tb or sn.type end
+  if ta and tb and lex:compat(ta, tb) >= 0.9 and lex:compat(tb, ta) >= 0.9 then return 0.7 end
+  return 0
 end
 
 -- resolve every context-dependent reference of one interpretation.  Returns {references = {...}, by_text = {...}, unresolved = {...}}
@@ -365,7 +475,7 @@ function C.resolve_references(view, interp)
     end
     local rec
     if r.pronoun then
-      if r.deictic then return end
+      if r.deictic or r.non_anaphoric then return end
       local st = r.status
       rec = { kind = "pronoun", mention = r.text, role = role, status = (st == "resolved") and "resolved" or (st == "ambiguous" and "ambiguous" or "unresolved"),
         antecedent = r.antecedent, candidates = r.candidates, pronoun = r.pronoun }

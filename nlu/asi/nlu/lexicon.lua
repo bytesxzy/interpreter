@@ -46,6 +46,7 @@ function L.new(parent)
   self.dims = {}
   self.cues = {}        -- name -> set of folded phrases
   self.cue_phrases = {} -- name -> list of {forms...}
+  self.cue_first = {}   -- name -> first form -> list of {forms...}  (cue_at looks up by first word instead of scanning every phrase)
   self.domain_words = {} -- form -> {domain -> 1}
   self.headcues = {}    -- folded last word -> type
   self.resources = {}   -- folded phrase -> canonical resource name
@@ -438,6 +439,10 @@ function DIRECTIVES.cue(self, rest)
     local forms = U.map(keys, function(k) return k.form end)
     self.cues[name][table.concat(forms, " ")] = true
     self.cue_phrases[name][#self.cue_phrases[name] + 1] = forms
+    self.cue_first[name] = self.cue_first[name] or {}
+    local bucket = self.cue_first[name][forms[1]]
+    if not bucket then bucket = {}; self.cue_first[name][forms[1]] = bucket end
+    bucket[#bucket + 1] = forms
   end
 end
 
@@ -564,14 +569,24 @@ end
 
 -- does the unit sequence starting at i begin with any cue phrase of this kind? returns length matched
 function L:cue_at(name, units, i)
+  local u0 = units[i]
+  if not u0 then return nil end
   local best
-  for _, forms in ipairs(self:cue_list(name)) do
-    local ok = true
-    for k, f in ipairs(forms) do
-      local u = units[i + k - 1]
-      if not u or u.form ~= f then ok = false break end
+  local lex = self
+  while lex do
+    local first = lex.cue_first[name]
+    local bucket = first and first[u0.form]
+    if bucket then
+      for _, forms in ipairs(bucket) do
+        local ok = true
+        for k = 2, #forms do
+          local u = units[i + k - 1]
+          if not u or u.form ~= forms[k] then ok = false break end
+        end
+        if ok and (not best or #forms > best) then best = #forms end
+      end
     end
-    if ok and (not best or #forms > best) then best = #forms end
+    lex = lex.parent
   end
   return best
 end

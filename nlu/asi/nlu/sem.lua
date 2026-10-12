@@ -10,14 +10,20 @@ local F = require("asi.nlu.frames2")
 local Sem = {}
 
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "focus", "statement", "np_only", "segment_only" }
+  "request", "instruction", "focus", "statement", "np_only", "segment_only", "recall" }
 
 local function sentence_unit_range(an, sid)
-  local a, b
-  for i, u in ipairs(an.units) do
-    if u.sent == sid then a = a or i; b = i end
+  local r = an._ranges
+  if not r then
+    r = {}
+    for i, u in ipairs(an.units) do
+      local e = r[u.sent]
+      if not e then r[u.sent] = { i, i } else e[2] = i end
+    end
+    an._ranges = r
   end
-  return a, b
+  local e = r[sid]
+  if e then return e[1], e[2] end
 end
 Sem.sentence_unit_range = sentence_unit_range
 
@@ -29,16 +35,18 @@ local function ref(S, np, depth)
   if np.head then r.head = np.head.form end
   local b = np.bound
   if b and b.deictic then r.deictic = b.deictic end
+  if b and (b.expletive or b.indefinite) then r.non_anaphoric = b.expletive and "expletive" or "indefinite" end
   if b and b.antecedent then r.antecedent = b.antecedent end
   if b then
     r.status = b.status
     if b.top then
+      if b.top.weak then r.weak_name = true end
       if b.status == "resolved" or b.status == "unseen" then r.resolved_id, r.type = b.top.id, b.top.type
       else r.leading_candidate = b.top.id end -- ambiguous: a leading candidate is NOT a resolution
     end
     r.type = r.type or b.type
     if b.cands and #b.cands > 0 then
-      r.candidates = U.map(b.cands, function(c) return { id = c.id, type = c.type, name = c.name, p = c.p, score = c.score, reasons = c.reasons, unseen = c.unseen or nil, fuzzy = c.fuzzy } end)
+      r.candidates = U.map(b.cands, function(c) return { id = c.id, type = c.type, name = c.name, p = c.p, score = c.score, reasons = c.reasons, unseen = c.unseen or nil, weak = c.weak or nil, fuzzy = c.fuzzy } end)
     end
     if b.rejected and #b.rejected > 0 then
       r.rejected = U.map(b.rejected, function(c) return { id = c.id, type = c.type, reason = c.reasons[#c.reasons] } end)
@@ -48,10 +56,10 @@ local function ref(S, np, depth)
   if np.head_kind == "var" then r.status, r.type, r.result_of_step = "chain_variable", np.type, np.step; r.var = np.var end
   if np.pron then
     r.pronoun = np.pron.form
-    r.needs_antecedent = not (b and (b.deictic or b.status == "resolved"))
+    r.needs_antecedent = not (b and (b.deictic or b.expletive or b.indefinite or b.status == "resolved"))
     if b and b.discourse and b.status ~= "resolved" and not b.deictic then r.antecedent_reason = b.none_reason end
   end
-  if np.backref then r.backref = true; r.needs_context = true end
+  if np.backref then r.backref = true; r.needs_context = true; r.backref_who = np.backref_who end
   if np.det then r.det = np.det end
   if np.plural then r.plural = true end
   if np.superlative then r.superlative = np.superlative end
@@ -221,6 +229,10 @@ function Sem.render(res, ctx)
     if top.verify then interp.query.verify = { from = ref(S, top.verify.from), to = ref(S, top.verify.to) } end
   end
   if top.basis then interp.basis = ref(S, top.basis.np); interp.basis_cue = top.basis.cue end
+  if top.recall then
+    interp.recall = { verb = top.recall.verb, wh = top.recall.wh, participant = top.recall.participant, topic = ref(S, top.recall.topic) }
+    interp.subject = interp.subject or ref(S, top.recall.topic)
+  end
   if top.concept then interp.concept = ref(S, top.concept) end
   if top.subject then interp.subject = ref(S, top.subject) end
   if top.target then interp.target = ref(S, top.target) end
@@ -280,7 +292,8 @@ function Sem.render(res, ctx)
   local deps = {}
   local function scan_dep(np)
     if not np then return end
-    if np.head_kind == "pronoun" and not (np.bound and np.bound.deictic) then deps[#deps + 1] = { kind = "pronoun", text = P.span_text(S, np), pronoun = np.pron.form } end
+    local person = np.pron and tostring(np.pron.feats and np.pron.feats.person or "3")
+    if np.head_kind == "pronoun" and person ~= "1" and person ~= "2" and not (np.bound and (np.bound.deictic or np.bound.expletive or np.bound.indefinite)) then deps[#deps + 1] = { kind = "pronoun", text = P.span_text(S, np), pronoun = np.pron.form } end
     if np.backref then deps[#deps + 1] = { kind = "backref", text = P.span_text(S, np) } end
     if np.ordinal and np.head_kind ~= "temporal" then deps[#deps + 1] = { kind = "ordinal_reference", text = P.span_text(S, np), ordinal = np.ordinal } end
     if np.of_arg then scan_dep(np.of_arg) end
@@ -288,6 +301,7 @@ function Sem.render(res, ctx)
   end
   for _, np in pairs(top.roles) do scan_dep(np) end
   scan_dep(top.concept); scan_dep(top.subject); scan_dep(top.target); scan_dep(top.focus); scan_dep(top.object)
+  if top.recall then deps[#deps + 1] = { kind = "conversation_history", text = interp.sentence.text } end
   if top.basis then scan_dep(top.basis.np) end
   if top.intent == "comparison" and (not top.items or #top.items < 2) then deps[#deps + 1] = { kind = "comparison_set", text = interp.sentence.text } end
   for _, it in ipairs(top.items or {}) do scan_dep(it) end

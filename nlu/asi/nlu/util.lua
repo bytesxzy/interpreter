@@ -196,7 +196,7 @@ local function enc(v, out, opts, depth, indent)
     if v ~= v or v == math.huge or v == -math.huge then
       if opts.nan_null then out[#out + 1] = "null" else error("json_encode: non-finite number", 0) end
     elseif math.type(v) == "integer" then out[#out + 1] = string.format("%d", v)
-    elseif v == math.floor(v) and math.abs(v) < 1e15 then out[#out + 1] = string.format("%d", v) .. ".0"
+    elseif v == math.floor(v) and math.abs(v) < 1e15 then out[#out + 1] = string.format("%d", v) -- 1.0 and 1 are the same JSON number (canonical form)
     else out[#out + 1] = string.format("%.17g", v) end
   elseif tv == "string" then out[#out + 1] = enc_str(v, opts.strict_utf8 ~= false)
   elseif tv == "table" then

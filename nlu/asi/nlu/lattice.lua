@@ -197,7 +197,9 @@ function Lattice.build(an, lex, opts)
       end
       if u.form == "i" then ok = false end
       if ok then
-        add(i, j, { kind = "name", type_guess = type_guess, text = an.original:sub(units[i].s, units[j].e), multiword = multi,
+        -- capitalisation is the ONLY evidence for a sentence-initial single word: flagged so memory does not treat it as an established entity
+        local weak = (initial and not multi and not type_guess) or nil
+        add(i, j, { kind = "name", type_guess = type_guess, text = an.original:sub(units[i].s, units[j].e), multiword = multi, weak = weak,
           head_cue = (lex:headcue(last.form) or lex:headcue(u.form)) and true or nil }, "name_guess", sc)
       end
       i = j + 1

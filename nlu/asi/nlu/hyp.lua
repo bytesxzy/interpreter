@@ -92,7 +92,7 @@ function H.bind_np(S, ctx, np, expected, h, role)
       end
       s = s + 0.1 * ((cd.prior or 0.5) - 0.5)
       scored[#scored + 1] = { id = cd.id, type = ty, name = cd.name, score = s, fit = fit, vetoed = (fit == -1.0 and expected ~= nil),
-        reasons = reasons, unseen = cd.unseen, fuzzy = cd.fuzzy, source = cd.source, domain = cd.domain }
+        reasons = reasons, unseen = cd.unseen, weak = cd.weak, fuzzy = cd.fuzzy, source = cd.source, domain = cd.domain }
     end
     local live = {}
     for _, c in ipairs(scored) do if not c.vetoed then live[#live + 1] = c end end
