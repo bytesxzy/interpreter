@@ -418,6 +418,7 @@ function M:observe_sentence(interp, meta)
         end
       end
     end
+    if target and created and target == created.id then target = nil end   -- "Disregard what I said, and go with X": the new instruction survives its own retraction
     if target then self:revoke(target, text) end
   end
   -- semantic memory: relational assertions, hedges kept speculative ---------------------------------------------------------

@@ -774,9 +774,27 @@ function F.instruction(S, out)
       skipped[#skipped + 1] = k; k = k + 1
     end
   end
-  if corr_n then correction = true; skip_units(corr_n) end
+  if corr_n then
+    correction = true; skip_units(corr_n)
+    -- several markers may open one sentence: "Wait, no, I meant ...", "Correction: I meant ...", "Sorry, quick fix: ..."
+    for _ = 1, 3 do
+      local cn = C(S, k)
+      local n2 = cn and not cn.masked and lex:cue_at("correction", S.units, cn.u1)
+      if n2 then skip_units(n2)
+      elseif cn and cn.single and not cn.masked and (cn.unit.form == "no" or cn.unit.form == "yes" or cn.unit.form == "okay" or cn.unit.form == "ok" or cn.unit.form == "well" or cn.unit.form == "so") then skipped[#skipped + 1] = k; k = k + 1
+      else break end
+    end
+  end
   c = C(S, k)
   if c and lex:cue_at("persist", S.units, c.u1) then persist = true; skip_units(lex:cue_at("persist", S.units, c.u1)) end
+  -- a correction / retraction clause anywhere before the instruction ("I got that wrong before, so please switch ...", "Disregard what I said, and go with ...")
+  local preamble_to
+  if not correction then
+    for kk = S.first, S.last do
+      local ck = C(S, kk)
+      if ck and not ck.masked and (lex:cue_at("correction", S.units, ck.u1) or lex:cue_at("revoke", S.units, ck.u1)) then correction = true; preamble_to = kk break end
+    end
+  end
   c = C(S, k)
   -- temporal persist marker already lexed as a temporal chunk ("From now on", "Going forward")
   while c and c.temporal and (c.temporal.kind == "persist" or c.temporal.persist) do persist = true; skipped[#skipped + 1] = k; k = k + 1; c = C(S, k) end
@@ -818,6 +836,16 @@ function F.instruction(S, out)
         if #tries == 0 then for _, np in ipairs(P.parse_np(S, nk)) do tries[#tries + 1] = { np = np } end end
         for _, tr in ipairs(tries) do
           local np = tr.np
+          if np.head_kind == "pronoun" then
+            -- "I meant the 2024 dataset, so please switch to THAT": the pronoun stands for the resource named earlier in the same sentence
+            for k2 = S.first, kk - 1 do
+              local found
+              for _, np2 in ipairs(P.parse_np(S, k2)) do
+                if resource_slot(S, np2) and np2.nxt <= kk then found = np2 break end
+              end
+              if found then tr.antecedent_np = found; break end
+            end
+          end
           local act_eff = a.act
           local ptc = C(S, np.nxt)
           -- "KEEP hospitals OUT of ...", "LEAVE X OUT", "FILTER X OUT": a particle after the object turns the verb into an exclusion
@@ -829,16 +857,20 @@ function F.instruction(S, out)
           if tr.particle then h.used[tr.particle] = true end
           for _, s_ in ipairs(skipped) do h.used[s_] = true end
           for _, s_ in ipairs(prefix_used or {}) do h.used[s_] = true end
+          -- a retraction / correction clause that precedes the instruction is explained by the correction marker itself
+          if preamble_to and kk > preamble_to then for i2 = S.first, kk - 1 do if i2 ~= kk then h.used[i2] = true end end end
           for _, s_ in ipairs(pre) do h.used[s_] = true end
           use(h, kk); for _, f in ipairs(fill) do h.used[f] = true end; use_np(h, np)
           if tr.extra then use_np(h, tr.extra.np1); h.used[tr.extra.joiner] = true end
-          local slot = resource_slot(S, np)
+          local vnp = tr.antecedent_np or np
+          if tr.antecedent_np then use_np(h, vnp) end
+          local slot = resource_slot(S, vnp)
           local value
-          if np.temporal_mod then value = { year = np.temporal_mod.year, label = np.temporal_mod.text, expr = np.temporal_mod }
+          if vnp.temporal_mod then value = { year = vnp.temporal_mod.year, label = vnp.temporal_mod.text, expr = vnp.temporal_mod }
           else
-            for _, m in ipairs(np.mods) do if m.kind == "mod" or m.kind == "ordinal" then value = value or { word = m.form, label = m.text } end end
+            for _, m in ipairs(vnp.mods) do if m.kind == "mod" or m.kind == "ordinal" then value = value or { word = m.form, label = m.text } end end
           end
-          h.instruction = { verb = a.lemma, act = act_eff, np = np, slot = slot, value = value, correction = correction, persist = persist }
+          h.instruction = { verb = a.lemma, act = act_eff, np = vnp, slot = slot, value = value, correction = correction, persist = persist }
           if act_eff == "exclude" then h.polarity = "negative" end
           h.correction, h.persist = correction, persist
           if slot then addf(h, "resource_slot", 0.5, "instruction targets the '" .. slot .. "' slot") end
