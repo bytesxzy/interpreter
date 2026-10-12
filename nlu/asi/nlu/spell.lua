@@ -38,7 +38,12 @@ function Spell.new(opts)
   return setmetatable({ words = {}, index = {}, n = 0, kinds = {} }, Spell)
 end
 
-function Spell:known(form) return self.words[form] ~= nil end
+function Spell:known(form)
+  return self.words[form] ~= nil or (self.parent ~= nil and self.parent:known(form))
+end
+
+-- a Spell may chain to a parent (core vocabulary) so dataset overlays add words without copying the index
+function Spell:chain(parent) self.parent = parent; return self end
 
 function Spell:add(form, weight, kind)
   if not form or form == "" then return end
@@ -66,16 +71,8 @@ function Spell:add_all(list, weight, kind)
   for _, w in ipairs(list) do self:add(w, weight, kind) end
 end
 
--- returns up to opts.limit candidates {form, dist, weight, kind, transposition, conf}
-function Spell:suggest(form, o)
-  o = o or {}
-  local n = len(form)
-  local maxd = o.max_edit or max_edit_for(n)
-  if maxd == 0 or self.words[form] then return {} end
-  local pre = form
-  if n > PREFIX then pre = form:sub(1, utf8.offset(form, PREFIX + 1) - 1) end
-  local cands, seen = {}, {}
-  for _, d in ipairs(char_deletes(pre, maxd)) do
+function Spell:_cands(form, maxd, deletes, cands, seen)
+  for _, d in ipairs(deletes) do
     local bucket = self.index[d]
     if bucket then
       for _, w in ipairs(bucket) do
@@ -91,6 +88,19 @@ function Spell:suggest(form, o)
       end
     end
   end
+  if self.parent then self.parent:_cands(form, maxd, deletes, cands, seen) end
+end
+
+-- returns up to opts.limit candidates {form, dist, weight, kind, first_same, conf}
+function Spell:suggest(form, o)
+  o = o or {}
+  local n = len(form)
+  local maxd = o.max_edit or max_edit_for(n)
+  if maxd == 0 or self:known(form) then return {} end
+  local pre = form
+  if n > PREFIX then pre = form:sub(1, utf8.offset(form, PREFIX + 1) - 1) end
+  local cands = {}
+  self:_cands(form, maxd, char_deletes(pre, maxd), cands, {})
   table.sort(cands, function(a, b)
     if a.dist ~= b.dist then return a.dist < b.dist end
     if a.first_same ~= b.first_same then return a.first_same end
