@@ -225,14 +225,37 @@ end
 local function backref_at(S, m)
   local c = C(S, m)
   if not c then return nil end
+  local j
   local n = S.lex:cue_at("backref", S.units, c.u1)
-  if not n then return nil end
-  local consumed, j = 0, m
-  while j <= #S.chunks and consumed < n do
-    consumed = consumed + (S.chunks[j].u2 - S.chunks[j].u1 + 1)
-    j = j + 1
+  if n then
+    local consumed = 0
+    j = m
+    while j <= #S.chunks and consumed < n do
+      consumed = consumed + (S.chunks[j].u2 - S.chunks[j].u1 + 1)
+      j = j + 1
+    end
+    if consumed ~= n then return nil end
+  else
+    -- discourse-linked relative clause: "[that] I|we|you [was|have ...] <past/progressive verb>"  ("the business I mentioned",
+    -- "the architecture we were improving", "the correction I made").  Structural, so it covers verbs no cue list names.
+    local k = m
+    if c.single and (c.unit.form == "that" or c.unit.form == "which") then k = k + 1 end
+    local p = C(S, k)
+    local f = p and p.single and p.unit.form
+    if p and not barrier(p) and (f == "i" or f == "we" or f == "you") then
+      local q = k + 1
+      while C(S, q) and C(S, q).single and not barrier(C(S, q)) and (cat(C(S, q), "aux_be") or cat(C(S, q), "aux_have")) do q = q + 1 end
+      local vc = C(S, q)
+      if vc and vc.single and not barrier(vc) then
+        for _, a in ipairs(P.verb_analyses(S, vc)) do
+          if a.form == "past" or a.form == "pp" or a.form == "ing" then j = q + 1 break end
+        end
+      end
+    end
   end
-  if consumed ~= n then return nil end
+  if not j then return nil end
+  -- trailing temporal adverbs belong to the clause ("... I mentioned earlier")
+  while C(S, j) and C(S, j).single and not barrier(C(S, j)) and S.lex:cue_at("backref_adv", S.units, C(S, j).u1) do j = j + 1 end
   return j
 end
 P.backref_at = backref_at
@@ -406,6 +429,8 @@ local function parse_np_core(S, k, opts)
       if br then
         local cp = U.shallow(a)
         cp.backref = true
+        -- right association: a discourse-linked clause attaches to the nearest noun ("the CEO of [the company I mentioned]")
+        if a.of_arg and not a.of_arg.backref then cp.score = a.score - 0.5 end
         local last = C(S, br - 1)
         cp.nxt = br; cp.u2 = last.u2; cp.c2 = last.idx
         final[#final + 1] = cp
@@ -443,7 +468,12 @@ function parse_np(S, k, opts)
     end
   end
   for _, a in ipairs(parse_np_core(S, k, opts)) do out[#out + 1] = a end
-  table.sort(out, function(x, y) return x.score > y.score end)
+  -- ties: the reading that consumes more input first (a discourse-linked clause explains strictly more words), then a stable order
+  table.sort(out, function(x, y)
+    if x.score ~= y.score then return x.score > y.score end
+    if x.nxt ~= y.nxt then return x.nxt > y.nxt end
+    return (x.head_kind or "") < (y.head_kind or "")
+  end)
   local trimmed = {}
   for i = 1, math.min(#out, 6) do trimmed[i] = out[i] end
   S.np_memo[key] = trimmed

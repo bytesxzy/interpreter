@@ -533,6 +533,35 @@ function F.compare_q(S, out)
   end
 end
 
+---------------------------------------------------------------- basis clause
+-- "..., considering the correction I made earlier"  /  "... given the revised budget"  /  "... taking X into account"
+-- The NP is an input the request must respect; it is kept as a (possibly context-dependent) argument, never dropped.
+function F.attach_basis(S, h)
+  if h.basis ~= nil or not h.speech_act or h.speech_act == "statement" then return end
+  local lex = S.lex
+  for k = S.first, S.last do
+    local c = C(S, k)
+    if c and not c.masked and not h.used[k] and c.single and lex:cue_at("basis", S.units, c.u1) == 1 then
+      local form = c.unit.form
+      local nxt = C(S, k + 1)
+      if not (form == "given" and nxt and nxt.single and nxt.unit.form == "that") then
+        for _, np in ipairs(P.parse_np(S, k + 1)) do
+          local c1, c2 = C(S, np.nxt), C(S, np.nxt + 1)
+          local closed = c1 and c2 and c1.single and c2.single and c1.unit.form == "into" and c2.unit.form == "account"
+          if form ~= "taking" or closed then
+            h.basis = { cue = form, np = np }
+            h.used[k] = true; use_np(h, np)
+            if closed then h.used[np.nxt] = true; h.used[np.nxt + 1] = true end
+            addf(h, "basis_clause", 0.3, "'" .. form .. "' introduces a basis the request must take into account")
+            F.mark_pron(h, np)
+            return
+          end
+        end
+      end
+    end
+  end
+end
+
 ---------------------------------------------------------------- statements, focus, instructions, corrections
 local function resource_slot(S, np)
   if not np or not np.head then return nil end

@@ -104,9 +104,9 @@ D120 | multi_hop | Where was the founder of Example Labs born? | rel=birth_place
 D121 | multi_hop | What is the capital of the country where Mount Fuji is? | rel=capital; ask=to; chain=located_in>capital
 D122 | multi_hop | Who is the CEO of the company that acquired Beta Systems? | rel=ceo; ask=to; chain=acquirer>ceo
 # ------------------------------------------------------------------ coreference inside one message
-D125 | coreference | I'm researching Company A. Who founded it? | rel=founder; from=Company A; ask=to
-D126 | coreference | Who founded it? | rel=founder; ctx=pronoun; evid=1
-D127 | coreference | Compare Company A and Company B. Which one is older? | intent=comparison; ctx=none
+D125 | coreference | I'm researching Company A. Who founded it? | rel=founder; from=Company A; ask=to; ref=it>Company A; dep=self_contained; unres=0
+D126 | coreference | Who founded it? | rel=founder; ctx=pronoun; evid=1; dep=ambiguous_missing_context; ref=it>unresolved; unres=1
+D127 | coreference | Compare Company A and Company B. Which one is older? | intent=comparison; ctx=comparison_set; dep=self_contained; unres=0
 # ------------------------------------------------------------------ corrections and instructions
 D130 | instruction | Use the 2023 dataset. | intent=instruction_update; inst=slot=dataset,value=2023,corr=0
 D131 | instruction | Actually, use the 2025 dataset from now on. | intent=instruction_update; inst=slot=dataset,value=2025,corr=1,persist=1
@@ -142,3 +142,15 @@ D182 | multi_part | Explain why the second solution failed, considering the corr
 D190 | malformed | ??? | status=no_interpretation
 D191 | malformed | ... | status=no_interpretation
 D192 | malformed | 12345 | status=no_interpretation
+# ------------------------------------------------------------------ discourse: pronouns, back-references, artifacts, corrections, memory (multi-turn: U: user, A: assistant; gold applies to the last turn)
+D200 | discourse | U: I'm researching Company A. // U: Who founded it? | rel=founder; from=Company A; ref=it>Company A; dep=recent_message; unres=0
+D201 | discourse | U: Tell me about Acme Robotics. // A: Acme Robotics is a robotics company. // U: Who is the CEO of the company I mentioned earlier? | rel=ceo; ref=the company I mentioned earlier>Acme Robotics; unres=0
+D202 | discourse | U: Use the 2023 dataset. // U: Actually, use the 2025 dataset from now on. // U: Who founded Example Labs? | active=dataset:2025; inactive=dataset:2023; sel=+2025 dataset,-2023 dataset
+D203 | discourse | A: Here are two approaches: // A: Solution 1: Cache the results. // A: Solution 2: Rewrite the parser. // U: Explain why the second solution failed. | intent=causal_explanation; ref=the second solution>Solution 2; unres=0
+D204 | discourse | U: Explain why the second solution failed, considering the correction I made earlier. | intent=causal_explanation; ref=the second solution>unresolved,the correction I made earlier>unresolved; dep=ambiguous_missing_context; unres=2
+D205 | discourse | U: Which company acquired the business I mentioned earlier? | rel=acquirer; ref=the business I mentioned earlier>unresolved; dep=ambiguous_missing_context; unres=1
+D206 | discourse | U: I'm looking at Beta Systems, a robotics business. // U: Which company acquired the business I mentioned earlier? | rel=acquirer; from=Beta Systems; ref=the business I mentioned earlier>Beta Systems; unres=0
+D207 | discourse | U: Compare Company A and Company B. // U: Which one is older? | intent=comparison; ref=Which one is older?>resolved; unres=0
+D208 | discourse | U: Tell me about Mercury. // U: What is the orbital period of it? | rel=orbital_period; ref=it>unresolved
+D209 | discourse | U: We were discussing the solar system. // U: Tell me about Mercury. | subject=Mercury:planet:planet.mercury; amb=resolved
+D210 | discourse | U: Never mind the dataset instruction. // U: Who founded Example Labs? | rel=founder; from=Example Labs

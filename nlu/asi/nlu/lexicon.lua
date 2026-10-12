@@ -49,6 +49,7 @@ function L.new(parent)
   self.domain_words = {} -- form -> {domain -> 1}
   self.headcues = {}    -- folded last word -> type
   self.resources = {}   -- folded phrase -> canonical resource name
+  self.refnouns = {}    -- form -> artifact class (solution | version | correction | ...)
   self.wraps = {}
   self.forms = {}       -- surface form -> list of readings {pos, lemma, feat, ref}
   self.trie = { kids = {} }
@@ -469,6 +470,20 @@ function DIRECTIVES.resource(self, rest)
   self.resources[name] = name
 end
 
+-- nouns that denote conversational artifacts ("the second solution", "the revised version", "my earlier correction")
+function DIRECTIVES.refnoun(self, rest)
+  local class, tail = split_head(rest)
+  for _, w in ipairs(list(tail)) do
+    local f = w:lower()
+    local forms = { f }
+    for _, nf in ipairs(Morph.noun_forms(f)) do forms[#forms + 1] = nf.form end
+    for _, form in ipairs(forms) do
+      self.refnouns[form] = self.refnouns[form] or {}
+      self.refnouns[form][class] = true
+    end
+  end
+end
+
 function DIRECTIVES.wrap(self, rest)
   local name, tail = split_head(rest)
   local f, _ = split_fields(tail)
@@ -566,6 +581,26 @@ function L:domains_of(form)
   while lex do
     local d = lex.domain_words[form]
     if d then for k in pairs(d) do out[k] = true end end
+    lex = lex.parent
+  end
+  return out
+end
+
+-- is `phrase` (folded) listed under the cue kind `name` in this lexicon or an ancestor?
+function L:is_cue(name, phrase)
+  local lex = self
+  while lex do
+    if lex.cues[name] and lex.cues[name][phrase] then return true end
+    lex = lex.parent
+  end
+  return false
+end
+
+-- artifact classes a noun can denote (set), merged along the overlay chain
+function L:refclasses(form)
+  local out, lex = {}, self
+  while lex do
+    for c in pairs(lex.refnouns[form] or {}) do out[c] = true end
     lex = lex.parent
   end
   return out

@@ -7,7 +7,7 @@ local U = require("asi.nlu.util")
 local E = {}
 
 E.SERIOUS = U.set({ "intent", "rel", "rel!", "from", "to", "subject", "concept", "target", "focus", "object", "ask", "neg", "amb", "alts", "items",
-  "inst", "tc", "pos", "pol", "src", "ctx", "pref" })
+  "inst", "tc", "pos", "pol", "src", "ctx", "pref", "dep", "ref", "active", "inactive", "sel", "unres" })
 
 ---------------------------------------------------------------- parsing
 function E.parse_cases(text, source)
@@ -29,7 +29,18 @@ function E.parse_cases(text, source)
             if k then gold[k] = v else errs[#errs + 1] = string.format("%s:%d: bad gold item '%s'", source or "?", ln, kv) end
           end
         end
-        cases[#cases + 1] = { id = parts[1], category = parts[2], text = parts[3], gold = gold, line = ln, source = source }
+        local cs = { id = parts[1], category = parts[2], text = parts[3], gold = gold, line = ln, source = source }
+        -- multi-turn case:  U: first turn // A: assistant turn // U: the request being evaluated   (gold applies to the last turn)
+        if cs.text:match("^[UAD]:%s") then
+          cs.turns = {}
+          for seg in (cs.text .. " // "):gmatch("(.-) //%s") do
+            local who, body = seg:match("^([UAD]):%s*(.*)$")
+            if who then cs.turns[#cs.turns + 1] = { speaker = (who == "U" and "user") or (who == "A" and "assistant") or "doc", text = body }
+            elseif #cs.turns > 0 then cs.turns[#cs.turns].text = cs.turns[#cs.turns].text .. " // " .. seg end
+          end
+          cs.final_text = cs.turns[#cs.turns].text
+        end
+        cases[#cases + 1] = cs
       end
     end
   end
@@ -54,7 +65,9 @@ end
 local function ref_ok(lex, pred, gold)
   if not pred then return false, "missing" end
   local text, ty, id = gold:match("^([^:]*):?([^:]*):?(.*)$")
-  if text ~= "*" and text ~= "" and norm_text(pred.text) ~= norm_text(text) then return false, "text '" .. tostring(pred.text) .. "' ~= '" .. text .. "'" end
+  -- a resolved pronoun / back-reference is judged by what it was resolved TO
+  local ptext = (pred.antecedent and pred.antecedent.text) or pred.text
+  if text ~= "*" and text ~= "" and norm_text(ptext) ~= norm_text(text) then return false, "text '" .. tostring(ptext) .. "' ~= '" .. text .. "'" end
   if ty ~= "" and ty ~= "*" then
     local pt = type_of(pred)
     if not pt then
@@ -281,6 +294,52 @@ function E.compare(lex, m, gold)
     end
     chk("inst", ok, table.concat(got, "/"))
   end
+  local cx = m.context or {}
+  if gold.dep then
+    local got = cx.dependency and cx.dependency.primary or "-"
+    chk("dep", got == gold.dep, got)
+  end
+  if gold.ref then
+    -- ref=<mention>><antecedent text | resolved | ambiguous | unresolved>, ...
+    local ok, got = true, {}
+    for _, spec in ipairs(list_of(gold.ref)) do
+      local mention, want = spec:match("^(.-)>(.*)$")
+      local found
+      for _, r in ipairs(cx.references or {}) do if norm_text(r.mention) == norm_text(mention) then found = r end end
+      if not found then ok = false; got[#got + 1] = mention .. ">(none)"
+      else
+        local w = norm_text(want)
+        local have = found.status
+        if w == "resolved" or w == "ambiguous" or w == "unresolved" then
+          if have ~= w then ok = false end
+        else
+          if have ~= "resolved" or norm_text((found.antecedent and found.antecedent.text) or "") ~= w then ok = false end
+        end
+        got[#got + 1] = mention .. ">" .. have .. ((found.antecedent and found.antecedent.text) and (":" .. found.antecedent.text:sub(1, 30)) or "")
+      end
+    end
+    chk("ref", ok, table.concat(got, ","))
+  end
+  if gold.active or gold.inactive then
+    local act = {}
+    for _, c in ipairs(cx.active_constraints or {}) do if c.slot then act[c.slot .. ":" .. tostring(c.value)] = true end end
+    local ok = true
+    for _, spec in ipairs(list_of(gold.active)) do if not act[spec] then ok = false end end
+    for _, spec in ipairs(list_of(gold.inactive)) do if act[spec] then ok = false end end
+    chk(gold.active and "active" or "inactive", ok, table.concat(U.sorted_keys(act), ","))
+  end
+  if gold.sel then
+    -- sel=+fragment,-fragment : memory items whose text contains the fragment must (not) have been selected
+    local ok, sel = true, (cx.memory and cx.memory.selected) or {}
+    for _, spec in ipairs(list_of(gold.sel)) do
+      local sign, frag = spec:sub(1, 1), spec:sub(2):lower()
+      local hit = false
+      for _, it in ipairs(sel) do if (it.text or ""):lower():find(frag, 1, true) then hit = true end end
+      if (sign == "+" and not hit) or (sign == "-" and hit) then ok = false end
+    end
+    chk("sel", ok, tostring(#sel) .. " selected")
+  end
+  if gold.unres then chk("unres", #(cx.unresolved or {}) == tonumber(gold.unres), tostring(#(cx.unresolved or {}))) end
   if gold.chain then
     local got = m.query and m.query.chain and table.concat(m.query.chain, ">") or ""
     chk("chain", got == gold.chain, got)
@@ -305,6 +364,44 @@ function E.signature(m)
   table.sort(tcs)
   return table.concat({ m.intent or "?", m.relation and m.relation.id or "-", r(m.roles and m.roles.from), r(m.roles and m.roles.to), r(m.subject), r(m.concept),
     m.query and m.query.ask or "-", table.concat(negs, "+"), table.concat(tcs, "+"), m.ambiguity and m.ambiguity.state or "?", m.temporal_scope or "-" }, "|")
+end
+
+---------------------------------------------------------------- runner factory (shared by tools, tests and the CLI)
+-- mode: "full" | "baseline" | "lexical_only" | comma-separated ablation flags (no_types,no_domain,no_hypotheses,no_coref,no_memory,...)
+local MAIN_FALLBACK = { status = "no_interpretation", speech_act = "unknown", intent = "unknown",
+  constraints = { positive = {}, negative = {}, temporal = {}, geographic = {}, source = {}, preferences = {}, restrictions = {} },
+  ambiguity = { state = "unresolvable", points = {} }, roles = {}, dependencies = {} }
+
+function E.make_runner(mode, lex, extra)
+  mode = mode or "full"
+  extra = extra or {}
+  if mode == "baseline" then
+    local B = require("asi.nlu.baseline")
+    return function(t) return B.interpret(t, lex), 0 end
+  elseif mode == "lexical_only" then
+    local B = require("asi.nlu.baseline")
+    return function(t) return B.lexical_only(t, lex), 0 end
+  end
+  local I = require("asi.nlu.interp")
+  local Memory = require("asi.nlu.memory")
+  local flags = {}
+  if mode ~= "full" then for f in mode:gmatch("[^,]+") do flags[f] = true end end
+  local interp = I.new({ flags = flags, lexicon = lex, budget = extra.budget })
+  return function(t, cs)
+    local turns = cs and cs.turns
+    if not turns or flags.no_memory then
+      local r = interp:interpret((turns and cs.final_text) or t, {})
+      return r.main or MAIN_FALLBACK, r.work and r.work.total or 0
+    end
+    local mem = Memory.new({ ns = { user = "eval", project = "eval", conversation = cs.id } })
+    local last, work = nil, 0
+    for i, turn in ipairs(turns) do
+      local r = interp:interpret(turn.text, { memory = mem, speaker = turn.speaker, light = (turn.speaker ~= "user") })
+      work = work + (r.work and r.work.total or 0)
+      if i == #turns then last = r end
+    end
+    return (last and last.main) or MAIN_FALLBACK, work
+  end
 end
 
 ---------------------------------------------------------------- running + aggregation

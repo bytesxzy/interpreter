@@ -55,7 +55,7 @@ H.sense_domain = sense_domain
 ---------------------------------------------------------------- binding an NP argument to candidates + types
 -- expected: type name (or union) or nil.  Returns bound table and the best type-fit in [-1, 1]
 function H.bind_np(S, ctx, np, expected, h, role)
-  if np.bound and np.bound_for == expected then return np.bound, np.bound.fit end
+  if np.bound and np.bound_for == expected and (np.head_kind ~= "pronoun" or np.bound_h == h) then return np.bound, np.bound.fit end
   local lex = S.lex
   local W = H.W
   local b = { cands = {}, status = "unresolved", expected = expected }
@@ -140,14 +140,18 @@ function H.bind_np(S, ctx, np, expected, h, role)
     -- intermediate result of an earlier step of a multi-hop chain: its type comes from that step
     b.type, b.fit, b.status, b.chain_var = np.type, lex:compat(np.type, expected), "resolved", np.var
   elseif np.head_kind == "pronoun" then
-    b.status, b.fit, b.pending = "pending", 0.25, true
+    if ctx.discourse and not (ctx.flags and ctx.flags.no_coref) then
+      ctx.discourse:pronoun_binding(S, ctx, np, expected, h, role, b)
+    else
+      b.status, b.fit, b.pending = "pending", 0.25, true
+    end
   elseif np.head_kind == "temporal" then b.type, b.fit, b.status = "date", lex:compat("date", expected), "resolved"
   elseif np.head_kind == "number" then b.type, b.fit, b.status = "number", lex:compat("number", expected), "resolved"
   elseif np.head_kind == "quote" or np.head_kind == "literal" then b.type, b.fit, b.status = "text", 0.25, "resolved"
   else
     b.fit, b.status = 0.25, "unknown_term"
   end
-  np.bound, np.bound_for = b, expected
+  np.bound, np.bound_for, np.bound_h = b, expected, h
   return b, b.fit
 end
 
@@ -163,12 +167,8 @@ local function content_chunks(S)
   return n
 end
 
-function H.finalize(S, ctx, h)
+local function bind_all(S, ctx, h)
   local W = H.W
-  local F2 = require("asi.nlu.frames2")
-  F2.expand_chain(S, h)   -- turn nested relational NPs / relative clauses into ordered lookup steps
-  Cons.attach(S, h)
-  -- bind every role / target / concept
   local function fit_factor(name, fit, note)
     if fit == nil then return end
     h.factors[#h.factors + 1] = { name = name, v = W.type_fit * fit * 0.5, note = note }
@@ -206,6 +206,7 @@ function H.finalize(S, ctx, h)
   for _, it in ipairs(h.items or {}) do H.bind_np(S, ctx, it, nil, h, "item") end
   if h.focus then H.bind_np(S, ctx, h.focus, nil, h, "focus") end
   if h.object then H.bind_np(S, ctx, h.object, nil, h, "object") end
+  if h.basis then H.bind_np(S, ctx, h.basis.np, nil, h, "basis") end
   if h.statement then
     if h.statement.subj then H.bind_np(S, ctx, h.statement.subj, nil, h, "subject") end
     if h.statement.obj then H.bind_np(S, ctx, h.statement.obj, nil, h, "object") end
@@ -223,6 +224,16 @@ function H.finalize(S, ctx, h)
       h.factors[#h.factors + 1] = { name = "fuzzy_lexeme", v = W.fuzzy * (1 - c.fuzzy) - 0.15, note = "'" .. tostring(c.fuzzy_from) .. "' matched through a spelling variant" }
     end
   end
+
+end
+
+function H.finalize(S, ctx, h)
+  local W = H.W
+  local F2 = require("asi.nlu.frames2")
+  F2.expand_chain(S, h)   -- turn nested relational NPs / relative clauses into ordered lookup steps
+  F2.attach_basis(S, h)   -- "considering X" / "given X" arguments
+  Cons.attach(S, h)
+  bind_all(S, ctx, h)
 
   -- lexical attestation of the spans actually used
   local lex_bonus = 0
@@ -252,6 +263,16 @@ function H.finalize(S, ctx, h)
   for _, f in ipairs(h.factors) do s = s + f.v end
   h.score = s
   return h
+end
+
+-- NP objects are shared between competing hypotheses, so np.bound can belong to the last hypothesis finalised.  Rebinding the
+-- winner restores its own bindings before anything is rendered or audited; factors added again are discarded (scores unchanged).
+function H.rebind(S, ctx, h)
+  local n = #h.factors
+  local veto = h.veto
+  bind_all(S, ctx, h)
+  for i = #h.factors, n + 1, -1 do h.factors[i] = nil end
+  h.veto = veto
 end
 
 ---------------------------------------------------------------- selection

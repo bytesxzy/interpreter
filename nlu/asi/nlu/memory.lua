@@ -29,14 +29,17 @@ function M.new(opts)
   self.transient = opts.transient or false
   self.max_items = opts.max_items or 20000
   self.decay = opts.decay or 0.85
-  self.turn, self.revision, self.next_id = 0, 0, 1
+  self.turn, self.revision, self.next_id, self.seq = 0, 0, 1, 0
   self.items, self.order = {}, {}
   self.entities = {}
   self.slots = {}
   self.focus = nil
   self.comparison = nil
   self.artifacts = {}
-  self.index = { terms = {}, len = {}, n = 0, total_len = 0 }
+  self.index = { terms = {}, df = {}, len = {}, n = 0, total_len = 0 }
+  self.by_entity = {}   -- entity key -> item ids (identity postings; relevance never rests on shared words alone)
+  self.standing = {}    -- id -> true for active instructions / prohibitions / preferences / corrections
+  self.facts_by = {}    -- "rel|from" -> item ids (conflict detection without scanning history)
   self.evictions = {}
   return self
 end
@@ -62,7 +65,7 @@ local DEFAULT_RELIABILITY = { user = 1.0, system = 1.0, assistant = 0.6, doc = 0
 function M:add(item)
   item.id = "m" .. self.next_id
   self.next_id = self.next_id + 1
-  item.ns = item.ns or self.ns_key and self:ns_key()
+  item.ns = item.ns or self:ns_key()
   item.turn = item.turn or self.turn
   item.speaker = item.speaker or self.speaker or "user"
   item.status = item.status or "active"
@@ -81,7 +84,15 @@ function M:add(item)
     local post = self.index.terms[t]
     if not post then post = {}; self.index.terms[t] = post end
     post[item.id] = c
+    self.index.df[t] = (self.index.df[t] or 0) + 1
   end
+  for _, k in ipairs(item.entities) do
+    local l = self.by_entity[k]
+    if not l then l = {}; self.by_entity[k] = l end
+    l[#l + 1] = item.id
+    if #l > 400 then table.remove(l, 1) end
+  end
+  if PROTECTED_KINDS[item.kind] and item.kind ~= "decision" and item.kind ~= "focus" and item.status == "active" then self.standing[item.id] = true end
   self.index.len[item.id] = #toks
   self.index.n = self.index.n + 1
   self.index.total_len = self.index.total_len + #toks
@@ -99,8 +110,7 @@ function M:bm25(terms, item)
   for _, t in ipairs(terms) do
     local f = item._tf[t]
     if f then
-      local df = 0
-      for _ in pairs(ix.terms[t] or {}) do df = df + 1 end
+      local df = ix.df[t] or 0
       local idf = math.log(1 + (ix.n - df + 0.5) / (df + 0.5))
       s = s + idf * (f * (k1 + 1)) / (f + k1 * (1 - b + b * (ix.len[item.id] or 1) / avg))
     end
@@ -126,7 +136,11 @@ end
 function M:drop(id, reason)
   local it = self.items[id]
   if not it then return end
-  for t in pairs(it._tf or {}) do if self.index.terms[t] then self.index.terms[t][id] = nil end end
+  for t in pairs(it._tf or {}) do
+    if self.index.terms[t] then self.index.terms[t][id] = nil end
+    self.index.df[t] = math.max(0, (self.index.df[t] or 1) - 1)
+  end
+  self.standing[id] = nil
   self.index.total_len = self.index.total_len - (self.index.len[id] or 0)
   self.index.n = self.index.n - 1
   self.index.len[id] = nil
@@ -153,9 +167,11 @@ function M:mention(key, info)
   if info.type and not e.type then e.type = info.type end
   if info.name and not e.names[info.name:lower()] then e.names[info.name:lower()] = info.name end
   if info.speaker == "user" then e.by_user = true end
-  e.last_turn = self.turn
+  if info.plural then e.plural = true end
+  self.seq = self.seq + 1
+  e.last_turn, e.last_seq = self.turn, self.seq
   local ms = e.mentions
-  ms[#ms + 1] = { turn = self.turn, w = info.w or 0.25, role = info.role, speaker = info.speaker, sent = info.sent }
+  ms[#ms + 1] = { turn = self.turn, seq = self.seq, w = info.w or 0.25, role = info.role, speaker = info.speaker, sent = info.sent, text = info.name }
   if #ms > 40 then table.remove(ms, 1) end
   return e
 end
@@ -237,6 +253,7 @@ function M:supersede(old_id, by, reason)
   local old = self.items[old_id]
   if not old or old.status ~= "active" then return end
   old.status, old.superseded_by, old.superseded_reason, old.superseded_turn = "superseded", by.id, reason, self.turn
+  self.standing[old_id] = nil
   by.supersedes = by.supersedes or {}
   table.insert(by.supersedes, old_id)
   self.revision = self.revision + 1
@@ -246,6 +263,7 @@ function M:revoke(id, by_turn_text)
   local it = self.items[id]
   if it and it.status == "active" then
     it.status, it.revoked_turn, it.revoked_by = "revoked", self.turn, by_turn_text
+    self.standing[id] = nil
     local s = it.slot and self.slots[it.slot]
     if s and s.active == id then s.active = nil end
     self.revision = self.revision + 1
@@ -299,7 +317,8 @@ function M:observe_sentence(interp, meta)
     local w = e.w
     if r.antecedent and r.antecedent.key then w = 0.35 end -- re-mention through a pronoun
     if key then
-      local en = self:mention(key, { type = r.type or (r.antecedent and r.antecedent.type), name = r.text, w = w, role = e.role, speaker = speaker })
+      local en = self:mention(key, { type = r.type or (r.antecedent and r.antecedent.type), name = (r.antecedent and r.antecedent.text) or r.text, w = w,
+        role = e.role, speaker = speaker, plural = r.plural, sent = meta.sent })
       keys[#keys + 1] = key
       if e.role == "focus" then self.focus = { key = key, turn = self.turn, text = r.text } end
     end
@@ -311,7 +330,7 @@ function M:observe_sentence(interp, meta)
   end
   local created
   -- standing instructions / prohibitions / preferences ----------------------------------------------------------------
-  if speaker == "user" and interp.speech_act == "instruction" or (speaker == "user" and interp.intent == "instruction_update") then
+  if speaker == "user" and (interp.speech_act == "instruction" or interp.intent == "instruction_update" or interp.intent == "correction") then
     local ins = interp.instruction or {}
     local cons = interp.constraints or {}
     if ins.act == "exclude" or (ins.kind == "exclusion") or (#(cons.negative or {}) > 0 and not ins.slot) then
@@ -341,10 +360,15 @@ function M:observe_sentence(interp, meta)
       target = st and st.active
     end
     if not target then
-      for i = #self.order, 1, -1 do
-        local it = self.items[self.order[i]]
-        if it and it.status == "active" and PROTECTED_KINDS[it.kind] and it.speaker == "user" and it.turn < self.turn then target = it.id break end
+      local best_turn, best_id = -1, nil
+      for id in pairs(self.standing) do
+        local it = self.items[id]
+        if it and it.status == "active" and it.speaker == "user" and it.turn < self.turn then
+          local k = it.turn * 1000000 + (tonumber(id:sub(2)) or 0)
+          if k > best_turn then best_turn, best_id = k, id end
+        end
       end
+      target = best_id
     end
     if target then self:revoke(target, text) end
   end
@@ -353,15 +377,18 @@ function M:observe_sentence(interp, meta)
     created = self:add({ layer = "semantic", kind = "fact", text = text, entities = keys, speaker = speaker, rel = interp.relation.id,
       from = ref_key(interp.roles.from), to = ref_key(interp.roles.to), polarity = interp.polarity,
       status = meta.hedged and "speculative" or "active", reliability = (meta.hedged and 0.3 or nil) })
+    local fk = tostring(created.rel) .. "|" .. tostring(created.from)
     if not meta.hedged and created.from then
-      for _, id in ipairs(self.order) do
+      for _, id in ipairs(self.facts_by[fk] or {}) do
         local o = self.items[id]
-        if o and o ~= created and o.kind == "fact" and o.status == "active" and o.rel == created.rel and o.from == created.from and o.to ~= created.to then
+        if o and o.kind == "fact" and o.status == "active" and o.to ~= created.to then
           created.conflicts = created.conflicts or {}; table.insert(created.conflicts, o.id)
           o.conflicts = o.conflicts or {}; table.insert(o.conflicts, created.id)
         end
       end
     end
+    self.facts_by[fk] = self.facts_by[fk] or {}
+    table.insert(self.facts_by[fk], created.id)
   end
   return created
 end
@@ -403,48 +430,72 @@ local function query_terms(interp)
   return terms
 end
 
+-- Candidate generation is index-driven (standing constraints + entity-identity postings + informative-term postings + a short
+-- recency window), never a scan of the whole history; every candidate is then scored by named factors.
 function M:select(interp, opts)
   opts = opts or {}
   local max_items, min_score = opts.max_items or 12, opts.min_score or 1.0
   local keys = {}
-  for _, e in ipairs(collect_refs(interp)) do local k = ref_key(e.ref); if k then keys[k] = true end end
+  for _, e in ipairs(collect_refs(interp)) do
+    local k = ref_key(e.ref)
+    if k then keys[k] = true end
+    if e.ref.antecedent and e.ref.antecedent.key then keys[e.ref.antecedent.key] = true end
+  end
   local terms = query_terms(interp)
-  local cands, excluded = {}, {}
-  for _, id in ipairs(self.order) do
-    local it = self.items[id]
-    if it then
-      if it.ns ~= self:ns_key() then
-        excluded[#excluded + 1] = { item = it, reason = "different namespace" }
-      elseif it.status == "superseded" or it.status == "revoked" then
-        excluded[#excluded + 1] = { item = it, reason = it.status .. (it.superseded_by and (" by " .. it.superseded_by) or "") }
-      elseif it.turn >= self.turn and it.kind == "utterance" then
-        -- the current turn is the request itself, not memory
-      else
-        local s, f = 0, {}
-        if it.kind == "instruction" or it.kind == "correction" or it.kind == "preference" then
-          if self:slot_applicable(it.slot or "any", interp) or (not it.slot and it.kind == "preference") then
-            s = s + (it.standing and 3.0 or 2.0); f.standing_constraint = true
-          end
-        elseif it.kind == "prohibition" then
-          if interp.intent ~= "instruction_update" and interp.intent ~= "statement" then s = s + 2.5; f.standing_prohibition = true end
-        end
-        local shared = 0
-        for _, k in ipairs(it.entities or {}) do if keys[k] then shared = shared + 1 end end
-        if shared > 0 then s = s + 2.0 * math.min(shared, 2); f.entity_identity = shared end
-        if it.rel and interp.relation and it.rel == interp.relation.id then s = s + 1.0; f.relation_match = true end
-        if self.focus and it.entities then
-          for _, k in ipairs(it.entities) do if k == self.focus.key and (#(interp.dependencies or {}) > 0) then s = s + 0.8; f.focus_continuity = true break end end
-        end
-        if it.kind == "utterance" or it.kind == "fact" or it.kind == "decision" then
-          local rec = 0.6 * (self.decay ^ (self.turn - it.turn))
-          if rec > 0.05 then s = s + rec; f.recency = rec end
-        end
-        local lex = self:bm25(terms, it)
-        if lex > 0 then local nl = math.min(1, lex / 6) * 0.8; s = s + nl; f.lexical = nl end
-        s = s + 0.3 * (it.reliability or 0.5)
-        if it.status == "speculative" then s = s - 0.7; f.speculative = true end
-        cands[#cands + 1] = { item = it, score = s, factors = f }
+  local cand, n_cand = {}, 0
+  local function want(id) if not cand[id] and self.items[id] then cand[id] = true; n_cand = n_cand + 1 end end
+  for id in pairs(self.standing) do want(id) end
+  for k in pairs(keys) do for _, id in ipairs(self.by_entity[k] or {}) do want(id) end end
+  for _, t in ipairs(terms) do
+    local df = self.index.df[t] or 0
+    if df > 0 and df <= 200 then for id in pairs(self.index.terms[t]) do want(id) end end
+  end
+  for i = math.max(1, #self.order - 5), #self.order do want(self.order[i]) end
+  -- superseded / revoked items of the slots in play stay visible in the audit (why the older value is not used)
+  local excluded = {}
+  for slot, st in pairs(self.slots) do
+    for _, id in ipairs(st.history) do
+      local it = self.items[id]
+      if it and (it.status == "superseded" or it.status == "revoked") then
+        excluded[#excluded + 1] = { item = it, reason = it.status .. (it.superseded_by and (" by " .. it.superseded_by) or "") .. " (slot '" .. slot .. "')" }
       end
+    end
+  end
+  local cands = {}
+  for id in pairs(cand) do
+    local it = self.items[id]
+    if it.ns ~= self:ns_key() then
+      excluded[#excluded + 1] = { item = it, reason = "different namespace" }
+    elseif it.status == "superseded" or it.status == "revoked" then
+      -- already reported through the slot history when applicable
+      if not it.slot then excluded[#excluded + 1] = { item = it, reason = it.status .. (it.superseded_by and (" by " .. it.superseded_by) or "") } end
+    elseif it.turn >= self.turn and it.kind == "utterance" then
+      -- the current turn is the request itself, not memory
+    else
+      local s, f = 0, {}
+      if it.kind == "instruction" or it.kind == "correction" or it.kind == "preference" then
+        if self:slot_applicable(it.slot or "any", interp) or (not it.slot and it.kind == "preference") then
+          s = s + (it.standing and 3.0 or 2.0); f.standing_constraint = true
+        end
+      elseif it.kind == "prohibition" then
+        if interp.intent ~= "instruction_update" and interp.intent ~= "statement" then s = s + 2.5; f.standing_prohibition = true end
+      end
+      local shared = 0
+      for _, k in ipairs(it.entities or {}) do if keys[k] then shared = shared + 1 end end
+      if shared > 0 then s = s + 2.0 * math.min(shared, 2); f.entity_identity = shared end
+      if it.rel and interp.relation and it.rel == interp.relation.id then s = s + 1.0; f.relation_match = true end
+      if self.focus and it.entities and #(interp.dependencies or {}) > 0 then
+        for _, k in ipairs(it.entities) do if k == self.focus.key then s = s + 0.8; f.focus_continuity = true break end end
+      end
+      if it.kind == "utterance" or it.kind == "fact" or it.kind == "decision" then
+        local rec = 0.6 * (self.decay ^ (self.turn - it.turn))
+        if rec > 0.05 then s = s + rec; f.recency = U.round(rec, 3) end
+      end
+      local lex = self:bm25(terms, it)
+      if lex > 0 then local nl = math.min(1, lex / 6) * 0.8; s = s + nl; f.lexical = U.round(nl, 3) end
+      s = s + 0.3 * (it.reliability or 0.5)
+      if it.status == "speculative" then s = s - 0.7; f.speculative = true end
+      cands[#cands + 1] = { item = it, score = s, factors = f }
     end
   end
   table.sort(cands, function(a, b) if a.score ~= b.score then return a.score > b.score end return a.item.turn > b.item.turn end)
@@ -453,39 +504,58 @@ function M:select(interp, opts)
     if c.score >= min_score and #selected < max_items then selected[#selected + 1] = c
     else excluded[#excluded + 1] = { item = c.item, reason = c.score < min_score and string.format("relevance %.2f below threshold %.2f", c.score, min_score) or "over item budget", score = c.score } end
   end
-  return { selected = selected, excluded = excluded }
+  return { selected = selected, excluded = excluded, n_candidates = n_cand, n_items = self.index.n }
+end
+
+-- the standing constraints that are in force for this request (slot-keyed values, exclusions, preferences), with provenance
+function M:active_constraints(interp)
+  local out = {}
+  for slot, st in pairs(self.slots) do
+    local it = st.active and self.items[st.active]
+    if it and it.status == "active" and self:slot_applicable(slot, interp) then
+      out[#out + 1] = { kind = it.kind, slot = slot, value = it.value, label = it.value_label, item = it.id, turn = it.turn, text = it.text, standing = it.standing or false,
+        supersedes = it.supersedes, correction = it.correction or false }
+    end
+  end
+  for id in pairs(self.standing) do
+    local it = self.items[id]
+    if it and it.status == "active" and (it.kind == "prohibition" or (it.kind == "preference" and not it.slot)) then
+      out[#out + 1] = { kind = it.kind, item = it.id, turn = it.turn, text = it.text, target = it.target, standing = true }
+    end
+  end
+  table.sort(out, function(a, b) if a.turn ~= b.turn then return a.turn < b.turn end return a.item < b.item end)
+  return out
 end
 
 ---------------------------------------------------------------- context dependency classification
 -- coref: result of Coref.resolve for the same interpretation (may be nil)
 function M:classify_dependency(interp, coref)
-  local deps = interp.dependencies or {}
-  local classes = {}
+  local classes, unresolved = {}, false
   local function add(c) classes[#classes + 1] = c end
-  if #deps == 0 then
-    -- an evidence-requiring request that names a dataset by description depends on it
-    for _, s in ipairs((interp.constraints and interp.constraints.source) or {}) do if s.cue then add("external_dataset") break end end
-    if #classes == 0 then add("self_contained") end
-    return { primary = classes[1], all = classes }
+  local covered = {}
+  for _, r in ipairs((coref and coref.references) or {}) do
+    covered[r.mention] = true
+    if r.status == "resolved" then
+      local d = r.distance_turns or 0
+      if r.kind == "correction_ref" then add("user_correction")
+      elseif d == 0 then add("self_contained")
+      elseif d <= 2 then add("recent_message")
+      else add("earlier_project_context") end
+    else add("ambiguous_missing_context"); unresolved = true end
   end
-  local unresolved = false
-  for _, d in ipairs(deps) do
-    local r = coref and coref.by_text and coref.by_text[d.text]
-    if d.kind == "pronoun" then
-      if r and r.status == "resolved" then
-        add((r.distance_turns or 0) <= 2 and "recent_message" or "earlier_project_context")
-      elseif r and r.status == "ambiguous" then add("ambiguous_missing_context"); unresolved = true
-      else add("ambiguous_missing_context"); unresolved = true end
-    elseif d.kind == "backref" or d.kind == "ordinal_reference" then
-      if r and r.status == "resolved" then add("earlier_project_context") else add("earlier_project_context"); unresolved = unresolved or (r == nil or r.status ~= "resolved") end
-    end
+  -- dependencies no resolver looked at (e.g. coreference switched off) stay unresolved rather than silently self-contained
+  for _, d in ipairs(interp.dependencies or {}) do
+    if not covered[d.text] and d.kind ~= "comparison_set" then add("ambiguous_missing_context"); unresolved = true end
   end
-  if interp.instruction == nil and interp.text and interp.text:lower():find("correction") then add("user_correction") end
+  local has_dataset = false
+  for _, s in ipairs((interp.constraints and interp.constraints.source) or {}) do if s.cue then has_dataset = true end end
+  if has_dataset then add("external_dataset") end
   local seen, uniq = {}, {}
   for _, c in ipairs(classes) do if not seen[c] then seen[c] = true; uniq[#uniq + 1] = c end end
-  local primary = uniq[1] or "self_contained"
-  if unresolved then primary = "ambiguous_missing_context" end
-  return { primary = primary, all = uniq, unresolved = unresolved }
+  if #uniq == 0 then uniq[1] = "self_contained" end
+  local PREC = { ambiguous_missing_context = 6, user_correction = 5, earlier_project_context = 4, recent_message = 3, external_dataset = 2, self_contained = 1 }
+  table.sort(uniq, function(a, b) return PREC[a] > PREC[b] end)
+  return { primary = uniq[1], all = uniq, unresolved = unresolved }
 end
 
 ---------------------------------------------------------------- summaries that keep protected content

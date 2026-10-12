@@ -4,8 +4,6 @@ package.path = (arg[0]:match("^(.*)/tools/[^/]*$") or ".") .. "/nlu/?.lua;" .. p
 local root = arg[0]:match("^(.*)/tools/[^/]*$") or "."
 local U = require("asi.nlu.util")
 local E = require("asi.nlu.eval")
-local I = require("asi.nlu.interp")
-local B = require("asi.nlu.baseline")
 local R = require("asi.nlu.resources")
 
 local opts = { split = "dev", mode = "full", failures = 25 }
@@ -25,24 +23,7 @@ local cases, errs = E.parse_cases(text, path)
 if #errs > 0 then for _, e in ipairs(errs) do io.stderr:write(e .. "\n") end; os.exit(2) end
 
 local lex = R.core()
-local runner
-if opts.mode == "baseline" then
-  runner = function(t) return B.interpret(t, lex), 0 end
-elseif opts.mode == "lexical_only" then
-  runner = function(t) return B.lexical_only(t, lex), 0 end
-else
-  local flags = {}
-  if opts.mode ~= "full" then
-    for f in opts.mode:gmatch("[^,]+") do flags[f] = true end
-  end
-  local interp = I.new({ flags = flags })
-  runner = function(t)
-    local r = interp:interpret(t, {})
-    local m = r.main or { status = "no_interpretation", speech_act = "unknown", intent = "unknown", constraints = { positive = {}, negative = {}, temporal = {}, geographic = {}, source = {}, preferences = {}, restrictions = {} },
-      ambiguity = { state = "unresolvable", points = {} }, roles = {}, dependencies = {} }
-    return m, r.work and r.work.total or 0
-  end
-end
+local runner = E.make_runner(opts.mode, lex)
 
 local rep = E.run(cases, runner, lex)
 print(E.summary(rep, opts.mode .. "/" .. opts.split))

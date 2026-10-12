@@ -26,7 +26,10 @@ local function ref(S, np, depth)
   depth = depth or 0
   if not np then return nil end
   local r = { text = P.span_text(S, np), kind = np.head_kind, span = { S.units[np.u1].s, S.units[np.u2].e }, chunk_range = { np.c1, np.c2 } }
+  if np.head then r.head = np.head.form end
   local b = np.bound
+  if b and b.deictic then r.deictic = b.deictic end
+  if b and b.antecedent then r.antecedent = b.antecedent end
   if b then
     r.status = b.status
     if b.top then
@@ -43,7 +46,11 @@ local function ref(S, np, depth)
     if b.senses then r.senses = U.map(b.senses, function(s) return { id = s.id, type = s.type, gloss = s.gloss } end) end
   end
   if np.head_kind == "var" then r.status, r.type, r.result_of_step = "chain_variable", np.type, np.step; r.var = np.var end
-  if np.pron then r.pronoun = np.pron.form; r.needs_antecedent = true end
+  if np.pron then
+    r.pronoun = np.pron.form
+    r.needs_antecedent = not (b and (b.deictic or b.status == "resolved"))
+    if b and b.discourse and b.status ~= "resolved" and not b.deictic then r.antecedent_reason = b.none_reason end
+  end
   if np.backref then r.backref = true; r.needs_context = true end
   if np.det then r.det = np.det end
   if np.plural then r.plural = true end
@@ -112,6 +119,7 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
   local top = sel.ranked[1]
   local S = top and states[top.cover_index] or states[1]
   if top then
+    H.rebind(S, ctx, top)   -- NP bindings are shared between hypotheses: restore the winner's own before rendering / auditing
     sel = H.select(S, ctx, all)
     top = sel.ranked[1]
   end
@@ -212,6 +220,7 @@ function Sem.render(res, ctx)
     if top.qualifier then interp.query.qualifier = { relation = top.qualifier.rel, role = top.qualifier.role, arg = ref(S, top.qualifier.np) } end
     if top.verify then interp.query.verify = { from = ref(S, top.verify.from), to = ref(S, top.verify.to) } end
   end
+  if top.basis then interp.basis = ref(S, top.basis.np); interp.basis_cue = top.basis.cue end
   if top.concept then interp.concept = ref(S, top.concept) end
   if top.subject then interp.subject = ref(S, top.subject) end
   if top.target then interp.target = ref(S, top.target) end
@@ -271,7 +280,7 @@ function Sem.render(res, ctx)
   local deps = {}
   local function scan_dep(np)
     if not np then return end
-    if np.head_kind == "pronoun" then deps[#deps + 1] = { kind = "pronoun", text = P.span_text(S, np), pronoun = np.pron.form } end
+    if np.head_kind == "pronoun" and not (np.bound and np.bound.deictic) then deps[#deps + 1] = { kind = "pronoun", text = P.span_text(S, np), pronoun = np.pron.form } end
     if np.backref then deps[#deps + 1] = { kind = "backref", text = P.span_text(S, np) } end
     if np.ordinal and np.head_kind ~= "temporal" then deps[#deps + 1] = { kind = "ordinal_reference", text = P.span_text(S, np), ordinal = np.ordinal } end
     if np.of_arg then scan_dep(np.of_arg) end
@@ -279,6 +288,8 @@ function Sem.render(res, ctx)
   end
   for _, np in pairs(top.roles) do scan_dep(np) end
   scan_dep(top.concept); scan_dep(top.subject); scan_dep(top.target); scan_dep(top.focus); scan_dep(top.object)
+  if top.basis then scan_dep(top.basis.np) end
+  if top.intent == "comparison" and (not top.items or #top.items < 2) then deps[#deps + 1] = { kind = "comparison_set", text = interp.sentence.text } end
   for _, it in ipairs(top.items or {}) do scan_dep(it) end
   if top.statement then scan_dep(top.statement.subj); scan_dep(top.statement.obj) end
   if top.instruction then scan_dep(top.instruction.np) end

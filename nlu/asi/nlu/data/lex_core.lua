@@ -296,6 +296,13 @@ cue superlative_latest: latest; newest; most recent; last; current
 cue definition_frame: meaning of; definition of; what does; stand for; stands for; mean by
 cue question_polite: could you; can you; would you; will you; could you please; can you please; would you please; do you know; do you happen to know; i was wondering; i'd like to know; i want to know; i need to know; i would like to know; tell me; let me know
 cue request_open: i want; i need; i'd like; i would like; i'm looking for; i am looking for; give me; get me; show me; find me; looking for; i require
+cue basis: considering; given; in light of; bearing in mind; keeping in mind; factoring in; taking
+cue backref_adv: earlier; before; previously; already; recently; yesterday; ago; then; originally
+cue comparison_set: both; each; either; neither; the two; these two; those two; the pair; all of them; the three
+cue art_latest: latest; newest; most recent; final; current; revised; updated; new; recent; last; newer
+cue art_first: original; initial; earliest; oldest; starting
+cue art_prev: previous; prior; preceding; earlier
+cue deictic_item: which one; which ones; the one; the ones; the other one; the former; the latter; the first; the second; the third; the last
 
 # ============================================================ domain cue words (sense priming)
 domain astronomy: planet planets orbit orbits orbital solar moon moons star stars galaxy telescope sun asteroid comet cosmos universe space astronaut gravity eclipse venus mars jupiter saturn neptune uranus earth
@@ -345,4 +352,8 @@ resource model: model
 resource figures: figures; numbers; stats; statistics; metrics; results; findings; values
 resource solution: solution; answer; approach; option; method; attempt; proposal; candidate
 resource year: year; period; fiscal year
+refnoun solution: solution; approach; option; method; attempt; proposal; candidate; plan; strategy; idea; fix; patch; design; implementation
+refnoun version: version; edition; draft; revision; iteration; variant; release; build
+refnoun correction: correction; amendment; instruction; decision; preference; requirement; constraint; adjustment; edit; update; change; fix
+refnoun message: message; reply; email; note; comment; question; answer; response
 ]==]
