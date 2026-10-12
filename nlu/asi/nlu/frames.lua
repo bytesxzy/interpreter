@@ -140,6 +140,12 @@ function F.wh_copular(S, out)
           local base = function(frame)
             local h = newh(S, frame, "question", nil, nil)
             use_wh(h, wh); use(h, bk); use_np(h, np)
+            -- "What is France's capital city CALLED?" -- the closing participle only asks for the name of the noun phrase
+            local tail = C(S, np.nxt)
+            if tail and tail.single and not tail.masked and np.nxt == S.last and (tail.unit.form == "called" or tail.unit.form == "named") then
+              use(h, np.nxt)
+              addf(h, "name_asking_participle", 0.1, "closing 'called' asks for the name of the noun phrase")
+            end
             h.wh = wh; h.last_chunk = np.c2
             mark_unresolved_pron(h, np)
             return h
@@ -343,7 +349,8 @@ function F.wh_passive(S, out)
                   local pc = C(S, pk)
                   -- a passive followed by ANOTHER preposition ("is Java used for", "is X known for") is a different construction, not a stranded by-phrase
                   local other_prep = pc and pc.single and not pc.masked and cat(pc, "prep") and pc.unit.form ~= "by" and not barrier(pc)
-                  if not other_prep then
+                  -- a support verb ("is called", "is used") has no agentless passive: "What is X called?" asks about X itself, it does not gap an agent
+                  if not other_prep and (not e.support or is_prep(pc, "by")) then
                     local h = newh(S, "wh_passive:stranded_by", "question")
                     -- X (grammatical subject) is the logical object; the wh-gap is the agent (e.subj role)
                     set_lookup(h, rel, other(e.subj), snp, e.subj, wh)
@@ -538,15 +545,19 @@ function F.wh_adverbial(S, out)
   end
 end
 
--- "Where does Acme have its headquarters?" / "Where does Acme keep its headquarters?" / "In which city does Acme maintain its headquarters?"
--- support verb + a possessed relational noun whose value is a location (rel.locus): the holder is the verb's subject
+-- Support verb + a POSSESSED relational noun, asked about:
+--   "Where does Acme have/keep its headquarters?"   "In which city does France have its capital?"   "What does Sweden call its currency?"
+--   embedded: "Tell me where Acme keeps its headquarters."
+-- The holder is the verb's subject and the possessive pronoun is bound to it; the asked value is the relation's `to` side.
 function F.where_support(S, out)
   for _, wh in ipairs(P.parse_wh(S, S.first)) do
-    if wh.wh == "where" then
+    if wh.wh == "where" or wh.wh == "what" or wh.wh == "which" then
       local dk = wh.nxt
-      if is_do(C(S, dk)) then
-        for _, snp in ipairs(P.parse_np(S, dk + 1)) do
-          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do" })) do
+      local embedded_no_aux = S.embedded and not is_do(C(S, dk))
+      if is_do(C(S, dk)) or embedded_no_aux then
+        local nk = embedded_no_aux and dk or dk + 1
+        for _, snp in ipairs(P.parse_np(S, nk)) do
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do", finite_ok = embedded_no_aux })) do
             for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
               local dc = C(S, onp.c1)
               if onp.head_kind == "relnoun" and not onp.of_arg and dc and dc.single and (cat(dc, "poss_det") or cat(dc, "det")) and onp.c1 < onp.nxt - 1 then
@@ -554,12 +565,15 @@ function F.where_support(S, out)
                   local rel = o.rel
                   local supported = (vp.lemma == "have" and rel.support_have) or false
                   for _, e in ipairs(vp.analysis.entries or {}) do if e.support and e.rel == rel.id then supported = true end end
-                  if supported and rel.locus and o.ask_role == "to" then
-                    local h = newh(S, "wh_adv:where:support", "question")
+                  local type_ok
+                  if wh.wh == "where" then type_ok = rel.locus or (wh.type and S.lex:compat(rel.to, wh.type) >= 0.9)
+                  else type_ok = (not wh.type) or S.lex:compat(rel.to, wh.type) >= 0.5 end
+                  if supported and type_ok and o.ask_role == "to" then
+                    local h = newh(S, "wh_adv:support_possessed", "question")
                     set_lookup(h, rel, "from", snp, "to", wh)
-                    use_wh(h, wh); use(h, dk); use_np(h, snp); use_vp(h, vp); use_np(h, onp)
+                    use_wh(h, wh); if not embedded_no_aux then use(h, dk) end; use_np(h, snp); use_vp(h, vp); use_np(h, onp)
                     addf(h, "support_construction", 0.8, "'" .. tostring(vp.lemma) .. "' + possessed '" .. rel.id .. "' noun")
-                    addf(h, "where_locus", 0.3, "'where' asks for the location this relation's value gives")
+                    if wh.wh == "where" then addf(h, "where_locus", 0.3, "'where' asks for the location this relation's value gives") end
                     mark_unresolved_pron(h, snp)
                     out[#out + 1] = h
                   end

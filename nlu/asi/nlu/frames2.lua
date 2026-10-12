@@ -60,18 +60,76 @@ function F.parse_filters(S, k, target_np, limit_idx)
       for _, np in ipairs(P.parse_np(S, k + 1)) do
         local bc = C(S, np.nxt)
         if bc and bc.single and not bc.masked and (cat(bc, "aux_be") or cat(bc, "clitic_s")) then
+          -- "where O is headquartered" (stative verb with a preposition): the place plays the OTHER role of that relation
+          for _, vp in ipairs(P.parse_vp(S, np.nxt, { aux_hint = nil })) do
+            if vp.voice == "passive" then
+              for _, e in ipairs(vp.analysis.entries) do
+                local r = lex:get_rel(e.rel)
+                if r and e.prep and not r.open then
+                  filters[#filters + 1] = { kind = "relation", rel = r.id, target_role = other(e.subj), value = np, chunks = { k, vp.c2 },
+                    span = { first = k, last = vp.c2 }, locative_clause = true }
+                  k = vp.nxt
+                  done = true
+                  break
+                end
+              end
+            end
+            if done then break end
+          end
+          if done then break end
           filters[#filters + 1] = { kind = "relation", rel = "located_in", target_role = "to", value = np, chunks = { k, np.nxt },
             span = { first = k, last = np.nxt }, locative_clause = true }
           k = np.nxt + 1
           done = true
           break
         end
+        -- "where O has its head office": a support verb + a possessed location-valued noun
+        for _, vp in ipairs(P.parse_vp(S, np.nxt, {})) do
+          for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+            local dc = C(S, onp.c1)
+            if onp.head_kind == "relnoun" and not onp.of_arg and dc and dc.single and (cat(dc, "poss_det") or cat(dc, "det")) and onp.c1 < onp.nxt - 1 then
+              for _, o in ipairs(F.relnp_options(S, onp)) do
+                local supported = (vp.lemma == "have" and o.rel.support_have) or false
+                for _, e in ipairs(vp.analysis.entries or {}) do if e.support and e.rel == o.rel.id then supported = true end end
+                if supported and o.rel.locus and o.ask_role == "to" then
+                  filters[#filters + 1] = { kind = "relation", rel = o.rel.id, target_role = "to", value = np, chunks = { k, onp.nxt - 1 },
+                    span = { first = k, last = onp.nxt - 1 }, locative_clause = true }
+                  k = onp.nxt
+                  done = true
+                  break
+                end
+              end
+            end
+            if done then break end
+          end
+          if done then break end
+        end
+        if done then break end
       end
       if done then goto continue_filters end
     end
     -- relativiser
     local rel_marker
     if c.single and (c.unit.form == "that" or c.unit.form == "which" or c.unit.form == "who") then rel_marker = true; k = k + 1 end
+    -- copular relative clause: "the city that IS / FUNCTIONS AS the capital of K"
+    if rel_marker and C(S, k) and C(S, k).single and cat(C(S, k), "aux_be") and not C(S, k).masked then
+      local done
+      for _, np in ipairs(P.parse_np(S, k + 1)) do
+        if np.head_kind == "relnoun" then
+          for _, o in ipairs(F.relnp_options(S, np)) do
+            if o.arg and o.rel and not o.rel.open then
+              filters[#filters + 1] = { kind = "relation", rel = o.rel.id, target_role = o.ask_role, value = o.arg, chunks = { start, np.c2 },
+                span = { first = start, last = np.nxt - 1 }, copular_relative = true }
+              k = np.nxt
+              done = true
+              break
+            end
+          end
+        end
+        if done then break end
+      end
+      if done then goto continue_filters end
+    end
     -- verb phrase (participial or relative)
     -- with a relativiser ("that currently offer ...") any finite form is fine; without one only participles can modify a noun
     local tmp = rel_marker and P.parse_vp(S, k, {}) or P.parse_vp(S, k, { participle_ok = true })
@@ -284,6 +342,28 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
     if act == "inform" and lemma == "define" then h.op, h.intent = "define", "definition"; h.concept = np end
     out[#out + 1] = h
   elseif np.head_kind == "typenoun" or np.head_kind == "concept" or np.head_kind == "unknown" then
+    -- "Name the person who set up O." / "Give me the city where O keeps its head office.": a definite SINGULAR description with one relative clause asks
+    -- for the one referent -- a lookup of the clause's relation, not a search for a set
+    if np.head_kind == "typenoun" and not np.plural and np.det == "the" and (act == "retrieve" or act == "inform") then
+      local filters, kf = F.parse_filters(S, np.nxt, np)
+      local f = filters[1]
+      if #filters == 1 and f.kind == "relation" and f.value and kf > S.last then
+        local drel = S.lex:get_rel(f.rel)
+        if drel and not drel.open then
+          local h = base("request:description")
+          h.rel, h.rel_obj = drel.id, drel
+          h.roles[other(f.target_role)] = f.value
+          h.known_role, h.ask = other(f.target_role), f.target_role
+          h.ask_type = drel[f.target_role]
+          h.op, h.intent, h.requires_evidence = "lookup", "factual_lookup", true
+          h.wh_type = np.senses and np.senses[1] and np.senses[1].type or nil
+          for i = f.span.first, f.span.last do h.used[i] = true end
+          addf(h, "description_lookup", 0.9, "definite singular description with one relative clause names a single referent")
+          F.mark_pron(h, f.value)
+          out[#out + 1] = h
+        end
+      end
+    end
     -- plural typenoun => search for a set;  singular typenoun after find/list => search too;  concept/unknown => define/describe
     local plural = np.plural
     -- "Find/Show/List <noun>" requests items of that kind, also when the noun is not in the lexicon

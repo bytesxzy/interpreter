@@ -197,6 +197,7 @@ local function predicate_positions(S, nxt)
   return out
 end
 
+local LOCATIVE_PARTICIPLE = U.set({ "situated", "located", "based", "found", "housed", "headquartered", "centred", "centered", "sited", "positioned", "established", "stationed" })
 -- X BE (the|a)? RELNP-of-Y        |    RELNP-of-Y BE X       |    Y's RELNOUN BE X
 local function copular_relational(self, S, ctx, out)
   local k = S.first
@@ -228,9 +229,14 @@ local function copular_relational(self, S, ctx, out)
               out[#out + 1] = a
             end
             -- (2b) a location-valued noun takes a locative complement: "The headquarters of X is IN Oslo."
-            local pc = C(S, cp.nxt)
+            local pk = cp.nxt
+            do
+              local pp = C(S, pk)
+              if pp and pp.single and not pp.masked and LOCATIVE_PARTICIPLE[pp.unit.form] then pk = pk + 1 end
+            end
+            local pc = C(S, pk)
             if o.rel.locus and o.ask_role == "to" and pc and pc.single and not pc.masked and (pc.unit.form == "in" or pc.unit.form == "at") then
-              for _, vnp in ipairs(P.parse_np(S, cp.nxt + 1)) do
+              for _, vnp in ipairs(P.parse_np(S, pk + 1)) do
                 local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "copular_locative", used_np = { snp, vnp }, neg = cp.neg, tense = cp.past and "past" or "present", copula = cp }
                 a.roles = { [o.known_role] = o.arg, [o.ask_role] = vnp }
                 a.end_chunk = vnp.nxt
@@ -416,18 +422,32 @@ local function support_statement(self, S, ctx, out)
     for _, vp in ipairs(P.parse_vp(S, pos)) do
       if vp.voice == "active" then
         local tense = (vp.vform == "past") and "past" or "present"
-        -- (1) verb + possessed relational noun + preposition + value
-        for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
-          if possessed_relnoun(S, onp) then
-            local pc = C(S, onp.nxt)
-            if pc and pc.single and not pc.masked and SUPPORT_PREP[pc.unit.form] and pc.unit.form ~= "as" then
-              for _, vnp in ipairs(P.parse_np(S, onp.nxt + 1)) do
-                for _, o in ipairs(F.relnp_options(S, onp)) do
-                  if o.rel and o.ask_role == "to" and supports(vp, o.rel) then
-                    local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "support_have", used_np = { snp, onp, vnp }, neg = vp.neg, tense = tense, vp = vp }
-                    a.roles = { from = snp, to = vnp }
-                    a.end_chunk = vnp.nxt
-                    out[#out + 1] = a
+        -- (1) verb [from|at|out of] + possessed relational noun + (preposition +) value        "operates from its headquarters in Oslo", "calls its currency the krona"
+        local starts = { vp.nxt }
+        do
+          local fc = C(S, vp.nxt)
+          if fc and fc.single and not fc.masked and (fc.unit.form == "from" or fc.unit.form == "at" or fc.unit.form == "out") then
+            local k2 = vp.nxt + 1
+            if fc.unit.form == "out" and C(S, k2) and C(S, k2).unit.form == "of" then k2 = k2 + 1 end
+            starts[#starts + 1] = k2
+          end
+        end
+        for _, k0 in ipairs(starts) do
+          for _, onp in ipairs(P.parse_np(S, k0)) do
+            if possessed_relnoun(S, onp) then
+              local pc = C(S, onp.nxt)
+              local vstart
+              if pc and pc.single and not pc.masked and SUPPORT_PREP[pc.unit.form] and pc.unit.form ~= "as" then vstart = onp.nxt + 1
+              elseif k0 == vp.nxt and vp.lemma == "call" then vstart = onp.nxt end      -- "calls its currency THE KRONA": no preposition
+              if vstart then
+                for _, vnp in ipairs(P.parse_np(S, vstart)) do
+                  for _, o in ipairs(F.relnp_options(S, onp)) do
+                    if o.rel and o.ask_role == "to" and supports(vp, o.rel) then
+                      local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "support_have", used_np = { snp, onp, vnp }, neg = vp.neg, tense = tense, vp = vp }
+                      a.roles = { from = snp, to = vnp }
+                      a.end_chunk = vnp.nxt
+                      out[#out + 1] = a
+                    end
                   end
                 end
               end
@@ -495,7 +515,35 @@ local function relative_identity(self, S, ctx, out)
   end
 end
 
-local PATTERNS = { copular_relational, verb_relational, have_attribute, support_statement, relative_identity, classification, with_attribute, definition }
+-- "The person who started O is P."  /  "The city where O is headquartered is C."  /  "The city that functions as the capital of K is C."
+-- A definite singular description with ONE relative clause names the value of the relation the clause expresses.
+local function description_identity(self, S, ctx, out)
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if snp.head_kind == "typenoun" and not snp.plural and snp.det == "the" then
+      local filters, kf = F.parse_filters(S, snp.nxt, snp)
+      -- the relative clause ends where the copula begins
+      for cut = #filters, 1, -1 do
+        local f = filters[cut]
+        if cut == 1 and f.kind == "relation" and f.value and f.rel then
+          local rel = S.lex:get_rel(f.rel)
+          local cp = copula_at(S, f.span.last + 1)
+          if rel and not rel.open and cp then
+            for _, vnp in ipairs(P.parse_np(S, cp.nxt)) do
+              local a = { rel = rel.id, rel_obj = rel, pattern = "description_identity", used_np = { snp, f.value, vnp }, neg = cp.neg or f.polarity == "negative",
+                tense = cp.past and "past" or "present", copula = cp }
+              a.roles = { [f.target_role] = vnp, [other(f.target_role)] = f.value }
+              for i = f.span.first, f.span.last do a.copula.used[i] = true end
+              a.end_chunk = vnp.nxt
+              out[#out + 1] = a
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+local PATTERNS = { copular_relational, verb_relational, have_attribute, support_statement, relative_identity, description_identity, classification, with_attribute, definition }
 
 ---------------------------------------------------------------- reader-directed content
 -- Data that addresses the reader is evidence ABOUT the data, never a command: such sentences are flagged and excluded from fact extraction.
@@ -606,6 +654,8 @@ function A:extract(text, meta)
             while C(S, k) and C(S, k).temporal and C(S, k + 1) and C(S, k + 1).pre and C(S, k + 1).pre:find("comma") do k = k + 1 end
             S.first = k
           end
+          P.take_topic(S)
+          P.normalize_cleft(S)
           for _, pat in ipairs(PATTERNS) do pat(self, S, ctx, cands) end
           -- keep candidates that explain the most of the sentence; ties broken by pattern order (copular relational first)
           local best, best_cov = {}, -1

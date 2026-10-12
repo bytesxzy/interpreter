@@ -1,0 +1,152 @@
+{
+  "capital": {
+    "facts": [
+      "The capital of %K is %C.",
+      "%K has %C as its capital.",
+      "%C serves as the national capital of %K.",
+      "%C is designated as the capital city of %K.",
+      "%K's seat of government is the city of %C.",
+      "Serving as the capital of %K is the city of %C.",
+      "What %K calls its capital is the city of %C.",
+      "It is %C that %K recognizes as its capital.",
+      "As for %K, its capital is %C.",
+      "In %K, the role of capital belongs to %C.",
+      "The city that functions as the capital of %K is %C.",
+      "%C and the capital of %K are the same city."
+    ],
+    "questions": [
+      "What is the capital of %K?",
+      "Name the capital city of %K.",
+      "Capital of %K?",
+      "In which city does %K have its capital?",
+      "Please tell me which city is the national capital of %K.",
+      "What is %K's seat of government?",
+      "Which city has been designated the capital of %K?",
+      "Which of its cities does %K recognize as its capital?",
+      "Any idea what the capital of %K is?",
+      "I would like to know the capital of %K.",
+      "Which city is it that serves as the capital of %K?",
+      "What is %K's capital city called?"
+    ]
+  },
+  "founder": {
+    "facts": [
+      "%O was founded by %P.",
+      "%P established %O.",
+      "%O's founder is %P.",
+      "%O has %P as its founder.",
+      "It was %P who set up %O.",
+      "The person who started %O is %P.",
+      "Behind the founding of %O stands %P.",
+      "%O is the brainchild of %P.",
+      "Credit for founding %O goes to %P.",
+      "%P stands as the founder of %O.",
+      "The founding of %O was the work of %P.",
+      "%O owes its founding to %P."
+    ],
+    "questions": [
+      "Who founded %O?",
+      "By whom was %O established?",
+      "Name the person who set up %O.",
+      "Founder of %O?",
+      "Tell me who started %O.",
+      "Regarding %O, who was its founder?",
+      "To whom does %O owe its founding?",
+      "Which individual set %O up?",
+      "I would like to know who %O's founder is.",
+      "Any idea who is behind the founding of %O?",
+      "Who gets the credit for founding %O?",
+      "Who was it that founded %O?"
+    ]
+  },
+  "ceo": {
+    "facts": [
+      "The chief executive officer of %O is %P.",
+      "%O has %P as its chief executive officer.",
+      "CEO %P leads %O.",
+      "%O is run by its chief executive officer, %P.",
+      "At the helm of %O sits chief executive %P.",
+      "Serving as CEO of %O is %P.",
+      "It is %P who holds the position of CEO at %O.",
+      "The top job at %O, that of chief executive, belongs to %P.",
+      "%P occupies the chief executive's chair at %O.",
+      "The person who runs %O as chief executive is %P.",
+      "At %O, the CEO position is filled by %P.",
+      "%O's CEO is %P."
+    ],
+    "questions": [
+      "Who is the chief executive officer of %O?",
+      "Name the person who runs %O as CEO.",
+      "CEO of %O?",
+      "Which person serves as chief executive of %O?",
+      "What is the name of the chief executive at %O?",
+      "At %O, who holds the position of CEO?",
+      "Who occupies the chief executive's chair at %O?",
+      "I would like to know who %O's CEO is.",
+      "Regarding %O, who is its chief executive?",
+      "Whom does %O have as its chief executive officer?",
+      "Please give me the name of %O's chief executive officer.",
+      "Who is at the helm of %O as chief executive?"
+    ]
+  },
+  "currency": {
+    "facts": [
+      "The currency of %K is the %X.",
+      "%K has the %X as its national currency.",
+      "%K's monetary unit is the %X.",
+      "%K calls its currency the %X.",
+      "In %K, the %X is the legal tender.",
+      "It is the %X that %K uses as its currency.",
+      "As for %K, its currency is the %X.",
+      "Money in %K is denominated in the %X.",
+      "The %X is recognized as the national currency of %K.",
+      "The national currency of %K goes by the name %X.",
+      "Serving as %K's national currency is the %X.",
+      "The %X is the unit of currency in %K."
+    ],
+    "questions": [
+      "What is the currency of %K?",
+      "Which currency does %K use?",
+      "Name the monetary unit of %K.",
+      "Currency of %K?",
+      "What does %K call its currency?",
+      "In which currency is money in %K denominated?",
+      "Tell me the name of %K's currency.",
+      "Which currency is in use in %K?",
+      "I would like to know the national currency of %K.",
+      "Any idea what money they use in %K?",
+      "What is it that %K uses as its currency?",
+      "Regarding %K, what is its national currency?"
+    ]
+  },
+  "headquarters": {
+    "facts": [
+      "%O is based in %C.",
+      "%O's head office is in %C.",
+      "%O has its headquarters in %C.",
+      "%C is home to the headquarters of %O.",
+      "Headquartered in %C is %O.",
+      "In %C stands the headquarters of %O.",
+      "It is in %C that %O keeps its head office.",
+      "The city where %O is headquartered is %C.",
+      "%C serves as the corporate headquarters of %O.",
+      "The corporate headquarters of %O are situated in %C.",
+      "%O operates from its headquarters in %C.",
+      "The location of %O's headquarters is %C."
+    ],
+    "questions": [
+      "Where is %O headquartered?",
+      "In which city is %O based?",
+      "What city is home to the headquarters of %O?",
+      "Name the city where %O has its head office.",
+      "Headquarters of %O?",
+      "Tell me where %O keeps its headquarters.",
+      "I would like to know the location of %O's headquarters.",
+      "Any idea where %O's head office is?",
+      "Which city serves as the corporate headquarters of %O?",
+      "At what location does %O have its headquarters?",
+      "%O is headquartered in which city?",
+      "Where would I find the headquarters of %O?"
+    ]
+  }
+}

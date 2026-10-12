@@ -19,6 +19,8 @@ local NOT_NP_AFTER_AS = U.set({ "if", "though", "well", "soon", "long", "much", 
 local function merge_copula_like(S, spans)
   local lex, units = S.lex, S.units
   local out, i = {}, 1
+  local function is_be_span(sp) return sp and sp.i == sp.j and units[sp.i].kind == "word" and (lex:cats(units[sp.i].form) or {}).aux_be end
+  local function is_have_span(sp) return sp and sp.i == sp.j and units[sp.i].kind == "word" and (lex:cats(units[sp.i].form) or {}).aux_have end
   while i <= #spans do
     local sp, nx, after = spans[i], spans[i + 1], spans[i + 2]
     local merged
@@ -31,7 +33,36 @@ local function merge_copula_like(S, spans)
         merged = { i = sp.i, j = nx.j, kind = "word", readings = {}, text = sp.text .. " " .. nx.text, copula_like = true, past = past, score = sp.score }
       end
     end
-    if merged then out[#out + 1] = merged; i = i + 2 else out[#out + 1] = sp; i = i + 1 end
+    if merged then out[#out + 1] = merged; i = i + 2
+    else
+      -- "(has been) designated (as) the capital", "is known as", "was named the CEO": a be-participle that introduces a noun phrase is a copula
+      local u = units[sp.i]
+      local cl = sp.i == sp.j and u.kind == "word" and lex:cats(u.form)
+      local prev = out[#out]
+      if cl and cl.be_participle and is_be_span(prev) and not units[sp.i].pre then
+        local last, first = sp, prev
+        local consumed = 1
+        local nxt_i = i + 1
+        if nx and nx.i == nx.j and units[nx.i].form == "as" and not units[nx.i].pre then last = nx; nxt_i = i + 2 end
+        local follow = spans[nxt_i]
+        local fu = follow and units[follow.i]
+        local np_follows = fu and not fu.pre and fu.kind ~= "punct" and not (lex:cats(fu.form) or {}).prep
+        if np_follows then
+          local past = (units[prev.i].form == "was" or units[prev.i].form == "were" or units[prev.i].form == "been")
+          local head = prev
+          -- "has been" / "have been" / "had been": absorb the perfect auxiliary too
+          local pp = out[#out - 1]
+          if units[prev.i].form == "been" and is_have_span(pp) then head = pp; out[#out] = nil; out[#out] = nil; past = past or units[pp.i].form == "had"
+          else out[#out] = nil end
+          out[#out + 1] = { i = head.i, j = last.j, kind = "word", readings = {}, text = head.text .. " " .. sp.text .. (last ~= sp and (" " .. last.text) or ""),
+            copula_like = true, past = past, score = sp.score }
+          i = nxt_i
+          goto continue
+        end
+      end
+      out[#out + 1] = sp; i = i + 1
+    end
+    ::continue::
   end
   return out
 end
@@ -536,6 +567,15 @@ local function parse_np_core(S, k, opts)
         end
       end
     end
+    -- "the city of Paris", "the country of France": a type noun + of + a proper name denotes the named entity (typed by the noun)
+    if np.head_kind == "typenoun" and alts[2] and alts[2].of_arg and (alts[2].of_arg.head_kind == "entity" or (alts[2].of_arg.head_kind == "unknown" and alts[2].of_arg.head and alts[2].of_arg.head.cap)) then
+      local sub = alts[2].of_arg
+      local cp = U.shallow(sub)
+      cp.u1, cp.c1 = np.u1, np.c1
+      cp.type_noun = np
+      cp.score = sub.score + 0.45
+      alts[#alts + 1] = cp
+    end
     for _, a in ipairs(alts) do
       local br, who = backref_at(S, a.nxt)
       if br then
@@ -550,10 +590,24 @@ local function parse_np_core(S, k, opts)
       final[#final + 1] = a
     end
   end
+  -- a possessive determiner of the fronted-topic frame ("As for France, ITS capital ...") takes the topic as its argument
+  if S.topic and poss_det and (poss_det == "its" or poss_det == "their" or poss_det == "his" or poss_det == "her") then
+    local extra = {}
+    for _, a in ipairs(final) do
+      if a.head_kind == "relnoun" and not a.of_arg and not a.possessor then
+        local cp = U.shallow(a)
+        cp.of_arg, cp.topic_arg = S.topic, true
+        cp.score = a.score + 0.4
+        extra[#extra + 1] = cp
+      end
+    end
+    for _, e in ipairs(extra) do final[#final + 1] = e end
+  end
   return final
 end
 
 -- NP with optional possessor:  NP 's NP   (France's capital)  and  entity+relnoun compounds are handled in frames
+local TRANSPARENT_HEAD = U.set({ "name", "names", "identity", "location", "whereabouts" })
 function parse_np(S, k, opts)
   opts = opts or {}
   local key = k .. (opts.no_of and "n" or "") .. ":" .. (opts.depth or 0)
@@ -561,6 +615,31 @@ function parse_np(S, k, opts)
   if memo then return memo end
   S.np_memo[key] = {} -- recursion guard
   local out = {}
+  -- "the name of X's currency", "the location of X's headquarters": the head carries no relation of its own; the NP is the noun phrase after "of"
+  do
+    local ca, cb, cc = C(S, k), C(S, k + 1), C(S, k + 2)
+    local shift
+    if ca and cb and cc and ca.single and cb.single and cc.single and cat(ca, "det") and TRANSPARENT_HEAD[cb.unit.form] and cc.unit.form == "of"
+      and not ca.masked and not barrier(cb) and not barrier(cc) then shift = 3
+    elseif ca and cb and ca.single and cb.single and TRANSPARENT_HEAD[ca.unit.form] and cb.unit.form == "of" and not ca.masked and not barrier(cb) then shift = 2 end
+    if shift then
+      local subs = parse_np(S, k + shift, opts)
+      for si = 1, math.min(#subs, 4) do
+        local cp = U.shallow(subs[si])
+        cp.c1, cp.u1 = ca.idx, ca.u1
+        cp.transparent_head = true
+        cp.score = subs[si].score - 0.05
+        -- "the location of X's headquarters": the location-valued noun already names where; reading "location" as a relation of its own would add a hop
+        if cp.head_kind == "relnoun" then
+          for _, e in ipairs(cp.relnouns or {}) do
+            local r = S.lex:get_rel(e.rel)
+            if r and r.locus then cp.score = cp.score + 0.7 end
+          end
+        end
+        out[#out + 1] = cp
+      end
+    end
+  end
   local simple = parse_np_core(S, k, { no_of = true, depth = opts.depth })
   for _, a in ipairs(simple) do
     local nx = C(S, a.nxt)
@@ -779,13 +858,118 @@ function P.parse_wh(S, k)
   return out
 end
 
+---------------------------------------------------------------- fronted topic
+-- "As for France, its capital is Paris."  /  "Regarding Acme, who is its CEO?"  The topic phrase is consumed (S.first moves past it) and recorded as S.topic;
+-- a possessive determiner ("its", "their") in the rest of the sentence takes it as its argument (see parse_np_core).
+function P.take_topic(S)
+  local c = C(S, S.first)
+  if not c or c.masked or S.topic then return nil end
+  local tn = S.lex:cue_at("topic_intro", S.units, c.u1)
+  if not tn then return nil end
+  local k, consumed = S.first, 0
+  while k <= S.last and consumed < tn do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); k = k + 1 end
+  if consumed ~= tn then return nil end
+  for _, np in ipairs(P.parse_np(S, k)) do
+    local nx = C(S, np.nxt)
+    if nx and nx.pre and nx.pre:find("comma") and (np.head_kind == "entity" or np.head_kind == "unknown" or np.head_kind == "typenoun") then
+      S.topic = np
+      S.first = np.nxt
+      return np
+    end
+  end
+  return nil
+end
+
+---------------------------------------------------------------- chunk-list normalisations (order / presence of chunks only; offsets untouched)
+local function remove_chunks(S, drop)
+  local new = {}
+  for i, c in ipairs(S.chunks) do if not drop[i] then new[#new + 1] = c end end
+  for i, c in ipairs(new) do c.idx = i end
+  S.chunks = new
+  S.last = #new
+  S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+end
+
+-- clefts: "It was P who set up O" -> "P set up O";  "Who was it that founded O?" -> "Who founded O?"
+function P.normalize_cleft(S)
+  local f = S.first
+  local c1, c2 = C(S, f), C(S, f + 1)
+  if c1 and c1.single and c1.unit.form == "it" and not c1.masked and c2 and c2.single and cat(c2, "aux_be") and not barrier(c2) then
+    for _, np in ipairs(P.parse_np(S, f + 2)) do
+      local rc = C(S, np.nxt)
+      if rc and rc.single and not rc.masked and not barrier(rc) and (rc.unit.form == "who" or rc.unit.form == "that" or rc.unit.form == "which") then
+        -- a subject cleft only: the relativizer must be followed by a verb phrase
+        if #P.parse_vp(S, np.nxt + 1) > 0 then
+          remove_chunks(S, { [f] = true, [f + 1] = true, [np.nxt] = true })
+          S.cleft = true
+          return true
+        end
+      end
+    end
+  end
+  if c1 and c1.single and cat(c1, "wh") and not c1.masked then
+    for _, wh in ipairs(P.parse_wh(S, f)) do
+      local j = wh.nxt
+      local a, b, c = C(S, j), C(S, j + 1), C(S, j + 2)
+      if a and a.single and cat(a, "aux_be") and b and b.single and b.unit.form == "it" and c and c.single and (c.unit.form == "that" or c.unit.form == "who")
+        and not barrier(b) and not barrier(c) then
+        remove_chunks(S, { [j] = true, [j + 1] = true, [j + 2] = true })
+        S.cleft = true
+        return true
+      end
+    end
+  end
+  return false
+end
+
+-- a wh-phrase left in place in a question ("Acme is headquartered in which city?") is fronted and the clause un-inverted ("In which city is Acme headquartered?")
+function P.front_insitu_wh(S)
+  if not (S.sentence and S.sentence.question_mark) then return false end
+  local f = S.first
+  local c0 = C(S, f)
+  if not c0 or #P.parse_wh(S, f) > 0 then return false end
+  for p = f + 1, S.last do
+    local cp = C(S, p)
+    if cp and cp.single and not cp.masked and cat(cp, "wh") and (cp.unit.form == "which" or cp.unit.form == "what") and not barrier(cp) then
+      local best
+      for _, w in ipairs(P.parse_wh(S, p)) do if w.type and (not best or w.nxt > best.nxt) then best = w end end
+      if best then
+        local start = p
+        local pc = C(S, p - 1)
+        if pc and pc.single and cat(pc, "prep") and p - 1 >= f then start = p - 1 end
+        local new = {}
+        for i = 1, f - 1 do new[#new + 1] = S.chunks[i] end
+        for i = start, best.nxt - 1 do new[#new + 1] = S.chunks[i] end
+        for i = f, start - 1 do new[#new + 1] = S.chunks[i] end
+        for i = best.nxt, #S.chunks do new[#new + 1] = S.chunks[i] end
+        for i, c in ipairs(new) do c.idx = i end
+        S.chunks = new
+        S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+        S.embedded = true
+        P.uninvert_embedded(S, f)
+        return true
+      end
+    end
+  end
+  return false
+end
+
 ---------------------------------------------------------------- indirect questions
 -- "what [a quokka] is" -> "what is [a quokka]": the copula that closes (or precedes the participle of) an embedded wh-clause moves in front of the subject
 -- noun phrase.  Only the chunk ORDER changes -- chunks keep their unit offsets, so every span, quote and provenance record still points at the original text.
 function P.uninvert_embedded(S, k)
-  local whs = P.parse_wh(S, k)
-  table.sort(whs, function(a, b) return a.nxt < b.nxt end)       -- try the bare wh-word first, then wh-noun readings
-  for _, wh in ipairs(whs) do
+  -- wh-phrases whose noun carries no determiner ("which city", "in which city"); "what the capital" is a wh-word + a determined noun phrase, not a wh-phrase
+  local cands = {}
+  for _, wh in ipairs(P.parse_wh(S, k)) do
+    if not (wh.np and (wh.np.det or wh.np.poss_det)) then cands[#cands + 1] = wh end
+  end
+  -- already in direct order ("which city IS the capital"): nothing to move
+  for _, wh in ipairs(cands) do
+    local a = C(S, wh.nxt)
+    if a and a.single and not a.masked and cat(a, "aux_be") and wh.np and wh.nxt < S.last then return false end   -- a clause-final copula leaves the wh-phrase without a predicate
+  end
+  table.sort(cands, function(x, y) return x.nxt > y.nxt end)    -- the longest wh-phrase first
+  for _, wh in ipairs(cands) do
     local j = wh.nxt
     for b = j + 1, S.last do
       local cb = C(S, b)
@@ -833,6 +1017,15 @@ function P.strip_wrapper(S)
   local function skip_polite()
     local c = C(S, k)
     while c and c.single and cat(c, "polite") do w.chunks[#w.chunks + 1] = k; k = k + 1; c = C(S, k); w.polite = true end
+  end
+  do
+    local first0 = S.first
+    local topic = P.take_topic(S)
+    if topic then
+      for i = first0, S.first - 1 do w.chunks[#w.chunks + 1] = i end
+      k = S.first
+      w.kinds[#w.kinds + 1] = "topic_frame"
+    end
   end
   skip_polite()
   local n = cue("question_polite")
@@ -895,9 +1088,11 @@ function P.strip_wrapper(S)
       P.uninvert_embedded(S, k)
     end
   end
-  w.first = k
   S.first = k
-  return k, w
+  P.normalize_cleft(S)
+  P.front_insitu_wh(S)
+  w.first = S.first
+  return S.first, w
 end
 
 return P

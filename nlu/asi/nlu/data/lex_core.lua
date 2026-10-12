@@ -92,6 +92,7 @@ class aux_be: be is are was were been being am
 class aux_do: do does did
 class aux_have: have has had having
 class ignorable: please kindly just actually really basically literally honestly um uh uhm er erm hmm ah eh well so like okay ok anyway hey quite simply truly seriously totally definitely obviously clearly
+class be_participle: designated named declared appointed chosen elected recognized recognised regarded considered known called deemed termed titled
 class copula_like: serve serves served serving function functions functioned functioning act acts acted acting stand stands stood standing
 class modal: will would shall should can could may might must
 class adv: very also just only even still already ever always often usually really quite rather too enough almost nearly mostly mainly especially particularly currently now then there here again together ago soon never sometimes maybe perhaps actually
@@ -313,7 +314,8 @@ cue focus_intro: i'm researching; i am researching; i'm working on; i am working
 cue only_marker: only; just; solely; exclusively; nothing but
 cue superlative_latest: latest; newest; most recent; last; current
 cue definition_frame: meaning of; definition of; what does; stand for; stands for; mean by
-cue question_polite: i wonder; i'm wondering; i am wondering; i'm curious; i am curious; can anyone tell me; could someone tell me; do you have any idea; could you; can you; would you; will you; could you please; can you please; would you please; do you know; do you happen to know; i was wondering; i'd like to know; i want to know; i need to know; i would like to know; tell me; let me know
+cue topic_intro: as for; regarding; concerning; with regard to; with regards to; as regards; speaking of; talking about; when it comes to; in the case of; as to
+cue question_polite: any idea; does anyone know; anyone know; would you know; i wonder; i'm wondering; i am wondering; i'm curious; i am curious; can anyone tell me; could someone tell me; do you have any idea; could you; can you; would you; will you; could you please; can you please; would you please; do you know; do you happen to know; i was wondering; i'd like to know; i want to know; i need to know; i would like to know; tell me; let me know
 cue request_open: i want; i need; i'd like; i would like; i'm looking for; i am looking for; give me; get me; show me; find me; looking for; i require
 cue basis: considering; given; in light of; bearing in mind; keeping in mind; factoring in; taking
 cue backref_adv: earlier; before; previously; already; recently; yesterday; ago; then; originally

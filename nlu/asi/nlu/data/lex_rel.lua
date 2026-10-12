@@ -4,7 +4,7 @@
 --   verb=  lemma/subj=to|from[/prep=P]: which role the grammatical subject plays; with prep the construction is stative (X is VERB-ed P Y)
 return [==[
 # ------------------------------------------------------------ geography and politics
-rel capital: from=political_territory to=city | noun=capital; capital city | support=have | kinds=financial:financial_center; cultural:cultural_center; economic:economic_center; administrative:administrative_capital; legislative:legislative_capital; judicial:judicial_capital; commercial:commercial_center; political:capital; national:capital; official:capital | label=capital city
+rel capital: from=political_territory to=city | noun=capital; capital city; seat of government | support=have; call | kinds=financial:financial_center; cultural:cultural_center; economic:economic_center; administrative:administrative_capital; legislative:legislative_capital; judicial:judicial_capital; commercial:commercial_center; political:capital; national:capital; official:capital | label=capital city
 rel financial_center: from=political_territory to=city | noun=financial center; financial centre; financial hub | derived=capital | label=financial center
 rel cultural_center: from=political_territory to=city | noun=cultural center; cultural centre; cultural hub | derived=capital | label=cultural center
 rel economic_center: from=political_territory to=city | noun=economic center; economic centre; economic hub | derived=capital | label=economic center
@@ -16,7 +16,7 @@ rel head_of_state: from=political_territory to=person | noun=head of state; pres
 rel prime_minister: from=country to=person | noun=prime minister; premier | label=prime minister
 rel population: from=place to=number | noun=population; inhabitants; number of inhabitants; number of residents | attr=1 | label=population
 rel area: from=place to=number | noun=area; surface area; land area | attr=1 | label=area
-rel currency: from=country to=currency | noun=currency | support=use; adopt; have | label=currency
+rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency | support=use; adopt; have; call | label=currency
 rel official_language: from=country to=language | noun=official language; national language | label=official language
 rel continent_of: from=country to=continent | noun=continent | label=continent
 rel height: from=entity to=number | noun=height; elevation; altitude | attr=1 | label=height
@@ -26,11 +26,11 @@ rel diameter: from=celestial_body to=number | noun=diameter | attr=1 | label=dia
 rel orbital_period: from=planet to=number | noun=orbital period | attr=1 | label=orbital period
 
 # ------------------------------------------------------------ organisations and people
-rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to; create/subj=to | isa=creator | when=founded_on | label=founder | event=1
+rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to; create/subj=to | support=have | isa=creator | when=founded_on | label=founder | event=1
 rel founded_on: from=organization to=date | noun=founding date; founding year; foundation date; date of founding; year of founding | label=founding date | event=1
-rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive | isa=leader | label=CEO
+rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive | support=have | isa=leader | label=CEO
 rel leader: from=organization to=person | noun=leader; head; chief | verb=lead/subj=to; head/subj=to; run/subj=to; manage/subj=to | label=leader
-rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | support=have; maintain; keep | locus=1 | label=headquarters
+rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office; corporate headquarters; home office; main headquarters | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | support=have; maintain; keep; operate | locus=1 | label=headquarters
 rel member_of: from=agent to=organization | noun_from=member | verb=belong/subj=from/prep=to; join/subj=from | label=membership
 rel parent_org: from=organization to=organization | noun=parent company; parent organization; parent; owner | noun_from=subsidiary | verb=own/subj=to | label=parent organization
 rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to | when=acquired_on | label=acquirer | event=1

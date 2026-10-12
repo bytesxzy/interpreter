@@ -119,6 +119,8 @@ function B.load_templates(vname, path)
   return U.sha256(raw)
 end
 
+B.VOCAB, B.TEMPLATES, B.QUESTIONS = VOCAB, TEMPLATES, QUESTIONS
+
 local ANSWER_TYPE = { capital = "city", founder = "person", ceo = "person", currency = "currency", headquarters = "city" }
 
 ---------------------------------------------------------------- names
