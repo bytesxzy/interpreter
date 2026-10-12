@@ -481,7 +481,13 @@ function Lex.analyze(text, opts)
             -- single capital initial ("J. R. R. Tolkien"): keep the dot if followed by space + uppercase letter
             local r = last + 2
             while r <= n and is_ws(r) do r = r + 1 end
-            if r > last + 2 and r <= n and UC.is_upper(cp[r]) then trailing_dot = true end
+            if r > last + 2 and r <= n and UC.is_upper(cp[r]) then
+              -- "J. R. R. Tolkien" continues a name; "Company A. Who founded it?" does not (a sentence starter follows)
+              local q = r
+              while q <= n and is_letter(q) do q = q + 1 end
+              local nxtw = UC.lower(work_text:sub(bs[r], be[math.max(r, q - 1)]))
+              if not SENT_STARTERS[nxtw] then trailing_dot = true end
+            end
           end
         end
         local tk = "word"

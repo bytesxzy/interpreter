@@ -11,11 +11,20 @@ local TITLE_PREFIX = U.set({ "dr", "mr", "mrs", "ms", "prof", "sir", "lady", "lo
 
 local function span_key(i, j) return i .. ":" .. j end
 
+-- a word the lexicon knows as an ordinary word (function word, verb, adjective, relational/type noun) -- not a name
 local function is_common(lex, u)
   local f = u.form
   if lex:cats(f) then return true end
   for _, r in ipairs(lex:readings(f)) do if r.pos == "verb" or r.pos == "adj" then return true end end
-  return false
+  local has_entity, has_word = false, false
+  for _, m in ipairs(lex:match_at({ u }, 1)) do
+    if m.j == 1 then
+      for _, e in ipairs(m.entries) do
+        if e.kind == "entity" then has_entity = true else has_word = true end
+      end
+    end
+  end
+  return has_word and not has_entity
 end
 
 local function joined_forms(units, i, j)
@@ -155,16 +164,20 @@ function Lattice.build(an, lex, opts)
     local sent = an.sentences[u.sent or 0]
     local shout = sent and sent.shout
     local capital = u.cap and not shout and (u.kind == "word" or u.kind == "abbrev" or u.kind == "acronym" or u.kind == "initial") and not u.case_sensitive
-    if capital then
-      local initial = sentence_initial(u)
-      local common = is_common(lex, u)
+    local initial = capital and sentence_initial(u)
+    local common = capital and is_common(lex, u)
+    -- "Compare", "Did", "Is" ... are capitalised only by position: they must not swallow the names that follow them
+    if capital and not (initial and common) then
       local j = i
+      -- connectors ("of", "for", ...) join a name only after an organisation/place head word ("University of X", "Bank of X"),
+      -- never after an ordinary common word ("CEO of Acme": CEO is a relational noun, not the start of a name)
+      local connect_ok = lex:headcue(u.form) ~= nil or not common
       -- extend over capitalised units and name connectors (never "and")
       while true do
         local nx = units[j + 1]
         if not nx or nx.pre or nx.sent ~= u.sent then break end
         if nx.cap and not shout and (nx.kind == "word" or nx.kind == "abbrev" or nx.kind == "acronym" or nx.kind == "initial" or nx.kind == "number") then j = j + 1
-        elseif NAME_CONNECTORS[nx.form] and not nx.cap then
+        elseif NAME_CONNECTORS[nx.form] and not nx.cap and connect_ok then
           local nn = units[j + 2]
           if nn and not nn.pre and nn.cap and nn.sent == u.sent then j = j + 2 else break end
         else break end
@@ -174,7 +187,6 @@ function Lattice.build(an, lex, opts)
       local type_guess = lex:headcue(last.form) or lex:headcue(u.form) or (TITLE_PREFIX[u.form] and "person") or nil
       local sc = 0.8 + 0.3 * (j - i)
       local ok = true
-      if initial and common then ok = false end -- "What", "Is", "Find", "Show" ... are capitalised by position, never name starts
       if initial and not multi and not type_guess and not u.hy then
         -- sentence-initial single unknown word: weak name guess only if the lexicon has never seen the word
         if is_common(lex, u) then ok = false else sc = 0.45 end
@@ -194,17 +206,45 @@ function Lattice.build(an, lex, opts)
     end
   end
 
-  -- 6. fuzzy entity readings for unknown words (typos): proposals only, flagged and down-weighted
+  -- 6. fuzzy readings for UNKNOWN words (typos): proposals only, flagged and down-weighted. Known words are never reinterpreted.
+  --    4-letter words are too short to trust. Entities need a capitalised surface (or a strong match); relation words / senses any case.
   for ui, u in ipairs(units) do
-    if u.alts and #u.alts > 0 and u.cap ~= nil then
+    if u.alts and #u.alts > 0 and #u.form >= 5 then
       for _, a in ipairs(u.alts) do
-        if a.kind == "entity" and u.cap and #u.form >= 5 then -- 4-letter words are too short to trust a fuzzy entity match
+        if a.conf >= 0.45 then
           local fake = { { form = a.form } }
           for _, m in ipairs(lex:match_at(fake, 1)) do
             for _, e in ipairs(m.entries) do
-              if e.kind == "entity" and not e.cs then
-                add(ui, ui, { kind = "entity", entry = e, fuzzy = a.conf, fuzzy_from = u.raw, fuzzy_to = a.form }, "entity", 1.0 * a.conf + 0.2)
+              -- a fuzzy span ties with a plain word in the cover search (0.1): the literal reading is never displaced by a guess;
+              -- hypotheses decide, and a fuzzy lexeme earns no attestation credit and pays a penalty
+              if e.kind == "entity" and not e.cs and a.kind == "entity" and (u.cap or a.conf >= 0.7) then
+                add(ui, ui, { kind = "entity", entry = e, fuzzy = a.conf, fuzzy_from = u.raw, fuzzy_to = a.form }, "entity", 0.1)
+              elseif e.kind == "relnoun" or e.kind == "relverb" then
+                local ec = U.shallow(e); ec.fuzzy = a.conf
+                add(ui, ui, { kind = e.kind, entry = ec, fuzzy = a.conf, fuzzy_from = u.raw }, "word_sense", 0.1)
+              elseif e.kind == "sense" and not u.cap then
+                add(ui, ui, { kind = "sense", sense = e.sense, num = e.num, fuzzy = a.conf, fuzzy_from = u.raw }, "word_sense", 0.1)
               end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  -- 7. compositional kind readings: an attested multiword concept "<kind> <relational noun>" ("financial capital") is ALSO read
+  --    as the relation with a kind modifier, so the relation reading is not lost to the lexicalised concept.
+  for _, sp in ipairs(spans) do
+    if sp.j > sp.i then
+      local last = by_ext[span_key(sp.j, sp.j)]
+      if last then
+        local prefix = joined_forms(units, sp.i, sp.j - 1)
+        for _, r in ipairs(last.readings) do
+          if r.kind == "relnoun" then
+            local rel = lex:get_rel(r.entry.rel)
+            if rel and rel.kinds and rel.kinds[prefix] then
+              local ec = U.shallow(r.entry); ec.kind_prefix = prefix
+              add(sp.i, sp.j, { kind = "relnoun", entry = ec }, sp.kind, sp.score)
             end
           end
         end

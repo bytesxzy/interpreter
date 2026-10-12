@@ -1,0 +1,144 @@
+# DEV split. Used while building the engine (fixes are made against these failures). Format: ID | category | text | gold
+# ------------------------------------------------------------------ basic factual relations
+D001 | basic_factual | What is the capital of France? | act=question; intent=factual_lookup; rel=capital; from=France:country:country.france; ask=to; atype=city; temporal=current_unspecified; amb=resolved; evid=1; mm=cap:eq
+D002 | basic_factual | What's France's capital? | intent=factual_lookup; rel=capital; from=France:country; ask=to; atype=city; mm=cap:eq
+D003 | basic_factual | Which city is France's capital? | intent=factual_lookup; rel=capital; from=France:country; ask=to; atype=city; mm=cap:eq
+D004 | basic_factual | Could you tell me the capital city of France? | act=request; intent=factual_lookup; rel=capital; from=France:country; ask=to; mm=cap:eq
+D005 | basic_factual | france capital? | intent=factual_lookup; rel=capital; from=France:country; ask=to; mm=cap:eq
+D006 | basic_factual | Capital of France | intent=factual_lookup; rel=capital; from=France:country; ask=to; mm=cap:eq
+D007 | basic_factual | Name the capital of Japan. | intent=factual_lookup; rel=capital; from=Japan:country; ask=to
+D008 | basic_factual | Who founded Example Labs? | intent=factual_lookup; rel=founder; from=Example Labs:organization; ask=to; atype=agent; mm=fdr:eq
+D009 | basic_factual | Who is the founder of Example Labs? | intent=factual_lookup; rel=founder; from=Example Labs:organization; ask=to; mm=fdr:eq
+D010 | basic_factual | Example Labs' founder? | intent=factual_lookup; rel=founder; from=Example Labs; ask=to; mm=fdr:eq
+D011 | basic_factual | Who is the CEO of Acme Robotics? | intent=factual_lookup; rel=ceo; from=Acme Robotics:organization; ask=to; atype=person
+D012 | basic_factual | What is the population of Germany? | intent=factual_lookup; rel=population; from=Germany:country; ask=to
+D013 | basic_factual | What is the currency of Japan? | intent=factual_lookup; rel=currency; from=Japan:country; ask=to
+D014 | basic_factual | Where is Acme Robotics headquartered? | intent=factual_lookup; rel=headquarters; from=Acme Robotics; ask=to
+D015 | basic_factual | Who wrote Hamlet? | intent=factual_lookup; rel=author; from=Hamlet; ask=to
+D016 | basic_factual | Which company acquired Beta Systems? | intent=factual_lookup; rel=acquirer; from=Beta Systems; ask=to; atype=company
+D017 | basic_factual | Who invented the telephone? | intent=factual_lookup; rel=inventor; from=telephone; ask=to
+D018 | basic_factual | How many employees does Acme Robotics have? | intent=factual_lookup; rel=employees; from=Acme Robotics; ask=to
+D019 | basic_factual | When was Acme Robotics founded? | intent=factual_lookup; rel=founded_on; from=Acme Robotics; ask=to
+D020 | basic_factual | What is the official language of Brazil? | intent=factual_lookup; rel=official_language; from=Brazil:country; ask=to
+D021 | basic_factual | Who started Example Labs? | intent=factual_lookup; rel=founder; from=Example Labs; ask=to; mm=fdr:eq
+D022 | basic_factual | Who set up Example Labs? | intent=factual_lookup; rel=founder; from=Example Labs; ask=to; mm=fdr:eq
+# ------------------------------------------------------------------ direction of the relation
+D030 | direction | Which company did Person A found? | intent=factual_lookup; rel=founder; to=Person A; ask=from; atype=company; mm=dir:eq
+D031 | direction | Which company was founded by Person A? | intent=factual_lookup; rel=founder; to=Person A; ask=from; mm=dir:eq
+D032 | direction | Who was Example Labs founded by? | intent=factual_lookup; rel=founder; from=Example Labs; ask=to
+D033 | direction | Which company did Company C invest in? | intent=factual_lookup; rel=investor; to=Company C; ask=from
+D034 | direction | Which company invested in Beta Systems? | intent=factual_lookup; rel=investor; from=Beta Systems; ask=to; atype=company
+D035 | direction | Who acquired Beta Systems? | intent=factual_lookup; rel=acquirer; from=Beta Systems; ask=to
+D036 | direction | What did Company A acquire? | intent=factual_lookup; rel=acquirer; to=Company A; ask=from
+D037 | direction | Where was Person A born? | intent=factual_lookup; rel=birth_place; from=Person A; ask=to
+# ------------------------------------------------------------------ multiword entities / concepts
+D040 | multiword | What is machine learning? | intent=definition; concept=machine learning:technology_concept; rel=-
+D041 | multiword | What is a high school? | intent=definition; concept=high school:school; rel=-
+D042 | multiword | Tell me about New York City. | intent=entity_description; subject=New York City:city
+D043 | multiword | What is artificial intelligence? | intent=definition; concept=artificial intelligence:technology_concept
+D044 | multiword | What is long-term memory? | intent=definition; concept=long-term memory:scientific_concept
+D045 | multiword | What is computer science? | intent=definition; concept=computer science
+D046 | multiword | Who is the CEO of Bank of America? | rel=ceo; from=Bank of America; ask=to
+D047 | multiword | What is generative artificial intelligence? | intent=definition; concept=generative artificial intelligence:technology_concept; rel=-
+# ------------------------------------------------------------------ ambiguity of terms
+D050 | ambiguous | What is capital punishment? | intent=definition; concept=capital punishment:legal_concept; rel=-; amb=resolved; mm=pun0:eq
+D051 | ambiguous | What is financial capital? | intent=definition; concept=financial capital:economic_concept; rel=-; amb=resolved
+D052 | ambiguous | Tell me about Mercury. | amb=ambiguous; alts=planet.mercury|element.mercury|myth.mercury
+D053 | ambiguous | What is Java used for? | amb=ambiguous; alts=lang.java|island.java
+D054 | ambiguous | Who created Java? | rel=creator; from=Java:programming_language:lang.java; amb=resolved
+D055 | ambiguous | Where is Java? | rel=located_in; from=Java:island:island.java; amb=resolved
+D056 | ambiguous | What is Apple's latest release? | rel=release; from=Apple:company:company.apple; ask=to; amb=resolved
+D057 | ambiguous | What is the atomic number of Mercury? | rel=atomic_number; from=Mercury:chemical_element:element.mercury; amb=resolved
+D058 | ambiguous | What is the orbital period of Mercury? | rel=orbital_period; from=Mercury:planet:planet.mercury; amb=resolved
+D059 | ambiguous | Who is the head of state of the US? | rel=head_of_state; from=US:country:country.united_states; amb=resolved
+D060 | ambiguous | What is the population of Georgia? | rel=population; amb=ambiguous; alts=country.georgia|subnational.georgia_us
+D061 | ambiguous | Who developed Python? | rel=developer; from=Python:programming_language:lang.python; amb=resolved
+# ------------------------------------------------------------------ disambiguation by context
+D065 | context_sense | We were discussing the solar system. Tell me about Mercury. | subject=Mercury:planet:planet.mercury; amb=resolved
+D066 | context_sense | We are studying toxic metals. Tell me about Mercury. | subject=Mercury:chemical_element:element.mercury; amb=resolved
+D067 | context_sense | I love programming. What is Java? | subject=Java:programming_language:lang.java; amb=resolved
+D068 | context_sense | My coffee is cold. Tell me about java. | subject=java:beverage:beverage.java; amb=resolved
+# ------------------------------------------------------------------ intent recognition
+D070 | intent | Find companies in Germany. | intent=search; target=companies:company; pos=geo:Germany
+D071 | intent | Compare Company A and Company B. | intent=comparison; items=Company A|Company B
+D072 | intent | Explain why the second solution failed. | intent=causal_explanation; ctx=ordinal_reference
+D073 | intent | Use the 2025 dataset from now on. | intent=instruction_update; inst=slot=dataset,value=2025,persist=1
+D074 | intent | Define capital punishment. | intent=definition; concept=capital punishment
+D075 | intent | How does photosynthesis work? | intent=explanation
+D076 | intent | Is Paris the capital of France? | intent=verification; rel=capital; from=France; to=Paris
+D077 | intent | Did Person A found Company B? | intent=verification; rel=founder; to=Person A; from=Company B
+D078 | intent | I'm researching Company A. | act=statement; intent=statement; focus=Company A
+D079 | intent | Summarize the report. | intent=task
+D080 | intent | Is Paris in France? | intent=verification; rel=located_in; from=Paris; to=France
+# ------------------------------------------------------------------ negation and exclusions
+D090 | negation | I want the capital of France, not the largest city. | intent=factual_lookup; rel=capital; from=France; neg=description:city; mm=notcap:eq
+D091 | negation | Find companies looking for partnerships, not employment. | intent=search; target=companies; neg=topic:employment; pos=relation:seeks
+D092 | negation | Show the newest result, excluding reposts. | neg=topic:repost
+D093 | negation | Which claims are not supported by the documents? | rel=supported_by; pol=negative; from=claims; to=documents; ask=from; neg=none
+D094 | negation | Find companies interested in partnerships, not companies hiring interns. | intent=search; target=companies; pos=relation:seeks; neg=type:company+hires:intern
+D095 | negation | List universities without a computer science program. | neg=topic:computer science
+D096 | negation | Exclude universities. | intent=instruction_update; neg=type:university
+D097 | negation | Don't include reposts. | intent=instruction_update; pol=negative
+D098 | negation | What is the capital of France, not Germany? | rel=capital; from=France; neg=entity:germany
+# ------------------------------------------------------------------ temporal constraints
+D100 | temporal | What was the capital of France in 1900? | rel=capital; from=France; tc=in:1900
+D101 | temporal | Who was the CEO of Acme Robotics before 2018? | rel=ceo; from=Acme Robotics; tc=before:2018
+D102 | temporal | What is the former capital of Nigeria? | rel=capital; from=Nigeria; temporal=past
+D103 | temporal | Find companies founded after 2020. | intent=search; target=companies; pos=temporal:founded_on; tc=after:2020
+D104 | temporal | Who founded Example Labs in 2015? | rel=founder; from=Example Labs; tc=in:2015
+D105 | temporal | Companies founded between 2010 and 2015 | intent=search; tc=between:2010-2015
+D106 | temporal | What was the population of Germany in 1990? | rel=population; from=Germany; tc=in:1990
+D107 | temporal | What is the current capital of Brazil? | rel=capital; from=Brazil; temporal=present
+D108 | temporal | What is the capital of France according to the supplied 2020 dataset? | rel=capital; from=France; src=dataset:2020; tc=derived:2020; mm=src:eq
+D109 | temporal | What is the capital of France according to the 2020 dataset? | rel=capital; from=France; src=dataset:2020; mm=src:eq
+# ------------------------------------------------------------------ geography
+D110 | geographic | Find robotics companies in Germany. | intent=search; pos=geo:Germany
+D111 | geographic | Which universities are located in Boston? | rel=located_in; to=Boston; ask=from; atype=university
+D112 | geographic | Where is Acme Robotics based? | rel=headquarters; from=Acme Robotics; ask=to
+# ------------------------------------------------------------------ comparison
+D115 | comparative | Is Company A older than Company B? | intent=verification; items=Company A|Company B
+D116 | comparative | What changed between the first version and the revised version? | intent=comparison; items=first version|revised version
+D117 | comparative | Which one is older? | intent=comparison
+# ------------------------------------------------------------------ multi-hop
+D120 | multi_hop | Where was the founder of Example Labs born? | rel=birth_place; ask=to; chain=founder>birth_place
+D121 | multi_hop | What is the capital of the country where Mount Fuji is? | rel=capital; ask=to; chain=located_in>capital
+D122 | multi_hop | Who is the CEO of the company that acquired Beta Systems? | rel=ceo; ask=to; chain=acquirer>ceo
+# ------------------------------------------------------------------ coreference inside one message
+D125 | coreference | I'm researching Company A. Who founded it? | rel=founder; from=Company A; ask=to
+D126 | coreference | Who founded it? | rel=founder; ctx=pronoun; evid=1
+D127 | coreference | Compare Company A and Company B. Which one is older? | intent=comparison; ctx=none
+# ------------------------------------------------------------------ corrections and instructions
+D130 | instruction | Use the 2023 dataset. | intent=instruction_update; inst=slot=dataset,value=2023,corr=0
+D131 | instruction | Actually, use the 2025 dataset from now on. | intent=instruction_update; inst=slot=dataset,value=2025,corr=1,persist=1
+D132 | instruction | Switch to the revised version. | intent=instruction_update; inst=slot=version,value=revised
+D133 | instruction | Prioritize recent results. | intent=instruction_update
+# ------------------------------------------------------------------ unknown / unsupported / open-set
+D140 | open_set | What is the capital of Atlantis? | rel=capital; from=Atlantis; ask=to; evid=1
+D141 | open_set | Who founded Zorbland Labs? | rel=founder; from=Zorbland Labs:organization; ask=to
+D142 | open_set | What is the population of Qwertyland? | rel=population; from=Qwertyland
+D143 | open_set | What is the CEO of Frobnitz Industries? | rel=ceo; from=Frobnitz Industries
+# ------------------------------------------------------------------ spelling variation
+D150 | spelling | What is the captial of Frnace? | rel=capital; from=Frnace:country:country.france
+D151 | spelling | What is the populaton of Germany? | rel=population; from=Germany
+D152 | spelling | who founded Exmaple Labs | rel=founder; from=Exmaple Labs
+D153 | spelling | What is the capitol of France? | rel=capital; from=France
+# ------------------------------------------------------------------ punctuation / case variation
+D160 | punctuation | what is the capital of france | rel=capital; from=france:country; ask=to; mm=cap:eq
+D161 | punctuation | WHAT IS THE CAPITAL OF FRANCE? | rel=capital; from=FRANCE:country; ask=to; mm=cap:eq
+D162 | punctuation | What is the capital of France ??? | rel=capital; from=France; ask=to; mm=cap:eq
+D163 | punctuation | "What is the capital of France?" | rel=capital; from=France; ask=to; mm=cap:eq
+D164 | punctuation | What is   the capital   of France? | rel=capital; from=France; ask=to; mm=cap:eq
+D165 | punctuation | capital, France | rel=capital; from=France; mm=cap:eq
+# ------------------------------------------------------------------ minimal pairs: meaning must change
+D170 | minimal_pair | Financial capital of France | rel=financial_center; from=France; mm=fin:ne:cap
+D171 | minimal_pair | Former capital of France | rel=capital; from=France; temporal=past; mm=former:ne:cap
+D172 | minimal_pair | Capital punishment in France | intent=definition; concept=capital punishment; rel=-; mm=pun:ne:cap
+D173 | minimal_pair | Cultural capital of Italy | rel=cultural_center; from=Italy
+# ------------------------------------------------------------------ multi-part requests
+D180 | multi_part | Find organizations established after 2020 that currently offer robotics services, exclude universities, and prioritize those actively seeking marketing partnerships. | intent=search; target=organizations:organization; pos=temporal:founded_on,relation:offers; tc=after:2020; neg=type:university; pref=seeking marketing partnerships
+D181 | multi_part | Compare Company A and Company B, but only using their latest published financial statements. | intent=comparison; items=Company A|Company B; src=statement
+D182 | multi_part | Explain why the second solution failed, considering the correction I made earlier. | intent=causal_explanation; ctx=ordinal_reference
+# ------------------------------------------------------------------ malformed
+D190 | malformed | ??? | status=no_interpretation
+D191 | malformed | ... | status=no_interpretation
+D192 | malformed | 12345 | status=no_interpretation

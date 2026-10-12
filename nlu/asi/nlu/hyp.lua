@@ -22,7 +22,7 @@ H.W = {
   exact_case = 0.15,
   temperature = 0.55,
   entity_temperature = 0.30,
-  resolve_p = 0.70, resolve_margin = 0.30,
+  resolve_p = 0.60, resolve_margin = 0.30,
 }
 
 local FRAME_PRIOR = {
@@ -40,29 +40,17 @@ local function softmax(scores, T)
 end
 H.softmax = softmax
 
----------------------------------------------------------------- context domains
--- domain profile of the sentence (words of the mention itself excluded when scoring that mention)
-function H.domain_profile(S)
-  if S.domain_profile then return S.domain_profile end
-  local prof = {}
-  for ui, u in ipairs(S.units) do
-    for d in pairs(S.lex:domains_of(u.form)) do prof[d] = prof[d] or {}; table.insert(prof[d], ui) end
+---------------------------------------------------------------- context domains (see parse.lua: P.domain_hits / P.domain_gain)
+-- best domain support among an NP's candidate senses (used to rank typenoun/concept readings such as program.academic vs software)
+local function sense_domain(S, ctx, np)
+  local best_hits, best_sense = 0, nil
+  for _, s in ipairs(np.senses or {}) do
+    local h = P.domain_hits(S, ctx, s.domain, np.u1, np.u2)
+    if h > best_hits then best_hits, best_sense = h, s end
   end
-  S.domain_profile = prof
-  return prof
+  return best_hits, best_sense
 end
-
-local function domain_hits(S, ctx, domains, ex_u1, ex_u2)
-  local prof = H.domain_profile(S)
-  local total = 0
-  for d in pairs(domains or {}) do
-    local own = 0
-    for _, ui in ipairs(prof[d] or {}) do if not (ex_u1 and ui >= ex_u1 and ui <= ex_u2) then own = own + 1 end end
-    local disc = (ctx.domains and ctx.domains[d]) or 0
-    total = total + math.min(2, own + disc)
-  end
-  return total / 2
-end
+H.sense_domain = sense_domain
 
 ---------------------------------------------------------------- binding an NP argument to candidates + types
 -- expected: type name (or union) or nil.  Returns bound table and the best type-fit in [-1, 1]
@@ -90,16 +78,17 @@ function H.bind_np(S, ctx, np, expected, h, role)
       if cd.exact_case then s = s + W.exact_case; reasons[#reasons + 1] = "exact-case name match" end
       if cd.fuzzy then s = s + W.fuzzy * (1 - cd.fuzzy) - 0.15; reasons[#reasons + 1] = "fuzzy match from '" .. tostring(cd.fuzzy_from) .. "'" end
       if not (ctx.flags and ctx.flags.no_domain) then
-        local dh = domain_hits(S, ctx, cd.domain, np.u1, np.u2)
-        if dh > 0 then s = s + W.domain * math.min(1, dh); reasons[#reasons + 1] = "domain context support " .. string.format("%.2f", dh) end
+        local dh = P.domain_hits(S, ctx, cd.domain, np.u1, np.u2)
+        local gain = P.domain_gain(dh)
+        if gain > 0 then s = s + gain; reasons[#reasons + 1] = dh .. " domain cue(s) in context" end
       end
       if ctx.mentioned and ctx.mentioned[cd.id] then s = s + W.discourse * ctx.mentioned[cd.id]; reasons[#reasons + 1] = "previously mentioned in the conversation" end
-      if ctx.support and not cd.unseen then
+      if ctx.support then
         local n = ctx.support(cd.id) or 0
-        if n > 0 then s = s + W.support * math.min(1, math.log(1 + n) / math.log(11)); reasons[#reasons + 1] = n .. " supporting dataset record(s)" end
-      elseif ctx.support and cd.unseen then
-        local n = ctx.support(cd.id) or 0
-        if n > 0 then s = s + W.support * math.min(1, math.log(1 + n) / math.log(11)); reasons[#reasons + 1] = n .. " dataset mention(s)" end
+        if n > 0 then
+          s = s + (n >= 3 and 0.6 or 0.3)
+          reasons[#reasons + 1] = n .. (cd.unseen and " dataset mention(s)" or " supporting dataset record(s)")
+        end
       end
       s = s + 0.1 * ((cd.prior or 0.5) - 0.5)
       scored[#scored + 1] = { id = cd.id, type = ty, name = cd.name, score = s, fit = fit, vetoed = (fit == -1.0 and expected ~= nil),
@@ -128,17 +117,28 @@ function H.bind_np(S, ctx, np, expected, h, role)
       b.fit = (#rejected > 0) and -1.0 or 0.25
     end
   elseif np.head_kind == "typenoun" or np.head_kind == "concept" then
-    local ty = np.senses and np.senses[1] and np.senses[1].type
+    -- rank the NP's senses by domain support; the best one defines the type
+    local senses = U.copy(np.senses or {})
+    local hits, best = sense_domain(S, ctx, np)
+    if best then
+      for i, s in ipairs(senses) do if s.id == best.id then table.remove(senses, i); table.insert(senses, 1, s) break end end
+      if not (ctx.flags and ctx.flags.no_domain) then b.domain_gain = P.domain_gain(hits) end
+    end
+    local ty = senses[1] and senses[1].type
     b.type, b.fit = ty, lex:compat(ty, expected)
     if ctx.flags and ctx.flags.no_types then b.fit = 0.25 end
     b.status = "resolved"
-    b.senses = np.senses
+    b.senses = senses
+    np.senses = senses
   elseif np.head_kind == "relnoun" then
     local e = np.relnouns and np.relnouns[1]
     local rel = e and lex:get_rel(e.rel)
     b.type = rel and rel[e.role] or nil
     b.fit = lex:compat(b.type, expected)
     b.status = "resolved"
+  elseif np.head_kind == "var" then
+    -- intermediate result of an earlier step of a multi-hop chain: its type comes from that step
+    b.type, b.fit, b.status, b.chain_var = np.type, lex:compat(np.type, expected), "resolved", np.var
   elseif np.head_kind == "pronoun" then
     b.status, b.fit, b.pending = "pending", 0.25, true
   elseif np.head_kind == "temporal" then b.type, b.fit, b.status = "date", lex:compat("date", expected), "resolved"
@@ -165,6 +165,8 @@ end
 
 function H.finalize(S, ctx, h)
   local W = H.W
+  local F2 = require("asi.nlu.frames2")
+  F2.expand_chain(S, h)   -- turn nested relational NPs / relative clauses into ordered lookup steps
   Cons.attach(S, h)
   -- bind every role / target / concept
   local function fit_factor(name, fit, note)
@@ -192,6 +194,12 @@ function H.finalize(S, ctx, h)
       fit_factor("answer_type_fit", fit, string.format("wh-type '%s' vs %s of %s (fit %.2f)", h.wh_type, h.ask, h.rel_obj.id, fit))
     end
   end
+  -- every step of a multi-hop chain is typed against its own relation signature
+  for si, st in ipairs(h.chain or {}) do
+    local b, fit = H.bind_np(S, ctx, st.known, st.rel_obj[st.known_role], h, "chain" .. si)
+    local what = (b.top and b.top.name) or P.span_text(S, st.known)
+    fit_factor("chain_fit:" .. si, fit, string.format("step %d: '%s' as %s of %s (fit %.2f)", si, what, st.known_role, st.rel, fit))
+  end
   if h.subject then H.bind_np(S, ctx, h.subject, h.expect_type, h, "subject") end
   if h.concept then H.bind_np(S, ctx, h.concept, nil, h, "concept") end
   if h.target then H.bind_np(S, ctx, h.target, nil, h, "target") end
@@ -202,7 +210,19 @@ function H.finalize(S, ctx, h)
     if h.statement.subj then H.bind_np(S, ctx, h.statement.subj, nil, h, "subject") end
     if h.statement.obj then H.bind_np(S, ctx, h.statement.obj, nil, h, "object") end
   end
-  -- ambiguity of the concept sense (capital: finance vs letter ...) is reflected as an ambiguity point later
+  -- sense-level domain evidence for typenoun/concept readings (competing readings of a word such as "program")
+  for _, np in ipairs({ h.concept, h.target, h.object, h.focus }) do
+    if np and np.bound and np.bound.domain_gain and np.bound.domain_gain > 0 then
+      h.factors[#h.factors + 1] = { name = "sense_domain", v = np.bound.domain_gain, note = "context domain supports the chosen sense of '" .. P.span_text(S, np) .. "'" }
+    end
+  end
+  -- unaided fuzzy lexemes (typos of relation words / senses) cost confidence once per chunk
+  for k in pairs(h.used) do
+    local c = S.chunks[k]
+    if c and c.fuzzy and #c.entities == 0 then
+      h.factors[#h.factors + 1] = { name = "fuzzy_lexeme", v = W.fuzzy * (1 - c.fuzzy) - 0.15, note = "'" .. tostring(c.fuzzy_from) .. "' matched through a spelling variant" }
+    end
+  end
 
   -- lexical attestation of the spans actually used
   local lex_bonus = 0
@@ -240,7 +260,9 @@ local function hyp_signature(S, h)
   for _, role in ipairs({ "from", "to", "subject" }) do
     local np = h.roles[role]
     if np then
-      local id = np.bound and np.bound.top and np.bound.top.id or (np.head and np.head.form) or "?"
+      -- resolved entities compare by id; open-set mentions by their normalised text (the same name under two segmentations is one reading)
+      local id = np.bound and np.bound.top and np.bound.top.id
+      if not id or id:sub(1, 8) == "mention:" then id = P.core_text(S, np) end
       parts[#parts + 1] = role .. "=" .. id
     end
   end

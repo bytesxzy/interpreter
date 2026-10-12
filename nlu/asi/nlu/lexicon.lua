@@ -297,6 +297,8 @@ function DIRECTIVES.rel(self, rest)
   tail = tail:gsub("^%s*from=(%S+)%s+to=(%S+)", "from=%1 | to=%2") -- signature shares one field: "from=A to=B"
   local f = split_fields(tail)
   if not f.from or not f.to then error("rel needs from= and to=") end
+  f.from, f.to = f.from:gsub(",", "|"), f.to:gsub(",", "|") -- union types are written a,b in the DSL ('|' separates fields)
+  f.from = f.from:gsub("%s+", ""); f.to = f.to:gsub("%s+", "")
   for _, t in ipairs({ f.from, f.to }) do
     for alt in t:gmatch("[%w_]+") do if not self:has_type(alt) then error("unknown type " .. alt .. " in rel " .. id) end end
   end
@@ -375,11 +377,17 @@ function DIRECTIVES.entity(self, rest)
   self:add_entity(e)
 end
 
+-- bulk entities get the default domains of their type, so bulk and hand-written entries compete on equal terms
+local TYPE_DOMAINS = { country = { "geography", "politics" }, subnational = { "geography", "politics" }, city = { "geography" },
+  continent = { "geography" }, ocean = { "geography" } }
+
 function DIRECTIVES.entities(self, rest)
   local etype, tail = split_head(rest)
   if not self:has_type(etype) then error("unknown entity type " .. etype) end
   for _, n in ipairs(list(tail)) do
-    self:add_entity({ id = etype .. "." .. slug(n), type = etype, names = { { text = n, cs = is_short_caps(n) } }, domain = {}, prior = 0.5,
+    local dom = {}
+    for _, d in ipairs(TYPE_DOMAINS[etype] or {}) do dom[d] = true end
+    self:add_entity({ id = etype .. "." .. slug(n), type = etype, names = { { text = n, cs = is_short_caps(n) } }, domain = dom, prior = 0.5,
       attr = {}, source = "seed" })
   end
 end
@@ -436,8 +444,13 @@ function DIRECTIVES.domain(self, rest)
   local name, tail = split_head(rest)
   for _, w in ipairs(words_of(tail)) do
     local f = w:lower()
-    self.domain_words[f] = self.domain_words[f] or {}
-    self.domain_words[f][name] = true
+    -- cue words apply to their inflected forms too ("university" cues "universities")
+    local forms = { f }
+    if not f:find("[^%a]") then for _, nf in ipairs(Morph.noun_forms(f)) do forms[#forms + 1] = nf.form end end
+    for _, form in ipairs(forms) do
+      self.domain_words[form] = self.domain_words[form] or {}
+      self.domain_words[form][name] = true
+    end
   end
 end
 

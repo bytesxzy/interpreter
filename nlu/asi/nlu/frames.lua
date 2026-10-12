@@ -53,24 +53,41 @@ local function relnp_options(S, np)
     local rel = S.lex:get_rel(e.rel)
     if rel then
       local known_role = (e.role == "to") and "from" or "to"
-      -- kind modifiers ("financial capital of X") re-target the relation
-      local kind_used
-      for _, m in ipairs(np.mods) do
+      local base = { rel = rel, arg = arg, known_role = known_role, ask_role = e.role, compound = compound, entry = e, comma = np.comma_arg, fuzzy = e.fuzzy }
+      -- kind modifiers ("financial capital of X": either a separate word or a lexicalised prefix) re-target the relation
+      local kinds = {}
+      if e.kind_prefix then kinds[#kinds + 1] = { form = e.kind_prefix } end
+      for _, m in ipairs(np.mods) do kinds[#kinds + 1] = m end
+      local derived_found = false
+      for _, m in ipairs(kinds) do
         local derived = rel.kinds and rel.kinds[m.form]
         if derived and derived ~= rel.id and S.lex:get_rel(derived) then
-          out[#out + 1] = { rel = S.lex:get_rel(derived), arg = arg, known_role = known_role, ask_role = e.role, kind_mod = m, compound = compound, entry = e }
-          kind_used = true
-        elseif derived == rel.id then kind_used = m end
+          out[#out + 1] = { rel = S.lex:get_rel(derived), arg = arg, known_role = known_role, ask_role = e.role, kind_mod = m, compound = compound, entry = e,
+            comma = np.comma_arg, fuzzy = e.fuzzy }
+          derived_found = true
+        elseif derived == rel.id then base.political_mod = m end
       end
-      if not kind_used or kind_used == true or true then
-        out[#out + 1] = { rel = rel, arg = arg, known_role = known_role, ask_role = e.role, compound = compound, entry = e,
-          political_mod = (type(kind_used) == "table") and kind_used or nil }
-      end
+      base.kind_ignored = derived_found -- the base relation silently ignores a kind word: strongly disfavoured
+      out[#out + 1] = base
     end
   end
   return out
 end
 F.relnp_options = relnp_options
+
+-- factors shared by every consumer of a relational-NP option
+local function option_factors(h, o)
+  if o.kind_mod then
+    h.kind_mod = o.kind_mod.form
+    if o.kind_mod.chunk then use(h, o.kind_mod.chunk.idx) end
+    addf(h, "kind_modifier", 0.2, "kind modifier '" .. tostring(o.kind_mod.form) .. "' selects " .. o.rel.id)
+  end
+  if o.political_mod and o.political_mod.chunk then use(h, o.political_mod.chunk.idx) end
+  if o.kind_ignored then addf(h, "kind_modifier_ignored", -0.9, "a kind word is present but this relation ignores it") end
+  if o.comma then addf(h, "comma_apposition", -0.3, "argument attached across a comma") end
+  if o.compound then addf(h, "compound_arg", -0.25, "entity+noun compound instead of 'of'/'s'") end
+end
+F.option_factors = option_factors
 
 local function span_end_ok(S, k)
   -- true when nothing but sentence-final constraints can follow chunk k (used only for scoring, not as a hard gate)
@@ -120,9 +137,7 @@ function F.wh_copular(S, out)
               if o.arg then
                 set_lookup(h, o.rel, o.known_role, o.arg, o.ask_role, wh)
                 addf(h, "relnp_arg", 0.7, "relational noun with explicit argument")
-                if o.compound then addf(h, "compound_arg", -0.25, "entity+noun compound instead of 'of'/'s'") end
-                if o.kind_mod then h.kind_mod = o.kind_mod.form; use(h, o.kind_mod.chunk.idx); addf(h, "kind_modifier", 0.2, "kind modifier selects " .. o.rel.id) end
-                if o.political_mod then use(h, o.political_mod.chunk.idx) end
+                option_factors(h, o)
                 mark_unresolved_pron(h, o.arg)
               else
                 h.op, h.intent, h.rel, h.rel_obj = "define", "definition", o.rel.id, o.rel
@@ -148,6 +163,7 @@ function F.wh_copular(S, out)
             h.concept = np
             h.requires_evidence = true
             if np.head_kind == "unknown" then addf(h, "unknown_term", -0.15, "term not in the lexicon: dataset-specific meaning must be learned from evidence") end
+            if np.of_arg then addf(h, "concept_of_arg", -0.4, "a non-relational concept noun with an 'of' argument is a weaker structure than a relational noun") end
             out[#out + 1] = h
           elseif np.head_kind == "pronoun" then
             local h = base("wh_copular:pronoun")

@@ -33,6 +33,7 @@ function P.make_chunks(S, cover)
       end
     else c.cats = {} end
     for _, r in ipairs(sp.readings) do
+      if r.fuzzy then c.fuzzy = math.max(c.fuzzy or 0, r.fuzzy); c.fuzzy_from = r.fuzzy_from end
       if r.kind == "entity" then c.entities[#c.entities + 1] = r
       elseif r.kind == "name" then c.names[#c.names + 1] = r
       elseif r.kind == "sense" then c.senses[#c.senses + 1] = r
@@ -51,6 +52,34 @@ end
 local function C(S, k) return S.chunks[k] end
 local function cat(c, name) return c ~= nil and c.cats ~= nil and c.cats[name] == true end
 P.cat = cat
+
+---------------------------------------------------------------- domain evidence (shared by entity and sense disambiguation)
+-- domain -> list of unit indices carrying a cue word of that domain (whole analysis: neighbouring sentences count as context)
+function P.domain_profile(S)
+  if S.domain_profile then return S.domain_profile end
+  local prof = {}
+  for ui, u in ipairs(S.units) do
+    for d in pairs(S.lex:domains_of(u.form)) do prof[d] = prof[d] or {}; table.insert(prof[d], ui) end
+  end
+  S.domain_profile = prof
+  return prof
+end
+
+-- number of distinct cue hits supporting any of `domains`, excluding the units of the mention itself (capped at 2 per domain)
+function P.domain_hits(S, ctx, domains, ex_u1, ex_u2)
+  local prof = P.domain_profile(S)
+  local total = 0
+  for d in pairs(domains or {}) do
+    local own = 0
+    for _, ui in ipairs(prof[d] or {}) do if not (ex_u1 and ui >= ex_u1 and ui <= ex_u2) then own = own + 1 end end
+    local disc = (ctx and ctx.domains and ctx.domains[d]) or 0
+    total = total + math.min(2, own + disc)
+  end
+  return total
+end
+
+-- evidence strength -> score gain (one cue is real but modest evidence, two or more is strong)
+function P.domain_gain(hits) if hits >= 2 then return 0.8 elseif hits >= 1 then return 0.45 end return 0 end
 
 -- barrier strings that end a phrase (hyphen parts carry no barrier, so compounds are unaffected)
 local function barrier(c) return c ~= nil and c.pre ~= nil end
@@ -98,6 +127,16 @@ local function nclass(S, c, in_np)
   if c.temporal and (c.temporal.kind == "year" or c.temporal.kind == "date" or c.temporal.kind == "decade" or c.temporal.kind == "century"
     or c.temporal.kind == "fiscal_year" or c.temporal.kind == "quarter" or c.temporal.kind == "interval" or c.temporal.kind == "month") then f.temporal = true end
   if c.number then f.number = true end
+  if c.single and c.unit.kind == "number" and c.unit.numval ~= nil then f.number = true end
+  -- a word recognised ONLY through spelling variants keeps its literal (unknown-word) reading: guesses never displace what was written
+  if c.fuzzy and #c.names == 0 and c.single and not (c.cats and next(c.cats)) then
+    local attested = false
+    for _, e in ipairs(c.entities) do if not e.fuzzy then attested = true end end
+    for _, s in ipairs(c.senses) do if not s.fuzzy then attested = true end end
+    for _, e in ipairs(c.relnouns) do if not e.fuzzy then attested = true end end
+    for _, e in ipairs(c.relverbs) do if not e.fuzzy then attested = true end end
+    if not attested then f.unknown = true end
+  end
   if c.literal then f.literal = true end
   if c.quote then f.quote = true end
   if c.single and not next(f) then
@@ -108,8 +147,9 @@ local function nclass(S, c, in_np)
       or cats.neg_word or cats.clitic_s or cats.adv or cats.particle or f.pron or f.poss_det
     if not closed then
       -- open-class word with no noun reading in the lexicon: modifier / unknown noun / verb used as a noun
-      if c.adjs then f.adj = true end
-      if ((c.verbs and #c.verbs > 0) or #c.relverbs > 0) and not c.adjs then
+      if c.adjs then
+        f.adj = true -- a gradable adjective only modifies; it is never the head ("the latest" is elliptical, not a noun phrase)
+      elseif (c.verbs and #c.verbs > 0) or #c.relverbs > 0 then
         if in_np then f.unknown = true; f.from_verb = true end -- "the list of ...", "the revised version"
       else
         f.unknown = true
@@ -322,10 +362,11 @@ local function parse_np_core(S, k, opts)
       end
       np.plural = false
       for _, r in ipairs(head.c.senses) do if r.num == "pl" then np.plural = true end end
-      np.score = np.score + 0.4 + ((head.c.kind == "mwe") and 0.3 or 0)
+      -- a word matched only through a spelling variant earns no attestation credit
+      if not head.c.fuzzy then np.score = np.score + 0.4 + ((head.c.kind == "mwe") and 0.3 or 0) end
     elseif kind == "relnoun" then
       np.relnouns = head.c.relnouns
-      np.score = np.score + 0.4 + ((head.c.kind == "mwe") and 0.2 or 0)
+      if not head.c.fuzzy then np.score = np.score + 0.4 + ((head.c.kind == "mwe") and 0.2 or 0) end
       for _, e in ipairs(head.c.relnouns) do if e.num == "pl" then np.plural = true end end
     elseif kind == "unknown" then
       np.score = np.score - 0.05
@@ -336,6 +377,8 @@ local function parse_np_core(S, k, opts)
       if f:find("s$") and not head.c.unit.form:find("ss$") then np.plural = np.plural or (kind ~= "concept") end
     end
     np.score = np.score - trunc_penalty
+    -- a spelling-variant reading must earn its place through structure; the literal unknown-word reading pays nothing
+    if head.c.fuzzy and kind ~= "unknown" then np.score = np.score - 0.35 end
     out[#out + 1] = np
   end
   end -- heads

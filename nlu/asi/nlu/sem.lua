@@ -10,7 +10,7 @@ local F = require("asi.nlu.frames2")
 local Sem = {}
 
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "focus", "statement", "np_only" }
+  "request", "instruction", "focus", "statement", "np_only", "segment_only" }
 
 local function sentence_unit_range(an, sid)
   local a, b
@@ -42,6 +42,7 @@ local function ref(S, np, depth)
     end
     if b.senses then r.senses = U.map(b.senses, function(s) return { id = s.id, type = s.type, gloss = s.gloss } end) end
   end
+  if np.head_kind == "var" then r.status, r.type, r.result_of_step = "chain_variable", np.type, np.step; r.var = np.var end
   if np.pron then r.pronoun = np.pron.form; r.needs_antecedent = true end
   if np.backref then r.backref = true; r.needs_context = true end
   if np.det then r.det = np.det end
@@ -187,10 +188,27 @@ function Sem.render(res, ctx)
   interp.polarity = top.polarity
   interp.roles = {}
   for role, np in pairs(top.roles) do interp.roles[role] = ref(S, np) end
+  -- the asked role carries the wh-noun when there is one ("Which claims ..."): it constrains the answer, it is not a known argument
+  if top.wh and top.wh.np and top.ask and not interp.roles[top.ask] then
+    interp.roles[top.ask] = ref(S, top.wh.np)
+    interp.roles[top.ask].asked = true
+  end
   if top.rel then
-    interp.query = { known_role = top.known_role, ask = top.ask, answer_type = top.wh_type or top.ask_type, relation_answer_type = top.ask_type,
+    -- the answer type is the narrower of the wh-type ("who" -> agent) and the relation's range type (person)
+    local answer_type = top.wh_type or top.ask_type
+    if top.wh_type and top.ask_type and S.lex:compat(top.ask_type, top.wh_type) >= 0.9 then answer_type = top.ask_type end
+    interp.query = { known_role = top.known_role, ask = top.ask, answer_type = answer_type, relation_answer_type = top.ask_type,
       answer_form = top.answer_form, dimension = top.dimension, count = top.count_target or nil }
     if top.wh then interp.query.wh = top.wh.wh end
+    if top.chain then
+      interp.query.chain, interp.query.steps = {}, {}
+      for i, st in ipairs(top.chain) do
+        interp.query.chain[#interp.query.chain + 1] = st.rel
+        interp.query.steps[#interp.query.steps + 1] = { index = i, relation = st.rel, known_role = st.known_role, known = ref(S, st.known), ask_role = st.ask_role,
+          result_var = "?" .. i, result_type = st.result_type }
+      end
+      interp.query.chain[#interp.query.chain + 1] = top.rel
+    end
     if top.qualifier then interp.query.qualifier = { relation = top.qualifier.rel, role = top.qualifier.role, arg = ref(S, top.qualifier.np) } end
     if top.verify then interp.query.verify = { from = ref(S, top.verify.from), to = ref(S, top.verify.to) } end
   end
@@ -264,6 +282,7 @@ function Sem.render(res, ctx)
   for _, it in ipairs(top.items or {}) do scan_dep(it) end
   if top.statement then scan_dep(top.statement.subj); scan_dep(top.statement.obj) end
   if top.instruction then scan_dep(top.instruction.np) end
+  if top.clause then scan_dep(top.clause.subj); scan_dep(top.clause.obj) end
   interp.dependencies = deps
   interp.requires_external_evidence = top.requires_evidence == true
   interp.requires_context = top.requires_context or nil

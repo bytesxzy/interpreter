@@ -20,7 +20,7 @@ rel currency: from=country to=currency | noun=currency | label=currency
 rel official_language: from=country to=language | noun=official language; national language | label=official language
 rel continent_of: from=country to=continent | noun=continent | label=continent
 rel height: from=entity to=number | noun=height; elevation; altitude | attr=1 | label=height
-rel located_in: from=place|organization|event|person to=place | noun=location | verb=locate/subj=from/prep=in; situate/subj=from/prep=in | where=located_in | label=location
+rel located_in: from=place,organization,event,person to=place | noun=location | verb=locate/subj=from/prep=in; situate/subj=from/prep=in | where=located_in | label=location
 rel moons: from=planet to=celestial_body | noun=moon; satellite | label=moons
 rel diameter: from=celestial_body to=number | noun=diameter | attr=1 | label=diameter
 rel orbital_period: from=planet to=number | noun=orbital period | attr=1 | label=orbital period
@@ -55,7 +55,7 @@ rel age: from=agent to=number | noun=age | attr=1 | label=age
 # ------------------------------------------------------------ works, products, software
 rel author: from=work to=person | noun=author; writer | verb=write/subj=to; author/subj=to | label=author
 rel publisher: from=work to=organization | noun=publisher | verb=publish/subj=to | label=publisher
-rel creator: from=work|product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to | label=creator
+rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to | label=creator
 rel developer: from=software to=agent | noun=developer; maintainer; vendor | verb=develop/subj=to | label=developer
 rel inventor: from=product to=person | noun=inventor | verb=invent/subj=to | label=inventor
 rel discoverer: from=entity to=agent | noun=discoverer | verb=discover/subj=to | label=discoverer
@@ -67,9 +67,9 @@ rel type_of: from=entity to=concept | noun=type; kind; category; genre | label=t
 # ------------------------------------------------------------ abstract relations
 rel successor: from=entity to=entity | noun=successor | verb=succeed/subj=to; replace/subj=to | label=successor
 rel predecessor: from=entity to=entity | noun=predecessor | label=predecessor
-rel cause: from=concept|event to=concept|event | noun=cause; reason; origin | verb=cause/subj=to; trigger/subj=to; lead/subj=to/prep=to | label=cause
+rel cause: from=concept,event to=concept,event | noun=cause; reason; origin | verb=cause/subj=to; trigger/subj=to; lead/subj=to/prep=to | label=cause
 rel requirement: from=entity to=entity | noun=requirement; prerequisite; dependency | verb=require/subj=from; need/subj=from; depend/subj=from/prep=on | label=requirement
-rel supported_by: from=claim|concept to=document | noun=evidence; support | verb=support/subj=to; confirm/subj=to; substantiate/subj=to | label=supported by
+rel supported_by: from=claim,concept to=document | noun=evidence; support | verb=support/subj=to; confirm/subj=to; substantiate/subj=to | label=supported by
 rel part_of: from=entity to=entity | noun_from=part; component; constituent | verb=contain/subj=to; comprise/subj=to; include/subj=to | label=part of
 rel atomic_number: from=chemical_element to=number | noun=atomic number | attr=1 | label=atomic number
 rel symbol: from=chemical_element to=text | noun=symbol | label=chemical symbol

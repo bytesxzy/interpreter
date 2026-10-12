@@ -25,6 +25,7 @@ sense elementary school: elementary_school | type=school | domain=education
 sense primary school: primary_school | type=school | domain=education
 sense secondary school: secondary_school | type=school | domain=education
 sense boarding school: boarding_school | type=school | domain=education
+sense program: program.academic | pos=n | type=educational_concept | domain=education | gloss=a course of study offered by an institution
 sense graduate school: graduate_school | type=educational_institution | domain=education
 sense artificial intelligence: artificial_intelligence | type=technology_concept | domain=ai; computing
 sense machine learning: machine_learning | type=technology_concept | domain=ai; computing

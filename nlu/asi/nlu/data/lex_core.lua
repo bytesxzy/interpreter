@@ -75,7 +75,7 @@ type color < entity
 # ============================================================ closed-class words
 class det: the a an this that these those some any every each all both either neither another such
 class poss_det: my your his her its our their
-class prep: of in on at by for from to with without about into onto over under between among through during before after since until till near within across against toward towards via per than as like off up down out around beside besides beyond inside outside upon throughout regarding concerning including excluding except versus vs amid above below behind along
+class prep: according based owing due pursuant of in on at by for from to with without about into onto over under between among through during before after since until till near within across against toward towards via per than as like off up down out around beside besides beyond inside outside upon throughout regarding concerning including excluding except versus vs amid above below behind along
 class conj: and or but nor yet so because although though while whereas if unless when whenever once as
 class pron: i me we us you he him she her it they them
 class pron_poss: mine ours yours hers theirs
@@ -277,7 +277,7 @@ dim popularity: rels=population | order=larger_is_larger
 dim wealth: rels=revenue | order=larger_is_larger
 
 # ============================================================ discourse and constraint cues
-cue exclusion: exclude; excluding; excludes; excluded; except; excepting; without; avoid; avoiding; skip; omit; omitting; minus; other than; apart from; aside from; instead of; rather than; not including; leave out; leaving out; rule out; ruling out; filter out; get rid of; no more
+cue exclusion: exclude; excluding; excludes; excluded; except; excepting; without; avoid; avoiding; skip; omit; omitting; minus; other than; apart from; aside from; instead of; rather than; not including; leave out; leaving out; rule out; ruling out; filter out; get rid of; no more; do not include; do not use; do not show; do not add; do not consider; never include; never use; never show; stop using; leave off
 cue contrast: but; however; rather; instead; but not; and not; though
 cue correction: actually; wait; no wait; sorry; correction; i meant; i mean; scratch that; forget that; ignore that; disregard that; never mind; my mistake; i was wrong; that was wrong; that's wrong; not quite; to correct; let me correct; update; change of plans; on second thought; let me rephrase; to clarify
 cue persist: from now on; going forward; henceforth; always; for the rest of; from here on; until further notice; by default; in all future; for all future
@@ -319,7 +319,7 @@ domain typography: letter letters uppercase lowercase font character typing
 domain history: history historical ancient empire kingdom dynasty century war revolution medieval
 
 # ============================================================ head words that type an unseen proper name
-headcue company: inc inc. corp corporation co company llc ltd limited plc gmbh ag holdings group partners
+headcue company: inc inc. corp corporation co company llc ltd limited plc gmbh ag holdings group partners bank
 headcue organization: labs lab laboratory laboratories technologies technology systems solutions robotics industries enterprises ventures consulting associates networks software studios works
 headcue university: university college institute polytechnic academy
 headcue government_body: ministry department agency authority council commission bureau parliament senate

@@ -54,6 +54,21 @@ function F.parse_filters(S, k, target_np, limit_idx)
       k = k + 1; c = C(S, k)
       if not c or c.masked then break end
     end
+    -- locative relative clause:  "the country where Mount Fuji is"  ->  located_in(from=Mount Fuji, to=<target>)
+    if c.single and c.unit.form == "where" and lex:get_rel("located_in") then
+      local done
+      for _, np in ipairs(P.parse_np(S, k + 1)) do
+        local bc = C(S, np.nxt)
+        if bc and bc.single and not bc.masked and (cat(bc, "aux_be") or cat(bc, "clitic_s")) then
+          filters[#filters + 1] = { kind = "relation", rel = "located_in", target_role = "to", value = np, chunks = { k, np.nxt },
+            span = { first = k, last = np.nxt }, locative_clause = true }
+          k = np.nxt + 1
+          done = true
+          break
+        end
+      end
+      if done then goto continue_filters end
+    end
     -- relativiser
     local rel_marker
     if c.single and (c.unit.form == "that" or c.unit.form == "which" or c.unit.form == "who") then rel_marker = true; k = k + 1 end
@@ -139,8 +154,80 @@ function F.parse_filters(S, k, target_np, limit_idx)
       end
     end
     if not progressed then k = start; break end
+    ::continue_filters::
   end
   return filters, k
+end
+
+---------------------------------------------------------------- multi-hop chains
+-- A known argument that is itself a relational NP ("the founder of Example Labs") or a type noun modified by a relative clause
+-- ("the country where Mount Fuji is", "the company that acquired Beta Systems") is expanded into ordered lookup steps with
+-- typed intermediate variables:  steps[1] runs first; the hypothesis' own relation consumes the last variable.
+local function lex_rel(S, id) return S.lex:get_rel(id) end
+
+local function relativizer(c)
+  return c and c.single and not c.masked and (c.unit.form == "that" or c.unit.form == "which" or c.unit.form == "who" or c.unit.form == "where")
+end
+
+function F.expand_chain(S, h)
+  if h.chain_done or not h.known_role or not h.rel then return end
+  h.chain_done = true
+  local top_np = h.roles[h.known_role]
+  if not top_np or top_np.head_kind == "pronoun" then return end
+  local steps = {}
+  local used_extra = {}
+  local last_chunk = top_np.c2
+
+  local function build(np, depth)
+    if depth > 3 or not np then return nil end
+    if np.head_kind == "relnoun" then
+      for _, o in ipairs(F.relnp_options(S, np)) do
+        if o.arg then
+          local inner = build(o.arg, depth + 1)
+          steps[#steps + 1] = { rel = o.rel.id, rel_obj = o.rel, known_role = o.known_role, known = inner and inner.var_np or o.arg, ask_role = o.ask_role,
+            result_type = o.rel[o.ask_role], source_np = np }
+          return { var_np = { head_kind = "var", var = "?" .. #steps, type = o.rel[o.ask_role], step = #steps, u1 = np.u1, u2 = np.u2, c1 = np.c1, c2 = np.c2,
+            mods = {}, score = 0, notes = {} } }
+        end
+      end
+    elseif (np.head_kind == "typenoun" or np.head_kind == "unknown") and relativizer(C(S, np.nxt)) then
+      local filters, k = F.parse_filters(S, np.nxt, np)
+      local made
+      for _, f in ipairs(filters) do
+        if f.kind == "relation" then
+          local rel = lex_rel(S, f.rel)
+          if rel then
+            local ntype = np.senses and np.senses[1] and np.senses[1].type
+            steps[#steps + 1] = { rel = rel.id, rel_obj = rel, known_role = other(f.target_role), known = f.value, ask_role = f.target_role,
+              result_type = ntype or rel[f.target_role], source_np = np, via_clause = true }
+            for i = f.span.first, f.span.last do used_extra[i] = true end
+            last_chunk = math.max(last_chunk, f.span.last)
+            made = #steps
+          end
+        end
+      end
+      if made then
+        local ntype = np.senses and np.senses[1] and np.senses[1].type
+        return { var_np = { head_kind = "var", var = "?" .. made, type = ntype or steps[made].result_type, step = made, u1 = np.u1, u2 = np.u2, c1 = np.c1,
+          c2 = np.c2, mods = {}, score = 0, notes = {} } }
+      end
+    end
+    return nil
+  end
+
+  local res = build(top_np, 0)
+  if res and #steps > 0 then
+    local var = res.var_np
+    var.u1, var.c1 = top_np.u1, top_np.c1
+    var.c2 = math.max(last_chunk, top_np.c2)
+    var.u2 = S.chunks[var.c2].u2
+    var.steps = steps
+    h.chain = steps
+    h.roles[h.known_role] = var
+    for i = top_np.c1, var.c2 do h.used[i] = true end
+    for i in pairs(used_extra) do h.used[i] = true end
+    h.factors[#h.factors + 1] = { name = "multi_hop", v = 0.3, note = #steps .. "-step chain before " .. h.rel }
+  end
 end
 
 ---------------------------------------------------------------- request frames
@@ -180,10 +267,9 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
         h.ask_type = o.rel[o.ask_role]
         h.op, h.intent, h.requires_evidence = "lookup", "factual_lookup", true
         addf(h, "relnp_arg", 0.7, "relational noun with explicit argument")
-        if o.compound then addf(h, "compound_arg", -0.25, "entity+noun compound") end
+        F.option_factors(h, o)
         if np.temporal_scope then h.temporal_scope = np.temporal_scope end
         if np.superlative then h.ordering = { superlative = np.superlative } end
-        if o.kind_mod then h.kind_mod = o.kind_mod.form; use(h, o.kind_mod.chunk.idx) end
         F.mark_pron(h, o.arg)
       else
         h.op, h.intent, h.rel, h.rel_obj, h.concept = "define", "definition", o.rel.id, o.rel, np
@@ -200,8 +286,10 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
   elseif np.head_kind == "typenoun" or np.head_kind == "concept" or np.head_kind == "unknown" then
     -- plural typenoun => search for a set;  singular typenoun after find/list => search too;  concept/unknown => define/describe
     local plural = np.plural
-    if (np.head_kind == "typenoun") and (plural or act == "retrieve") then
+    -- "Find/Show/List <noun>" requests items of that kind, also when the noun is not in the lexicon
+    if ((np.head_kind == "typenoun") and (plural or act == "retrieve")) or (np.head_kind == "unknown" and act == "retrieve") then
       local h = base("request:search")
+      if np.head_kind == "unknown" then addf(h, "unknown_target_type", -0.1, "search target type is not in the lexicon") end
       h.op, h.intent, h.requires_evidence = "search", "search", true
       local filters, kf = F.parse_filters(S, np.nxt, np)
       finish_target_h(S, h, np, kf, filters)
@@ -210,12 +298,14 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
       out[#out + 1] = h
     end
     local h = base("request:concept")
+    if act == "retrieve" and np.head_kind == "unknown" then addf(h, "retrieval_verb_not_definition", -0.6, "a retrieval verb asks for items, not a definition") end
     if act == "inform" and lemma == "explain" then h.op, h.intent = "explain", "explanation"
     elseif act == "inform" and lemma == "describe" then h.op, h.intent = "describe", "entity_description"
     else h.op, h.intent = "define", "definition" end
     h.concept = np
     h.requires_evidence = true
     if np.head_kind == "unknown" then addf(h, "unknown_term", -0.15, "term not in the lexicon") end
+    if np.of_arg then addf(h, "concept_of_arg", -0.4, "a non-relational concept noun with an 'of' argument is a weaker structure than a relational noun") end
     out[#out + 1] = h
   elseif np.head_kind == "pronoun" then
     local h = base("request:pronoun")
@@ -312,7 +402,37 @@ function F.np_only(S, out)
   if S.wrapper and #S.wrapper.kinds > 0 then return end -- wrapper-led requests are handled by F.request
   for _, np in ipairs(P.parse_np(S, S.first)) do
     from_object_np(S, out, np, nil, "fragment", {}, "fragment")
+    -- "capital, France": a relational noun whose argument follows across a comma
+    if np.head_kind == "relnoun" and not np.of_arg and not np.possessor then
+      local nx = C(S, np.nxt)
+      if nx and nx.pre and nx.pre:find("comma") and not nx.masked then
+        for _, arg in ipairs(P.parse_np(S, np.nxt)) do
+          if arg.head_kind == "entity" then
+            local cp = U.shallow(np)
+            cp.of_arg, cp.comma_arg, cp.nxt, cp.u2, cp.c2 = arg, true, arg.nxt, arg.u2, arg.c2
+            from_object_np(S, out, cp, nil, "fragment", {}, "fragment")
+            break
+          end
+        end
+      end
+    end
   end
+end
+
+-- a sentence that is nothing but an exclusion / preference / restriction clause ("Exclude universities.", "Don't include reposts.")
+function F.segment_only(S, out)
+  local segs = S.segs or {}
+  if #segs == 0 then return end
+  for k = S.first, S.last do
+    local c = C(S, k)
+    if not c.masked and not P.is_function_chunk(S, c) then return end
+  end
+  local sg = segs[1]
+  local h = newh(S, "segment_only:" .. sg.kind, "instruction", "instruction_update", "instruct")
+  h.instruction = { verb = sg.cue, act = (sg.kind == "exclusion") and "exclude" or "constraint", kind = sg.kind }
+  h.polarity = (sg.kind == "exclusion") and "negative" or "positive"
+  addf(h, "segment_only", 0.9, "the whole sentence is a " .. sg.kind .. " clause")
+  out[#out + 1] = h
 end
 
 ---------------------------------------------------------------- comparison questions
@@ -444,9 +564,12 @@ function F.instruction(S, out)
   c = C(S, k)
   -- temporal persist marker already lexed as a temporal chunk ("From now on", "Going forward")
   while c and c.temporal and (c.temporal.kind == "persist" or c.temporal.persist) do persist = true; skipped[#skipped + 1] = k; k = k + 1; c = C(S, k) end
-  if c and c.pre and (c.pre:find("comma")) then end
   c = C(S, k)
   if not c or c.masked then return end
+  -- a persistence marker anywhere in the sentence ("Use the 2025 dataset from now on.") makes the instruction standing
+  for _, ch in ipairs(S.chunks) do
+    if ch.temporal and (ch.temporal.kind == "persist" or ch.temporal.persist) then persist = true end
+  end
   for _, a in ipairs(c.single and P.verb_analyses(S, c) or {}) do
     if a.form == "base" and (a.act == "constraint" or a.act == "exclude" or a.act == "include") then
       local nk = k + 1
