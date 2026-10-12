@@ -13,10 +13,34 @@ function P.new_state(an, lex, lat, cover, ctx)
   return S
 end
 
+-- "serves as", "functions as", "acted as", "stands as": a copula-like verb + "as" behaves as ONE copula chunk ("is"/"was") in every frame.
+-- Merged only when "as" introduces a noun phrase (not "acts as if", "stands as well as").
+local NOT_NP_AFTER_AS = U.set({ "if", "though", "well", "soon", "long", "much", "many", "far", "usual", "such", "before", "after", "when", "while", "of" })
+local function merge_copula_like(S, spans)
+  local lex, units = S.lex, S.units
+  local out, i = {}, 1
+  while i <= #spans do
+    local sp, nx, after = spans[i], spans[i + 1], spans[i + 2]
+    local merged
+    if nx and sp.i == sp.j and nx.i == nx.j and sp.kind ~= "punct" and nx.kind ~= "punct" and not units[nx.i].pre then
+      local u, nu = units[sp.i], units[nx.i]
+      local cl = lex:cats(u.form)
+      if cl and cl.copula_like and nu.form == "as" and after and not NOT_NP_AFTER_AS[units[after.i].form] and not units[after.i].pre then
+        local past = false
+        for _, r in ipairs(lex:readings(u.form)) do if r.pos == "verb" and (r.feat == "past" or r.feat == "pp") then past = true end end
+        merged = { i = sp.i, j = nx.j, kind = "word", readings = {}, text = sp.text .. " " .. nx.text, copula_like = true, past = past, score = sp.score }
+      end
+    end
+    if merged then out[#out + 1] = merged; i = i + 2 else out[#out + 1] = sp; i = i + 1 end
+  end
+  return out
+end
+
 function P.make_chunks(S, cover)
   local lex, units = S.lex, S.units
   local chunks = {}
-  for i, sp in ipairs(cover.spans) do
+  local spans = merge_copula_like(S, cover.spans)
+  for i, sp in ipairs(spans) do
     local u = units[sp.i]
     local c = { idx = i, u1 = sp.i, u2 = sp.j, kind = sp.kind, readings = sp.readings, text = sp.text, span = sp, cap = u.cap,
       pre = u.pre, raw = u.raw, sent = u.sent, single = sp.i == sp.j, unit = u,
@@ -32,6 +56,12 @@ function P.make_chunks(S, cover)
         elseif r.pos == "adj" then c.adjs = c.adjs or {}; c.adjs[#c.adjs + 1] = r end
       end
     else c.cats = {} end
+    if sp.copula_like then
+      -- one copula chunk; its proxy unit reads "is"/"was" so every frame that tests for the copula accepts it, while offsets stay those of the surface words
+      c.single, c.copula_like = true, true
+      c.unit = setmetatable({ form = sp.past and "was" or "is", surface_form = c.form }, { __index = u })
+      c.cats = lex:cats("is") or {}
+    end
     for _, r in ipairs(sp.readings) do
       if r.fuzzy then c.fuzzy = math.max(c.fuzzy or 0, r.fuzzy); c.fuzzy_from = r.fuzzy_from end
       if r.kind == "entity" then c.entities[#c.entities + 1] = r
@@ -132,6 +162,15 @@ function P.verb_analyses(S, c)
   end
   for _, e in ipairs(c.relverbs) do add(e.lemma, e.vform, e, nil) end
   for _, r in ipairs(c.verbs or {}) do add(r.lemma, r.feat, nil, r.act) end
+  -- "have" as a MAIN verb ("Acme has its headquarters in Oslo", "Where does Acme have its headquarters"): no relation of its own; the support-verb
+  -- constructions give it meaning together with the relational noun it governs
+  if #out == 0 and c.single and cat(c, "aux_have") then
+    local f = c.unit.form
+    if f == "have" then add("have", "base", nil)
+    elseif f == "has" then add("have", "3sg", nil)
+    elseif f == "had" then add("have", "past", nil)
+    elseif f == "having" then add("have", "ing", nil) end
+  end
   if #out == 0 and c.single and c.kind == "word" and not next(c.cats) and #c.senses == 0 and #c.entities == 0 and #c.relnouns == 0 then
     local seen_feat = {}
     for _, g in ipairs(Morph.guess(c.unit.form)) do
@@ -581,6 +620,20 @@ function P.parse_vp(S, k, opts)
     local c = C(S, j)
     if not c or c.masked or (j > k and barrier(c)) then break end
     local ak = aux_kind(c)
+    if ak == "have" then
+      -- perfect auxiliary only if a participle / "been" follows (skipping not / adverbs): "has founded", "had been", "could have founded"
+      local q, is_aux = j + 1, false
+      while true do
+        local nc = C(S, q)
+        if nc and nc.single and not nc.masked and not barrier(nc) and (P.is_neg(nc) or cat(nc, "adv")) then q = q + 1 else break end
+      end
+      local nc = C(S, q)
+      if nc and nc.single and not nc.masked and not barrier(nc) then
+        if cat(nc, "aux_be") then is_aux = true
+        else for _, a in ipairs(P.verb_analyses(S, nc)) do if a.form == "pp" then is_aux = true end end end
+      end
+      if not is_aux then ak = nil end
+    end
     if ak and not (cat(c, "clitic_s") and false) then
       -- the verb itself may be an aux-form (is/does/has): only treat as aux if another verb follows
       aux[#aux + 1] = { kind = ak, form = c.unit.form, chunk = c }
@@ -643,12 +696,35 @@ end
 ---------------------------------------------------------------- wh-phrases
 local KIND_NOUN = U.set({ "kind", "type", "sort", "form" })
 
+-- a preposition fronted together with its wh-phrase ("In which city is X headquartered?", "By whom was X founded?", "To which country does P belong?")
+local PIED_PREP = U.set({ "in", "on", "at", "from", "to", "by", "with", "for", "of", "during", "under", "through", "into", "about", "against", "across" })
+local WH_PLACE_PREP, WH_TIME_PREP = U.set({ "in", "at", "from" }), U.set({ "in", "on", "at", "during" })
+
 function P.parse_wh(S, k)
   local key = "w" .. k
   if S.wh_memo[key] then return S.wh_memo[key] end
   local out = {}
   local c = C(S, k)
-  if c and c.single and cat(c, "wh") and not c.masked then
+  if c and c.single and cat(c, "prep") and not c.masked and PIED_PREP[c.unit.form] then
+    local nc = C(S, k + 1)
+    if nc and nc.single and not nc.masked and not barrier(nc) and cat(nc, "wh") and (nc.unit.form == "which" or nc.unit.form == "what" or nc.unit.form == "whom") then
+      for _, w in ipairs(P.parse_wh(S, k + 1)) do
+        if not w.adverbial then
+          local cl = {}
+          for kk, vv in pairs(w) do cl[kk] = vv end
+          cl.pied, cl.c1, cl.u1 = c.unit.form, k, c.u1
+          out[#out + 1] = cl
+          -- "In which CITY ..." asks for a place exactly like "Where ...", "In which YEAR ..." exactly like "When ..." (the type of the wh-noun is kept as answer type)
+          local lexty = w.type
+          if lexty and WH_PLACE_PREP[c.unit.form] and S.lex:isa(lexty, "place") then
+            out[#out + 1] = { wh = "where", adverbial = true, type = lexty, np = nil, pied = c.unit.form, pied_adv = true, nxt = w.nxt, c1 = k, c2 = w.c2, u1 = c.u1, u2 = w.u2 }
+          elseif lexty and WH_TIME_PREP[c.unit.form] and S.lex:isa(lexty, "time") then
+            out[#out + 1] = { wh = "when", adverbial = true, type = lexty, pied = c.unit.form, pied_adv = true, nxt = w.nxt, c1 = k, c2 = w.c2, u1 = c.u1, u2 = w.u2 }
+          end
+        end
+      end
+    end
+  elseif c and c.single and cat(c, "wh") and not c.masked then
     local f = c.unit.form
     if f == "who" or f == "whom" then
       out[#out + 1] = { wh = "who", type = "agent", nxt = k + 1, c1 = k, c2 = k, u1 = c.u1, u2 = c.u2 }
@@ -667,6 +743,11 @@ function P.parse_wh(S, k)
           if np.head_kind == "typenoun" or np.head_kind == "concept" or np.head_kind == "unknown" then
             local t = np.senses and np.senses[1] and np.senses[1].type
             out[#out + 1] = { wh = f, type = t, np = np, nxt = np.nxt, c1 = k, c2 = np.c2, u1 = c.u1, u2 = np.u2, plural = np.plural }
+          elseif np.head_kind == "relnoun" and not np.of_arg and not np.possessor and #np.mods == 0 then
+            -- the wh-noun names the RELATION that is asked about ("What currency does X use?", "Which language is spoken in Y?"); it is not a known argument
+            local e = np.relnouns[1]
+            local rel = e and S.lex:get_rel(e.rel)
+            out[#out + 1] = { wh = f, type = rel and rel[e.role] or nil, np = np, relnoun = true, nxt = np.nxt, c1 = k, c2 = np.c2, u1 = c.u1, u2 = np.u2, plural = np.plural }
           end
         end
       end

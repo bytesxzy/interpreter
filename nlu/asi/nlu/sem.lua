@@ -9,7 +9,7 @@ local F = require("asi.nlu.frames2")
 
 local Sem = {}
 
-local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "yes_no", "wh_change", "compare_q",
+local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "yes_no", "wh_change", "compare_q",
   "request", "instruction", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
 
 local function sentence_unit_range(an, sid)
@@ -210,7 +210,7 @@ function Sem.render(res, ctx)
   interp.roles = {}
   for role, np in pairs(top.roles) do interp.roles[role] = ref(S, np) end
   -- the asked role carries the wh-noun when there is one ("Which claims ..."): it constrains the answer, it is not a known argument
-  if top.wh and top.wh.np and top.ask and not interp.roles[top.ask] then
+  if top.wh and top.wh.np and not top.wh.relnoun and top.ask and not interp.roles[top.ask] then
     interp.roles[top.ask] = ref(S, top.wh.np)
     interp.roles[top.ask].asked = true
   end

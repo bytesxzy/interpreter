@@ -174,6 +174,10 @@ local function bind_all(S, ctx, h)
     h.factors[#h.factors + 1] = { name = name, v = W.type_fit * fit * 0.5, note = note }
     if fit == -1.0 then h.veto = h.veto or note end
   end
+  -- a fronted preposition ("In which city ...", "By whom ...") must be accounted for by the construction
+  if h.wh and h.wh.pied and not h.pied_consumed then
+    h.factors[#h.factors + 1] = { name = "pied_prep_unused", v = -0.8, note = "the fronted preposition '" .. tostring(h.wh.pied) .. "' is not accounted for" }
+  end
   if h.rel_obj and h.rel_obj.open then
     -- the relation word is not in the lexicon: it is kept under its own name, at a cost, so any lexicon reading of the same words wins
     h.factors[#h.factors + 1] = { name = "open_relation", v = -0.35, note = "relation inferred from a word the lexicon does not know ('" .. tostring(h.rel_obj.id) .. "'); not mapped onto any known relation" }

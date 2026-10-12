@@ -29,6 +29,17 @@ local VOCAB = {
     last = { "Halvorsen", "Mbeki", "Castellan", "Dumont", "Reyes", "Sorensen", "Adeyemi", "Kovac", "Lindqvist", "Marsh" },
     money = { "tolar", "brisk", "ummo", "falin", "crown" },
   },
+  -- "heldout2": written BEFORE the fixes made after the first held-out run (see reports/heldout_log.md); a second, still-unseen vocabulary
+  heldout2 = {
+    onset = { "dav", "fyr", "gom", "hal", "jor", "kuv", "lex", "nim", "pru", "qua", "ras", "sid", "tov", "urb", "wex", "zel" },
+    mid = { "no", "ri", "ta", "ve", "mu", "sa", "la", "di" },
+    coda_country = { "stan", "land", "via", "nesia", "ania" },
+    coda_city = { "ham", "caster", "field", "port", "shire", "worth" },
+    org = { "Partners", "Enterprises", "Logistics", "Interactive", "Biosciences", "Motors", "Media", "Associates" },
+    first = { "Hana", "Mateo", "Ingrid", "Sven", "Aisha", "Piotr", "Noor", "Felix", "Greta", "Hugo" },
+    last = { "Bergstrom", "Okafor", "Villanueva", "Tanaka", "Petrov", "Moreau", "Kowalski", "Haddad", "Lindgren", "Quispe" },
+    money = { "marl", "pesk", "dinor", "quill", "zent" },
+  },
 }
 
 -- fact templates: {text, parsable}.  `parsable=false` marks paraphrases the extractor is NOT expected to understand (they measure recall loss honestly)
@@ -47,6 +58,13 @@ local TEMPLATES = {
     currency = { { "%K uses the %X as its currency.", false }, { "The official currency of %K is the %X.", false }, { "The currency of %K is the %X.", true } },
     headquarters = { { "%O has its headquarters in %C.", false }, { "The headquarters of %O is %C.", true }, { "%O is headquartered in %C.", true } },
   },
+  heldout2 = {
+    capital = { { "%C is the capital city of %K.", true }, { "%K's capital city is %C.", true }, { "%C is %K's capital.", true }, { "%C functions as the capital of %K.", false } },
+    founder = { { "%O's founder is %P.", true }, { "%O was set up by %P.", false }, { "%P is the person who founded %O.", false }, { "%P founded %O.", true } },
+    ceo = { { "%P is the chief executive officer of %O.", true }, { "%O's chief executive is %P.", true }, { "%P is %O's CEO.", true } },
+    currency = { { "%K's official currency is the %X.", true }, { "The %X is the currency of %K.", true }, { "In %K, people pay with the %X.", false } },
+    headquarters = { { "%O's headquarters is in %C.", true }, { "%O maintains its headquarters in %C.", false }, { "The main office of %O is in %C.", false }, { "%O is headquartered in %C.", true } },
+  },
 }
 
 local QUESTIONS = {
@@ -63,6 +81,13 @@ local QUESTIONS = {
     ceo = { "Who is the chief executive of %O?", "Who is %O's CEO?" },
     currency = { "What currency does %K use?", "What is the official currency of %K?" },
     headquarters = { "Where does %O have its headquarters?", "Where is the headquarters of %O?" },
+  },
+  heldout2 = {
+    capital = { "Which city is the capital of %K?", "What city is %K's capital?", "Give me the capital of %K.", "Capital city of %K?" },
+    founder = { "Who set up %O?", "Who is %O's founder?", "Name the founder of %O.", "Who created %O?" },
+    ceo = { "Who is the chief executive officer of %O?", "Who is %O's chief executive?", "Name the CEO of %O." },
+    currency = { "Which currency is used in %K?", "What is the national currency of %K?", "Tell me %K's currency." },
+    headquarters = { "Where are the headquarters of %O?", "In which city is %O headquartered?", "Where is %O's headquarters?" },
   },
 }
 

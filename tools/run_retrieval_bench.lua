@@ -31,9 +31,9 @@ for mode in opts.modes:gmatch("[^,]+") do
   print(string.format("%-26s n=%-4d  serious-error=%.3f [%.3f,%.3f]  %s", mode, agg.error_n, r(agg.errors, agg.error_n), lo, hi,
     (mode == "baseline" or mode == "baseline1")
       and string.format("top1-wrong-topic=%.3f  contaminated@3=%.3f  gold-in-top3=%.3f  (never abstains)", r(agg.top1_wrong, agg.top1_n), r(agg.contam3, agg.contam3_n), r(agg.gold_in_topk, agg.top1_n))
-      or string.format("correct=%.3f wrong-answer=%.3f contaminated=%.3f abstained=%.3f | unsupported ok=%.3f insufficient ok=%.3f | injection leak=%d/%d conflict wrong=%d/%d retained=%d",
+      or string.format("correct=%.3f wrong-answer=%.3f contaminated=%.3f abstained=%.3f | unsupported ok=%.3f insufficient ok=%.3f | injection leak=%d/%d conflict wrong=%d/%d retained=%d | answerable-with-unparsable-template=%d (abstained %d)",
         r(agg.correct, agg.answerable), r(agg.wrong_answer, agg.answerable), r(agg.contaminated, agg.answerable), r(agg.abstained, agg.answerable),
-        r(agg.unsupported_ok, agg.unsupported_n), r(agg.insufficient_ok, agg.insufficient_n), agg.injection_leak, agg.injection_n, agg.conflict_wrong, agg.conflict_n, agg.conflict_retained)))
+        r(agg.unsupported_ok, agg.unsupported_n), r(agg.insufficient_ok, agg.insufficient_n), agg.injection_leak, agg.injection_n, agg.conflict_wrong, agg.conflict_n, agg.conflict_retained, agg.unparsed, agg.unparsed_abstained)))
   if tonumber(opts.failures) > 0 and agg.failures then
     for i, f in ipairs(agg.failures) do
       if i > tonumber(opts.failures) then break end

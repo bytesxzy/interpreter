@@ -230,7 +230,7 @@ function L:add_rel(r)
   for _, n in ipairs(r.nouns_from) do noun_entries(n, "from") end
   for _, v in ipairs(r.verbs) do
     for _, f in ipairs(Morph.verb_forms(v.lemma)) do
-      self:trie_insert(f.form, { kind = "relverb", rel = r.id, subj = v.subj, vform = f.feat, lemma = v.lemma, prep = v.prep })
+      self:trie_insert(f.form, { kind = "relverb", rel = r.id, subj = v.subj, vform = f.feat, lemma = v.lemma, prep = v.prep, support = v.support })
     end
   end
 end
@@ -306,7 +306,8 @@ function DIRECTIVES.rel(self, rest)
   end
   local r = { id = id, from = f.from, to = f.to, label = f.label or id:gsub("_", " "), nouns_to = list(f.noun), nouns_from = list(f.noun_from),
     verbs = {}, preps = list(f.prep), kinds = {}, when = f.when, where = f.where, how_many = f.how_many, derived = f.derived,
-    weight = tonumber(f.weight) or 1.0, source = f.source or "seed", symmetric = f.symmetric == "1", attr = f.attr == "1", event = f.event == "1" }
+    weight = tonumber(f.weight) or 1.0, source = f.source or "seed", symmetric = f.symmetric == "1", attr = f.attr == "1", event = f.event == "1",
+    locus = f.locus == "1", isa = f.isa, support = {} }
   -- verb entries:  lemma/subj=to|from[/prep=in]   (prep => stative "X is VERB-ed PREP Y": X fills subj role, Y the other)
   for _, v in ipairs(list(f.verb)) do
     local lemma, attrs = v:match("^([^/]+)/(.*)$")
@@ -315,6 +316,13 @@ function DIRECTIVES.rel(self, rest)
     for k, val in attrs:gmatch("(%a+)=([%w_]+)") do ent[k] = val end
     if ent.subj ~= "to" and ent.subj ~= "from" then error("verb entry needs subj=to|from : " .. v) end
     r.verbs[#r.verbs + 1] = ent
+  end
+  -- support verbs ("Sweden USES the krona", "Acme KEEPS its headquarters in Oslo"): verbs that carry the relation with the holder as subject.
+  -- `have` is an auxiliary and is handled by the support-construction frames, so it is recorded but not entered as a relation verb.
+  for _, sv in ipairs(list(f.support)) do
+    local lemma = trim(sv)
+    r.support[#r.support + 1] = lemma
+    if lemma == "have" then r.support_have = true else r.verbs[#r.verbs + 1] = { lemma = lemma, subj = "from", support = true } end
   end
   for _, k in ipairs(list(f.kinds)) do
     local mod, rid = k:match("^(.-):(.+)$")
@@ -531,6 +539,20 @@ function L:get_rel(id)
   end
   local lemma = id:match("^open:(.+)$")
   if lemma then return self:open_relation(lemma) end
+end
+
+-- relations that are specialisations of `id` (declared `isa=id`): evidence for them also answers a question about the general relation
+function L:specializations(id)
+  local out = {}
+  local lex = self
+  while lex do
+    for _, rid in ipairs(lex.rel_order) do
+      local r = lex.rels[rid]
+      if r.isa == id then out[#out + 1] = rid end
+    end
+    lex = lex.parent
+  end
+  return out
 end
 
 -- a relation designated by a dataset column / predicate string: id, label or one of its nouns ("Capital", "capital of", "CEO", "has_capital")

@@ -227,6 +227,16 @@ local function copular_relational(self, S, ctx, out)
               a.end_chunk = vnp.nxt
               out[#out + 1] = a
             end
+            -- (2b) a location-valued noun takes a locative complement: "The headquarters of X is IN Oslo."
+            local pc = C(S, cp.nxt)
+            if o.rel.locus and o.ask_role == "to" and pc and pc.single and not pc.masked and (pc.unit.form == "in" or pc.unit.form == "at") then
+              for _, vnp in ipairs(P.parse_np(S, cp.nxt + 1)) do
+                local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "copular_locative", used_np = { snp, vnp }, neg = cp.neg, tense = cp.past and "past" or "present", copula = cp }
+                a.roles = { [o.known_role] = o.arg, [o.ask_role] = vnp }
+                a.end_chunk = vnp.nxt
+                out[#out + 1] = a
+              end
+            end
           end
         end
       end
@@ -387,7 +397,105 @@ local function with_attribute(self, S, ctx, out)
   end
 end
 
-local PATTERNS = { copular_relational, verb_relational, have_attribute, classification, with_attribute, definition }
+-- Support-verb statements.  The holder is the subject; the verb ("has", "keeps", "maintains", "uses") only carries the relation named by the noun:
+--   X HAS|KEEPS|MAINTAINS its RELNOUN (in|at|of) VALUE      "Acme maintains its headquarters in Oslo."
+--   X HAS|USES VALUE as its RELNOUN                          "Sweden uses the krona as its currency."  "France has Paris as its capital."
+local SUPPORT_PREP = U.set({ "in", "at", "of", "as" })
+local function supports(vp, rel)
+  if vp.lemma == "have" then return rel.support_have == true end
+  for _, e in ipairs(vp.analysis.entries or {}) do if e.support and e.rel == rel.id then return true end end
+  return false
+end
+local function possessed_relnoun(S, onp)
+  local dc = C(S, onp.c1)
+  return onp.head_kind == "relnoun" and not onp.of_arg and dc and dc.single and (cat(dc, "poss_det") or cat(dc, "det")) and onp.c1 < onp.nxt - 1
+end
+local function support_statement(self, S, ctx, out)
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+   for _, pos in ipairs(predicate_positions(S, snp.nxt)) do
+    for _, vp in ipairs(P.parse_vp(S, pos)) do
+      if vp.voice == "active" then
+        local tense = (vp.vform == "past") and "past" or "present"
+        -- (1) verb + possessed relational noun + preposition + value
+        for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+          if possessed_relnoun(S, onp) then
+            local pc = C(S, onp.nxt)
+            if pc and pc.single and not pc.masked and SUPPORT_PREP[pc.unit.form] and pc.unit.form ~= "as" then
+              for _, vnp in ipairs(P.parse_np(S, onp.nxt + 1)) do
+                for _, o in ipairs(F.relnp_options(S, onp)) do
+                  if o.rel and o.ask_role == "to" and supports(vp, o.rel) then
+                    local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "support_have", used_np = { snp, onp, vnp }, neg = vp.neg, tense = tense, vp = vp }
+                    a.roles = { from = snp, to = vnp }
+                    a.end_chunk = vnp.nxt
+                    out[#out + 1] = a
+                  end
+                end
+              end
+            end
+          end
+        end
+        -- (2) verb + value + "as" + possessed relational noun
+        for _, vnp in ipairs(P.parse_np(S, vp.nxt)) do
+          local ac = C(S, vnp.nxt)
+          if ac and ac.single and not ac.masked and ac.unit.form == "as" then
+            for _, onp in ipairs(P.parse_np(S, vnp.nxt + 1)) do
+              if possessed_relnoun(S, onp) then
+                for _, o in ipairs(F.relnp_options(S, onp)) do
+                  if o.rel and o.ask_role == "to" and supports(vp, o.rel) then
+                    local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "support_as", used_np = { snp, vnp, onp }, neg = vp.neg, tense = tense, vp = vp }
+                    a.roles = { from = snp, to = vnp }
+                    a.end_chunk = onp.nxt
+                    out[#out + 1] = a
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+   end
+  end
+end
+
+-- "P is the person who founded O."  /  "P is the one that started O."  The head noun is generic; the relative clause carries the relation, and
+-- the copular subject fills the gap.
+local function relative_identity(self, S, ctx, out)
+  local lex = S.lex
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+   if snp.head_kind ~= "relnoun" then
+    for _, pos in ipairs(predicate_positions(S, snp.nxt)) do
+      local cp = copula_at(S, pos)
+      if cp then
+        for _, tnp in ipairs(P.parse_np(S, cp.nxt, { no_of = true })) do
+          local rc = C(S, tnp.nxt)
+          if tnp.head_kind ~= "entity" and tnp.head_kind ~= "relnoun" and rc and rc.single and not rc.masked
+            and (rc.unit.form == "who" or rc.unit.form == "that" or rc.unit.form == "which") then
+            for _, vp in ipairs(P.parse_vp(S, tnp.nxt + 1)) do
+              if vp.voice == "active" then
+                for _, e in ipairs(vp.analysis.entries or {}) do
+                  local rel = lex:get_rel(e.rel)
+                  if rel and not e.prep and not rel.open and not e.support then
+                    for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+                      local a = { rel = rel.id, rel_obj = rel, pattern = "relative_identity", used_np = { snp, tnp, onp }, neg = cp.neg or vp.neg,
+                        tense = (cp.past or vp.vform == "past") and "past" or "present", copula = cp, vp = vp }
+                      a.roles = { [e.subj] = snp, [other(e.subj)] = onp }
+                      a.end_chunk = onp.nxt
+                      out[#out + 1] = a
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+   end
+  end
+end
+
+local PATTERNS = { copular_relational, verb_relational, have_attribute, support_statement, relative_identity, classification, with_attribute, definition }
 
 ---------------------------------------------------------------- reader-directed content
 -- Data that addresses the reader is evidence ABOUT the data, never a command: such sentences are flagged and excluded from fact extraction.

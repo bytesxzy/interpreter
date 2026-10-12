@@ -25,7 +25,11 @@ local function use_np(h, np)
   if np.possessor then use_np(h, np.possessor) end
   for _, m in ipairs(np.mods or {}) do if m.chunk then h.used[m.chunk.idx] = true end end
 end
-local function use_wh(h, wh) if wh then for i = wh.c1, wh.c2 do h.used[i] = true end end end
+local function use_wh(h, wh)
+  if not wh then return end
+  for i = wh.c1, wh.c2 do h.used[i] = true end
+  if wh.pied_adv then h.pied_consumed = true end   -- "In which city" read as "Where": the preposition is part of the wh-adverbial
+end
 local function use_vp(h, vp)
   for i = vp.c1, vp.c2 do h.used[i] = true end
 end
@@ -93,6 +97,16 @@ local function span_end_ok(S, k)
   -- true when nothing but sentence-final constraints can follow chunk k (used only for scoring, not as a hard gate)
   return k > S.last
 end
+
+-- a relational wh-noun ("What CURRENCY does X use?") names the relation asked about: it must agree with the relation the rest of the clause expresses
+local function wh_relnoun_agreement(h, wh, rel)
+  if not (wh and wh.relnoun and wh.np) then return end
+  local same = false
+  for _, ne in ipairs(wh.np.relnouns or {}) do if ne.rel == rel.id then same = true end end
+  if same then addf(h, "wh_noun_names_relation", 0.5, "the wh-noun '" .. tostring(wh.np.head and wh.np.head.form) .. "' names the relation " .. rel.id)
+  else addf(h, "wh_noun_other_relation", -0.5, "the wh-noun names a different relation than " .. rel.id) end
+end
+F.wh_relnoun_agreement = wh_relnoun_agreement
 
 -- record how a relation hypothesis binds its arguments (type fit is computed in hyp.lua)
 local function set_lookup(h, rel, known_role, known_np, ask_role, wh)
@@ -200,6 +214,7 @@ function F.wh_verb(S, out)
               if vp.neg then h.polarity = "negative"; use(h, vp.neg_chunk.idx) end
               addf(h, "direction_explicit", 0.35, "role direction fixed by voice/lexicon (" .. vp.voice .. ", subj=" .. e.subj .. ")")
               if vp.analysis.guessed then addf(h, "guessed_verb", -0.3, "verb form guessed") end
+              wh_relnoun_agreement(h, wh, rel)
               mark_unresolved_pron(h, known_np)
               out[#out + 1] = h
             end
@@ -240,6 +255,14 @@ function F.wh_verb(S, out)
                     use(h, pk)
                     finish(h, np, e.subj, other(e.subj))
                   end
+                elseif e.support and (is_prep(C(S, pk), "in") or is_prep(C(S, pk), "at") or is_prep(C(S, pk), "across") or is_prep(C(S, pk), "throughout")) then
+                  -- locative passive of a support verb: "Which currency is used IN Sweden?" = the currency Sweden uses
+                  for _, np in ipairs(P.parse_np(S, pk + 1)) do
+                    local h = newh(S, "wh_verb:locative_passive", "question")
+                    use(h, pk)
+                    finish(h, np, e.subj, other(e.subj))
+                    addf(h, "locative_passive", 0.15, "support verb '" .. tostring(e.lemma) .. "' with a locative holder")
+                  end
                 end
               end
             end
@@ -272,8 +295,14 @@ function F.wh_do(S, out)
                 if neg_chunk then h.polarity = "negative"; use(h, neg_chunk.idx) end
                 local pk = vp.nxt
                 if e.prep then
-                  if is_prep(C(S, pk), e.prep) then use(h, pk) else addf(h, "prep_missing", -0.5, "expected stranded preposition '" .. e.prep .. "'") end
+                  if is_prep(C(S, pk), e.prep) then use(h, pk)
+                  elseif wh.pied == e.prep then h.pied_consumed = true
+                  else addf(h, "prep_missing", -0.5, "expected stranded preposition '" .. e.prep .. "'") end
+                elseif wh.pied then
+                  -- "For which company does P work?": the fronted preposition belongs to the verb; a verb without one cannot absorb it
+                  addf(h, "pied_prep_unused", -0.6, "fronted preposition '" .. wh.pied .. "' does not belong to this verb")
                 end
+                wh_relnoun_agreement(h, wh, rel)
                 addf(h, "direction_explicit", 0.35, "role direction fixed by do-support gap (subject=" .. e.subj .. ")")
                 mark_unresolved_pron(h, snp)
                 out[#out + 1] = h
@@ -298,16 +327,31 @@ function F.wh_passive(S, out)
             if vp.voice == "passive" then
               for _, e in ipairs(vp.analysis.entries) do
                 local rel = S.lex:get_rel(e.rel)
-                if rel and not e.prep then
-                  local h = newh(S, "wh_passive:stranded_by", "question")
-                  -- X (grammatical subject) is the logical object; the wh-gap is the agent (e.subj role)
-                  set_lookup(h, rel, other(e.subj), snp, e.subj, wh)
+                if rel and e.prep and (is_prep(C(S, vp.nxt), e.prep) or wh.pied == e.prep) then
+                  -- stative-prep verb: the grammatical subject keeps its own role, the wh-gap is the object of the (stranded or fronted) preposition
+                  local h = newh(S, "wh_passive:stranded_prep", "question")
+                  set_lookup(h, rel, e.subj, snp, other(e.subj), wh)
                   use_wh(h, wh); use(h, bk); use_np(h, snp); use_vp(h, vp)
-                  local pk = vp.nxt
-                  if is_prep(C(S, pk), "by") then use(h, pk) else addf(h, "by_missing", -0.4, "passive without by-phrase") end
-                  addf(h, "direction_explicit", 0.35, "agent gap of a passive")
+                  if is_prep(C(S, vp.nxt), e.prep) then use(h, vp.nxt) else h.pied_consumed = true end
+                  addf(h, "direction_explicit", 0.35, "stative verb with a preposition gap (subject=" .. e.subj .. ")")
                   mark_unresolved_pron(h, snp)
                   out[#out + 1] = h
+                end
+                if rel and not e.prep then
+                  local pk = vp.nxt
+                  local pc = C(S, pk)
+                  -- a passive followed by ANOTHER preposition ("is Java used for", "is X known for") is a different construction, not a stranded by-phrase
+                  local other_prep = pc and pc.single and not pc.masked and cat(pc, "prep") and pc.unit.form ~= "by" and not barrier(pc)
+                  if not other_prep then
+                    local h = newh(S, "wh_passive:stranded_by", "question")
+                    -- X (grammatical subject) is the logical object; the wh-gap is the agent (e.subj role)
+                    set_lookup(h, rel, other(e.subj), snp, e.subj, wh)
+                    use_wh(h, wh); use(h, bk); use_np(h, snp); use_vp(h, vp)
+                    if is_prep(pc, "by") then use(h, pk) else addf(h, "by_missing", -0.4, "passive without by-phrase") end
+                    addf(h, "direction_explicit", 0.35, "agent gap of a passive")
+                    mark_unresolved_pron(h, snp)
+                    out[#out + 1] = h
+                  end
                 end
               end
             end
@@ -357,12 +401,29 @@ function F.wh_adverbial(S, out)
             end
           end
           if f == "where" then
+            -- "Where is the headquarters of X?": a noun whose relation value IS a location (rel.locus) is answered by that value directly;
+            -- asking for the location of the location-valued attribute is a redundant extra hop
+            local locus_opts = {}
+            if np.head_kind == "relnoun" then
+              for _, o in ipairs(relnp_options(S, np)) do if o.arg and o.rel.locus and o.ask_role == "to" then locus_opts[#locus_opts + 1] = o end end
+            end
             local lrel = S.lex:get_rel("located_in")
             if lrel then
               local h = newh(S, "wh_adv:where:copula", "question")
               set_lookup(h, lrel, "from", np, "to", wh)
               use_wh(h, wh); use(h, bk); use_np(h, np)
+              if #locus_opts > 0 then addf(h, "redundant_location_hop", -0.7, "the noun's own relation already gives a location; 'where' needs no second hop") end
               mark_unresolved_pron(h, np)
+              out[#out + 1] = h
+            end
+            for _, o in ipairs(locus_opts) do
+              local h = newh(S, "wh_adv:where:locus", "question")
+              set_lookup(h, o.rel, o.known_role, o.arg, o.ask_role, wh)
+              use_wh(h, wh); use(h, bk); use_np(h, np)
+              addf(h, "relnp_arg", 0.7, "relational noun with explicit argument")
+              addf(h, "where_locus", 0.3, "'where' asks for the location this relation's value gives")
+              option_factors(h, o)
+              mark_unresolved_pron(h, o.arg)
               out[#out + 1] = h
             end
           end
@@ -472,6 +533,41 @@ function F.wh_adverbial(S, out)
         addf(h, "clause_missing", -0.6, "no clause to explain")
       end
       out[#out + 1] = h
+    end
+  end
+end
+
+-- "Where does Acme have its headquarters?" / "Where does Acme keep its headquarters?" / "In which city does Acme maintain its headquarters?"
+-- support verb + a possessed relational noun whose value is a location (rel.locus): the holder is the verb's subject
+function F.where_support(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh.wh == "where" then
+      local dk = wh.nxt
+      if is_do(C(S, dk)) then
+        for _, snp in ipairs(P.parse_np(S, dk + 1)) do
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do" })) do
+            for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+              local dc = C(S, onp.c1)
+              if onp.head_kind == "relnoun" and not onp.of_arg and dc and dc.single and (cat(dc, "poss_det") or cat(dc, "det")) and onp.c1 < onp.nxt - 1 then
+                for _, o in ipairs(relnp_options(S, onp)) do
+                  local rel = o.rel
+                  local supported = (vp.lemma == "have" and rel.support_have) or false
+                  for _, e in ipairs(vp.analysis.entries or {}) do if e.support and e.rel == rel.id then supported = true end end
+                  if supported and rel.locus and o.ask_role == "to" then
+                    local h = newh(S, "wh_adv:where:support", "question")
+                    set_lookup(h, rel, "from", snp, "to", wh)
+                    use_wh(h, wh); use(h, dk); use_np(h, snp); use_vp(h, vp); use_np(h, onp)
+                    addf(h, "support_construction", 0.8, "'" .. tostring(vp.lemma) .. "' + possessed '" .. rel.id .. "' noun")
+                    addf(h, "where_locus", 0.3, "'where' asks for the location this relation's value gives")
+                    mark_unresolved_pron(h, snp)
+                    out[#out + 1] = h
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
     end
   end
 end
