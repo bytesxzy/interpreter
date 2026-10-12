@@ -33,6 +33,7 @@ local function ref(S, np, depth)
   if not np then return nil end
   local r = { text = P.span_text(S, np), kind = np.head_kind, span = { S.units[np.u1].s, S.units[np.u2].e }, chunk_range = { np.c1, np.c2 } }
   if np.head then r.head = np.head.form end
+  r.core = P.core_text(S, np)
   local b = np.bound
   if b and b.deictic then r.deictic = b.deictic end
   if b and (b.expletive or b.indefinite) then r.non_anaphoric = b.expletive and "expletive" or "indefinite" end
@@ -286,6 +287,18 @@ function Sem.render(res, ctx)
   interp.constraints = cons
   if top.ordering then interp.ordering = top.ordering end
   interp.temporal_scope = top.temporal_scope or ((#cons.temporal == 0) and (top.op == "lookup" or top.op == "describe") and "current_unspecified") or nil
+  -- grammatical tense of the question's own predicate ("was the capital" -> past); "did" is neutral
+  do
+    local past = false
+    for k in pairs(top.used) do
+      local c = S.chunks[k]
+      if c and c.single then
+        local f = c.unit.form
+        if f == "was" or f == "were" or f == "had" then past = true end
+      end
+    end
+    interp.tense = past and "past" or "present"
+  end
   interp.persist = top.persist or nil
   interp.unexplained = U.map(top.unexplained or {}, function(k) return S.chunks[k].text end)
   -- context dependencies -----------------------------------------------------

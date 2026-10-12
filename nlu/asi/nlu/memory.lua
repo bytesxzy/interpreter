@@ -47,24 +47,13 @@ end
 function M:ns_key() return table.concat({ self.ns.user, self.ns.project, self.ns.conversation }, "|") end
 
 ---------------------------------------------------------------- items + index
--- deterministic light stemmer: inflection only (decided/decide/deciding -> decid), applied identically to items and queries
-local function stem(w)
-  if #w <= 3 then return w end
-  local s = w
-  if s:match("ies$") and #s > 4 then s = s:sub(1, -4) .. "y"
-  elseif s:match("ied$") and #s > 4 then s = s:sub(1, -4) .. "y"
-  elseif s:match("ing$") and #s > 5 then s = s:sub(1, -4)
-  elseif s:match("ed$") and #s > 4 then s = s:sub(1, -3)
-  elseif s:match("es$") and #s > 4 then s = s:sub(1, -3)
-  elseif s:match("s$") and not s:match("ss$") and #s > 3 then s = s:sub(1, -2) end
-  s = s:gsub("e$", "")
-  return s
-end
+local TU = require("asi.nlu.textutil")
+local stem = TU.stem
 M.stem = stem
 
 local function tokens_of(text)
   local out = {}
-  for w in text:lower():gmatch("[%w][%w']*") do if not STOP[w] then out[#out + 1] = stem((w:gsub("'s$", ""))) end end
+  for _, t in ipairs(TU.tokens(text)) do if not STOP[t.w] then out[#out + 1] = t.t end end
   return out
 end
 

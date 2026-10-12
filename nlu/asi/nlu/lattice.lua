@@ -186,6 +186,16 @@ function Lattice.build(an, lex, opts)
       local last = units[j]
       local type_guess = lex:headcue(last.form) or lex:headcue(u.form) or (TITLE_PREFIX[u.form] and "person") or nil
       local sc = 0.8 + 0.3 * (j - i)
+      -- "West Germany", "Northern Ireland": a capitalised modifier + an attested entity is a DIFFERENT, open-set entity of the attested one's type
+      local extends
+      if multi and not type_guess and not TITLE_PREFIX[u.form] then
+        for _, m in ipairs(lex:match_at(units, j)) do
+          for _, e in ipairs(m.entries) do
+            if e.kind == "entity" and m.j == j then extends = e end
+          end
+        end
+        if extends then type_guess = extends.etype; sc = sc + 1.7 end
+      end
       local ok = true
       if initial and not multi and not type_guess and not u.hy then
         -- sentence-initial single unknown word: weak name guess only if the lexicon has never seen the word

@@ -510,6 +510,26 @@ function L:get_rel(id)
   if self.parent then return self.parent:get_rel(id) end
 end
 
+-- a relation designated by a dataset column / predicate string: id, label or one of its nouns ("Capital", "capital of", "CEO", "has_capital")
+function L:rel_by_name(name)
+  local key = name:lower():gsub("[%s%-]+", "_"):gsub("[^%w_]", "")
+  local r = self:get_rel(key)
+  if r then return r end
+  local plain = name:lower():gsub("[_%-]+", " "):gsub("^%s*has%s+", ""):gsub("%s+of%s*$", ""):gsub("%s+by%s*$", ""):gsub("^%s+", ""):gsub("%s+$", "")
+  local lex = self
+  while lex do
+    for _, id in ipairs(lex.rel_order) do
+      local rel = lex.rels[id]
+      local label = (rel.label or ""):lower()
+      if label == plain then return rel end
+      for _, n in ipairs(rel.nouns_to or {}) do if n:lower() == plain then return rel end end
+      for _, n in ipairs(rel.nouns_from or {}) do if n:lower() == plain then return rel end end
+    end
+    lex = lex.parent
+  end
+  return nil
+end
+
 function L:get_entity(id)
   local e = self.entities[id]
   if e then return e end

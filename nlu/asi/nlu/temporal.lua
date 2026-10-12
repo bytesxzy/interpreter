@@ -186,6 +186,8 @@ local function valid_day(y, m, d)
   return d <= dim[m]
 end
 
+local MAGNITUDE = { hundred = 100, thousand = 1e3, million = 1e6, billion = 1e9, trillion = 1e12, lakh = 1e5, crore = 1e7, mn = 1e6, bn = 1e9 }
+
 ---------------------------------------------------------------- the pass
 function T.annotate(an, opts)
   opts = opts or {}
@@ -206,8 +208,18 @@ function T.annotate(an, opts)
   while i <= N do
     local u = units[i]
     if u.kind == "number" and u.numval ~= nil and not u.year_skip then
-      numbers[#numbers + 1] = { u1 = i, u2 = i, value = u.numval, kind = "digit", unit = u.unit, text = u.raw }
-      i = i + 1
+      -- "68 million", "3.5 billion", "$2 million": a magnitude word directly after the digits scales the number (lowercase only: "Million Dollar Baby" is a title)
+      local nx = units[i + 1]
+      local mult = nx and nx.kind == "word" and not nx.cap and not nx.pre and MAGNITUDE[nx.form]
+      if mult and type(u.numval) == "number" then
+        local last = i + 1
+        numbers[#numbers + 1] = { u1 = i, u2 = last, value = u.numval * mult, kind = "digit", unit = u.unit, text = an.original:sub(u.s, nx.e), magnitude = nx.form }
+        units[i].numval = u.numval * mult; units[last].numval = u.numval * mult; units[last].numword = true
+        i = last + 1
+      else
+        numbers[#numbers + 1] = { u1 = i, u2 = i, value = u.numval, kind = "digit", unit = u.unit, text = u.raw }
+        i = i + 1
+      end
     elseif u.kind == "ordinal" then
       numbers[#numbers + 1] = { u1 = i, u2 = i, value = u.ordinal, kind = "ordinal", text = u.raw }
       i = i + 1
@@ -232,6 +244,17 @@ function T.annotate(an, opts)
   an.numbers = numbers
 
   local function year_ok(v) return v and v >= 1000 and v <= 2999 end
+  -- years below 1000 are accepted only right after a year-directed preposition ("since 987", "in 753"), never as bare numbers or durations
+  local SHORT_STRONG = { since = true, ["until"] = true, till = true }
+  local SHORT_3DIGIT = { ["in"] = true, from = true, by = true, before = true, after = true, around = true, circa = true, to = true }
+  local DURATION_WORD = { year = true, years = true, month = true, months = true, day = true, days = true, week = true, weeks = true, hour = true, hours = true,
+    minute = true, minutes = true, second = true, seconds = true, people = true, users = true, employees = true, dollars = true, units = true, items = true,
+    customers = true, words = true, times = true, miles = true, feet = true, meters = true, km = true, percent = true }
+  local function short_year_ok(v, prev, nxt)
+    if not v or v < 1 or v > 999 or (nxt and DURATION_WORD[nxt]) then return false end
+    if prev and SHORT_STRONG[prev] then return true end
+    return prev ~= nil and SHORT_3DIGIT[prev] == true and v >= 100
+  end
 
   ---- dates / periods, highest-priority patterns first
   for idx = 1, N do
@@ -434,7 +457,8 @@ function T.annotate(an, opts)
       -- plain year
       if not ex and units[idx].kind == "number" then
         local yv = int_at(units, idx)
-        if year_ok(yv) and not units[idx].signed and not (units[idx].numtext and units[idx].numtext:find("[%.e]")) then
+        local prev0, nxt0 = fm(units, idx - 1), fm(units, idx + 1)
+        if (year_ok(yv) or short_year_ok(yv, prev0, nxt0)) and not units[idx].signed and not (units[idx].numtext and units[idx].numtext:find("[%.e]")) then
           local prev = fm(units, idx - 1)
           local nxt = fm(units, idx + 1)
           local role, conf = "ambiguous", 0.45
