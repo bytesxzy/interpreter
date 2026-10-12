@@ -406,7 +406,10 @@ local function run_lookup(kb, plan, res)
     if #supported == 1 and #readings >= 2 then res.notes[#res.notes + 1] = "the dataset evidence selects the reading '" .. pr.reading.key .. "' among " .. #readings .. " candidates" end
     res.status = "answerable"
     res.reading = pr.reading
-    res.answers = answers_view(pr.groups)
+    res.answers = answers_view({ pr.winner })
+    local alts = {}
+    for _, g in ipairs(pr.groups) do if g.key ~= pr.winner.key then alts[#alts + 1] = g end end
+    if #alts > 0 then res.alternative_answers = answers_view(alts) end
     res.answer = { key = pr.winner.key, text = pr.winner.text, type = pr.winner.type }
     for _, e in ipairs(pr.winner.entries) do res.selected[#res.selected + 1] = e.item end
     if pr.conflict then
@@ -449,9 +452,6 @@ local function run_lookup(kb, plan, res)
     end
   end
   res.topical = topical(kb, plan, readings, handled, 8)
-  if res.status == "insufficient" or res.status == "potentially_answerable" then
-    for _, t in ipairs(res.topical) do if t.shares_relation_words then res.status = (res.status == "insufficient") and "potentially_answerable" or res.status; res.notes[#res.notes + 1] = "record " .. t.record .. " mentions the entity and uses the relation's words but no typed assertion could be extracted: a reader may find the fact, the verifier could not"; break end end
-  end
   res.assertion_count = 0
   for _, pr in ipairs(per_reading) do res.assertion_count = res.assertion_count + pr.out.n_assertions end
 end
@@ -561,7 +561,14 @@ function V.define(kb, plan, res)
     for _ in pairs(by_reading) do n = n + 1 end
     res.status = (n >= 2) and "ambiguous" or "answerable"
     for _, f in ipairs(found) do res.selected[#res.selected + 1] = f.item end
-    res.answer = { text = found[1].item.class, key = "class:" .. tostring(found[1].item.class) }
+    if n >= 2 then
+      res.answers_by_reading = {}
+      for k, f in pairs(by_reading) do res.answers_by_reading[#res.answers_by_reading + 1] = { reading = k, text = f.reading.text, answer = f.item.class } end
+      table.sort(res.answers_by_reading, function(a, b) return a.reading < b.reading end)
+      res.reasons[#res.reasons + 1] = "the term has several readings and the dataset describes more than one"
+    else
+      res.answer = { text = found[1].item.class, key = "class:" .. tostring(found[1].item.class) }
+    end
   else
     local any = false
     for _, r in ipairs(readings) do if #idx:docs_mentioning(r.key) > 0 then any = true end end

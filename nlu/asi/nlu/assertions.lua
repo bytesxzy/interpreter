@@ -38,6 +38,11 @@ local function describe_np(S, ctx, np, expected, role)
     if expected and S.lex:compat(d.type, expected) == -1.0 then d.type_clash = true end
     return d
   end
+  -- "88 days", "4 million people": a counted unit noun is a quantity literal when the relation expects a quantity
+  if np.count and expected and (expected == "number" or expected == "quantity" or expected == "money") and (np.head_kind == "unknown" or np.head_kind == "typenoun" or np.head_kind == "concept") then
+    local lit = { kind = "number", value = np.count, unit = np.head and np.head.form, text = P.span_text(S, np) }
+    return { literal = lit, text = lit.text, type = "number" }
+  end
   if np.head_kind == "pronoun" then
     -- inside a record, a subject pronoun refers to the record topic (title entity) or the previous sentence's subject, if it agrees in animacy
     local t = ctx.topic
@@ -319,7 +324,67 @@ local function classification(self, S, ctx, out)
   end
 end
 
-local PATTERNS = { copular_relational, verb_relational, have_attribute, classification }
+-- "Financial capital refers to money used to fund businesses."  /  "X is defined as ..."  /  "X means ..."
+local function definition(self, S, ctx, out)
+  local lex = S.lex
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if snp.head_kind ~= "relnoun" and snp.head_kind ~= "pronoun" then
+      local c = S.chunks[snp.nxt]
+      if c and not c.masked and lex:cue_at("definition_verb", S.units, c.u1) then
+        local n = lex:cue_at("definition_verb", S.units, c.u1)
+        local k = snp.nxt
+        local consumed = 0
+        local used = {}
+        while S.chunks[k] and consumed < n do consumed = consumed + (S.chunks[k].u2 - S.chunks[k].u1 + 1); used[k] = true; k = k + 1 end
+        if S.chunks[k] and k <= S.last then
+          local a = { rel = "defined_as", pattern = "definition", used_np = { snp }, tense = "present", copula = { used = used }, is_class = true, definitional = true }
+          a.roles = { from = snp, to = nil }
+          a.def_start = k
+          a.end_chunk = S.last + 1
+          out[#out + 1] = a
+        end
+      end
+    end
+  end
+end
+
+-- "Mercury is a chemical element with atomic number 80."  /  "Zorbland is a country with a population of 4 million."
+local function with_attribute(self, S, ctx, out)
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    for _, pos in ipairs(predicate_positions(S, snp.nxt)) do
+      local cp = copula_at(S, pos)
+      if cp then
+        for _, tnp in ipairs(P.parse_np(S, cp.nxt)) do
+          local wc = S.chunks[tnp.nxt]
+          if wc and wc.single and wc.unit.form == "with" and not wc.masked then
+            for _, rnp in ipairs(P.parse_np(S, tnp.nxt + 1)) do
+              if rnp.head_kind == "relnoun" then
+                for _, o in ipairs(F.relnp_options(S, rnp)) do
+                  local rel = o.rel
+                  if o.ask_role == "to" then
+                    local value_np, nxt
+                    if o.arg then value_np, nxt = o.arg, rnp.nxt   -- "with a population of 4 million"
+                    else
+                      for _, vnp in ipairs(P.parse_np(S, rnp.nxt)) do value_np, nxt = vnp, vnp.nxt break end   -- "with atomic number 80"
+                    end
+                    if value_np and (value_np.head_kind == "number" or value_np.head_kind == "temporal" or value_np.head_kind == "literal" or value_np.head_kind == "entity") then
+                      local a = { rel = rel.id, rel_obj = rel, pattern = "with_attribute", used_np = { snp, rnp, value_np }, neg = cp.neg, tense = cp.past and "past" or "present", copula = cp }
+                      a.roles = { from = snp, to = value_np }
+                      a.end_chunk = nxt
+                      out[#out + 1] = a
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+local PATTERNS = { copular_relational, verb_relational, have_attribute, classification, with_attribute, definition }
 
 ---------------------------------------------------------------- reader-directed content
 -- Data that addresses the reader is evidence ABOUT the data, never a command: such sentences are flagged and excluded from fact extraction.
@@ -457,7 +522,13 @@ function A:extract(text, meta)
             local rel_obj = a.rel_obj
             local rec = { rel = a.rel, pattern = a.pattern, polarity = q.polarity, modality = q.modality, tense = q.tense, sent = sent.id,
               s = sent.s, e = sent.e, text = stext, cover = ci, coverage = a.coverage }
-            if a.is_class then
+            if a.definitional then
+              rec.is_class = true
+              rec.definition = true
+              rec.from = describe_np(S, ctx, a.roles.from, nil, "from")
+              local ua = S.chunks[a.def_start]
+              rec.class_text = text:sub(S.units[ua.u1].s, sent.e):gsub("[%.%s]+$", "")
+            elseif a.is_class then
               rec.is_class = true
               rec.from = describe_np(S, ctx, a.roles.from, nil, "from")
               rec.class_text = P.core_text(S, a.roles.to)
@@ -475,7 +546,28 @@ function A:extract(text, meta)
             apply_time(rec, q, rel_obj, lex)
             -- a clash between the entity's known type and the relation signature means the pattern misfired (e.g. a city as a "founder")
             local clash = (rec.from and rec.from.type_clash) or (rec.to and rec.to.type_clash)
-            if rec.from and rec.from.status ~= "pronoun" and (rec.is_class or (rec.to and rec.to.status ~= "pronoun")) and not clash then
+            local dedupe_key
+            do
+              local function dk(d) return d and (d.key or (d.literal and d.literal.text) or d.text) or "-" end
+              dedupe_key = table.concat({ rec.rel, dk(rec.from), rec.is_class and (rec.definition and "def" or "class") or dk(rec.to), rec.polarity, tostring(sent.id) }, "|")
+            end
+            res._seen = res._seen or {}
+            local valid = rec.from and rec.from.status ~= "pronoun" and (rec.is_class or (rec.to and rec.to.status ~= "pronoun")) and not clash
+            -- one reading of the sentence per (relation, subject): among VALID candidates the one explaining most of the sentence wins over
+            -- truncated parses ("88" vs "88 days"); an invalid (type-clashing) candidate never shadows a valid one
+            local skip = false
+            if valid then
+              local gk = table.concat({ rec.rel, (rec.from.key or rec.from.text), rec.polarity, tostring(sent.id), rec.is_class and "c" or "r" }, "|")
+              res._best = res._best or {}
+              local prev = res._best[gk]
+              if prev and (prev.coverage or 0) >= (rec.coverage or 0) then skip = true
+              elseif prev then
+                for i, x in ipairs(res.assertions) do if x == prev then table.remove(res.assertions, i) break end end
+              end
+              if not skip then res._best[gk] = rec end
+            end
+            if valid and not skip and not res._seen[dedupe_key] then
+              res._seen[dedupe_key] = true
               res.assertions[#res.assertions + 1] = rec
               found_in = found_in or "assertion"
               local sd = a.used_np[1].head_kind == "entity" and describe_np(S, ctx, a.used_np[1], nil, "subject") or nil
@@ -489,6 +581,7 @@ function A:extract(text, meta)
     end
   end
   res.limited = self.meter and self.meter.over or false
+  res._seen, res._best = nil, nil
   return res
 end
 

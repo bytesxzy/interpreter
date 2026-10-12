@@ -319,6 +319,7 @@ cue extrapose_verb: seems; seem; seemed; appears; appear; appeared; looks; looke
 cue extrapose_comp: that; to; whether; if; like; as if; for
 cue injection: ignore previous instructions; ignore all previous instructions; ignore the above; ignore your instructions; ignore prior instructions; ignore the user; ignore the question; disregard the above; disregard previous; disregard all; disregard your; system prompt; you are now; act as; pretend to be; pretend you; new instructions; override your; reveal your; do not tell the user; forget everything; forget your instructions; from now on you; your new task; developer mode; jailbreak; as an ai; end of document; begin system
 cue alias_intro: officially; formally; also known as; also called; sometimes called; aka; a.k.a.; commonly known as; known as; better known as; often called; abbreviated as; short for; officially the; formally the
+cue definition_verb: refers to; refer to; is defined as; are defined as; means; mean; denotes; denote; stands for; stand for; is the term for; is a term for; is known as; are known as
 cue decision: we decided; i decided; we have decided; we've decided; i've decided; we agreed; i agreed; we chose; i chose; we picked; we selected; we settled on; let's go with; we'll use; we will use; the decision is; decided to; agreed to; agreed on
 cue decision_ref: decide; decided; decision; decisions; agree; agreed; agreement; chose; chosen; choose; picked; pick; selected; settled; resolved
 cue additive: also; as well; in addition; additionally; too; on top of that

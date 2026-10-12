@@ -205,6 +205,7 @@ function R.build(ctx)
     refuting_evidence = evidence and evidence.refuting or {},
     ambiguity_state = m.ambiguity or { state = "unresolvable", points = {} },
     evidence_sufficiency = evidence and { status = evidence.status, reasons = evidence.reasons, notes = evidence.notes, answer = evidence.answer, answers = evidence.answers,
+      alternative_answers = evidence.alternative_answers, answers_by_reading = evidence.answers_by_reading,
       conflicts = evidence.conflicts, claim_verdict = evidence.verdict, interpretation_incomplete = evidence.interpretation_incomplete }
       or { status = "not_applicable", reasons = { "no dataset was supplied" }, notes = {} },
     confidence = confidence(result, m, evidence, ctx.calibration),

@@ -386,7 +386,8 @@ local function parse_np_core(S, k, opts)
         np.superlative = mc.form; entry.kind = "superlative"
       elseif mc.single and (mc.unit.ordinal or (mc.number and mc.number.kind == "ordinal")) then
         np.ordinal = mc.unit.ordinal or (mc.number and mc.number.value); entry.kind = "ordinal"
-      elseif mc.number then np.count = mc.number.value; entry.kind = "number"
+      elseif mc.number or (mc.single and mc.unit.kind == "number" and mc.unit.numval and not mc.temporal and not S.lex:resource(S.chunks[(mc.idx or 0) + 1] and S.chunks[mc.idx + 1].form or "")) then
+        np.count = mc.number and mc.number.value or mc.unit.numval; entry.kind = "number"
       elseif mc.temporal then np.temporal_mod = mc.temporal; entry.kind = "temporal"
       elseif mc.single and mc.unit.temporal_scope then np.temporal_scope = mc.unit.temporal_scope; entry.kind = "temporal_adj"
       elseif cl.entity then entry.kind = "entity_mod"; entry.cands = entity_cands(S, mc)

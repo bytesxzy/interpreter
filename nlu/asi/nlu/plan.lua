@@ -17,8 +17,8 @@ local function readings(ref, kb)
     out[1] = { key = canon(ref.antecedent.key), text = ref.antecedent.text or ref.text, type = ref.antecedent.type, p = 1.0, via = ref.antecedent.via or "antecedent" }
     return out, "resolved"
   end
-  if ref.status == "resolved" or ref.status == "unseen" then
-    if ref.resolved_id then out[1] = { key = canon(ref.resolved_id), text = ref.text, type = ref.type, p = 1.0, via = ref.status } end
+  if (ref.status == "resolved" or ref.status == "unseen") and ref.resolved_id then
+    out[1] = { key = canon(ref.resolved_id), text = ref.text, type = ref.type, p = 1.0, via = ref.status }
     return out, ref.status
   end
   if ref.status == "ambiguous" then
