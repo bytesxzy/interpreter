@@ -29,7 +29,63 @@ local TOPICS = { "weather", "food", "travel", "hobby", "chatter", "lookalike" }
 local ORGS = { "Zenvo Dynamics", "Quillon Labs", "Marrow Systems", "Tessaly Robotics", "Brindle Analytics", "Oakhaven Partners", "Pyrrhic Software", "Lumora Networks" }
 local SIMILAR = { { "Zenvo Dynamics", "Zenvo Dynamix", "Zenvo Dynamics Labs" }, { "Quillon Labs", "Quillion Labs", "Quillon Labs Europe" } }
 
+-- Wordings of every planted / final turn live in a template table so that an INDEPENDENTLY authored set can be swapped in (LC.use).  The defaults below are
+-- the development wordings.  Placeholders: %ORG% %THING% %DB% %WHAT% %NEW% %OLD% %SIM1% %SIM2%.
+local DEFAULT_T = {
+  plant_entity = { "I'm looking at %ORG%, a small robotics business." },
+  final_acquirer = { "Which company acquired the business I mentioned earlier?" },
+  final_ceo = { "Who is the CEO of the company I mentioned earlier?" },
+  plant_old_dataset = { "Use the %OLD% dataset." },
+  plant_correction = { "Actually, use the %NEW% dataset from now on." },
+  final_analyze = { "Analyze the figures." },
+  plant_exclusion = { "Do not include %WHAT%." },
+  plant_exclusion_embedded = { "Please do not include %WHAT%." },
+  final_search = { "Find organizations in Germany." },
+  plant_similar = { "I'm looking at %ORG%, a small robotics business." },
+  assistant_similar = { "Related names include %SIM1% and %SIM2%." },
+  final_ceo_similar = { "Who is the CEO of the company I mentioned earlier?" },
+  plant_decision = { "We decided to use %DB% for the %THING% service." },
+  final_decision = { "What did we decide about the %THING% service?" },
+  plant_research = { "I'm researching %ORG%." },
+  plant_other = { "Tell me about %ORG%." },
+  final_pronoun = { "Who founded it?" },
+  orgs = ORGS, things = { "inventory", "billing", "telemetry" }, dbs = { "PostgreSQL", "SQLite", "MariaDB" },
+  whats = { "universities", "reposts", "retailers", "agencies" }, years_old = { "2019", "2020", "2021" }, years_new = { "2024", "2025", "2026" },
+}
+local T = DEFAULT_T
+local EXTERNAL   -- set by LC.use: external distractor / look-alike pools
+
+-- swap in an externally authored template set (same keys; missing keys fall back to the defaults); returns the previous set
+function LC.use(t)
+  local prev = { T = T, EXTERNAL = EXTERNAL }
+  if not t then T, EXTERNAL = DEFAULT_T, nil; return prev end
+  local merged = {}
+  for k, v in pairs(DEFAULT_T) do merged[k] = v end
+  for k, v in pairs(t) do merged[k] = v end
+  if t.years then merged.years_old, merged.years_new = t.years, t.years end
+  T = merged
+  EXTERNAL = (t.distractors and #t.distractors > 0) and { distractors = t.distractors, lookalikes = t.lookalikes or {} } or nil
+  return prev
+end
+
+local function fill(tmpl, vars)
+  return (tmpl:gsub("%%(%u+%d?)%%", function(k) return vars[k] or ("%" .. k .. "%") end))
+end
+
+function LC.load_templates(path)
+  local f = assert(io.open(path, "rb"))
+  local raw = f:read("a")
+  f:close()
+  local obj = assert(U.json_decode(raw))
+  return obj, U.sha256(raw)
+end
+
 function LC.distractor(rng)
+  if EXTERNAL then
+    local lookalike = #EXTERNAL.lookalikes > 0 and rng:int(1, 6) == 1
+    local pool = lookalike and EXTERNAL.lookalikes or EXTERNAL.distractors
+    return rng:pick(pool), lookalike and "lookalike" or "chatter"
+  end
   local topic = rng:pick(TOPICS)
   local pool = TOPIC_SENTENCES[topic]
   local t = rng:pick(pool)
@@ -48,117 +104,121 @@ local B = {}
 
 -- an entity introduced by the user is referred to much later by a definite description with a discourse-linked relative clause
 function B.backref_entity(rng, n, pos)
-  local org = rng:pick(ORGS)
+  local org = rng:pick(T.orgs)
   local turns, planted = {}, {}
   local at = slot(pos, n)
   for i = 0, n do
     if i == at then
-      turns[#turns + 1] = { speaker = "user", text = "I'm looking at " .. org .. ", a small robotics business.", planted = "entity" }
+      turns[#turns + 1] = { speaker = "user", text = fill(rng:pick(T.plant_entity), { ORG = org }), planted = "entity" }
       planted[#planted + 1] = #turns
     end
     if i < n then local t, tp = LC.distractor(rng); turns[#turns + 1] = { speaker = "user", text = t, topic = tp } end
   end
-  return { turns = turns, final = "Which company acquired the business I mentioned earlier?", planted = planted,
-    expect = { ref = "the business I mentioned earlier", antecedent = org, relation = "acquirer" } }
+  return { turns = turns, final = rng:pick(T.final_acquirer), planted = planted,
+    expect = { ref = T == DEFAULT_T and "the business I mentioned earlier" or nil, ref_any = true, antecedent = org, relation = "acquirer" } }
 end
 
 -- instruction early, correction later; the superseded value must not be active or retrieved
 function B.correction(rng, n, pos)
-  local a, b = rng:pick({ "2019", "2020", "2021" }), rng:pick({ "2024", "2025", "2026" })
+  local a, b = rng:pick(T.years_old), rng:pick(T.years_new)
+  while b == a do b = rng:pick(T.years_new) end
   local turns, planted = {}, {}
   local first = slot(pos, n) // 2
   local second = slot(pos, n)
   if second <= first then second = first + 1 end
   for i = 0, n do
-    if i == first then turns[#turns + 1] = { speaker = "user", text = "Use the " .. a .. " dataset.", planted = "old" } end
+    if i == first then turns[#turns + 1] = { speaker = "user", text = fill(rng:pick(T.plant_old_dataset), { OLD = a }), planted = "old" } end
     if i == second then
-      turns[#turns + 1] = { speaker = "user", text = "Actually, use the " .. b .. " dataset from now on.", planted = "correction" }
+      turns[#turns + 1] = { speaker = "user", text = fill(rng:pick(T.plant_correction), { NEW = b }), planted = "correction" }
       planted[#planted + 1] = #turns
     end
     if i < n then local t, tp = LC.distractor(rng); turns[#turns + 1] = { speaker = "user", text = t, topic = tp } end
   end
-  return { turns = turns, final = "Analyze the figures.", planted = planted, expect = { slot = "dataset", value = b, stale = a } }
+  return { turns = turns, final = rng:pick(T.final_analyze), planted = planted, expect = { slot = "dataset", value = b, stale = a } }
 end
 
 -- standing exclusion given once
 function B.exclusion(rng, n, pos)
-  local what = rng:pick({ "universities", "reposts", "retailers", "agencies" })
+  local what = rng:pick(T.whats)
   local turns, planted = {}, {}
   local at = slot(pos, n)
   for i = 0, n do
     if i == at then
-      turns[#turns + 1] = { speaker = "user", text = "Do not include " .. what .. ".", planted = "exclusion" }
+      turns[#turns + 1] = { speaker = "user", text = fill(rng:pick(T.plant_exclusion), { WHAT = what }), planted = "exclusion" }
       planted[#planted + 1] = #turns
     end
     if i < n then local t, tp = LC.distractor(rng); turns[#turns + 1] = { speaker = "user", text = t, topic = tp } end
   end
-  return { turns = turns, final = "Find organizations in Germany.", planted = planted, expect = { prohibition = what } }
+  return { turns = turns, final = rng:pick(T.final_search), planted = planted, expect = { prohibition = what } }
 end
 
 -- a negation buried inside ONE long message
 function B.buried_negation(rng, n, pos)
-  local what = rng:pick({ "universities", "reposts", "retailers", "agencies" })
+  local what = rng:pick(T.whats)
   local parts = {}
   local at = slot(pos, n)
   for i = 0, n do
-    if i == at then parts[#parts + 1] = "Please do not include " .. what .. "." end
+    if i == at then parts[#parts + 1] = fill(rng:pick(T.plant_exclusion_embedded), { WHAT = what }) end
     if i < n then local t = LC.distractor(rng); parts[#parts + 1] = t end
   end
   local text = table.concat(parts, " ")
-  return { turns = { { speaker = "user", text = text, planted = "exclusion" } }, final = "Find organizations in Germany.", planted = { 1 },
+  return { turns = { { speaker = "user", text = text, planted = "exclusion" } }, final = rng:pick(T.final_search), planted = { 1 },
     expect = { prohibition = what } }
 end
 
 -- several look-alike names: the one the USER introduced is the referent of "the company I mentioned earlier"
 function B.similar_names(rng, n, pos)
-  local set = rng:pick(SIMILAR)
+  local set
+  if T == DEFAULT_T then set = rng:pick(SIMILAR)
+  else local org = rng:pick(T.orgs); set = { org, (org:gsub(".$", "x")), org .. " Europe" } end
   local turns, planted = {}, {}
   local at = slot(pos, n)
   for i = 0, n do
     if i == at then
-      turns[#turns + 1] = { speaker = "user", text = "I'm looking at " .. set[1] .. ", a small robotics business.", planted = "entity" }
+      turns[#turns + 1] = { speaker = "user", text = fill(rng:pick(T.plant_similar), { ORG = set[1] }), planted = "entity" }
       planted[#planted + 1] = #turns
-      turns[#turns + 1] = { speaker = "assistant", text = "Related names include " .. set[2] .. " and " .. set[3] .. ".", planted = "similar" }
+      turns[#turns + 1] = { speaker = "assistant", text = fill(rng:pick(T.assistant_similar), { SIM1 = set[2], SIM2 = set[3] }), planted = "similar" }
     end
     if i < n then local t, tp = LC.distractor(rng); turns[#turns + 1] = { speaker = "user", text = t, topic = tp } end
   end
-  return { turns = turns, final = "Who is the CEO of the company I mentioned earlier?", planted = planted,
-    expect = { ref = "the company I mentioned earlier", antecedent = set[1], relation = "ceo" } }
+  local final = rng:pick(T.final_ceo_similar)
+  return { turns = turns, final = final, planted = planted,
+    expect = { ref = T == DEFAULT_T and "the company I mentioned earlier" or nil, ref_any = true, antecedent = set[1], relation = "ceo" } }
 end
 
 -- a decision referred to later without repeating its wording
 function B.decision(rng, n, pos)
-  local db = rng:pick({ "PostgreSQL", "SQLite", "MariaDB" })
-  local thing = rng:pick({ "inventory", "billing", "telemetry" })
+  local db = rng:pick(T.dbs)
+  local thing = rng:pick(T.things)
   local turns, planted = {}, {}
   local at = slot(pos, n)
   for i = 0, n do
     if i == at then
-      turns[#turns + 1] = { speaker = "user", text = "We decided to use " .. db .. " for the " .. thing .. " service.", planted = "decision" }
+      turns[#turns + 1] = { speaker = "user", text = fill(rng:pick(T.plant_decision), { DB = db, THING = thing }), planted = "decision" }
       planted[#planted + 1] = #turns
     end
     if i < n then local t, tp = LC.distractor(rng); turns[#turns + 1] = { speaker = "user", text = t, topic = tp } end
   end
-  return { turns = turns, final = "What did we decide about the " .. thing .. " service?", planted = planted, expect = { fragment = db } }
+  return { turns = turns, final = fill(rng:pick(T.final_decision), { THING = thing }), planted = planted, expect = { fragment = db } }
 end
 
 -- the pronoun case: after distractors the antecedent has decayed; the system must either resolve correctly or say it cannot -- never resolve wrongly
 function B.pronoun_gap(rng, n, pos)
-  local org = rng:pick(ORGS)
-  local other = rng:pick(ORGS)
-  while other == org do other = rng:pick(ORGS) end
+  local org = rng:pick(T.orgs)
+  local other = rng:pick(T.orgs)
+  while other == org do other = rng:pick(T.orgs) end
   local turns, planted = {}, {}
   local at = slot(pos, n)
   for i = 0, n do
     if i == at then
-      turns[#turns + 1] = { speaker = "user", text = "I'm researching " .. org .. ".", planted = "entity" }
+      turns[#turns + 1] = { speaker = "user", text = fill(rng:pick(T.plant_research), { ORG = org }), planted = "entity" }
       planted[#planted + 1] = #turns
     end
     if i < n then local t, tp = LC.distractor(rng); turns[#turns + 1] = { speaker = "user", text = t, topic = tp } end
   end
-  turns[#turns + 1] = { speaker = "user", text = "Tell me about " .. other .. ".", planted = "other" }
+  turns[#turns + 1] = { speaker = "user", text = fill(rng:pick(T.plant_other), { ORG = other }), planted = "other" }
   -- "it" now most plausibly refers to the most recent organisation (other); referring to the old one would be WRONG
-  return { turns = turns, final = "Who founded it?", planted = planted, expect = { pronoun = "it", wrong = org, right = other, relation = "founder" } }
+  return { turns = turns, final = rng:pick(T.final_pronoun), planted = planted, expect = { pronoun = "it", wrong = org, right = other, relation = "founder" } }
 end
 
 LC.KINDS = { "backref_entity", "correction", "exclusion", "buried_negation", "similar_names", "decision", "pronoun_gap" }
@@ -194,9 +254,18 @@ function LC.score(sc, m)
   end
   r.relevant_selected, r.false_memory, r.n_selected, r.recent_window = rel_sel, false_sel, #texts, recent
   r.planted_total = #planted_text
-  if ex.ref then
+  if ex.ref or ex.ref_any then
     local found
-    for _, ref in ipairs(m.context and m.context.references or {}) do if norm(ref.mention) == norm(ex.ref) then found = ref end end
+    local refs = m.context and m.context.references or {}
+    if ex.ref then
+      for _, ref in ipairs(refs) do if norm(ref.mention) == norm(ex.ref) then found = ref end end
+    else
+      -- externally authored final wording: the back-reference is whichever reference the interpreter resolved to the planted entity (or, failing that, any reference)
+      for _, ref in ipairs(refs) do
+        if ref.status == "resolved" and ref.antecedent and norm(ref.antecedent.text) == norm(ex.antecedent) then found = ref end
+      end
+      found = found or refs[1]
+    end
     chk("reference_found", found ~= nil)
     chk("entity_recovered", found ~= nil and found.status == "resolved" and found.antecedent and norm(found.antecedent.text) == norm(ex.antecedent))
     chk("relation", m.relation and m.relation.id == ex.relation)

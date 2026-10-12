@@ -554,13 +554,14 @@ function F.what_means(S, out)
   for _, wh in ipairs(P.parse_wh(S, S.first)) do
     if wh.wh == "what" and not wh.np and not wh.adverbial then
       local ac = C(S, wh.nxt)
-      if ac and ac.single and cat(ac, "aux_do") and not ac.masked then
-        for _, np in ipairs(P.parse_np(S, wh.nxt + 1)) do
+      local aux_ok = ac and ac.single and cat(ac, "aux_do") and not ac.masked
+      if aux_ok or S.embedded then
+        for _, np in ipairs(P.parse_np(S, aux_ok and wh.nxt + 1 or wh.nxt)) do
           local vc = C(S, np.nxt)
           local n = vc and lex:cue_at("definition_verb", S.units, vc.u1)
           if n then
             local h = newh(S, "what_means:definition", "question", "definition", "define")
-            use(h, wh.c1, wh.c2); use(h, wh.nxt); use_np(h, np)
+            use(h, wh.c1, wh.c2); if aux_ok then use(h, wh.nxt) end; use_np(h, np)
             local consumed, k = 0, np.nxt
             while C(S, k) and consumed < n do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); h.used[k] = true; k = k + 1 end
             h.concept = np

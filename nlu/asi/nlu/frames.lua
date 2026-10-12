@@ -279,12 +279,13 @@ function F.wh_do(S, out)
   for _, wh in ipairs(P.parse_wh(S, k0)) do
     if not wh.adverbial and wh.wh ~= "how_adj" then
       local dk = wh.nxt
-      if is_do(C(S, dk)) then
-        local nk = dk + 1
+      local embedded_no_aux = S.embedded and not is_do(C(S, dk)) and not is_be(C(S, dk))
+      if is_do(C(S, dk)) or embedded_no_aux then
+        local nk = embedded_no_aux and dk or dk + 1
         local neg_chunk
         if P.is_neg(C(S, nk)) then neg_chunk = C(S, nk); nk = nk + 1 end
         for _, snp in ipairs(P.parse_np(S, nk, { no_of = false })) do
-          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do" })) do
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do", finite_ok = embedded_no_aux })) do
             for _, e in ipairs(vp.analysis.entries) do
               local rel = S.lex:get_rel(e.rel)
               if rel then

@@ -15,6 +15,11 @@ do
   end
 end
 local flags = {}
+if opts.templates then
+  local t, digest = LC.load_templates(opts.templates)
+  LC.use(t)
+  print("external templates: " .. opts.templates .. "  sha256=" .. digest)
+end
 if opts.mode ~= "full" then for f in opts.mode:gmatch("[^,]+") do flags[f] = true end end
 local interp = I.new({ flags = flags })
 local kinds = LC.KINDS

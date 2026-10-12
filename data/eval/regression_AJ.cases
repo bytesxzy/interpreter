@@ -1,0 +1,51 @@
+# Mandatory regression examples A-J (task directive 13.2), as INTERPRETATION gold only.  The expected FACTUAL answers are asserted separately in
+# tests/test_regression_aj.lua against the supplied acceptance datasets, so interpretation and answer are never conflated.
+# Each example appears with its canonical text, with different entities (so passing cannot rest on memorising the sample), and with paraphrases.
+# ------------------------------------------------------------------ A  country-capital relation, France as country, city as answer type
+RA01 | A_capital | What is the capital of France? | rel=capital; from=France:country:country.france; ask=to; atype=city; amb=resolved; mm=capA:eq
+RA02 | A_capital | What's France's capital? | rel=capital; from=France:country; ask=to; mm=capA:eq
+RA03 | A_capital | Which city is France's capital? | rel=capital; from=France:country; ask=to; atype=city; mm=capA:eq
+RA04 | A_capital | Could you tell me the capital city of France? | rel=capital; from=France:country; ask=to; mm=capA:eq
+RA05 | A_capital | france capital? | rel=capital; from=france; ask=to; mm=capA:eq
+RA06 | A_capital | What is the capital of Thailand? | rel=capital; from=Thailand:country; ask=to; atype=city
+RA07 | A_capital | Capital of France | rel=capital; from=France; mm=capA:eq
+RA08 | A_minimal | Financial capital of France | rel=financial_center; from=France; mm=finA:ne:capA
+RA09 | A_minimal | Former capital of France | rel=capital; from=France; temporal=past; mm=formA:ne:capA
+RA10 | A_minimal | Capital punishment in France | intent=definition; concept=capital punishment; rel=-; mm=punA:ne:capA
+# ------------------------------------------------------------------ B  a legal concept, not geography
+RB01 | B_legal | What is capital punishment? | intent=definition; concept=capital punishment:legal_concept; rel=-; amb=resolved
+RB02 | B_legal | Define capital punishment. | intent=definition; concept=capital punishment:legal_concept; rel=-
+RB03 | B_legal | Tell me about capital punishment. | concept=capital punishment:legal_concept; rel=-
+# ------------------------------------------------------------------ C  an economic concept, not a city
+RC01 | C_economic | What is financial capital? | intent=definition; concept=financial capital:economic_concept; rel=-; amb=resolved
+RC02 | C_economic | What does financial capital mean? | intent=definition; concept=financial capital:economic_concept; rel=-
+RC03 | C_economic | Explain what venture capital is. | concept=venture capital; rel=-
+# ------------------------------------------------------------------ D  an educational institution
+RD01 | D_education | What is a high school? | intent=definition; concept=high school:school; rel=-
+RD02 | D_education | What is a university? | intent=definition; concept=university:university; rel=-
+RD03 | D_education | Define high school. | intent=definition; concept=high school:school
+# ------------------------------------------------------------------ E  a technology concept, not a movie / law / organisation with similar words
+RE01 | E_technology | What is generative artificial intelligence? | intent=definition; concept=generative artificial intelligence:technology_concept; rel=-
+RE02 | E_technology | What is generative AI? | intent=definition; concept=generative AI; rel=-
+RE03 | E_technology | What is machine learning? | intent=definition; concept=machine learning:technology_concept; rel=-
+# ------------------------------------------------------------------ F  historical entity resolution + acquisition relation
+RF01 | F_history | U: I'm looking at Beta Systems, a robotics business. // U: Which company acquired the business I mentioned earlier? | rel=acquirer; from=Beta Systems; ref=the business I mentioned earlier>Beta Systems; unres=0
+RF02 | F_history | U: I'm looking at Calloway Systems, a software business. // U: Good morning. // U: Which company acquired the business I mentioned earlier? | rel=acquirer; from=Calloway Systems; ref=the business I mentioned earlier>Calloway Systems; unres=0
+RF03 | F_history | U: Which company acquired the business I mentioned earlier? | rel=acquirer; ref=the business I mentioned earlier>unresolved; dep=ambiguous_missing_context; unres=1
+# ------------------------------------------------------------------ G  partnership opportunities with an explicit internship exclusion
+RG01 | G_negation | Find companies interested in partnerships, not companies hiring interns. | intent=search; target=companies; pos=relation:seeks; neg=type:company+hires:intern
+RG02 | G_negation | Find vendors that sell hardware, but not vendors that hire interns. | intent=search; neg=type:company+hires:intern
+RG03 | G_negation | Find companies looking for partnerships, not employment. | intent=search; neg=topic:employment
+# ------------------------------------------------------------------ H  comparison of two contextual versions
+RH01 | H_compare | What changed between the first version and the revised version? | intent=comparison; items=first version|revised version
+RH02 | H_compare | U: Here is the first version of the report. // U: Here is the revised version of the report. // U: What changed between the first version and the revised version? | intent=comparison; items=first version|revised version
+RH03 | H_compare | What changed between the old version and the new version? | intent=comparison; items=old version|new version
+# ------------------------------------------------------------------ I  ambiguity preserved until context or evidence resolves it
+RI01 | I_ambiguity | Tell me about Mercury. | amb=ambiguous; alts=planet.mercury|element.mercury|myth.mercury
+RI02 | I_ambiguity | We were discussing the solar system. Tell me about Mercury. | subject=Mercury:planet:planet.mercury; amb=resolved
+RI03 | I_ambiguity | We are studying toxic metals. Tell me about Mercury. | subject=Mercury:chemical_element:element.mercury; amb=resolved
+RI04 | I_ambiguity | Tell me about Orange. | amb=ambiguous
+# ------------------------------------------------------------------ J  answer from the named dataset, with temporal and source constraints
+RJ01 | J_source | What is the capital of France according to the supplied 2020 dataset? | rel=capital; from=France; src=dataset:2020; mm=srcJ:eq
+RJ02 | J_source | What is the capital of France according to the 2020 dataset? | rel=capital; from=France; src=dataset:2020; mm=srcJ:eq
+RJ03 | J_source | What is the capital of Canada according to the 2018 dataset? | rel=capital; from=Canada; src=dataset:2018

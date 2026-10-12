@@ -313,7 +313,7 @@ cue focus_intro: i'm researching; i am researching; i'm working on; i am working
 cue only_marker: only; just; solely; exclusively; nothing but
 cue superlative_latest: latest; newest; most recent; last; current
 cue definition_frame: meaning of; definition of; what does; stand for; stands for; mean by
-cue question_polite: could you; can you; would you; will you; could you please; can you please; would you please; do you know; do you happen to know; i was wondering; i'd like to know; i want to know; i need to know; i would like to know; tell me; let me know
+cue question_polite: i wonder; i'm wondering; i am wondering; i'm curious; i am curious; can anyone tell me; could someone tell me; do you have any idea; could you; can you; would you; will you; could you please; can you please; would you please; do you know; do you happen to know; i was wondering; i'd like to know; i want to know; i need to know; i would like to know; tell me; let me know
 cue request_open: i want; i need; i'd like; i would like; i'm looking for; i am looking for; give me; get me; show me; find me; looking for; i require
 cue basis: considering; given; in light of; bearing in mind; keeping in mind; factoring in; taking
 cue backref_adv: earlier; before; previously; already; recently; yesterday; ago; then; originally

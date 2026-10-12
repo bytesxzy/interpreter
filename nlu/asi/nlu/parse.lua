@@ -611,7 +611,7 @@ P.aux_kind = aux_kind
 -- (needed for split constructions such as "Which company did P found" where the auxiliary and verb are not adjacent)
 function P.parse_vp(S, k, opts)
   opts = opts or {}
-  local key = "v" .. k .. (opts.aux_hint or "") .. (opts.require_aux and "r" or "") .. (opts.participle_ok and "p" or "")
+  local key = "v" .. k .. (opts.aux_hint or "") .. (opts.require_aux and "r" or "") .. (opts.participle_ok and "p" or "") .. (opts.finite_ok and "f" or "")
   if S.vp_memo[key] then return S.vp_memo[key] end
   local out = {}
   local j = k
@@ -676,6 +676,7 @@ function P.parse_vp(S, k, opts)
           else
             ok = (a.form == "past" or a.form == "3sg" or a.form == "base") and not (opts.require_aux)
           end
+        elseif (last_aux == "do" or last_aux == "modal") and opts.finite_ok then ok = a.form == "base" or a.form == "3sg" or a.form == "past"
         elseif last_aux == "do" or last_aux == "modal" then ok = a.form == "base"
         elseif last_aux == "have" then ok = a.form == "pp"
         elseif last_aux == "be" then
@@ -778,6 +779,37 @@ function P.parse_wh(S, k)
   return out
 end
 
+---------------------------------------------------------------- indirect questions
+-- "what [a quokka] is" -> "what is [a quokka]": the copula that closes (or precedes the participle of) an embedded wh-clause moves in front of the subject
+-- noun phrase.  Only the chunk ORDER changes -- chunks keep their unit offsets, so every span, quote and provenance record still points at the original text.
+function P.uninvert_embedded(S, k)
+  local whs = P.parse_wh(S, k)
+  table.sort(whs, function(a, b) return a.nxt < b.nxt end)       -- try the bare wh-word first, then wh-noun readings
+  for _, wh in ipairs(whs) do
+    local j = wh.nxt
+    for b = j + 1, S.last do
+      local cb = C(S, b)
+      if cb and cb.single and not cb.masked and cat(cb, "aux_be") and not barrier(cb) then
+        local ok = false
+        for _, np in ipairs(P.parse_np(S, j)) do if np.nxt == b then ok = true end end
+        if ok then
+          local new = {}
+          for i = 1, j - 1 do new[#new + 1] = S.chunks[i] end
+          new[#new + 1] = cb
+          for i = j, b - 1 do new[#new + 1] = S.chunks[i] end
+          for i = b + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+          for i, c in ipairs(new) do c.idx = i end
+          S.chunks = new
+          S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+          return true
+        end
+        break   -- only the first copula after the wh-phrase can belong to this clause
+      end
+    end
+  end
+  return false
+end
+
 ---------------------------------------------------------------- wrappers ("Could you tell me ...", "I want ...")
 -- returns first core chunk index, wrapper description
 function P.strip_wrapper(S)
@@ -839,6 +871,30 @@ function P.strip_wrapper(S)
     end
   end
   if not progressed then skip_polite() end
+  -- "Explain what a quokka is." / "Describe who founded X.": an informative imperative directly followed by a wh-word introduces an indirect question
+  if not progressed then
+    local c, c2 = C(S, k), C(S, k + 1)
+    if c and c.single and not c.masked and c.verbs and c.verbs[1] and c.verbs[1].act == "inform" and not cat(c, "wh") then
+      local nk = k + 1
+      if c2 and c2.single and c2.unit.form == "me" then nk = k + 2 end
+      local cw = C(S, nk)
+      if cw and cw.single and not cw.masked and cat(cw, "wh") and cw.unit.form ~= "why" and cw.unit.form ~= "how" and not barrier(cw) then
+        for i = k, nk - 1 do w.chunks[#w.chunks + 1] = i end
+        w.verb = c.unit.form
+        w.kinds[#w.kinds + 1] = "embed_imperative"
+        k = nk
+        progressed = true
+      end
+    end
+  end
+  -- indirect question: after a wrapper the clause keeps declarative order ("what a quokka is", "where Acme is headquartered", "what currency Sweden uses")
+  if progressed then
+    local cw = C(S, k)
+    if cw and cw.single and not cw.masked and cat(cw, "wh") then
+      S.embedded = true
+      P.uninvert_embedded(S, k)
+    end
+  end
   w.first = k
   S.first = k
   return k, w
