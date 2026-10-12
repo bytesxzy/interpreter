@@ -33,7 +33,7 @@ rel leader: from=organization to=person | noun=leader; head; chief | verb=lead/s
 rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office; corporate headquarters; home office; main headquarters | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | support=have; maintain; keep; operate | locus=1 | label=headquarters
 rel member_of: from=agent to=organization | noun_from=member | verb=belong/subj=from/prep=to; join/subj=from | label=membership
 rel parent_org: from=organization to=organization | noun=parent company; parent organization; parent; owner | noun_from=subsidiary | verb=own/subj=to | label=parent organization
-rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to | when=acquired_on | label=acquirer | event=1
+rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to; snap up/subj=to; buy out/subj=to; buy up/subj=to; scoop up/subj=to; swallow up/subj=to; gobble up/subj=to | when=acquired_on | label=acquirer | event=1
 rel acquired_on: from=organization to=date | noun=acquisition date; date of acquisition | label=acquisition date | event=1
 rel investor: from=organization to=agent | noun=investor; backer; funder | verb=invest/subj=to/prep=in; fund/subj=to; finance/subj=to; back/subj=to | label=investor | event=1
 rel employees: from=organization to=number | noun=employees; staff; headcount; workforce; number of employees; number of staff | how_many=employees | attr=1 | label=employees

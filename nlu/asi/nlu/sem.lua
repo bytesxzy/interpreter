@@ -58,6 +58,7 @@ local function ref(S, np, depth)
   if np.pron then
     r.pronoun = np.pron.form
     r.needs_antecedent = not (b and (b.deictic or b.expletive or b.indefinite or b.status == "resolved"))
+    if b and b.topic_bound then r.topic_bound = true end
     if b and b.discourse and b.status ~= "resolved" and not b.deictic then r.antecedent_reason = b.none_reason end
   end
   if np.backref then r.backref = true; r.needs_context = true; r.backref_who = np.backref_who end
@@ -228,6 +229,10 @@ function Sem.render(res, ctx)
   interp.intent, interp.op, interp.frame = top.intent, top.op, top.frame
   interp.wrapper = (S.wrapper and #S.wrapper.kinds > 0) and { kinds = S.wrapper.kinds, polite = S.wrapper.polite } or nil
   interp.relation = relation_info(S, top)
+  if S.topic then
+    H.bind_np(S, ctx or {}, S.topic, nil, nil, "topic")
+    interp.topic = ref(S, S.topic)
+  end
   interp.polarity = top.polarity
   interp.roles = {}
   for role, np in pairs(top.roles) do interp.roles[role] = ref(S, np) end

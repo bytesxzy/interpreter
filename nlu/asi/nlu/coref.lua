@@ -160,6 +160,11 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
   local pcats = np.pron.cats or {}
   if pcats.pron_indef and form ~= "one" and form ~= "ones" then b.status, b.fit, b.indefinite = "indefinite", 0.25, true return b end
   if form == "it" and expletive_it(S, np, h) then b.status, b.fit, b.expletive = "expletive", 0.25, true return b end
+  -- a fronted topic ("Going back to X, who acquired it?") is the antecedent of the third-person pronouns of the sentence; the topic phrase is resolved in resolve_references
+  if S.topic and (form == "it" or form == "its" or form == "they" or form == "their" or form == "them" or form == "he" or form == "she" or form == "his" or form == "her" or form == "him") then
+    b.status, b.fit, b.topic_bound, b.cands = "topic_pending", 0.25, true, {}
+    return b
+  end
   local person = tostring(feats.person or "3")
   if person == "1" or person == "2" then
     local who = person == "1" and "speaker" or "addressee"
@@ -274,7 +279,7 @@ function C.walk(interp, fn)
     local exp = rel and ((role == "from" and rel.from_type) or (role == "to" and rel.to_type)) or nil
     visit(r, "arg:" .. role, exp, 0)
   end
-  for _, k in ipairs({ "subject", "concept", "target", "focus", "object", "basis" }) do visit(interp[k], k, nil, 0) end
+  for _, k in ipairs({ "topic", "subject", "concept", "target", "focus", "object", "basis" }) do visit(interp[k], k, nil, 0) end
   for _, it in ipairs(interp.items or {}) do visit(it, "item", nil, 0) end
   if interp.statement then visit(interp.statement.subject, "stmt_subject", nil, 0); visit(interp.statement.object, "stmt_object", nil, 0) end
   if interp.clause then visit(interp.clause.subject, "clause_subject", nil, 0); visit(interp.clause.object, "clause_object", nil, 0) end
@@ -383,10 +388,31 @@ function View:resolve_entity_backref(r, expected, exclude)
         local who = r.backref_who
         if who and e.by_speaker and e.by_speaker[who] then s = s + 0.4; reasons[#reasons + 1] = "introduced by the " .. who .. " (the clause says so)"
         elseif who and e.by_speaker and not e.by_speaker[who] then s = s - 0.5; reasons[#reasons + 1] = "never mentioned by the " .. who end
-        if r.head and e.descriptors then
+        if r.head then
           local best = 0
-          for _, d in pairs(e.descriptors) do best = math.max(best, C.descriptor_match(self, r.head, d)) end
+          for _, d in pairs(e.descriptors or {}) do best = math.max(best, C.descriptor_match(self, r.head, d)) end
           if best > 0 then s = s + 1.2 * best; reasons[#reasons + 1] = string.format("described in the conversation as a matching kind of '%s' (%.1f)", r.head, best) end
+          -- modifiers of the reference ("the SMALL company") that the description of the entity repeats
+          if best > 0 and r.modifiers then
+            for _, d in pairs(e.descriptors or {}) do
+              if C.descriptor_match(self, r.head, d) > 0 then
+                local dt = " " .. (d.text or ""):lower() .. " "
+                for _, m in ipairs(r.modifiers) do
+                  local w = (m.text or ""):lower()
+                  if w ~= "" and dt:find(" " .. w .. " ", 1, true) then s = s + 0.5; reasons[#reasons + 1] = "its description repeats '" .. w .. "'"; break end
+                end
+                break
+              end
+            end
+          end
+          -- the head noun names a KIND ("the company ..."): a candidate with no evidence at all of being that kind (no matching type, no matching description)
+          -- is a poor referent, however recently it was named
+          local head_type
+          for _, sn in ipairs(lex.sense_by_head[(r.head or ""):lower()] or {}) do if sn.type and sn.kind == "typenoun" then head_type = head_type or sn.type end end
+          if head_type then
+            local type_ok = e.type and lex:compat(e.type, head_type) >= 0.9
+            if not type_ok and best == 0 then s = s - 1.0; reasons[#reasons + 1] = "no evidence that it is a " .. r.head end
+          end
         end
         if e.weak then s = s - 0.8; reasons[#reasons + 1] = "weak name evidence (sentence-initial capital only)" end
         cands[#cands + 1] = { id = e.key, type = e.type, name = e.names and next(e.names) and select(2, next(e.names)) or e.key, score = s, reasons = reasons, turn = e.last_turn }
@@ -412,14 +438,74 @@ end
 
 -- classifying descriptors attached to entity mentions by apposition ("X, a small robotics business") or copula ("X is a robotics company")
 -- items = { {key=, c1=, c2=}, ... } chunk ranges of entity mentions in state S
+-- the entity/name spans of a sentence state, as {key, type, name, weak, c1, c2} (one key per span; ambiguous spans are skipped)
+function C.mentions_from_state(S, text_of)
+  local out = {}
+  for k, c in ipairs(S.chunks) do
+    local ids, name_r, n = {}, nil, 0
+    for _, r in ipairs(c.entities) do if not r.fuzzy and r.entry then ids[r.entry.id] = r.entry.etype end end
+    for _ in pairs(ids) do n = n + 1 end
+    for _, r in ipairs(c.names) do name_r = name_r or r end
+    local text = S.an.original:sub(S.units[c.u1].s, S.units[c.u2].e)
+    if n == 1 then
+      local id, ty = next(ids)
+      out[#out + 1] = { key = id, type = ty, name = text, c1 = k, c2 = k }
+    elseif n == 0 and name_r then
+      out[#out + 1] = { key = "mention:" .. text:lower(), type = name_r.type_guess, name = text, weak = name_r.weak, c1 = k, c2 = k }
+    end
+  end
+  return out
+end
+
+local NAMING_BEFORE = { { "called" }, { "named" }, { "dubbed" }, { "known", "as" }, { "by", "the", "name" }, { "by", "the", "name", "of" }, { "goes", "by" }, { "go", "by" }, { "labelled" }, { "labeled" } }
+
 function C.describe_entities(view, S, items, speaker)
   local P = require("asi.nlu.parse")
   local mem = view.mem
   for _, it in ipairs(items) do
+    -- "a small business CALLED X" / "a small firm that goes by the name X" / "this small company, X,": the noun phrase BEFORE the name describes it
+    do
+      local k1 = it.c1
+      local found
+      for _, pat in ipairs(NAMING_BEFORE) do
+        local ok = true
+        for i, w in ipairs(pat) do
+          local ck = S.chunks[k1 - #pat + i - 1]
+          if not (ck and ck.single and ck.unit.form == w) then ok = false break end
+        end
+        if ok then found = #pat break end
+      end
+      local np_end = found and (k1 - found - 1) or nil
+      if not np_end then
+        -- reversed apposition "this small company, X,": the name opens after a comma and a determined noun phrase ends right before it
+        local ce = S.chunks[k1]
+        if ce and ce.pre and ce.pre:find("comma") then np_end = k1 - 1 end
+      end
+      if np_end and np_end >= 1 then
+        for k0 = math.max(1, np_end - 6), np_end do
+          local c0 = S.chunks[k0]
+          local det = c0 and c0.single and c0.cats and (c0.cats.det == true or c0.cats.poss_det == true)
+          if det then
+            for _, np in ipairs(P.parse_np(S, k0)) do
+              if np.nxt == np_end + 1 + (found and found or 0) - (found and found or 0) and (np.head_kind == "typenoun" or np.head_kind == "unknown" or np.head_kind == "concept") and np.head then
+                mem:describe(it.key, np.head.form, P.span_text(S, np), speaker)
+                goto next_pattern
+              end
+            end
+          end
+        end
+      end
+      ::next_pattern::
+    end
     local k = it.c2 + 1
     local c = S.chunks[k]
+    -- "X, which is a small business" / "X, who is a founder": skip a relativiser + copula after the comma
+    if c and c.pre and c.pre:find("comma") and c.single and (c.unit.form == "which" or c.unit.form == "who" or c.unit.form == "that") then
+      local c2 = S.chunks[k + 1]
+      if c2 and c2.single and c2.cats and c2.cats.aux_be then k = k + 1; c = S.chunks[k]; c.relcl = true end
+    end
     if c then
-      local copula = c.single and c.cats and (c.cats.aux_be == true) and not c.pre
+      local copula = c.single and c.cats and (c.cats.aux_be == true) and (not c.pre or c.relcl)
       local appos = c.pre and c.pre:find("comma") and c.single and c.cats and c.cats.det == true
       if copula then k = k + 1; c = S.chunks[k] end
       if c and (copula or appos) then
@@ -466,8 +552,25 @@ function C.resolve_references(view, interp)
     out.by_text[rec.mention] = rec
     if rec.status ~= "resolved" then out.unresolved[#out.unresolved + 1] = { reference = rec.id, mention = rec.mention, kind = rec.kind, requirement = rec.requirement } end
   end
-  C.walk(interp, function(r, role, expected)
+  local handler
+  handler = function(r, role, expected)
     if r.asked then return end
+    if r.pronoun and r.topic_bound and interp.topic then
+      -- the pronoun denotes the fronted topic
+      local t = interp.topic
+      local ant = t.antecedent or (t.resolved_id and { key = t.resolved_id, text = t.text, type = t.type })
+      local trec
+      if ant and ant.key and (t.status == "resolved" or t.status == "unseen" or t.resolved_id) then
+        r.antecedent = { key = ant.key, text = ant.text, type = ant.type, turn = ant.turn, via = "topic", p = 1.0 }
+        r.status, r.resolved_id = "resolved", ant.key
+        trec = { kind = "pronoun", mention = r.text, role = role, status = "resolved", antecedent = r.antecedent, pronoun = r.pronoun, distance_turns = 0 }
+      else
+        trec = { kind = "pronoun", mention = r.text, role = role, status = (t.status == "ambiguous") and "ambiguous" or "unresolved", pronoun = r.pronoun,
+          requirement = "the pronoun '" .. tostring(r.pronoun) .. "' refers to the fronted topic '" .. tostring(t.text) .. "', which is itself not resolved" }
+      end
+      add(trec)
+      return
+    end
     local classes = r.head and lex:refclasses(r.head) or {}
     local artifact_classes, corr = {}, false
     for c in pairs(classes) do
@@ -550,7 +653,10 @@ function C.resolve_references(view, interp)
       end
     end
     if rec then add(rec) end
-  end)
+  end
+  local topic_done
+  if interp.topic then handler(interp.topic, "topic", nil); topic_done = interp.topic end
+  C.walk(interp, function(r, role, expected) if r ~= topic_done then handler(r, role, expected) end end)
   -- comparison sets: "Which one is older?", "both", "the latter" with no explicit items
   if interp.intent == "comparison" and (not interp.items or #interp.items < 2) then
     local cs = mem.comparison

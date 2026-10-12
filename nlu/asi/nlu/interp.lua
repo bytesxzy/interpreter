@@ -186,6 +186,18 @@ function I:interpret(text, call)
           end)
           if #items > 0 then Coref.describe_entities(view, res.S, items, speaker) end
         end
+        -- every entity / name in a user sentence is remembered (weakly), also when the sentence has no semantic reading: a business that is only DESCRIBED
+        -- ("... is the small business I'm assessing") is not a role of the winning reading but is exactly what "the company I mentioned earlier" later refers to
+        if (speaker == "user" or call.observe_all) and res.S and not flags.no_mentions then
+          local have = {}
+          for key in pairs(mem.entities) do have[key] = true end
+          local extra = {}
+          for _, m in ipairs(Coref.mentions_from_state(res.S)) do
+            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak })
+            extra[#extra + 1] = { key = m.key, c1 = m.c1, c2 = m.c2 }
+          end
+          if #extra > 0 then Coref.describe_entities(view, res.S, extra, speaker) end
+        end
       end
       result.sentences[#result.sentences + 1] = { res = res, interp = interp }
     end

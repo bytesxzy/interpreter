@@ -786,30 +786,109 @@ function F.instruction(S, out)
   for _, ch in ipairs(S.chunks) do
     if ch.temporal and (ch.temporal.kind == "persist" or ch.temporal.persist) then persist = true end
   end
-  for _, a in ipairs(c.single and P.verb_analyses(S, c) or {}) do
-    if a.form == "base" and (a.act == "constraint" or a.act == "exclude" or a.act == "include") then
-      local nk = k + 1
-      local fill = {}
-      local nc = C(S, nk)
-      -- "switch to X" / "go with X" / "stick with X"
-      if nc and nc.single and (nc.unit.form == "to" or nc.unit.form == "with") then fill[#fill + 1] = nk; nk = nk + 1 end
-      for _, np in ipairs(P.parse_np(S, nk)) do
-        local h = newh(S, "instruction:" .. a.act, "instruction", "instruction_update", "instruct")
-        for _, s in ipairs(skipped) do h.used[s] = true end
-        use(h, k); for _, f in ipairs(fill) do h.used[f] = true end; use_np(h, np)
-        local slot = resource_slot(S, np)
-        local value
-        if np.temporal_mod then value = { year = np.temporal_mod.year, label = np.temporal_mod.text, expr = np.temporal_mod }
-        else
-          for _, m in ipairs(np.mods) do if m.kind == "mod" or m.kind == "ordinal" then value = value or { word = m.form, label = m.text } end end
+  local REPLACE_VERBS = U.set({ "replace", "swap", "substitute", "change", "exchange" })
+  -- one clause: [please|just|then|also]* VERB [to|with|over to] NP        (also "replace THAT with NP")
+  local function try_clause(k0, prefix_used, allow_ing)
+    local kk = k0
+    local pre = {}
+    while C(S, kk) and C(S, kk).single and not C(S, kk).masked and (cat(C(S, kk), "polite") or cat(C(S, kk), "adv") or (cat(C(S, kk), "conj") and kk > k0 - 1 and C(S, kk).unit.form ~= "if")) do
+      pre[#pre + 1] = kk; kk = kk + 1
+    end
+    local cv = C(S, kk)
+    if not (cv and cv.single and not cv.masked) then return end
+    for _, a in ipairs(P.verb_analyses(S, cv)) do
+      if (a.form == "base" or (allow_ing and a.form == "ing")) and (a.act == "constraint" or a.act == "exclude" or a.act == "include") then
+        local nk = kk + 1
+        local fill = {}
+        local nc = C(S, nk)
+        -- "switch to X" / "go with X" / "stick with X" / "switch over to X"
+        if nc and nc.single and (nc.unit.form == "over") and C(S, nk + 1) and C(S, nk + 1).unit.form == "to" then fill[#fill + 1] = nk; nk = nk + 1; nc = C(S, nk) end
+        if nc and nc.single and (nc.unit.form == "to" or nc.unit.form == "with" or nc.unit.form == "on" or nc.unit.form == "from") then fill[#fill + 1] = nk; nk = nk + 1 end
+        local tries = {}
+        if REPLACE_VERBS[a.lemma] then
+          -- "replace THAT with the 2021 dataset": the replacement is the second noun phrase
+          for _, np1 in ipairs(P.parse_np(S, nk)) do
+            local wc = C(S, np1.nxt)
+            if wc and wc.single and (wc.unit.form == "with" or wc.unit.form == "by") then
+              for _, np2 in ipairs(P.parse_np(S, np1.nxt + 1)) do tries[#tries + 1] = { np = np2, extra = { np1 = np1, joiner = np1.nxt } } end
+            end
+          end
         end
-        h.instruction = { verb = a.lemma, act = a.act, np = np, slot = slot, value = value, correction = correction, persist = persist }
-        h.correction, h.persist = correction, persist
-        if slot then addf(h, "resource_slot", 0.5, "instruction targets the '" .. slot .. "' slot") end
-        if correction then addf(h, "correction_cue", 0.4, "explicit correction marker") end
-        if persist then addf(h, "persist_cue", 0.3, "applies from now on") end
-        F.mark_pron(h, np)
-        out[#out + 1] = h
+        if #tries == 0 then for _, np in ipairs(P.parse_np(S, nk)) do tries[#tries + 1] = { np = np } end end
+        for _, tr in ipairs(tries) do
+          local np = tr.np
+          local h = newh(S, "instruction:" .. a.act, "instruction", "instruction_update", "instruct")
+          for _, s_ in ipairs(skipped) do h.used[s_] = true end
+          for _, s_ in ipairs(prefix_used or {}) do h.used[s_] = true end
+          for _, s_ in ipairs(pre) do h.used[s_] = true end
+          use(h, kk); for _, f in ipairs(fill) do h.used[f] = true end; use_np(h, np)
+          if tr.extra then use_np(h, tr.extra.np1); h.used[tr.extra.joiner] = true end
+          local slot = resource_slot(S, np)
+          local value
+          if np.temporal_mod then value = { year = np.temporal_mod.year, label = np.temporal_mod.text, expr = np.temporal_mod }
+          else
+            for _, m in ipairs(np.mods) do if m.kind == "mod" or m.kind == "ordinal" then value = value or { word = m.form, label = m.text } end end
+          end
+          h.instruction = { verb = a.lemma, act = a.act, np = np, slot = slot, value = value, correction = correction, persist = persist }
+          h.correction, h.persist = correction, persist
+          if slot then addf(h, "resource_slot", 0.5, "instruction targets the '" .. slot .. "' slot") end
+          if correction then addf(h, "correction_cue", 0.4, "explicit correction marker") end
+          if persist then addf(h, "persist_cue", 0.3, "applies from now on") end
+          F.mark_pron(h, np)
+          out[#out + 1] = h
+        end
+      end
+    end
+  end
+  try_clause(k, nil, S.wrapper and S.wrapper.progressive)
+  -- later clauses: "..., and go with the 2022 dataset", "..., so please switch over to the 2021 dataset", "Sorry: use the 2020 dataset"
+  for kk = k + 1, S.last do
+    local ck = C(S, kk)
+    if ck and not ck.masked then
+      local pc = C(S, kk - 1)
+      local after_conj = pc and pc.single and cat(pc, "conj") and not pc.masked
+      if (ck.pre and (ck.pre:find("comma") or ck.pre:find("colon") or ck.pre:find("semi"))) or after_conj then
+        if not (correction and false) then try_clause(kk, nil, false) end
+      end
+    end
+  end
+  -- "The 2023 dataset is the one I actually want you to use from now on." / "... is the one to use": a resource named as THE ONE to use
+  if #out == 0 then
+    for _, np in ipairs(P.parse_np(S, k)) do
+      local slot = resource_slot(S, np)
+      local cb = C(S, np.nxt)
+      if slot and cb and cb.single and cat(cb, "aux_be") and not cb.masked then
+        local one_k
+        for j = np.nxt + 1, math.min(S.last, np.nxt + 4) do
+          local cj = C(S, j)
+          if cj and cj.single and (cj.unit.form == "one") then one_k = j break end
+        end
+        if one_k then
+          for j = one_k + 1, S.last do
+            local cj = C(S, j)
+            local verb
+            if cj and cj.single and not cj.masked then
+              for _, a in ipairs(P.verb_analyses(S, cj)) do
+                if a.form == "base" and (a.act == "constraint") then verb = a end
+              end
+            end
+            if verb then
+              local h = newh(S, "instruction:the_one_to_use", "instruction", "instruction_update", "instruct")
+              for _, s_ in ipairs(skipped) do h.used[s_] = true end
+              use_np(h, np); for i = np.nxt, S.last do if not (C(S, i).temporal and not (C(S, i).temporal.persist or C(S, i).temporal.kind == "persist")) then h.used[i] = true end end
+              local value
+              if np.temporal_mod then value = { year = np.temporal_mod.year, label = np.temporal_mod.text, expr = np.temporal_mod }
+              else for _, m in ipairs(np.mods) do if m.kind == "mod" or m.kind == "ordinal" then value = value or { word = m.form, label = m.text } end end end
+              h.instruction = { verb = verb.lemma, act = "constraint", np = np, slot = slot, value = value, correction = correction, persist = persist }
+              h.correction, h.persist = correction, persist
+              addf(h, "resource_slot", 0.5, "the sentence names a '" .. slot .. "' as the one to use")
+              if correction then addf(h, "correction_cue", 0.4, "explicit correction marker") end
+              if persist then addf(h, "persist_cue", 0.3, "applies from now on") end
+              out[#out + 1] = h
+              break
+            end
+          end
+        end
       end
     end
   end

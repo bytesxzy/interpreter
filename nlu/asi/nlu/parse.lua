@@ -360,7 +360,15 @@ local function backref_at(S, m)
       local vc = C(S, q)
       if vc and vc.single and not barrier(vc) then
         for _, a in ipairs(P.verb_analyses(S, vc)) do
-          if a.form == "past" or a.form == "pp" or a.form == "ing" then j = q + 1 break end
+          if a.form == "past" or a.form == "pp" or a.form == "ing" then
+            j = q + 1
+            -- "told YOU ABOUT", "brought UP", "talked ABOUT", "came ACROSS": an object pronoun and/or a particle complete the verb of mention
+            local oc = C(S, j)
+            if oc and oc.single and not barrier(oc) and (oc.unit.form == "you" or oc.unit.form == "me" or oc.unit.form == "us") then j = j + 1 end
+            local pc = C(S, j)
+            if pc and pc.single and not barrier(pc) and (cat(pc, "particle") or pc.unit.form == "about" or pc.unit.form == "of" or pc.unit.form == "across" or pc.unit.form == "to") then j = j + 1 end
+            break
+          end
         end
       end
     end
@@ -375,7 +383,13 @@ local function backref_at(S, m)
     elseif f == "you" or f == "your" then who = "assistant" break end
   end
   -- trailing temporal adverbs belong to the clause ("... I mentioned earlier")
-  while C(S, j) and C(S, j).single and not barrier(C(S, j)) and S.lex:cue_at("backref_adv", S.units, C(S, j).u1) do j = j + 1 end
+  while C(S, j) and not barrier(C(S, j)) do
+    local n = S.lex:cue_at("backref_adv", S.units, C(S, j).u1)
+    if not n then break end
+    local consumed = 0
+    while C(S, j) and consumed < n do consumed = consumed + (C(S, j).u2 - C(S, j).u1 + 1); j = j + 1 end
+    if consumed ~= n then break end
+  end
   return j, who
 end
 P.backref_at = backref_at
@@ -551,7 +565,7 @@ local function parse_np_core(S, k, opts)
   for _, np in ipairs(out) do
     local alts = { np }
     local nx = C(S, np.nxt)
-    if nx and nx.single and nx.unit.form == "of" and not nx.masked and not barrier(nx) and not opts.no_of then
+    if nx and nx.single and (nx.unit.form == "of" or ((nx.unit.form == "at" or nx.unit.form == "for") and np.head_kind == "relnoun")) and not nx.masked and not barrier(nx) and not opts.no_of then
       local subs = parse_np(S, np.nxt + 1, { depth = (opts.depth or 0) + 1 })
       if (opts.depth or 0) < 3 then
         for si = 1, math.min(#subs, 2) do
@@ -698,9 +712,21 @@ function P.parse_vp(S, k, opts)
   local neg, neg_chunk = false, nil
   local advs = {}
   local tscope
+  local semi_ing, semi_inf
   while true do
     local c = C(S, j)
     if not c or c.masked or (j > k and barrier(c)) then break end
+    -- aspectual semi-auxiliaries: "ENDED UP acquiring", "WENT ON TO found", "MANAGED TO buy" (the verb that follows carries the meaning)
+    do
+      local f, n1, n2 = c.single and c.unit.form, C(S, j + 1), C(S, j + 2)
+      if f and (f == "end" or f == "ends" or f == "ended" or f == "ending") and n1 and n1.single and n1.unit.form == "up" and not barrier(n1) then
+        aux[#aux + 1] = { kind = "semi", form = f .. " up", chunk = c }; semi_ing = true; j = j + 2; goto continue_aux
+      elseif f and (f == "managed" or f == "manage" or f == "manages" or f == "proceeded" or f == "proceeds" or f == "tried" or f == "decided") and n1 and n1.single and n1.unit.form == "to" and not barrier(n1) then
+        aux[#aux + 1] = { kind = "semi", form = f .. " to", chunk = c }; semi_inf = true; j = j + 2; goto continue_aux
+      elseif f and (f == "went" or f == "goes" or f == "go") and n1 and n1.single and n1.unit.form == "on" and n2 and n2.single and n2.unit.form == "to" and not barrier(n1) then
+        aux[#aux + 1] = { kind = "semi", form = f .. " on to", chunk = c }; semi_inf = true; j = j + 3; goto continue_aux
+      end
+    end
     local ak = aux_kind(c)
     if ak == "have" then
       -- perfect auxiliary only if a participle / "been" follows (skipping not / adverbs): "has founded", "had been", "could have founded"
@@ -725,6 +751,7 @@ function P.parse_vp(S, k, opts)
     elseif c.temporal and (c.temporal.kind == "marker" or c.temporal.kind == "relative") and c.temporal.scope then
       tscope = c.temporal.scope; advs[#advs + 1] = c; j = j + 1
     else break end
+    ::continue_aux::
   end
   local vc = C(S, j)
   if vc and not vc.masked and not (j > k and barrier(vc)) then
@@ -756,6 +783,7 @@ function P.parse_vp(S, k, opts)
             ok = (a.form == "past" or a.form == "3sg" or a.form == "base") and not (opts.require_aux)
           end
         elseif (last_aux == "do" or last_aux == "modal") and opts.finite_ok then ok = a.form == "base" or a.form == "3sg" or a.form == "past"
+        elseif last_aux == "semi" then ok = (semi_ing and a.form == "ing") or (semi_inf and a.form == "base")
         elseif last_aux == "do" or last_aux == "modal" then ok = a.form == "base"
         elseif last_aux == "have" then ok = a.form == "pp"
         elseif last_aux == "be" then
@@ -865,13 +893,23 @@ function P.take_topic(S)
   local c = C(S, S.first)
   if not c or c.masked or S.topic then return nil end
   local tn = S.lex:cue_at("topic_intro", S.units, c.u1)
+  -- "Quick question about the company I mentioned: which business acquired it?" -- "about X" opens a topic only when a question follows the separator
+  local about = false
+  if not tn and c.single and c.unit.form == "about" then tn, about = 1, true end
   if not tn then return nil end
   local k, consumed = S.first, 0
   while k <= S.last and consumed < tn do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); k = k + 1 end
   if consumed ~= tn then return nil end
   for _, np in ipairs(P.parse_np(S, k)) do
     local nx = C(S, np.nxt)
-    if nx and nx.pre and nx.pre:find("comma") and (np.head_kind == "entity" or np.head_kind == "unknown" or np.head_kind == "typenoun") then
+    local sep = nx and nx.pre and (nx.pre:find("comma") or nx.pre:find("colon") or nx.pre:find("dash"))
+    local okkind = np.head_kind == "entity" or np.head_kind == "unknown" or np.head_kind == "typenoun"
+    if about and sep then
+      local w1 = nx and nx.single and cat(nx, "wh")
+      local wh_follows = nx and #P.parse_wh(S, np.nxt) > 0
+      if not (w1 or wh_follows) then okkind = false end
+    end
+    if sep and okkind then
       S.topic = np
       S.first = np.nxt
       return np
@@ -1018,6 +1056,25 @@ function P.strip_wrapper(S)
     local c = C(S, k)
     while c and c.single and cat(c, "polite") do w.chunks[#w.chunks + 1] = k; k = k + 1; c = C(S, k); w.polite = true end
   end
+  -- discourse lead-ins ("Quick question:", "By the way,", "Oh and"): they carry no content for the clause that follows
+  do
+    local guard = 0
+    while guard < 3 do
+      guard = guard + 1
+      local c0 = C(S, k)
+      local n0 = c0 and not c0.masked and lex:cue_at("lead_in", units, c0.u1)
+      -- "Remind me, which ...": a lead-in only when a comma follows; "Remind me what we decided" is a recall request of its own
+      if n0 and c0.unit.form == "remind" then
+        local after, consumed, kk2 = nil, 0, k
+        while C(S, kk2) and consumed < n0 do consumed = consumed + (C(S, kk2).u2 - C(S, kk2).u1 + 1); kk2 = kk2 + 1 end
+        after = C(S, kk2)
+        if not (after and after.pre and after.pre:find("comma")) then n0 = nil end
+      end
+      if not (n0 and skip_units(n0)) then break end
+      w.kinds[#w.kinds + 1] = "lead_in"
+    end
+    S.first = k
+  end
   do
     local first0 = S.first
     local topic = P.take_topic(S)
@@ -1057,9 +1114,15 @@ function P.strip_wrapper(S)
       local c, c2 = C(S, k), C(S, k + 1)
       -- "I want to know X" / "I need to find X" / "I'd like to see X"
       if c and c.single and c.unit.form == "to" and c2 and c2.single and c2.verbs then
-        w.chunks[#w.chunks + 1] = k; w.chunks[#w.chunks + 1] = k + 1
-        w.verb = c2.unit.form
-        k = k + 2
+        local action = false
+        for _, vr in ipairs(c2.verbs) do if vr.act == "constraint" or vr.act == "exclude" or vr.act == "include" then action = true end end
+        if action then
+          w.chunks[#w.chunks + 1] = k; k = k + 1        -- "I want to USE the 2019 dataset": the verb is the instruction itself
+        else
+          w.chunks[#w.chunks + 1] = k; w.chunks[#w.chunks + 1] = k + 1
+          w.verb = c2.unit.form
+          k = k + 2
+        end
       end
     end
   end

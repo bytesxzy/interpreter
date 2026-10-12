@@ -95,7 +95,7 @@ class ignorable: please kindly just actually really basically literally honestly
 class be_participle: designated named declared appointed chosen elected recognized recognised regarded considered known called deemed termed titled
 class copula_like: serve serves served serving function functions functioned functioning act acts acted acting stand stands stood standing
 class modal: will would shall should can could may might must
-class adv: very also just only even still already ever always often usually really quite rather too enough almost nearly mostly mainly especially particularly currently now then there here again together ago soon never sometimes maybe perhaps actually
+class adv: instead otherwise very also just only even still already ever always often usually really quite rather too enough almost nearly mostly mainly especially particularly currently now then there here again together ago soon never sometimes maybe perhaps actually
 class particle: up down out off away back
 class polite: please kindly
 class neg_word: not no never none nobody nothing nowhere neither nor without
@@ -202,6 +202,14 @@ verb rank: act=task
 verb filter: act=task
 verb group: act=task
 verb use: act=constraint
+verb go: act=constraint
+verb base: act=constraint
+verb work: act=constraint
+verb rely: act=constraint
+verb replace: act=constraint
+verb swap: act=constraint
+verb substitute: act=constraint
+verb take: act=constraint
 verb switch: act=constraint
 verb choose: act=constraint
 verb pick: act=constraint
@@ -297,9 +305,9 @@ dim popularity: rels=population | order=larger_is_larger
 dim wealth: rels=revenue | order=larger_is_larger
 
 # ============================================================ discourse and constraint cues
-cue exclusion: exclude; excluding; excludes; excluded; except; excepting; without; avoid; avoiding; skip; omit; omitting; minus; other than; apart from; aside from; instead of; rather than; not including; leave out; leaving out; rule out; ruling out; filter out; get rid of; no more; do not include; do not use; do not show; do not add; do not consider; never include; never use; never show; stop using; leave off
+cue exclusion: exclude; excluding; excludes; excluded; except; excepting; without; avoid; avoiding; skip; omit; omitting; minus; other than; apart from; aside from; instead of; rather than; not including; leave out; leaving out; rule out; ruling out; filter out; get rid of; no more; do not include; do not use; do not show; do not add; do not consider; never include; never use; never show; stop using; leave off; don't include; don't show; don't list; don't want; do not want; don't need; do not need; didn't include; never list; never return; never give; never send; keep out; left out; leave off; take out; drop; ignore; ignoring; remove; removing; no need for; rather not see
 cue contrast: but; however; rather; instead; but not; and not; though
-cue correction: actually; wait; no wait; sorry; correction; i meant; i mean; scratch that; forget that; ignore that; disregard that; never mind; my mistake; i was wrong; that was wrong; that's wrong; not quite; to correct; let me correct; update; change of plans; on second thought; let me rephrase; to clarify
+cue correction: actually; wait; no wait; sorry; correction; i meant; i mean; scratch that; forget that; ignore that; disregard that; never mind; my mistake; i was wrong; that was wrong; that's wrong; not quite; to correct; let me correct; update; change of plans; on second thought; let me rephrase; to clarify; oops; mix-up; mix up; wrong one; the wrong; got that wrong; i got it wrong; hold on; change of plan; change of plans; i should have said; correct myself; quick fix; disregard what i said; never mind the previous
 cue persist: from now on; going forward; henceforth; always; for the rest of; from here on; until further notice; by default; in all future; for all future
 cue revoke: never mind; forget that; disregard; stop using; no longer; cancel that; undo that; don't use anymore; do not use anymore; scrap that
 cue preference: prioritize; prioritise; prefer; ideally; preferably; especially; rank higher; focus on; emphasize; favor; favour; bonus if; the more the better; lean toward; give priority to; most interested in
@@ -314,11 +322,12 @@ cue focus_intro: i'm researching; i am researching; i'm working on; i am working
 cue only_marker: only; just; solely; exclusively; nothing but
 cue superlative_latest: latest; newest; most recent; last; current
 cue definition_frame: meaning of; definition of; what does; stand for; stands for; mean by
-cue topic_intro: as for; regarding; concerning; with regard to; with regards to; as regards; speaking of; talking about; when it comes to; in the case of; as to
+cue lead_in: quick question; quick check; quick note; quick context; last thing; one more thing; one more question; one other thing; by the way; oh and; oh, and; before i forget; real quick; just so you know; just a quick question; i forgot to ask; i meant to ask; heads up; for the record; out of curiosity; just curious; okay so; ok so; one thing; first of all; also; and also; next question; separately; on another note; unrelated but; now; so; okay; ok; alright; right; well; anyway; and; but; then; hmm; and so; okay, so; ok, so; so then; all right; now then; going back; one more time; remind me; tell me something
+cue topic_intro: as for; regarding; concerning; with regard to; with regards to; as regards; speaking of; talking about; when it comes to; in the case of; as to; going back to; back to; on the subject of; re; concerning the
 cue question_polite: any idea; does anyone know; anyone know; would you know; i wonder; i'm wondering; i am wondering; i'm curious; i am curious; can anyone tell me; could someone tell me; do you have any idea; could you; can you; would you; will you; could you please; can you please; would you please; do you know; do you happen to know; i was wondering; i'd like to know; i want to know; i need to know; i would like to know; tell me; let me know
-cue request_open: i want; i need; i'd like; i would like; i'm looking for; i am looking for; give me; get me; show me; find me; looking for; i require
+cue request_open: i want; i need; i'd like; i would like; i'm looking for; i am looking for; give me; get me; show me; find me; looking for; i require; i need you to; i want you to; i'd like you to; i would like you to; make sure you; make sure you're; make sure to; be sure to; please make sure you; could you make sure; can you make sure; would you mind; go ahead and; feel free to; don't forget to; remember to; i'd rather you; i would rather you; let's; let us; i need you to
 cue basis: considering; given; in light of; bearing in mind; keeping in mind; factoring in; taking
-cue backref_adv: earlier; before; previously; already; recently; yesterday; ago; then; originally
+cue backref_adv: earlier; before; previously; already; recently; yesterday; ago; then; originally; a while ago; a little while ago; a few minutes ago; some time ago; a moment ago; earlier on; in this chat; in this conversation; so far
 cue comparison_set: both; each; either; neither; the two; these two; those two; the pair; all of them; the three
 cue recall_intro: remind me; do you remember; can you remember; can you recall; do you recall; i forgot; i don't remember; i can't remember; remind me of
 cue ambient_adj: cold; hot; warm; cool; sunny; cloudy; windy; rainy; foggy; snowy; stormy; humid; dry; late; early; dark; light; dusk; dawn; noon; midnight
@@ -328,8 +337,8 @@ cue extrapose_comp: that; to; whether; if; like; as if; for
 cue injection: ignore previous instructions; ignore all previous instructions; ignore the above; ignore your instructions; ignore prior instructions; ignore the user; ignore the question; disregard the above; disregard previous; disregard all; disregard your; system prompt; you are now; act as; pretend to be; pretend you; new instructions; override your; reveal your; do not tell the user; forget everything; forget your instructions; from now on you; your new task; developer mode; jailbreak; as an ai; end of document; begin system
 cue alias_intro: officially; formally; also known as; also called; sometimes called; aka; a.k.a.; commonly known as; known as; better known as; often called; abbreviated as; short for; officially the; formally the
 cue definition_verb: refers to; refer to; is defined as; are defined as; means; mean; denotes; denote; stands for; stand for; is the term for; is a term for; is known as; are known as
-cue decision: we decided; i decided; we have decided; we've decided; i've decided; we agreed; i agreed; we chose; i chose; we picked; we selected; we settled on; let's go with; we'll use; we will use; the decision is; decided to; agreed to; agreed on
-cue decision_ref: decide; decided; decision; decisions; agree; agreed; agreement; chose; chosen; choose; picked; pick; selected; settled; resolved
+cue decision: we decided; i decided; we have decided; we've decided; i've decided; we agreed; i agreed; we chose; i chose; we picked; we selected; we settled on; let's go with; we'll use; we will use; the decision is; decided to; agreed to; agreed on; the team agreed; the team decided; the team chose; the team picked; the team settled; our team settled; our team decided; our team agreed; we all agreed; everyone agreed; everyone voted; we voted; we've agreed; we have agreed; it's official; its official; decision made; we're going with; we are going with; we went with; the team went with; the team has decided; the team picked; per what the team decided
+cue decision_ref: decide; decided; decision; decisions; agree; agreed; agreement; chose; chosen; choose; picked; pick; selected; settled; resolved; settle; settled; settling; conclude; concluded; vote; voted; went with; go with; going with; end up going with; ended up going with; call; verdict; official
 cue additive: also; as well; in addition; additionally; too; on top of that
 cue scoped: for this question; for this one; just this time; only this time; this once; for now only; for this request
 cue art_latest: latest; newest; most recent; final; current; revised; updated; new; recent; last; newer

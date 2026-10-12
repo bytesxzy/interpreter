@@ -22,10 +22,34 @@ local function verb_start(S, k)
 end
 
 -- returns kind, number-of-cue-chunks, cue text
+-- negated inclusion / want: "Don't include X", "Never list X", "I'd rather you didn't show X", "I don't want any X" -> an exclusion cue of 2-4 chunks
+local NEG_WANT = U.set({ "want", "need", "like" })
+local function negated_inclusion(S, k)
+  local c = C(S, k)
+  if not (c and c.single) then return nil end
+  local j
+  if c.unit.form == "never" then j = k + 1
+  elseif cat(c, "aux_do") or cat(c, "modal") or cat(c, "aux_have") then
+    local n = C(S, k + 1)
+    if n and n.single and P.is_neg(n) then j = k + 2 end
+  end
+  if not j then return nil end
+  local v = C(S, j)
+  if not (v and v.single and not v.masked) then return nil end
+  for _, a in ipairs(P.verb_analyses(S, v)) do
+    if a.form == "base" and not a.guessed and (a.act == "include" or a.act == "retrieve" or a.act == "constraint" or NEG_WANT[a.lemma]) then return j - k + 1 end
+  end
+  return nil
+end
+
 local function seg_start(S, k)
   local c = C(S, k)
   if not c or c.masked then return nil end
   local lex, units = S.lex, S.units
+  do
+    local nv = negated_inclusion(S, k)
+    if nv then return "exclusion", nv, S.an.original:sub(units[c.u1].s, units[C(S, k + nv - 1).u2].e) end
+  end
   local n = lex:cue_at("exclusion", units, c.u1)
   if n then
     -- count chunks covered by n units
