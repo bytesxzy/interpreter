@@ -159,9 +159,9 @@ T.test("GENERALISATION: entities and relations that appear nowhere in the implem
     { "What is the capital of Zorbland?", "Quillbert" },
     { "Who founded Quillon Labs?", "Mira Voss" },
     { "Who is the CEO of Quillon Labs?", "Mira Voss" },
-    { "What is the currency of Zorbland?", "the glim" },
+    { "What is the currency of Zorbland?", "glim" },
     { "What is the population of Zorbland?", "4 million" },
-    { "What is the mascot of Zorbland?", "the quokka" },          -- relation induced from a column name
+    { "What is the mascot of Zorbland?", "quokka" },          -- relation induced from a column name
     { "Where is Brindle Analytics headquartered?", "Quillbert" },  -- from a structured triple
     { "Who acquired Acme Robotics?", "Beta Systems" },
     { "What is the atomic number of Mercury?", "80" },

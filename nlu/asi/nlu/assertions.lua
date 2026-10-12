@@ -56,7 +56,10 @@ local function describe_np(S, ctx, np, expected, role)
     return { text = P.span_text(S, np), status = "pronoun", head_kind = "pronoun" }
   end
   local b = H.bind_np(S, ctx, np, expected, nil, role)
-  local d = { text = P.span_text(S, np), type = b.type or (b.top and b.top.type), status = b.status, head_kind = np.head_kind }
+  -- the descriptor text is the mention WITHOUT its leading determiner ("the quokka" -> "quokka"); the surface span stays recoverable from the offsets
+  local text = P.span_text(S, np)
+  if np.det and np.head_kind ~= "entity" then text = text:gsub("^%a+%s+", "", 1) end
+  local d = { text = text, type = b.type or (b.top and b.top.type), status = b.status, head_kind = np.head_kind }
   if b.top and (b.status == "resolved" or b.status == "unseen") then d.key = b.top.id
   elseif b.status == "ambiguous" then
     d.cands = U.map(b.cands or {}, function(c) return { id = c.id, type = c.type, p = c.p } end)

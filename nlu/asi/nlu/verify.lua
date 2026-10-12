@@ -11,7 +11,7 @@ local TU = require("asi.nlu.textutil")
 local V = {}
 V.STATUS = { "answerable", "potentially_answerable", "ambiguous", "contradictory", "insufficient", "unsupported", "not_applicable" }
 
-V.W = { conflict_gap = 0.30, hedge_weight = 0.5, undated_weight = 0.7, structured_bonus = 0.1 }
+V.W = { conflict_gap = 0.30, hedge_weight = 0.5, undated_weight = 0.7, structured_bonus = 0.1, min_strength = 0.4 }
 
 ---------------------------------------------------------------- small helpers
 local function year_of_key(k) if not k then return nil end return k // 10000 end
@@ -164,6 +164,7 @@ local function verify_assertions(kb, plan, reading, rel_id, known_role, ask_role
     end
   end
   local out = { supports = {}, refutes = {}, partial = {}, rejected = {}, n_assertions = #assertions }
+  local skip = plan.skip or {}   -- ablation switches: which verification checks are disabled (all enabled in production)
   for _, a in ipairs(assertions) do
     local rec = kb:record(a.record)
     local checks = { relation = true }
@@ -172,26 +173,30 @@ local function verify_assertions(kb, plan, reading, rel_id, known_role, ask_role
     local m = key_match(known_desc, variants)
     checks.entity = m or false
     local fails, flags = {}, {}
-    if rec and rec.duplicate_of then fails[#fails + 1] = "duplicate of " .. rec.duplicate_of .. " (does not corroborate)" end
-    if a.modality == "hypothetical" then fails[#fails + 1] = "hypothetical statement, not an assertion of fact" end
+    if rec and rec.duplicate_of and not skip.duplicates then fails[#fails + 1] = "duplicate of " .. rec.duplicate_of .. " (does not corroborate)" end
+    if a.modality == "hypothetical" and not skip.modality then fails[#fails + 1] = "hypothetical statement, not an assertion of fact" end
     if a.is_class then fails[#fails + 1] = "classification, not the requested relation" end
     if m == "candidate" then flags[#flags + 1] = "subject is ambiguous in the record" end
     if a.open_relation then flags[#flags + 1] = "relation word is not in the lexicon (open relation '" .. tostring(a.rel) .. "')" end
     local ty, tywhy = type_check(kb, ans_desc, answer_type)
+    if skip.type then ty = "ok" end
     checks.answer_type = ty
     if ty == "mismatch" then fails[#fails + 1] = tywhy elseif ty == "unknown" then flags[#flags + 1] = "answer type not established" end
     local tm, twhy = time_check(kb, plan, a, ref_year)
+    if skip.time then tm = "ok" end
     checks.time = tm
     if tm == "mismatch" then fails[#fails + 1] = twhy end
     local sm, swhy = source_check(kb, plan, rec)
+    if skip.source then sm = "ok" end
     checks.source = sm
     if sm == "mismatch" then fails[#fails + 1] = swhy end
     local ex, exwhy = excluded_by(kb, plan, ans_desc)
+    if skip.exclusion then ex = nil end
     checks.exclusion = ex == nil
     if ex then fails[#fails + 1] = exwhy end
     if #fails > 0 then
       out.rejected[#out.rejected + 1] = evidence_item(kb, a, "rejected", checks, { reasons = fails })
-    elseif a.polarity == "negative" then
+    elseif a.polarity == "negative" and not skip.polarity then
       out.refutes[#out.refutes + 1] = { assertion = a, item = evidence_item(kb, a, "refutes", checks, { flags = flags }), key = answer_key(kb, ans_desc) }
     else
       local weak = {}
@@ -199,9 +204,14 @@ local function verify_assertions(kb, plan, reading, rel_id, known_role, ask_role
       if tm == "undated" then flags[#flags + 1] = "undated" end
       if sm == "unverified" then flags[#flags + 1] = swhy end
       if a.modality == "hedged" then flags[#flags + 1] = "hedged ('reportedly', 'maybe', ...)" end
+      if reading.fuzzy then flags[#flags + 1] = "the question's entity name matched this record only through a spelling variant" end
       local entry = { assertion = a, key = answer_key(kb, ans_desc), desc = ans_desc, checks = checks, flags = flags, time = tm, source = sm,
         item = evidence_item(kb, a, "supports", checks, { flags = flags }), rec = rec }
-      if tm == "past_only" then
+      if reading.fuzzy then
+        entry.item.role = "partial"
+        entry.item.reasons = { "identity of the entity rests on a spelling correction ('" .. tostring(reading.text) .. "' -> '" .. tostring(reading.key) .. "')" }
+        out.partial[#out.partial + 1] = entry
+      elseif tm == "past_only" then
         entry.item.role = "historical"
         entry.item.reasons = { twhy }
         out.partial[#out.partial + 1] = entry
@@ -216,7 +226,7 @@ local function verify_assertions(kb, plan, reading, rel_id, known_role, ask_role
 end
 
 -- group supporting entries by answer; independence = distinct non-duplicate records
-local function group_answers(kb, entries)
+local function group_answers(kb, entries, skip_rel)
   local groups, order = {}, {}
   for _, e in ipairs(entries) do
     local g = groups[e.key]
@@ -229,7 +239,7 @@ local function group_answers(kb, entries)
     if not g.records[e.assertion.record] then
       g.records[e.assertion.record] = true
       g.n_records = g.n_records + 1
-      local w = (e.rec and e.rec.reliability or 0.5)
+      local w = skip_rel and 0.5 or (e.rec and e.rec.reliability or 0.5)
       if e.assertion.modality == "hedged" then w = w * V.W.hedge_weight end
       if e.time == "undated" then w = w * V.W.undated_weight end
       if e.assertion.structured then w = math.min(1, w + V.W.structured_bonus) end
@@ -353,8 +363,36 @@ local function reference_year(kb)
   return y
 end
 
+-- ABLATION ONLY ("retrieval without semantic verification"): entity identity + lexical ranking, no relation / type / time / polarity checks.
+-- The top records that mention the entity and share words with the relation are returned as "evidence" without being checked.
+local function run_untyped(kb, plan, res)
+  local readings = plan.subjects or {}
+  local rel = plan.relation and kb.lex:get_rel(plan.relation)
+  local terms = {}
+  if rel then
+    for _, n in ipairs(rel.nouns_to or {}) do for _, t in ipairs(TU.terms(n)) do terms[#terms + 1] = t end end
+    for _, v in ipairs(rel.verbs or {}) do for _, t in ipairs(TU.terms(v.lemma)) do terms[#terms + 1] = t end end
+  end
+  local cand = {}
+  for _, r in ipairs(readings) do for _, vkey in ipairs(kb:variants(r.key)) do for _, d in ipairs(kb.index:docs_mentioning(vkey)) do cand[d] = true end end end
+  local ranked = {}
+  for _, hit in ipairs(kb.index:search({ terms = terms, phrases = {} }, 200)) do if cand[hit.doc] then ranked[#ranked + 1] = hit end end
+  for d in pairs(cand) do
+    local found = false
+    for _, h in ipairs(ranked) do if h.doc == d then found = true end end
+    if not found then ranked[#ranked + 1] = { doc = d, score = 0 } end
+  end
+  for i = 1, math.min(3, #ranked) do
+    local doc = kb.index.docs[ranked[i].doc]
+    res.selected[#res.selected + 1] = { role = "supports", record = doc.id, quote = (doc.rec.text or ""):sub(1, 200), reliability = doc.rec.reliability, unverified = true }
+  end
+  res.status = (#res.selected > 0) and "answerable" or "unsupported"
+  res.untyped = true
+end
+
 -- lookup (single relation), including multi-hop chains
 local function run_lookup(kb, plan, res)
+  if plan.skip and plan.skip.typed then return run_untyped(kb, plan, res) end
   local ref_year = reference_year(kb)
   local readings = plan.subjects or {}
   res.checks_summary = { readings = #readings }
@@ -381,15 +419,25 @@ local function run_lookup(kb, plan, res)
       if not g.records[rf.assertion.record] then g.records[rf.assertion.record] = true; g.n_records = g.n_records + 1; g.strength = 1 - (1 - g.strength) * (1 - (rf.assertion.reliability or 0.5)) end
       all_refutes[#all_refutes + 1] = rf.item
     end
-    local groups = group_answers(kb, out.supports)
+    local groups = group_answers(kb, out.supports, plan.skip and plan.skip.reliability)
     local winner, conflict = resolve_groups(groups, refuted)
     per_reading[#per_reading + 1] = { reading = r, out = out, groups = groups, winner = winner, conflict = conflict, partial = out.partial }
   end
   res.rejected = all_rejected
   res.refuting = all_refutes
-  -- which readings have verified support?
+  -- which readings have verified support?  A winner resting only on low-reliability sources is NOT sufficient: it becomes partial evidence.
   local supported = {}
-  for _, pr in ipairs(per_reading) do if pr.winner then supported[#supported + 1] = pr end end
+  for _, pr in ipairs(per_reading) do
+    if pr.winner and pr.winner.strength < V.W.min_strength and not (plan.skip and plan.skip.reliability) then
+      for _, e in ipairs(pr.winner.entries) do
+        e.item.role = "partial"
+        e.item.reasons = { string.format("the only support is a low-reliability source (strength %.2f < %.2f)", pr.winner.strength, V.W.min_strength) }
+        pr.partial[#pr.partial + 1] = e
+      end
+      pr.winner = nil
+    end
+    if pr.winner then supported[#supported + 1] = pr end
+  end
   local any_conflict, any_partial, any_assertion, any_doc = false, false, false, false
   for _, pr in ipairs(per_reading) do
     if pr.conflict and pr.conflict.kind == "contradiction" then any_conflict = true end
@@ -486,6 +534,7 @@ end
 
 function V.run(kb, plan, opts)
   opts = opts or {}
+  if opts.skip then plan = U.shallow(plan); plan.skip = opts.skip end
   local res = { status = "not_applicable", reasons = {}, notes = {}, selected = {}, rejected = {}, conflicts = {}, conflicting_evidence = {}, partial_evidence = {},
     refuting = {}, topical = {}, plan_kind = plan.kind, knowledge_digest = kb:digest() }
   if plan.kind == "lookup" then

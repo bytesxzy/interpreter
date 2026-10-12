@@ -18,12 +18,14 @@ local function readings(ref, kb)
     return out, "resolved"
   end
   if (ref.status == "resolved" or ref.status == "unseen") and ref.resolved_id then
-    out[1] = { key = canon(ref.resolved_id), text = ref.text, type = ref.type, p = 1.0, via = ref.status }
+    local fuzzy
+    for _, c in ipairs(ref.candidates or {}) do if c.id == ref.resolved_id and c.fuzzy then fuzzy = c.fuzzy end end
+    out[1] = { key = canon(ref.resolved_id), text = ref.text, type = ref.type, p = 1.0, via = ref.status, fuzzy = fuzzy }
     return out, ref.status
   end
   if ref.status == "ambiguous" then
     for _, c in ipairs(ref.candidates or {}) do
-      if (c.p or 0) >= 0.08 then out[#out + 1] = { key = canon(c.id), text = c.name or ref.text, type = c.type, p = c.p, via = "candidate" } end
+      if (c.p or 0) >= 0.08 then out[#out + 1] = { key = canon(c.id), text = ref.text, matched_name = c.name, type = c.type, p = c.p, via = "candidate", fuzzy = c.fuzzy } end
     end
     return out, "ambiguous"
   end

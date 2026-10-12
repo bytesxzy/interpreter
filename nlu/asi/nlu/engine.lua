@@ -92,7 +92,15 @@ function E:process(text, call)
   local m = result.main
   local plan = Plan.build(m, self.kb)
   local evidence
-  if self.kb and plan.kind ~= "none" and not (self.flags.no_retrieval) then evidence = Verify.run(self.kb, plan) end
+  if self.kb and plan.kind ~= "none" and not (self.flags.no_retrieval) then
+    -- verification ablations (each flag disables exactly one check; production runs with none)
+    local skip
+    for flag, name in pairs({ v_no_time = "time", v_no_type = "type", v_no_source = "source", v_no_polarity = "polarity", v_no_duplicates = "duplicates",
+      v_no_reliability = "reliability", v_no_exclusion = "exclusion", v_no_modality = "modality", v_no_typed = "typed" }) do
+      if self.flags[flag] then skip = skip or {}; skip[name] = true end
+    end
+    evidence = Verify.run(self.kb, plan, { skip = skip })
+  end
   local rec = Record.build({ result = result, plan = plan, evidence = evidence, flags = self.flags, calibration = self.calibration,
     lexicon_revision = (self.kb and self.kb.lex or self.base_lexicon).revision, interpreter_version = Interp.VERSION, recent = recent_turns(call.memory, 3) })
   out.plan, out.evidence, out.record = plan, evidence, rec
