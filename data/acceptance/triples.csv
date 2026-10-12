@@ -1,0 +1,4 @@
+subject,relation,object,reliability
+Zorbland,mascot,the quokka,0.9
+Quillbert,located_in,Zorbland,0.9
+Brindle Analytics,headquarters,Quillbert,0.8

@@ -63,7 +63,7 @@ local function time_check(kb, plan, a, ref_year)
     if a.former or a.ended then return "past_only", "the record says this is no longer the case" end
     if a.valid_to and ref_year and year_of_key(a.valid_to) < ref_year then return "past_only", "valid only until " .. tostring(year_of_key(a.valid_to)) end
     if a.tense == "past" and not a.valid_from and not (a.as_of) then return "past_only", "stated in the past tense with no indication that it still holds" end
-    return dated and "ok" or "undated"
+    return "ok"   -- a present-tense statement is asserted to hold now (as of the record), dated or not
   elseif req.mode == "past_leaning" then
     if ev or a.former or a.ended or a.valid_to or a.tense == "past" then return "ok" end
     return "undated", "a present-tense fact answers a past-tense question only loosely"
@@ -312,8 +312,23 @@ local function topical(kb, plan, readings, handled_records, limit)
             local a = idx.assertions[aid]
             if a and not a.removed and not a.is_class and a.rel ~= plan.relation then others[#others + 1] = a.rel end
           end
+          -- instruction-like sentences are withheld from the quote (they stay in the record as untrusted content, never as text a reader could obey)
+          local rd = kb.reader_directed[rec.id]
+          local text = rec.text or ""
+          if rd then
+            local parts = {}
+            for _, f in ipairs(rec.text_fields or {}) do
+              local ft = rec.field_text[f] or ""
+              local cuts = {}
+              for _, x in ipairs(rd) do if x.field == f then cuts[#cuts + 1] = x end end
+              table.sort(cuts, function(a, b) return a.s > b.s end)
+              for _, x in ipairs(cuts) do ft = ft:sub(1, x.s - 1) .. "[sentence withheld: instruction-like content]" .. ft:sub(x.e + 1) end
+              parts[#parts + 1] = ft
+            end
+            text = table.concat(parts, "\n")
+          end
           out[#out + 1] = { record = doc.id, entity = r.key, shares_relation_words = shared > 0 or nil, other_relations = #others > 0 and others or nil,
-            quote = (rec.text or ""):sub(1, 200), reliability = rec.reliability }
+            quote = text:sub(1, 200), reliability = rec.reliability, instruction_like = rd and #rd or nil }
         end
       end
     end
