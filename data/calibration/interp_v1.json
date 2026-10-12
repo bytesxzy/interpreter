@@ -1,0 +1,64 @@
+{
+  "fit": {
+    "cross_fit_ece_calibrated": [
+      0.2898,
+      0.26250000000000001
+    ],
+    "cross_fit_ece_raw": [
+      0.15579999999999999,
+      0.1552
+    ],
+    "digest": "414e9916febf8a7801bf331c8facd2dbf0675bea8cd186e90503ab8a1340093d",
+    "n": 1195,
+    "perturbations": [
+      "typo",
+      "filler",
+      "lowercase",
+      "drop_punct",
+      "drop_det"
+    ],
+    "predictor": "interpretation.confidence.semantic_raw",
+    "seed": 11,
+    "splits": [
+      "dev",
+      "val"
+    ],
+    "target": "all gold fields satisfied",
+    "valid_for": "noisy variants of the development/validation case distribution; NOT validated on other distributions",
+    "variants_per_case": 6
+  },
+  "method": "isotonic",
+  "n": 1195,
+  "steps": [
+    {
+      "hi": 0.32069999999999999,
+      "lo": 0,
+      "n": 175,
+      "value": 0.028571428571428571
+    },
+    {
+      "hi": 0.47470000000000001,
+      "lo": 0.32419999999999999,
+      "n": 52,
+      "value": 0.38461538461538464
+    },
+    {
+      "hi": 0.67020000000000002,
+      "lo": 0.47810000000000002,
+      "n": 204,
+      "value": 0.49509803921568629
+    },
+    {
+      "hi": 0.68569999999999998,
+      "lo": 0.67049999999999998,
+      "n": 40,
+      "value": 0.67500000000000004
+    },
+    {
+      "hi": 1,
+      "lo": 0.68610000000000004,
+      "n": 724,
+      "value": 0.71823204419889508
+    }
+  ]
+}

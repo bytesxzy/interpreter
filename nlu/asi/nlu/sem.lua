@@ -87,9 +87,19 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
   local all, states = {}, {}
   local best_cover_score = covers[1] and covers[1].score or 0
   local meter = ctx.meter
-  for ci, cover in ipairs(covers) do
-    local S = P.new_state(an, lex, lat, cover, ctx)
+  -- the repair variant of the best cover (misspelled function words, filler words) competes as one more reading, at an explicit cost
+  local run_covers = {}
+  for ci, cover in ipairs(covers) do run_covers[ci] = cover end
+  if covers[1] and not (ctx.flags and ctx.flags.no_repair) then
+    local rc = P.repair_cover(lex, an.units, covers[1], an.original)
+    if rc then run_covers[#run_covers + 1] = rc end
+  end
+  for ci, cover in ipairs(run_covers) do
+    local an_s = an
+    if cover.units then an_s = setmetatable({ units = cover.units }, { __index = an }) end   -- repaired reading: corrected unit forms
+    local S = P.new_state(an_s, lex, lat, cover, ctx)
     S.cover_index, S.cover_score = ci, cover.score
+    S.repairs = cover.repairs
     S.sentence = sent
     states[ci] = S
     local _, wrapper = P.strip_wrapper(S)
@@ -106,9 +116,21 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
     end
     for _, h in ipairs(hyps) do
       h.cover_index = ci
-      if ci > 1 then
+      if cover.repair then
+        local cost = 0
+        for _, r in ipairs(cover.repairs) do
+          -- an explicit, bounded price per repair: lower for a near-certain closed-class correction, higher for a doubtful content-word guess
+          local base = (r.kind == "ignored" and 0.15) or (r.kind == "function_word" and 0.08) or 0.18
+          cost = cost + base + 0.5 * (1 - (r.conf or 0.6))
+        end
+        h.factors[#h.factors + 1] = { name = "repair", v = -cost, note = "reading after repairs: " .. table.concat(U.map(cover.repairs, function(r)
+          return r.kind ~= "ignored" and string.format("'%s' read as '%s'", r.from, r.to) or string.format("'%s' ignored", r.word) end), "; ") }
+      elseif ci > 1 then
         h.factors[#h.factors + 1] = { name = "segmentation", v = -1.1 * math.min(1, (best_cover_score - cover.score) / math.max(best_cover_score, 1)) - 0.1,
           note = string.format("alternative segmentation #%d (cover score %.2f vs best %.2f)", ci, cover.score, best_cover_score) }
+      end
+      if sent.question_mark and h.speech_act == "statement" then
+        h.factors[#h.factors + 1] = { name = "question_mark_vs_statement", v = -0.9, note = "the sentence ends with '?' but this reading is a declarative statement" }
       end
       if #seg_cons.unparsed > 0 then
         h.factors[#h.factors + 1] = { name = "unparsed_segment", v = -0.3 * #seg_cons.unparsed, note = "a negation/preference cue had no parsable target" }
@@ -342,6 +364,7 @@ function Sem.render(res, ctx)
   end
   interp.ambiguity = res.ambiguity
   interp.confidence = { semantic_raw = U.round(top.p, 4), coverage = U.round(top.coverage or 0, 3) }
+  if S.repairs then interp.repairs = U.map(S.repairs, function(r) return { kind = r.kind, from = r.from, to = r.to, word = r.word, dist = r.dist } end) end
   -- provenance: the computed factors of the winning hypothesis, plus explicit rejections
   local prov = {}
   for _, f in ipairs(top.factors) do prov[#prov + 1] = { step = f.name, detail = f.note, value = U.round(f.v, 3) } end

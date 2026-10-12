@@ -218,6 +218,34 @@ function Lattice.build(an, lex, opts)
     end
   end
 
+  -- 5b. case-less text ("who founded acme robotics"): capitalisation carries no information, so a run of words unknown to the lexicon that ends in an
+  --     organisation / place HEAD WORD (robotics, labs, industries, university, ...) is a name guess typed by that head word.  Weak by construction.
+  do
+    local nocase = {}
+    for _, u in ipairs(units) do
+      if u.sent then
+        if nocase[u.sent] == nil then nocase[u.sent] = true end
+        if u.cap then nocase[u.sent] = false end
+      end
+    end
+    local k = 1
+    while k <= n do
+      local u = units[k]
+      if nocase[u.sent] and u.kind == "word" and not u.cap and not is_common(lex, u) and #u.form >= 3 then
+        local j = k
+        while true do
+          local nx = units[j + 1]
+          if nx and not nx.pre and nx.sent == u.sent and nx.kind == "word" and (lex:headcue(nx.form) or (not is_common(lex, nx) and #nx.form >= 3)) then j = j + 1 else break end
+        end
+        local head = j > k and lex:headcue(units[j].form) or nil
+        if head then
+          add(k, j, { kind = "name", type_guess = head, text = an.original:sub(units[k].s, units[j].e), multiword = true, weak = true, head_cue = true }, "name_guess", 0.7 + 0.3 * (j - k))
+        end
+        k = j + 1
+      else k = k + 1 end
+    end
+  end
+
   -- 6. fuzzy readings for UNKNOWN words (typos): proposals only, flagged and down-weighted. Known words are never reinterpreted.
   --    4-letter words are too short to trust. Entities need a capitalised surface (or a strong match); relation words / senses any case.
   for ui, u in ipairs(units) do

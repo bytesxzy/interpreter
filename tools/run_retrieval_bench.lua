@@ -5,6 +5,7 @@ local U = require("asi.nlu.util")
 local B = require("asi.nlu.rbench")
 local opts = { vocab = "dev", seeds = "1,2,3", facts = "40", modes = "baseline,system", failures = "0" }
 do local i = 1; while i <= #arg do local a = arg[i]; if a:sub(1, 2) == "--" then opts[a:sub(3)] = arg[i + 1]; i = i + 2 else i = i + 1 end end end
+if opts.templates then print("templates sha256: " .. B.load_templates(opts.vocab, opts.templates)) end
 local seeds = {}
 for s in opts.seeds:gmatch("%d+") do seeds[#seeds + 1] = tonumber(s) end
 local out = {}

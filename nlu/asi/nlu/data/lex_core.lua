@@ -91,6 +91,7 @@ class wh: what which who whom whose when where why how whether
 class aux_be: be is are was were been being am
 class aux_do: do does did
 class aux_have: have has had having
+class ignorable: please kindly just actually really basically literally honestly um uh uhm er erm hmm ah eh well so like okay ok anyway hey quite simply truly seriously totally definitely obviously clearly
 class copula_like: serve serves served serving function functions functioned functioning act acts acted acting stand stands stood standing
 class modal: will would shall should can could may might must
 class adv: very also just only even still already ever always often usually really quite rather too enough almost nearly mostly mainly especially particularly currently now then there here again together ago soon never sometimes maybe perhaps actually

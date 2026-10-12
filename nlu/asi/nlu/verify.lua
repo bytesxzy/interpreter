@@ -152,9 +152,14 @@ local function verify_assertions(kb, plan, reading, rel_id, known_role, ask_role
   local idx = kb.index
   local variants = kb:variants(reading.key)
   local seen, assertions = {}, {}
-  for _, vkey in ipairs(variants) do
-    local list = (known_role == "from") and idx:assertions_from(rel_id, vkey) or idx:assertions_to(rel_id, vkey)
-    for _, a in ipairs(list) do if not seen[a.id] then seen[a.id] = true; assertions[#assertions + 1] = a end end
+  -- evidence for a SPECIALISATION of the requested relation also answers it ("Who created X?" is answered by "P founded X"); the reverse never holds
+  local rel_ids = { rel_id }
+  if not (plan.skip and plan.skip.specialization) then for _, sid in ipairs(kb.lex:specializations(rel_id)) do rel_ids[#rel_ids + 1] = sid end end
+  for _, rid in ipairs(rel_ids) do
+    for _, vkey in ipairs(variants) do
+      local list = (known_role == "from") and idx:assertions_from(rid, vkey) or idx:assertions_to(rid, vkey)
+      for _, a in ipairs(list) do if not seen[a.id] then seen[a.id] = true; assertions[#assertions + 1] = a end end
+    end
   end
   local rel = kb.lex:get_rel(rel_id)
   if rel and rel.symmetric then
@@ -178,6 +183,7 @@ local function verify_assertions(kb, plan, reading, rel_id, known_role, ask_role
     if a.is_class then fails[#fails + 1] = "classification, not the requested relation" end
     if m == "candidate" then flags[#flags + 1] = "subject is ambiguous in the record" end
     if a.open_relation then flags[#flags + 1] = "relation word is not in the lexicon (open relation '" .. tostring(a.rel) .. "')" end
+    if a.rel ~= rel_id then checks.relation = "specialization"; flags[#flags + 1] = "evidence relation '" .. tostring(a.rel) .. "' is a specialisation of the requested relation '" .. tostring(rel_id) .. "'" end
     local ty, tywhy = type_check(kb, ans_desc, answer_type)
     if skip.type then ty = "ok" end
     checks.answer_type = ty

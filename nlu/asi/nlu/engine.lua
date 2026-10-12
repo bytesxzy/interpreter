@@ -96,7 +96,7 @@ function E:process(text, call)
     -- verification ablations (each flag disables exactly one check; production runs with none)
     local skip
     for flag, name in pairs({ v_no_time = "time", v_no_type = "type", v_no_source = "source", v_no_polarity = "polarity", v_no_duplicates = "duplicates",
-      v_no_reliability = "reliability", v_no_exclusion = "exclusion", v_no_modality = "modality", v_no_typed = "typed" }) do
+      v_no_reliability = "reliability", v_no_exclusion = "exclusion", v_no_modality = "modality", v_no_typed = "typed", v_no_specialization = "specialization" }) do
       if self.flags[flag] then skip = skip or {}; skip[name] = true end
     end
     evidence = Verify.run(self.kb, plan, { skip = skip })

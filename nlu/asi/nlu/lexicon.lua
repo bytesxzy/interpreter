@@ -749,6 +749,25 @@ function L:build_spell(parent_spell)
   return sp
 end
 
+-- closed-class words (wh-words, auxiliaries, determiners, prepositions, pronouns, conjunctions): the words whose misspelling destroys syntax.  Kept in a
+-- separate index so that a typo is read as a function word only through the explicit, penalised repair pass (asi.nlu.parse repair_cover).
+local FUNCTION_CLASSES = { "wh", "aux_do", "aux_be", "aux_have", "modal", "det", "prep", "pron", "pron_poss", "conj", "polite" }
+function L:function_spell()
+  local root = self
+  while root.parent do root = root.parent end
+  if root._fn_spell and root._fn_spell_rev == root.revision then return root._fn_spell end
+  local Spell = require("asi.nlu.spell")
+  local sp = Spell.new()
+  for _, cls in ipairs(FUNCTION_CLASSES) do
+    local words = {}
+    for form in pairs(root.class_words[cls] or {}) do words[#words + 1] = form end
+    table.sort(words)
+    for _, form in ipairs(words) do if #form >= 3 and not form:find("[%s']") then sp:add(form, 5, cls) end end
+  end
+  root._fn_spell, root._fn_spell_rev = sp, root.revision
+  return sp
+end
+
 ---------------------------------------------------------------- relation induction from dataset schema names
 -- "founded_by" -> passive verb (found, subj=to); "ceo_of" -> noun "ceo"; "headquarters_location" -> noun; "has_capital" -> noun "capital"
 function L:induce_relation(name, spec)

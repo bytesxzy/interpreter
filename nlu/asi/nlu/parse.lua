@@ -36,6 +36,9 @@ local function merge_copula_like(S, spans)
   return out
 end
 
+-- repair variant of a cover (see asi.nlu.repair): misspelled words corrected through the lexicon, filler words ignored
+function P.repair_cover(lex, units, cover, original) return require("asi.nlu.repair").repair_cover(lex, units, cover, original) end
+
 function P.make_chunks(S, cover)
   local lex, units = S.lex, S.units
   local chunks = {}

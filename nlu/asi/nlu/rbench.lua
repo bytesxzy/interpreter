@@ -40,6 +40,17 @@ local VOCAB = {
     last = { "Bergstrom", "Okafor", "Villanueva", "Tanaka", "Petrov", "Moreau", "Kowalski", "Haddad", "Lindgren", "Quispe" },
     money = { "marl", "pesk", "dinor", "quill", "zent" },
   },
+  -- "heldout3": names here, TEMPLATES FROM AN INDEPENDENT AUTHOR (B.load_templates); written after the interpreter was last changed for this benchmark
+  heldout3 = {
+    onset = { "bel", "cav", "dun", "eri", "fol", "gru", "hix", "ivo", "jam", "kor", "lun", "myr", "nox", "opa", "pel", "qui" },
+    mid = { "ko", "ra", "zi", "ne", "tu", "ma", "pi", "so" },
+    coda_country = { "land", "stan", "ica", "mark", "gal" },
+    coda_city = { "ton", "vale", "mere", "ford", "burn", "gate" },
+    org = { "Dynamics", "Foundry", "Labs", "Holdings", "Systems", "Industries", "Group", "Networks" },
+    first = { "Amara", "Bjorn", "Chen", "Delia", "Emil", "Farah", "Gideon", "Hye", "Imran", "Jana" },
+    last = { "Alvarez", "Brennan", "Chowdhury", "Delacroix", "Eriksen", "Fofana", "Grigoryan", "Holm", "Ito", "Jankowski" },
+    money = { "dalon", "mirt", "sovik", "pelor", "tuvan" },
+  },
 }
 
 -- fact templates: {text, parsable}.  `parsable=false` marks paraphrases the extractor is NOT expected to understand (they measure recall loss honestly)
@@ -90,6 +101,23 @@ local QUESTIONS = {
     headquarters = { "Where are the headquarters of %O?", "In which city is %O headquartered?", "Where is %O's headquarters?" },
   },
 }
+
+TEMPLATES.heldout3, QUESTIONS.heldout3 = {}, {}
+
+-- load externally authored templates: JSON {relation: {facts: [...], questions: [...]}} -> vocabulary `vname`
+function B.load_templates(vname, path)
+  local f = assert(io.open(path, "rb"))
+  local raw = f:read("a")
+  f:close()
+  local obj = assert(U.json_decode(raw))
+  TEMPLATES[vname], QUESTIONS[vname] = {}, {}
+  for rel, lists in pairs(obj) do
+    TEMPLATES[vname][rel], QUESTIONS[vname][rel] = {}, {}
+    for _, t in ipairs(lists.facts or {}) do TEMPLATES[vname][rel][#TEMPLATES[vname][rel] + 1] = { t, true } end
+    for _, q in ipairs(lists.questions or {}) do QUESTIONS[vname][rel][#QUESTIONS[vname][rel] + 1] = q end
+  end
+  return U.sha256(raw)
+end
 
 local ANSWER_TYPE = { capital = "city", founder = "person", ceo = "person", currency = "currency", headquarters = "city" }
 
