@@ -428,6 +428,8 @@ function DIRECTIVES.verb(self, rest)
   self.verbs[lemma] = v
   for _, fm in ipairs(Morph.verb_forms(lemma)) do
     self:add_form(fm.form, { pos = "verb", lemma = lemma, feat = fm.feat, act = f.act })
+    -- a multiword verb ("track down", "take a look at") is one span in the lattice
+    if lemma:find(" ", 1, true) then self:trie_insert(fm.form, { kind = "actverb", lemma = lemma, feat = fm.feat, act = f.act }) end
   end
 end
 
@@ -714,7 +716,19 @@ function L:headcue(form)
 end
 
 function L:resource(key)
-  return self.resources[key] or (self.parent and self.parent:resource(key))
+  local r = self.resources[key] or (self.parent and self.parent:resource(key))
+  if r or type(key) ~= "string" then return r end
+  -- plural forms of a resource noun ("datasets", "versions", "files", "analyses" are not resources, "libraries" is not either)
+  if #key > 3 and key:sub(-1) == "s" and key:sub(-2) ~= "ss" then
+    local stem = key:sub(1, -2)
+    r = self.resources[stem] or (self.parent and self.parent:resource(stem))
+    if r then return r end
+    if key:sub(-2) == "es" then
+      stem = key:sub(1, -3)
+      r = self.resources[stem] or (self.parent and self.parent:resource(stem))
+    end
+  end
+  return r
 end
 
 function L:adj_reading(form)

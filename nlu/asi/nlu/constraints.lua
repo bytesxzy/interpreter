@@ -343,6 +343,8 @@ end
 -- unexplained content chunks (closed-class function words are not "content")
 function Cons.unexplained(S, h)
   local out = {}
+  -- a clause-suffix reading leaves everything before its first chunk unexplained
+  for _, pc in ipairs(S.prefix_chunks or {}) do out[#out + 1] = pc.idx end
   for k = S.first, S.last do
     local c = C(S, k)
     if not c.masked and not h.used[k] and not P.is_function_chunk(S, c) then out[#out + 1] = k end

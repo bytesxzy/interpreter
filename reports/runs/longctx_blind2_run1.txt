@@ -1,0 +1,47 @@
+# long-context blind wordings (longctx_wordings_heldout2) first run — engine commit e700f7d, file sha256 b1893a29d981a63d97c01ecb3a9fa1e5655e56443a2ce70abfa9b4efee6224ae
+external templates: data/eval/heldout/longctx_wordings_heldout2.json  sha256=b1893a29d981a63d97c01ecb3a9fa1e5655e56443a2ce70abfa9b4efee6224ae
+kind              turns pos         n success work/final   wall(s) false_mem
+backref_entity       10 begin       3    0.67       216      0.05     0.67
+backref_entity       10 middle      3    0.67       210      0.04     1.00
+backref_entity       10 end         3    1.00       206      0.04     0.33
+backref_entity      100 begin       3    0.33       184      0.22     0.33
+backref_entity      100 middle      3    0.33       160      0.26     0.00
+backref_entity      100 end         3    0.33       186      0.23     0.00
+correction           10 begin       3    0.00       118      0.03     0.00
+correction           10 middle      3    0.33       177      0.03     0.00
+correction           10 end         3    0.00        85      0.03     0.00
+correction          100 begin       3    0.00       150      0.25     0.33
+correction          100 middle      3    0.00       162      0.29     0.00
+correction          100 end         3    0.33       125      0.27     0.00
+exclusion            10 begin       3    0.67       156      0.02     0.00
+exclusion            10 middle      3    0.00       161      0.03     0.00
+exclusion            10 end         3    0.00       166      0.03     0.00
+exclusion           100 begin       3    0.67       171      0.22     0.00
+exclusion           100 middle      3    0.00       154      0.24     0.00
+exclusion           100 end         3    0.67       157      0.24     0.00
+buried_negation      10 begin       3    0.00       163      0.02     0.00
+buried_negation      10 middle      3    0.00       143      0.02     0.00
+buried_negation      10 end         3    0.00       173      0.03     0.00
+buried_negation     100 begin       3    0.00       156      0.27     0.00
+buried_negation     100 middle      3    0.00       157      0.29     0.00
+buried_negation     100 end         3    0.00       158      0.25     0.00
+similar_names        10 begin       3    0.00       203      0.04     0.00
+similar_names        10 middle      3    0.00       183      0.03     0.00
+similar_names        10 end         3    0.00       211      0.03     0.00
+similar_names       100 begin       3    0.00       194      0.23     1.00
+similar_names       100 middle      3    0.00       209      0.22     0.00
+similar_names       100 end         3    0.00       183      0.24     0.00
+decision             10 begin       3    0.33       191      0.03     0.67
+decision             10 middle      3    1.00       163      0.03     0.33
+decision             10 end         3    0.33       165      0.03     0.67
+decision            100 begin       3    0.33       139      0.23     0.00
+decision            100 middle      3    0.00       152      0.22     0.00
+decision            100 end         3    0.00       155      0.22     0.00
+pronoun_gap          10 begin       3    0.33        88      0.02     0.00  pronoun: right=1 honest-unresolved=2 WRONG=0
+pronoun_gap          10 middle      3    0.33        98      0.02     0.33  pronoun: right=1 honest-unresolved=2 WRONG=0
+pronoun_gap          10 end         3    0.33       136      0.02     0.00  pronoun: right=0 honest-unresolved=3 WRONG=0
+pronoun_gap         100 begin       3    0.67       141      0.23     0.00  pronoun: right=0 honest-unresolved=3 WRONG=0
+pronoun_gap         100 middle      3    0.67        73      0.22     0.33  pronoun: right=0 honest-unresolved=3 WRONG=0
+pronoun_gap         100 end         3    0.00       106      0.31     0.33  pronoun: right=0 honest-unresolved=3 WRONG=0
+
+OVERALL scenarios=126 success=0.246 [0.179,0.328]  memory recall=0.262 precision=0.407 false-memory/request=0.15

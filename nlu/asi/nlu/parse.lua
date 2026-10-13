@@ -85,6 +85,18 @@ local function merge_copula_like(S, spans)
           end
         end
       end
+      -- "has been the CEO of X", "had been the capital": a perfect auxiliary + "been" that introduces a noun phrase is one copula chunk
+      if cl and cl.aux_have and nx and nx.i == nx.j and units[nx.i].form == "been" and not units[nx.i].pre and after then
+        local fu = units[after.i]
+        local fcl = fu and lex:cats(fu.form) or {}
+        local verbish = false
+        for _, r in ipairs(fu and lex:readings(fu.form) or {}) do if r.pos == "verb" and (r.feat == "past" or r.feat == "pp" or r.feat == "ing") then verbish = true end end
+        if fu and not fu.pre and fu.kind ~= "punct" and not fcl.prep and not verbish and not fcl.neg_word and not fcl.adv then
+          out[#out + 1] = { i = sp.i, j = nx.j, kind = "word", readings = {}, text = sp.text .. " " .. nx.text, copula_like = true, past = (u.form == "had"), score = sp.score }
+          i = i + 2
+          goto continue
+        end
+      end
       if cl and cl.copula_become and not units[sp.i].pre and nx then
         local nu = units[nx.i]
         if nu and not nu.pre and nu.kind ~= "punct" and not (lex:cats(nu.form) or {}).prep then
@@ -138,6 +150,7 @@ function P.make_chunks(S, cover)
       elseif r.kind == "sense" then c.senses[#c.senses + 1] = r
       elseif r.kind == "relnoun" then c.relnouns[#c.relnouns + 1] = r.entry
       elseif r.kind == "relverb" then c.relverbs[#c.relverbs + 1] = r.entry
+      elseif r.kind == "actverb" then c.verbs = c.verbs or {}; c.verbs[#c.verbs + 1] = { pos = "verb", lemma = r.entry.lemma, feat = r.entry.feat, act = r.entry.act }
       elseif r.kind == "temporal" then c.temporal = r.expr
       elseif r.kind == "number" then c.number = r.num
       elseif r.kind == "literal" then c.literal = r.unit
@@ -431,6 +444,7 @@ P.backref_at = backref_at
 
 local parse_np
 local PARTICIPLE_PREP = U.set({ "in", "by", "throughout", "across", "within", "among" })
+local POSS_PRON = { its = "it", his = "he", her = "she", their = "they" }
 
 -- an unknown head noun with an entity argument ("the mascot of Zorbland", "Zorbland's mascot") may name an OPEN relation
 local function open_relnoun_alt(np, arg)
@@ -569,6 +583,17 @@ local function parse_np_core(S, k, opts)
     if kind == "entity" then
       np.cands = entity_cands(S, head.c)
       np.score = np.score + (#head.c.entities > 0 and 0.5 or 0.15)
+      -- a PLURAL common noun cannot classify a proper name ("the companies Google acquired" is not an entity called that): only singular nouns, titles and
+      -- other modifiers can stand before a name ("the company Apple", "Professor Smith", "CEO Dana Whitcombe")
+      for _, md in ipairs(np.mods) do
+        local mc = md.chunk
+        if md.kind == "mod" and mc and mc.single then
+          local pl = false
+          for _, r in ipairs(mc.senses or {}) do if r.num == "pl" then pl = true end end
+          for _, r in ipairs(mc.relnouns or {}) do if r.num == "pl" then pl = true end end
+          if pl then np.score = np.score - 0.8; np.plural_classifier = true end
+        end
+      end
     elseif kind == "typenoun" or kind == "concept" then
       np.senses = {}
       for _, r in ipairs(head.c.senses) do
@@ -584,7 +609,16 @@ local function parse_np_core(S, k, opts)
       for _, e in ipairs(head.c.relnouns) do if e.num == "pl" then np.plural = true end end
     elseif kind == "unknown" then
       np.score = np.score - 0.05
-      if head.cl.from_verb then np.score = np.score - 0.15; np.from_verb = true end
+      -- a lowercase unknown head after a named entity ("Google acquired", "Sequoia has") is rarely a noun phrase; an entity modifier does not make a compound
+      if head.c.single and not head.c.cap then
+        for _, md in ipairs(np.mods) do if md.kind == "entity_mod" then np.score = np.score - 0.4; break end end
+      end
+      if head.cl.from_verb then
+        np.score = np.score - 0.15; np.from_verb = true
+        -- "Google acquired": a proper name followed by a verb form is a clause, not a compound noun
+        local pv = hi > 1 and run[hi - 1].cl
+        if pv and pv.entity then np.score = np.score - 0.5 end
+      end
     end
     if (kind == "typenoun" or kind == "concept" or kind == "unknown") and head.c.single then
       local f = head.c.unit.form
@@ -679,7 +713,9 @@ local function parse_np_core(S, k, opts)
 end
 
 -- NP with optional possessor:  NP 's NP   (France's capital)  and  entity+relnoun compounds are handled in frames
-local TRANSPARENT_HEAD = U.set({ "name", "names", "identity", "location", "whereabouts" })
+local TRANSPARENT_HEAD = U.set({ "name", "names", "identity", "location", "whereabouts",
+  -- quantity / collection heads: "a list of organisations", "a handful of firms", "a couple of options" denote the things listed
+  "list", "lists", "handful", "couple", "bunch", "selection", "sample", "variety", "range", "assortment", "series", "group", "set" })
 function parse_np(S, k, opts)
   opts = opts or {}
   local key = k .. (opts.no_of and "n" or "") .. ":" .. (opts.depth or 0)
@@ -733,6 +769,24 @@ function parse_np(S, k, opts)
     end
   end
   for _, a in ipairs(parse_np_core(S, k, opts)) do out[#out + 1] = a end
+  -- "its currency", "his birthplace", "their founder": a possessive pronoun is the (anaphoric) argument of a relational noun
+  if not S.topic then
+    local extra = {}
+    for _, a in ipairs(out) do
+      local pd = a.poss_det
+      if a.head_kind == "relnoun" and pd and POSS_PRON[pd] and not a.of_arg and not a.possessor then
+        local c0 = C(S, a.c1)
+        local pform = POSS_PRON[pd]
+        local pnp = { head_kind = "pronoun", head = c0, pron = { form = pform, feats = S.lex:pron_feats(pform) or {}, cats = S.lex:cats(pform) or {}, possessive = pd },
+          u1 = c0.u1, u2 = c0.u2, c1 = c0.idx, c2 = c0.idx, nxt = c0.idx + 1, mods = {}, score = 0.1, notes = {} }
+        local cp = U.shallow(a)
+        cp.possessor = pnp
+        cp.score = a.score + 0.35
+        extra[#extra + 1] = cp
+      end
+    end
+    for _, e in ipairs(extra) do out[#out + 1] = e end
+  end
   -- ties: the reading that consumes more input first (a discourse-linked clause explains strictly more words), then a stable order
   table.sort(out, function(x, y)
     if x.score ~= y.score then return x.score > y.score end

@@ -1,0 +1,136 @@
+# heldout4 first run — engine commit e700f7d, templates sha256 dccda396d7f7b1c4147d3a98d2aa535fb20d36877de0757154433096fcd81e7b
+
+## template-level coverage (diagnostic)
+FACTS      123/360 = 0.342 [0.295,0.392]
+   [capital] 0/3  %K is governed from its capital, %C.                                 no assertion
+   [capital] 0/3  %K's capital, %C, is frequently mentioned in the press.              got capital(mention:belraland -> term:frequently)
+   [capital] 0/3  As anyone who has read about %K will know, its capital is %C.        no assertion
+   [capital] 0/3  As its capital, %K has chosen the city of %C.                        no assertion
+   [capital] 0/3  Fun fact: %K has %C as its capital.                                  no assertion
+   [capital] 0/3  It is %C that serves as the capital of %K.                           no assertion
+   [capital] 0/3  Located in %K, %C is the nation's capital.                           no assertion
+   [capital] 0/3  Most tour itineraries of %K include %C, its capital.                 got part_of
+   [capital] 0/3  Nowadays %C holds the status of national capital of %K.              no assertion
+   [capital] 0/3  Of all the cities in %K, %C is the one that serves as capital.       no assertion
+   [capital] 0/3  Press reports identify %C as the national capital of %K.             no assertion
+   [capital] 0/3  The capital city of %K goes by the name of %C.                       no assertion
+   [capital] 0/3  The country of %K, whose capital is %C, is rarely in the news.       got open:country
+   [capital] 0/3  The designation of %C as the capital of %K is widely accepted.       no assertion
+   [capital] 0/3  The government of %K sits in its capital, %C.                        no assertion
+   [capital] 0/3  The title of capital of %K belongs to %C.                            no assertion
+   [capital] 0/3  What most atlases list as the capital of %K is %C.                   no assertion
+   [capital] 0/3  When people talk about the capital of %K, they mean the city of %C.  no assertion
+   [capital] 0/3  Widely regarded as the capital of %K, %C is a regular entry in almanacs. no assertion
+   [ceo] 0/3  %O is run by %P, its chief executive.                                got leader
+   [ceo] 0/3  %P holds the post of managing director and chief executive at %O.    no assertion
+   [ceo] 0/3  %P is in charge of %O as its chief executive officer.                no assertion
+   [ceo] 0/3  %P occupies the chief executive's chair at %O.                       no assertion
+   [ceo] 0/3  As its chief executive, %P leads %O.                                 no assertion
+   [ceo] 0/3  At the helm of %O as chief executive stands %P.                      no assertion
+   [ceo] 0/3  Chief executive of %O, %P is a well-known figure in the industry.    no assertion
+   [ceo] 0/3  Heading %O as its chief executive is %P.                             no assertion
+   [ceo] 0/3  It is %P who heads %O as chief executive.                            got leader
+   [ceo] 0/3  None other than %P is the top executive at %O.                       no assertion
+   [ceo] 0/3  Press reports have %P running %O as chief executive.                 no assertion
+   [ceo] 0/3  The leadership of %O, in the role of chief executive, lies with %P.  no assertion
+   [ceo] 0/3  The person who runs %O is its chief executive, %P.                   no assertion
+   [ceo] 0/3  The post of chief executive at %O is held by %P.                     no assertion
+   [ceo] 0/3  The top job at %O, that of chief executive, belongs to %P.           no assertion
+   [currency] 0/3  %K, whose currency is the %X, rarely makes the international news.   no assertion
+   [currency] 0/3  According to the central bank, the %X is the unit of currency in %K. no assertion
+   [currency] 0/3  Anyone travelling to %K should know that its currency is the %X.     no assertion
+   [currency] 0/3  Banknotes and coins in %K are denominated in the %X, its official currency. no assertion
+   [currency] 0/3  It is the %X that serves as the legal tender of %K.                  no assertion
+   [currency] 0/3  Legal tender in %K is the %X.                                        no assertion
+   [currency] 0/3  Not many people know that the official currency of %K is the %X.     no assertion
+   [currency] 0/3  Official sources describe the %X as the currency of %K.              no assertion
+   [currency] 0/3  Reportedly, the %X is the money in everyday use in %K.               no assertion
+   [currency] 0/3  The %X is the monetary unit that %K uses officially.                 no assertion
+   [currency] 0/3  The %X serves as legal tender throughout %K.                         no assertion
+   [currency] 0/3  The %X's role as the currency of %K is undisputed.                   no assertion
+   [currency] 0/3  The currency that people use in %K is the %X.                        no assertion
+   [currency] 0/3  Visitors to %K will find that its currency is the %X.                no assertion
+   [currency] 0/3  What counts as the official currency of %K is the %X.                no assertion
+   [founder] 0/3  %O came into existence when %P set it up.                            no assertion
+   [founder] 0/3  %O is the creation of %P.                                            got open:creation
+   [founder] 0/3  %O is the organisation that %P founded.                              no assertion
+   [founder] 0/3  %O owes its existence to its founder, %P.                            no assertion
+   [founder] 0/3  %O's founder, %P, is a familiar name in business circles.            got founder(mention:pelragate dynamics -> term:familiar)
+   [founder] 0/3  %O, which %P created, is often mentioned in the business press.      no assertion
+   [founder] 0/3  %P is credited with having established %O.                           no assertion
+   [founder] 0/3  %P is the person behind the founding of %O.                          no assertion
+   [founder] 0/3  As its founder, %P brought %O into being.                            no assertion
+   [founder] 0/3  At the origin of %O stands %P, its founder.                          no assertion
+   [founder] 0/3  Created by %P, %O has grown into a well-known name.                  no assertion
+   [founder] 0/3  Credit for founding %O goes to %P.                                   no assertion
+   [founder] 0/3  Few dispute that %P set up %O.                                       no assertion
+   [founder] 0/3  Not many people know that %P established %O.                         no assertion
+   [founder] 0/3  Official filings list %P as the person who established %O.           no assertion
+   [founder] 0/3  Reportedly, %P was the one who founded %O.                           no assertion
+   [founder] 0/3  The creation of %O is attributed to %P.                              got open:creation
+   [founder] 0/3  The establishment of %O was the work of %P.                          got open:establishment
+   [founder] 0/3  The founding of %O by %P is well documented.                         no assertion
+   [headquarters] 0/3  %C is home to the headquarters of %O.                                no assertion
+   [headquarters] 0/3  %C is where %O is headquartered.                                     no assertion
+   [headquarters] 0/3  %O has a single headquarters, and it is in %C.                       no assertion
+   [headquarters] 0/3  %O lists %C as the site of its headquarters.                         no assertion
+   [headquarters] 0/3  %O, whose headquarters are in %C, rarely comments on rumours.        no assertion
+   [headquarters] 0/3  According to its own website, the headquarters of %O can be found in %C. no assertion
+   [headquarters] 0/3  Anyone looking for the headquarters of %O will find it in %C.        no assertion
+   [headquarters] 0/3  Based in %C, %O is a regular name in the business pages.             no assertion
+   [headquarters] 0/3  Industry sources place the headquarters of %O in %C.                 no assertion
+   [headquarters] 0/3  Reportedly, %O keeps its head office in %C.                          no assertion
+   [headquarters] 0/3  The corporate seat of %O is %C.                                      got open:seat
+QUESTIONS  219/360 = 0.608 [0.557,0.657]
+   [capital] 0/3  If I wanted to visit the capital of %K, which city would I go to?    intent=unknown status=no_interpretation
+   [capital] 0/3  Of all the cities in %K, which one is the capital?                   intent=unknown status=no_interpretation
+   [capital] 0/3  What is the name of the city that is the capital of %K?              intent=definition status=ok
+   [capital] 0/3  Which city has the status of capital in %K?                          intent=unknown status=no_interpretation
+   [capital] 0/3  Would you mind telling me the capital of %K?                         intent=definition status=ok
+   [ceo] 0/3  As for %O, who runs it?                                              got rel=leader known=from ask=to holder=it
+   [ceo] 0/3  Does anyone know who is in charge of %O as chief executive?          intent=unknown status=no_interpretation
+   [ceo] 0/3  I'd like to know who the managing director and chief executive of %O is? got rel=open:director known=to ask=from holder=the managing
+   [ceo] 0/3  Name the managing director and chief executive of %O?                intent=search status=ok
+   [ceo] 0/3  Which executive holds the top job at %O?                             got rel=open:hold known=from ask=to holder=the top job at Hixzigate Holdings
+   [ceo] 0/3  Who currently holds the position of chief executive at %O?           got rel=open:hold known=from ask=to holder=the position of chief executive at Cavzigate Industries
+   [ceo] 0/3  Who is at the helm of %O?                                            intent=unknown status=no_interpretation
+   [ceo] 0/3  Who is steering %O as its chief executive?                           got rel=seeks known=to ask=from holder=Cavpiton Labs
+   [ceo] 0/3  Who is the person that heads %O?                                     intent=definition status=ok
+   [ceo] 0/3  Who is the top executive at %O?                                      intent=definition status=ok
+   [ceo] 0/3  Who occupies the chief executive's chair at %O?                      got rel=open:occupy known=from ask=to holder=the chief executive's chair
+   [ceo] 0/3  Who's running %O these days?                                         intent=entity_description status=ok
+   [currency] 0/3  By what name is the currency of %K known?                            intent=unknown status=no_interpretation
+   [currency] 0/3  Tell me, what money do they use in %K?                               intent=unknown status=no_interpretation
+   [currency] 0/3  What currency are banknotes in %K denominated in?                    intent=definition status=ok
+   [currency] 0/3  What is the legal tender in %K?                                      got rel=currency known=nil ask=nil holder=-
+   [currency] 0/3  What is the name of the currency that %K uses?                       intent=definition status=ok
+   [currency] 0/3  What is the unit of money in %K?                                     intent=definition status=ok
+   [currency] 0/3  What kind of money does %K use?                                      intent=unknown status=no_interpretation
+   [currency] 0/3  What's the local currency in %K?                                     intent=definition status=ok
+   [currency] 0/3  Which currency has the status of legal tender in %K?                 intent=unknown status=no_interpretation
+   [currency] 0/3  Which currency is the official one in %K?                            intent=entity_description status=ok
+   [founder] 0/3  %O was started by whom?                                              intent=statement status=ok
+   [founder] 0/3  As for %O, who set it up?                                            intent=unknown status=no_interpretation
+   [founder] 0/3  Does anybody know who established %O?                                intent=unknown status=no_interpretation
+   [founder] 0/3  Is anyone able to say who got the company %O started?                intent=unknown status=no_interpretation
+   [founder] 0/3  Quick question: who first established the company %O?                intent=unknown status=no_interpretation
+   [founder] 0/3  What is the name of the person who founded %O?                       intent=definition status=ok
+   [founder] 0/3  Who brought %O into being?                                           got rel=acquirer known=from ask=to holder=Quinemere Industries
+   [founder] 0/3  Who do we have to thank for the creation of %O?                      intent=unknown status=no_interpretation
+   [founder] 0/3  Who is credited with founding %O?                                    intent=definition status=ok
+   [founder] 0/3  Who is the person responsible for setting up %O?                     intent=definition status=ok
+   [founder] 0/3  Who was behind the creation of %O?                                   intent=unknown status=no_interpretation
+   [founder] 0/3  Who was the first person to start up %O?                             intent=definition status=ok
+   [headquarters] 0/3  %O is headquartered where?                                           intent=statement status=ok
+   [headquarters] 0/3  Could you tell me which city hosts the headquarters of %O?           got rel=open:host known=from ask=to holder=the headquarters of Lunneton Foundry
+   [headquarters] 0/3  If I wanted to visit the headquarters of %O, which city would I go to? intent=unknown status=no_interpretation
+   [headquarters] 0/3  In what city can the headquarters of %O be found?                    intent=unknown status=no_interpretation
+   [headquarters] 0/3  What's the headquarters city of %O?                                  got rel=open:city known=from ask=to holder=Myrpigate Systems
+   [headquarters] 0/3  Where can I find the head office of %O?                              intent=unknown status=no_interpretation
+   [headquarters] 0/3  Where is the corporate seat of %O?                                   got rel=located_in known=from ask=to holder=the corporate seat of Eriziton Networks
+   [headquarters] 0/3  Which city is home to the headquarters of %O?                        intent=definition status=ok
+
+## retrieval benchmark (3 seeds x 40 facts)
+templates sha256: dccda396d7f7b1c4147d3a98d2aa535fb20d36877de0757154433096fcd81e7b
+baseline                   n=159   serious-error=1.000 [0.976,1.000]  top1-wrong-topic=0.083  contaminated@3=1.000  gold-in-top3=0.992  (never abstains)
+system                     n=159   serious-error=0.006 [0.001,0.035]  correct=0.192 wrong-answer=0.008 contaminated=0.000 abstained=0.800 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=1/18 retained=3 | answerable-with-unparsable-template=0 (abstained 0)

@@ -170,6 +170,8 @@ function M:mention(key, info)
     self.entities[key] = e
   end
   if info.type and not e.type then e.type = info.type end
+  if info.itype and not e.type and not e.itype then e.itype = info.itype end
+  if info.pname and not e.type then e.pname = true end
   if info.name and not e.names[info.name:lower()] then e.names[info.name:lower()] = info.name end
   if info.speaker == "user" then e.by_user = true end
   if info.speaker then e.by_speaker = e.by_speaker or {}; e.by_speaker[info.speaker] = true end
@@ -355,7 +357,7 @@ function M:observe_sentence(interp, meta)
     local w = e.w
     if r.antecedent and r.antecedent.key then w = 0.35 end -- re-mention through a pronoun
     if key then
-      local en = self:mention(key, { type = r.type or (r.antecedent and r.antecedent.type), name = (r.antecedent and r.antecedent.text) or r.text, w = w,
+      local en = self:mention(key, { type = r.type or (r.antecedent and r.antecedent.type), itype = r.itype, pname = r.pname, name = (r.antecedent and r.antecedent.text) or r.text, w = w,
         role = e.role, speaker = speaker, plural = r.plural, sent = meta.sent, weak = r.weak_name })
       keys[#keys + 1] = key
       if e.role == "focus" then self.focus = { key = key, turn = self.turn, text = r.text } end
@@ -370,7 +372,9 @@ function M:observe_sentence(interp, meta)
       local kr = interp.roles[interp.query.known_role or "from"]
       topic, ttext = ref_key(kr), kr and kr.text
     end
-    if topic and speaker == "user" then self.focus = { key = topic, turn = self.turn, text = ttext } end
+    -- a name whose only evidence is a sentence-initial capital ("Let me think ...") never becomes the focus of the conversation
+    local ten = topic and self.entities[topic]
+    if topic and speaker == "user" and not (ten and ten.weak) then self.focus = { key = topic, turn = self.turn, text = ttext } end
   end
   if interp.intent == "comparison" and interp.items then
     local ks = {}

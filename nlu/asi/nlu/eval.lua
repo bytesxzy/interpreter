@@ -126,6 +126,7 @@ local function tc_matches(c, spec)
   end
   local y = tonumber(val)
   if not y then return false end
+  if op == "as_of" then return c.op == "as_of" and (c.year == y or (c.eff_lo ~= nil and math.floor(c.eff_lo / 10000) == y)) end
   if op == "in" then return c.eff_lo ~= nil and c.eff_hi ~= nil and math.floor(c.eff_lo / 10000) == y and math.floor(c.eff_hi / 10000) == y end
   if op == "before" then return c.eff_hi ~= nil and c.eff_lo == nil and math.floor(c.eff_hi / 10000) <= y end
   if op == "after" then return c.eff_lo ~= nil and c.eff_hi == nil and math.floor(c.eff_lo / 10000) >= y end

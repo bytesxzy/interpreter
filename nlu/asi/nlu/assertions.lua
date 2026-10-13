@@ -178,10 +178,19 @@ local function copula_at(S, k)
   local past = (f == "was" or f == "were" or f == "had")
   local nxt, neg, used = k + 1, false, { [k] = true }
   local j = k + 1
+  local hedged_modal, future_modal
   if cat(c, "aux_have") and (f == "has" or f == "have" or f == "had") then
     -- "has been" / "had been": a perfect copula
     local b = C(S, k + 1)
     if b and b.single and b.unit.form == "been" and not barrier(b) then used[k + 1] = true; j = k + 2 else return nil end
+  elseif cat(c, "modal") then
+    -- "can be found in", "will be the capital": a modal + be is a copula (weak modals only hedge it)
+    local b = C(S, k + 1)
+    if b and b.single and not b.masked and not barrier(b) and cat(b, "aux_be") and (f == "can" or f == "will" or f == "must" or f == "shall" or f == "may" or f == "might" or f == "could" or f == "would" or f == "should") then
+      used[k + 1] = true; j = k + 2
+      hedged_modal = (f == "may" or f == "might" or f == "could" or f == "would" or f == "should")
+      future_modal = (f == "will" or f == "shall")
+    else return nil end
   elseif not (cat(c, "aux_be") or cat(c, "clitic_s")) then return nil end
   local skipped, former = {}, false
   while C(S, j) and C(S, j).single and not barrier(C(S, j)) and (P.is_neg(C(S, j)) or cat(C(S, j), "adv") or (C(S, j).temporal and C(S, j).temporal.kind == "marker")
@@ -192,7 +201,7 @@ local function copula_at(S, k)
     else used[j] = true end
     j = j + 1
   end
-  return { nxt = j, neg = neg, past = past, used = used, form = f, skipped = skipped, former = former, hedged = c.hedged, onset = c.onset }
+  return { nxt = j, neg = neg, past = past, used = used, form = f, skipped = skipped, former = former, hedged = c.hedged or hedged_modal, future = future_modal, onset = c.onset }
 end
 
 -- positions where the predicate may start after a subject NP ending at chunk `nxt`: directly, or after a comma-delimited appositive
@@ -858,6 +867,7 @@ function A:extract(text, meta)
             local q = qualifiers(self, S, used, { neg = a.neg, tense = a.tense, range = qualifier_range(S, a), former = a.copula and a.copula.former })
             if a.neg then q.polarity = "negative" end
             if a.copula and a.copula.hedged then q.modality = "hedged" end          -- "is said to be", "is believed to be"
+            if a.copula and a.copula.future then q.modality = "hypothetical" end    -- "will be": a prediction, not a present fact
             if S.attribution then q.attribution = S.attribution.text end
             local rel_obj = a.rel_obj
             local rec = { rel = a.rel, pattern = a.pattern, polarity = q.polarity, modality = q.modality, tense = q.tense, sent = sent.id,

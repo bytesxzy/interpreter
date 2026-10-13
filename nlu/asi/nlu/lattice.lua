@@ -99,6 +99,8 @@ function Lattice.build(an, lex, opts)
           add(i, m.j, { kind = "relnoun", entry = e }, len > 1 and "mwe" or "word_sense", (len > 1) and (1.6 + 0.4 * (len - 1)) or 0.6)
         elseif e.kind == "relverb" then
           add(i, m.j, { kind = "relverb", entry = e }, len > 1 and "mwe" or "word_sense", (len > 1) and (1.6 + 0.4 * (len - 1)) or 0.5)
+        elseif e.kind == "actverb" then
+          add(i, m.j, { kind = "actverb", entry = e }, "mwe", 1.6 + 0.4 * (len - 1))
         end
       end
     end

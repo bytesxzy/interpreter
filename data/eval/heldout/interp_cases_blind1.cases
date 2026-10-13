@@ -1,0 +1,170 @@
+B001 | basic_factual | Capital of Peru? | intent=factual_lookup;rel=capital;from=Peru;ask=to;atype=city
+B002 | basic_factual | Which city serves as the capital of Kestavia? | intent=factual_lookup;rel=capital;from=Kestavia;ask=to;atype=city
+B003 | basic_factual | Who is the founder of Pellucid Freight? | intent=factual_lookup;rel=founder;from=Pellucid Freight;ask=to;atype=person
+B004 | basic_factual | Please tell me who the chief executive of Siemens is. | intent=factual_lookup;rel=ceo;from=Siemens;ask=to;atype=person
+B005 | basic_factual | Where was Nikola Tesla born? | intent=factual_lookup;rel=birth_place;from=Nikola Tesla;ask=to;atype=city
+B006 | basic_factual | Gabriel García Márquez's birthplace? | intent=factual_lookup;rel=birth_place;from=Gabriel García Márquez;ask=to
+B007 | basic_factual | What currency do they use in Zembrova? | intent=factual_lookup;rel=currency;from=Zembrova;ask=to
+B008 | basic_factual | How many people live in Lagos? | intent=factual_lookup;rel=population;from=Lagos;ask=to;atype=number
+B009 | basic_factual | Population of Port Calloway? | intent=factual_lookup;rel=population;from=Port Calloway;ask=to;atype=number
+B010 | basic_factual | How tall is Mount Everest? | intent=factual_lookup;rel=height;from=Mount Everest;ask=to;atype=number
+B011 | basic_factual | Could you give me the atomic number of neon? | intent=factual_lookup;rel=atomic_number;from=neon;ask=to
+B012 | basic_factual | Who wrote Embers of the Tide? | intent=factual_lookup;rel=author;from=Embers of the Tide;ask=to;atype=person
+B013 | basic_factual | Which language is official in Brazil? | intent=factual_lookup;rel=official_language;from=Brazil;ask=to
+B014 | basic_factual | Sorry to bother you, but which continent is Kenya in? | intent=factual_lookup;rel=continent_of;from=Kenya;ask=to
+B015 | basic_factual | When was Nestlé founded? | intent=factual_lookup;rel=founded_on;from=Nestlé;ask=to;atype=date
+B016 | basic_factual | Quick question - how many moons does Neptune have? | intent=factual_lookup;rel=moons;from=Neptune;ask=to;atype=number
+B017 | basic_factual | Hi! Would you mind telling me what industry Norvane Systems is in? | intent=factual_lookup;rel=industry;from=Norvane Systems;ask=to
+B018 | basic_factual | How much does the Kelvane X2 cost? | intent=factual_lookup;rel=price;from=Kelvane X2;ask=to;atype=number
+B019 | basic_factual | Who invented the telephone? | intent=factual_lookup;rel=inventor;from=telephone;ask=to;atype=person
+B020 | basic_factual | Who is Barack Obama married to? | intent=factual_lookup;rel=spouse;from=Barack Obama;ask=to;atype=person
+B021 | direction | Which company acquired Fennimore Aerospace? | intent=factual_lookup;rel=acquirer;from=Fennimore Aerospace;ask=to;atype=company
+B022 | direction | Which companies has Wexcombe Capital bought? | rel=acquirer;to=Wexcombe Capital;ask=from;atype=company
+B023 | direction | Fitbit was bought by whom? | intent=factual_lookup;rel=acquirer;from=Fitbit;ask=to
+B024 | direction | Which novels were written by Imelda Strand? | rel=author;to=Imelda Strand;ask=from
+B025 | direction | By whom was The Salt Cartographer written? | intent=factual_lookup;rel=author;from=The Salt Cartographer;ask=to;atype=person
+B026 | direction | Which firm employs Bartholomew Quist? | rel=employer;from=Bartholomew Quist;ask=to
+B027 | direction | Name the startups Sequoia Capital has invested in. | rel=investor;to=Sequoia Capital;ask=from
+B028 | direction | Who was born in Nordavik? | rel=birth_place;to=Nordavik;ask=from;atype=person
+B029 | direction | Which countries use the euro? | rel=currency;to=euro;ask=from;atype=country
+B030 | direction | Which companies are headquartered in Zurich? | rel=headquarters;to=Zurich;ask=from;atype=company
+B031 | minimal_pair | Who acquired Vantrix Holdings? | intent=factual_lookup;rel=acquirer;from=Vantrix Holdings;ask=to
+B032 | minimal_pair | Who did Vantrix Holdings acquire? | intent=factual_lookup;rel=acquirer;to=Vantrix Holdings;ask=from
+B033 | minimal_pair | Which firms invested in Sundrel Energy? | rel=investor;from=Sundrel Energy;ask=to
+B034 | minimal_pair | Which firms did Sundrel Energy invest in? | rel=investor;to=Sundrel Energy;ask=from
+B035 | minimal_pair | Who does Ivo Kandarian work for? | rel=employer;from=Ivo Kandarian;ask=to
+B036 | minimal_pair | Who works for Ivo Kandarian? | rel=employer;to=Ivo Kandarian;ask=from
+B037 | minimal_pair | Where is Dunmarrow located? | rel=located_in;from=Dunmarrow;ask=to
+B038 | minimal_pair | What is located in Dunmarrow? | rel=located_in;to=Dunmarrow;ask=from
+B039 | minimal_pair | Which countries are members of the European Union? | rel=member_of;to=European Union;ask=from;atype=country
+B040 | minimal_pair | Which organisations is the European Union a member of? | rel=member_of;from=European Union;ask=to
+B041 | minimal_pair | What is Normandy part of? | rel=part_of;from=Normandy;ask=to
+B042 | minimal_pair | What is part of Normandy? | rel=part_of;to=Normandy;ask=from
+B043 | minimal_pair | Did Siemens acquire Brightwater Collective? | intent=verification;rel=acquirer;from=Brightwater Collective;to=Siemens;items=Siemens|Brightwater Collective
+B044 | minimal_pair | Did Brightwater Collective acquire Siemens? | intent=verification;rel=acquirer;from=Siemens;to=Brightwater Collective;items=Brightwater Collective|Siemens
+B045 | multiword | What is the population of Rio de Janeiro? | intent=factual_lookup;rel=population;from=Rio de Janeiro;ask=to;atype=number
+B046 | multiword | Who founded the University of Cape Town? | intent=factual_lookup;rel=founder;from=University of Cape Town;ask=to
+B047 | multiword | Who is the CEO of Harrowgate Analytics Group? | intent=factual_lookup;rel=ceo;from=Harrowgate Analytics Group;ask=to;atype=person
+B048 | multiword | Which currency does the United Arab Emirates use? | rel=currency;from=United Arab Emirates;ask=to
+B049 | multiword | What does price elasticity of demand mean? | intent=definition;concept=price elasticity of demand
+B050 | multiword | What is Voskuijlen scaling? | intent=definition;concept=Voskuijlen scaling
+B051 | multiword | Tell me about Port Calloway Harbour Authority. | intent=entity_description;subject=Port Calloway Harbour Authority
+B052 | multiword | Who wrote The Clockmaker of Dunmarrow? | intent=factual_lookup;rel=author;from=The Clockmaker of Dunmarrow;ask=to;atype=person
+B053 | multiword | How many employees does Deutsche Bank have? | intent=factual_lookup;rel=employees;from=Deutsche Bank;ask=to;atype=number
+B054 | ambiguous | Jaguar | amb=ambiguous
+B055 | ambiguous | Tell me about Amazon. | intent=entity_description;subject=Amazon;amb=ambiguous
+B056 | ambiguous | Population of Springfield? | rel=population;from=Springfield;amb=ambiguous
+B057 | ambiguous | Who is the CEO of Delta? | rel=ceo;from=Delta;amb=ambiguous
+B058 | ambiguous | Georgia | amb=ambiguous
+B059 | ambiguous | phoenix | amb=ambiguous
+B060 | ambiguous | what's oracle | amb=ambiguous
+B061 | ambiguous | How long does Mercury take to orbit the Sun? | rel=orbital_period;from=Mercury;amb=resolved
+B062 | ambiguous | Who founded the company Apple? | rel=founder;from=Apple;amb=resolved
+B063 | ambiguous | What is the capital of the country Georgia? | rel=capital;from=Georgia;ask=to;amb=resolved
+B064 | intent | Looking for firms offering carbon accounting software. | intent=search;pos=relation:offers
+B065 | intent | Show me startups that are seeking Series A funding. | intent=search;pos=relation:seeks
+B066 | intent | List every country that borders Qorvath. | intent=search
+B067 | intent | What are the main differences between Lloyds Bank and Barclays? | intent=comparison;items=Lloyds Bank|Barclays
+B068 | intent | Compare Ravencroft Logistics with Strelka Optics. | intent=comparison;items=Ravencroft Logistics|Strelka Optics
+B069 | intent | Define opportunity cost. | intent=definition;concept=opportunity cost
+B070 | intent | I'd like to know more about Cobalt Meridian. | intent=entity_description;subject=Cobalt Meridian
+B071 | intent | Is Tamsin Vell older than Rafferty Nunn? | intent=verification;items=Tamsin Vell|Rafferty Nunn
+B072 | intent | Did Google acquire DeepMind? | intent=verification;rel=acquirer;from=DeepMind;to=Google;items=Google|DeepMind
+B073 | intent | Why did Yarrowdale Brewing go bankrupt? | intent=causal_explanation
+B074 | intent | Why is the sky blue? | intent=causal_explanation
+B075 | intent | Explain how a heat pump works. | intent=explanation
+B076 | intent | Summarise the following text: The Tidewater merger closed in June and shares rose ten percent. | intent=task
+B077 | intent | I just started a new job at Lanternfish Software. | intent=statement
+B078 | intent | What did we decide about the venue again? | intent=conversation_recall
+B079 | negation | List the Nordic countries except Denmark. | intent=search;neg=entity:Denmark
+B080 | negation | What is the capital of Turkey? I do not mean the most populous city. | rel=capital;from=Turkey;neg=description:city
+B081 | negation | Find design studios in Lisbon but skip any agency. | intent=search;neg=type:agency;pos=geo:Lisbon
+B082 | negation | Recommend research labs in Finland, and exclude any hospital. | neg=type:hospital;pos=geo:Finland
+B083 | negation | Summarize the report, but leave out anything about pricing. | intent=task;neg=topic:pricing
+B084 | negation | Do not contact Wilhelmina Tosh about this. | pol=negative
+B085 | negation | I can't remember who founded Kestrel & Vane. | neg=none;rel=founder;from=Kestrel & Vane
+B086 | negation | Isn't Canberra the capital of Australia? | intent=verification;rel=capital;from=Australia;to=Canberra;neg=none
+B087 | negation | List Nobel laureates in literature who were not born in France. | intent=search;neg=entity:France
+B088 | negation | Name any cloud providers other than Amazon. | neg=entity:Amazon
+B089 | temporal | Who was the CEO of Ardenmoor Pharmaceuticals in 2012? | rel=ceo;from=Ardenmoor Pharmaceuticals;ask=to;tc=in:2012
+B090 | temporal | Who was chief executive of Nokia before 2014? | rel=ceo;from=Nokia;ask=to;tc=before:2014
+B091 | temporal | Which companies did Microsoft buy after 2015? | rel=acquirer;to=Microsoft;ask=from;tc=after:2015
+B092 | temporal | What was the population of Nairobi between 1990 and 2000? | rel=population;from=Nairobi;tc=between:1990-2000
+B093 | temporal | Who has been CEO of Orlenko Textiles since 2012? | rel=ceo;from=Orlenko Textiles;tc=since:2012
+B094 | temporal | Who was Canada's prime minister until 2015? | rel=prime_minister;from=Canada;tc=until:2015
+B095 | temporal | As of 2021, how many employees did Siemens have? | rel=employees;from=Siemens;tc=as_of:2021
+B096 | temporal | Who is the former CEO of Wexcombe Capital? | rel=ceo;from=Wexcombe Capital;temporal=past
+B097 | temporal | Find drone makers founded in 2019. | intent=search;tc=in:2019;pos=temporal:founded_on
+B098 | temporal | What was Apple's revenue in 2022? | rel=revenue;from=Apple;tc=in:2022
+B099 | temporal | from 2003 to 2007 who was the head of state of Belmorra? | rel=head_of_state;from=Belmorra;tc=between:2003-2007
+B100 | geographic | Find robotics companies in Finland. | intent=search;pos=geo:Finland
+B101 | geographic | Is there a decent plumber anywhere around Wexmoor? | pos=geo:Wexmoor
+B102 | geographic | Which breweries operate within Bavaria? | pos=geo:Bavaria
+B103 | geographic | Fintech startups across Southeast Asia | pos=geo:Southeast Asia
+B104 | geographic | Cinemas on Karsholm, please. | pos=geo:Karsholm
+B105 | geographic | I need solar installers based in Eldermoor. | pos=geo:Eldermoor
+B106 | comparative | Which is larger, Canada or Brazil? | intent=comparison;items=Canada|Brazil
+B107 | comparative | Is Mount Kilimanjaro taller than Mount Fuji? | intent=verification;items=Mount Kilimanjaro|Mount Fuji
+B108 | comparative | Which of the two firms, Quillfeather Labs or Harrowgate Analytics, has more employees? | intent=comparison;items=Quillfeather Labs|Harrowgate Analytics;rel=employees
+B109 | comparative | Which is cheaper, the Zorplex 9000 or the Zorplex 7000? | intent=comparison;items=Zorplex 9000|Zorplex 7000
+B110 | comparative | Who's older, Ludovic Haarsma or Katarzyna Ploszaj? | intent=comparison;items=Ludovic Haarsma|Katarzyna Ploszaj
+B111 | multi_turn | U: Who founded Kolvaris Shipping? // A: Kolvaris Shipping was founded by Calla Brennagh. // U: Where is it headquartered? | intent=factual_lookup;rel=headquarters;ctx=pronoun;ref=it>Kolvaris Shipping
+B112 | multi_turn | U: Tell me about Perpetua Moncrieff. // A: Perpetua Moncrieff is a Belmorran engineer and entrepreneur. // U: When was she born? | rel=birth_date;ctx=pronoun;ref=she>Perpetua Moncrieff
+B113 | multi_turn | U: Name three Nordic capitals. // A: 1. Oslo 2. Stockholm 3. Helsinki // U: How many people live in the second one? | rel=population;ctx=ordinal_reference;ref=the second one>Stockholm
+B114 | multi_turn | U: Suggest three Baltic ports. // A: Sure: Tallinn, Riga and Klaipeda. // U: Tell me more about the third. | intent=entity_description;ctx=ordinal_reference;ref=the third>Klaipeda
+B115 | multi_turn | U: I'm researching Quillfeather Labs for a partnership. // A: Understood, what would you like to know? // U: Who is the CEO of the company I mentioned earlier? | rel=ceo;ref=the company I mentioned earlier>Quillfeather Labs
+B116 | multi_turn | U: Who is the CEO of Nokia? // A: Pekka Lundmark. // U: Sorry, I meant Nokian Tyres. | intent=factual_lookup;rel=ceo;from=Nokian Tyres;ask=to
+B117 | multi_turn | U: What's the capital of Kestavia? // A: Dravik. // U: And its currency? | rel=currency;ctx=pronoun;ref=its>Kestavia
+B118 | multi_turn | U: Compare Siemens and Bosch. // A: Siemens is larger by revenue, while Bosch is privately held. // U: Which of the two has more employees? | intent=comparison;rel=employees;ctx=comparison_set
+B119 | multi_turn | Where is it headquartered? | rel=headquarters;ref=it>unresolved
+B120 | multi_turn | U: Hi // A: Hello! How can I help? // U: Who founded it? | rel=founder;ref=it>unresolved
+B121 | multi_turn | U: Book the Friday slot for the Harrowgate review. // A: Done, the review is booked for Friday. // U: Remind me what we agreed for the review. | intent=conversation_recall
+B122 | multi_turn | U: How many moons does Saturn have? // A: Saturn has well over a hundred confirmed moons. // U: What about Jupiter? | rel=moons;from=Jupiter
+B123 | multi_turn | U: Who wrote Ninefold? // A: Ninefold was written by Idris Vanterpool. // U: What else has he written? | rel=author;ask=from;ctx=pronoun;ref=he>Idris Vanterpool
+B124 | multi_turn | U: Name two Nobel laureates in physics. // A: Marie Curie and Albert Einstein. // U: Where was the first born? | rel=birth_place;ctx=ordinal_reference;ref=the first>Marie Curie
+B125 | multi_turn | U: Who is the CEO of Ilvanta Pharma? // A: Mirela Dacosta. // U: Same question for Sundrel Energy. | rel=ceo;from=Sundrel Energy
+B126 | multi_turn | U: Tell me about Karsholm. // A: Karsholm is an island in the Vesperian Sea. // U: What is its area? | rel=area;ctx=pronoun;ref=its>Karsholm
+B127 | instruction | From now on, use the 2021 dataset. | intent=instruction_update;inst=slot=dataset,persist=1
+B128 | instruction | Switch to version 3.2 of the pricing model. | intent=instruction_update;inst=slot=version,value=3.2
+B129 | instruction | Use the file sales_q3_final.csv instead. | intent=instruction_update;inst=slot=file,value=sales_q3_final.csv
+B130 | instruction | U: Please use the 2019 figures. // A: Using the 2019 figures. // U: Actually, make that the 2020 figures. | intent=instruction_update;inst=slot=figures,corr=1
+B131 | instruction | Going forward, only count the audited figures. | intent=instruction_update;inst=slot=figures
+B132 | instruction | Always answer in metric units from now on. | intent=instruction_update;inst=persist=1
+B133 | instruction | U: Use the US dataset for the analysis. // A: Understood, using the US dataset. // U: Actually, use the European dataset instead. | intent=instruction_update;inst=slot=dataset,corr=1
+B134 | typo | Waht is the captial of Belmorra? | intent=factual_lookup;rel=capital;from=Belmorra;ask=to
+B135 | typo | Who foudned Glimmerton Media? | intent=factual_lookup;rel=founder;from=Glimmerton Media;ask=to
+B136 | typo | Who is the cheif exectuive of Toyota? | rel=ceo;from=Toyota;ask=to
+B137 | typo | Wich currancy does Japan use | rel=currency;from=Japan;ask=to
+B138 | typo | Where was Nelson Mandella born? | rel=birth_place;ask=to
+B139 | typo | Is Canadaa a membre of NATO? | intent=verification;rel=member_of;to=NATO
+B140 | typo | Waht does vertcial integration mean? | intent=definition
+B141 | noise | who   founded    blythewood insurance ??? | rel=founder;from=blythewood insurance;ask=to
+B142 | noise | WHO WROTE ROMEO AND JULIET | rel=author;from=ROMEO AND JULIET;ask=to
+B143 | noise | Hey!!! quick q... where is Strelka Optics headquartered,,, thx | rel=headquarters;from=Strelka Optics;ask=to
+B144 | noise | population   of   Tokyo ,  please | rel=population;from=Tokyo
+B145 | noise | ...so um who exactly is the ceo of microsoft | rel=ceo;from=microsoft;ask=to
+B146 | malformed | . | status=no_interpretation
+B147 | malformed | ??? | status=no_interpretation
+B148 | malformed | 42 | status=no_interpretation
+B149 | malformed | the | status=no_interpretation
+B150 | malformed | and | status=no_interpretation
+B151 | unusual | Could you tell me whether Skype was ever bought by anyone? | rel=acquirer;from=Skype
+B152 | unusual | I wonder who founded the Halvorsen-Pike Group. | intent=factual_lookup;rel=founder;from=Halvorsen-Pike Group;ask=to
+B153 | unusual | Paris, which country is it the capital of? | rel=capital;to=Paris;ask=from;atype=country
+B154 | unusual | It was Dana Whitcombe who founded Pellucid Freight, wasn't it? | intent=verification;rel=founder;from=Pellucid Freight;to=Dana Whitcombe;neg=none
+B155 | unusual | Was it Microsoft that bought LinkedIn? | intent=verification;rel=acquirer;from=LinkedIn;to=Microsoft;items=Microsoft|LinkedIn
+B156 | unusual | The company that Thorvald Eckhart founded in 2011, what is it called? | rel=founder;to=Thorvald Eckhart;ask=from;tc=in:2011;atype=company
+B157 | unusual | What does the word "founder" actually mean? | intent=definition;rel!=founder
+B158 | unusual | Who founded Founders Fund? | rel=founder;from=Founders Fund;ask=to
+B159 | unusual | Where is Leader Price headquartered? | rel=headquarters;from=Leader Price;ask=to
+B160 | unusual | Who developed Age of Empires? | rel=developer;from=Age of Empires;ask=to
+B161 | unusual | Where is Area 51? | rel=located_in;from=Area 51;ask=to
+B162 | unusual | I can't find the CEO of Ravencroft Logistics anywhere, who is it? | neg=none;rel=ceo;from=Ravencroft Logistics;ask=to
+B163 | unusual | Madrid is the capital of Spain, right? | intent=verification;rel=capital;from=Spain;to=Madrid
+B164 | unusual | My teacher says Alexander Fleming discovered penicillin in 1928, is that right? | intent=verification;rel=discoverer;from=penicillin;to=Alexander Fleming;tc=in:1928
+B165 | unusual | Is The Hague the capital of the Netherlands? | intent=verification;rel=capital;from=Netherlands;to=The Hague
+B166 | unusual | What I need to know is where Mirabeau Robotics has its head office. | rel=headquarters;from=Mirabeau Robotics;ask=to
+B167 | unusual | Who wrote The Employer's Handbook? | rel=author;from=The Employer's Handbook;ask=to
+B168 | unusual | Do you happen to know where Machu Picchu is? | rel=located_in;from=Machu Picchu;ask=to
+B169 | unusual | In Kestavia, which city is the capital? | rel=capital;from=Kestavia;ask=to;atype=city
+B170 | unusual | Who founded Not Impossible Labs? | rel=founder;from=Not Impossible Labs;ask=to;neg=none

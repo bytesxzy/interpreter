@@ -35,10 +35,51 @@ local function pick_main(rendered)
 end
 
 -- scan a sentence's units for discourse cues that change how it is remembered
+-- A stated decision is a decision VERB (decided, agreed, settled on, resolved, chose, picked, voted ...) with a collective or first-person subject nearby, or the
+-- noun "decision" introducing the outcome ("Team decision: X for Y").  Closed word lists, no phrase templates.
+local DECISION_VERBS = U.set({ "decided", "agreed", "settled", "resolved", "concluded", "determined", "opted", "committed", "chose", "chosen", "picked", "selected", "voted", "went" })
+-- verbs that are also ordinary actions ("I picked up the kids", "we went to the lake"): they count only with a collective subject and without a particle
+local WEAK_DECISION_VERBS = U.set({ "chose", "chosen", "picked", "selected", "voted", "went" })
+local DECISION_PARTICLES = U.set({ "up", "out", "off", "over", "on", "through", "back", "down", "away", "around", "in" })
+local DECISION_SUBJECTS = U.set({ "we", "our", "i", "us", "team", "group", "everyone", "engineers", "engineer", "committee", "board", "management", "company", "they", "squad", "staff",
+  "leadership", "council", "all", "crew", "department", "organisation", "organization" })
+local function decision_statement(an, ua, ub)
+  for i = ua, ub do
+    local f = an.units[i].form
+    if DECISION_VERBS[f] then
+      -- "went"/"go" only count as "went with" / "go with"; the others need a collective / first-person subject within the six words before
+      if f == "went" then
+        local nx = an.units[i + 1]
+        if not (nx and nx.form == "with") then goto continue end
+      end
+      if WEAK_DECISION_VERBS[f] then
+        local nx = an.units[i + 1]
+        if nx and DECISION_PARTICLES[nx.form] then goto continue end
+        for j = math.max(ua, i - 5), i - 1 do
+          local sf = an.units[j].form
+          if sf ~= "i" and DECISION_SUBJECTS[sf] then return true end
+        end
+        goto continue
+      end
+      for j = math.max(ua, i - 6), i - 1 do if DECISION_SUBJECTS[an.units[j].form] then return true end end
+      -- "It was decided by the whole team that ...", "The decision was made ..."
+      for j = math.max(ua, i - 3), i - 1 do if an.units[j].form == "was" or an.units[j].form == "been" or an.units[j].form == "is" then return true end end
+    elseif f == "decision" then
+      local nx, nx2 = an.units[i + 1], an.units[i + 2]
+      if i > ua and an.units[i - 1].form ~= "the" and nx and nx.pre and (nx.pre:find("colon") or nx.pre:find("dash")) then return true end       -- "Team decision: ..."
+      if nx and (nx.form == "is" or nx.form == "was") and nx2 and (nx2.form == "to" or (nx2.pre and nx2.pre:find("colon"))) then return true end
+    end
+    ::continue::
+  end
+  return false
+end
+
 local function sentence_cues(an, sent, lex)
   local cues = {}
   local ua, ub = Sem.sentence_unit_range(an, sent.id)
   if not ua then return cues end
+  -- a question about a decision is not a decision
+  if not sent.question_mark and decision_statement(an, ua, ub) then cues.decision = true end
   for i = ua, ub do
     local u = an.units[i]
     do
@@ -125,7 +166,8 @@ function I:interpret(text, call)
           found[#found + 1] = { key = only, c1 = si, c2 = si }
         elseif n == 0 and name_r then
           local key = "mention:" .. text:lower()
-          mem:mention(key, { type = name_r.type_guess, name = text, w = 0.2, role = "mention", speaker = speaker, weak = name_r.weak })
+          mem:mention(key, { type = name_r.type_guess, name = text, w = 0.2, role = "mention", speaker = speaker, weak = name_r.weak,
+            pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil })
           found[#found + 1] = { key = key, c1 = si, c2 = si }
         end
       end
@@ -193,7 +235,7 @@ function I:interpret(text, call)
           for key in pairs(mem.entities) do have[key] = true end
           local extra = {}
           for _, m in ipairs(Coref.mentions_from_state(res.S)) do
-            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak })
+            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak, pname = m.pname })
             extra[#extra + 1] = { key = m.key, c1 = m.c1, c2 = m.c2 }
           end
           if #extra > 0 then Coref.describe_entities(view, res.S, extra, speaker) end

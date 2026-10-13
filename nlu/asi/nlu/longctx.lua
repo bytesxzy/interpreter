@@ -273,9 +273,15 @@ function LC.score(sc, m)
     local act = {}
     for _, c in ipairs(m.context and m.context.active_constraints or {}) do if c.slot then act[c.slot] = tostring(c.value) end end
     chk("correction_active", act[ex.slot] == ex.value)
-    local joined = table.concat(texts, "\n")
-    chk("correction_retrieved", joined:find(ex.value .. " dataset", 1, true) ~= nil)
-    chk("stale_not_retrieved", joined:find(ex.stale .. " dataset", 1, true) == nil)
+    -- the corrected value must be among the retrieved memory items of the slot and the superseded one must not be (the wording around the value is the
+    -- user's own: "the 2021 dataset", "dataset 2021", "dataset named 2021", ...; the item records slot and value, so the check does not depend on wording)
+    local got_new, got_stale = false, false
+    for _, it in ipairs(m.context and m.context.memory and m.context.memory.selected or {}) do
+      if it.slot == ex.slot and tostring(it.value) == tostring(ex.value) then got_new = true end
+      if it.slot == ex.slot and tostring(it.value) == tostring(ex.stale) then got_stale = true end
+    end
+    chk("correction_retrieved", got_new)
+    chk("stale_not_retrieved", not got_stale)
   elseif ex.prohibition then
     local found = false
     for _, c in ipairs(m.context and m.context.active_constraints or {}) do

@@ -48,7 +48,7 @@ rel title: from=person to=role | noun=title; job; position | label=title
 rel nationality: from=person to=country | noun=nationality; citizenship | label=nationality
 rel spouse: from=person to=person | noun=spouse; husband; wife | verb=marry/subj=from | symmetric=1 | label=spouse
 rel birth_place: from=person to=place | noun=birthplace; place of birth | verb=bear/subj=from/prep=in | where=birth_place | label=birthplace | event=1
-rel birth_date: from=person to=date | noun=birthday; date of birth; birth date | when=birth_date | label=birth date | event=1
+rel birth_date: from=person to=date | noun=birthday; date of birth; birth date | verb=bear/subj=from | when=birth_date | label=birth date | event=1
 rel death_date: from=person to=date | noun=date of death; death date | verb=die/subj=from | when=death_date | label=death date | event=1
 rel age: from=agent to=number | noun=age | attr=1 | label=age
 

@@ -9,7 +9,7 @@ local U = require("asi.nlu.util")
 local C = {}
 C.W = {
   salience = 1.0, recency = 0.45, focus = 0.8, topical = 0.2, user_intro = 0.1, type_fit = 0.6, unknown_animacy = -0.3,
-  plural_mismatch = -0.6, none_personal = 0.30, none_demonstrative = 2.0, temperature = 0.35, resolve_p = 0.60, resolve_margin = 0.30,
+  plural_mismatch = -0.6, none_personal = 0.15, none_demonstrative = 2.0, temperature = 0.35, resolve_p = 0.60, resolve_margin = 0.30,
 }
 
 local TOPICAL = U.set({ "focus", "subject", "stmt_subject", "clause_subject", "arg:from", "item", "chain_arg" })
@@ -78,16 +78,27 @@ end
 
 ---------------------------------------------------------------- agreement
 -- returns ok, penalty, reason
+-- the type used for agreement: an attested type, or an inferred one that cannot be a supertype of person (an inferred 'agent' says nothing about animacy)
+local function effective_type(lex, e)
+  if e.type then return e.type end
+  local it = e.itype
+  if it and (lex:isa(it, "person") or not lex:isa("person", it)) then return it end
+  return nil
+end
+C.effective_type = effective_type
+
 local function agreement(lex, feats, e, form)
   local W = C.W
-  local t = e.type
+  local t = effective_type(lex, e)
   local an = tostring(feats.animate or "any")
   local person_like = t and lex:isa(t, "person") or false
   if an == "1" then
     if t and not person_like then return false, 0, "animate pronoun '" .. form .. "' cannot refer to a " .. t end
+    if not t and e.pname then return true, W.unknown_animacy * 0.2, "multiword capitalised name without organisation or place cues: probably a person" end
     if not t then return true, W.unknown_animacy, "animacy of the candidate is unknown" end
   elseif an == "0" then
     if person_like then return false, 0, "'" .. form .. "' does not refer to a person (" .. t .. ")" end
+    if not t and e.pname then return true, W.unknown_animacy * 1.5, "looks like a person's name; '" .. form .. "' is inanimate" end
     if not t then return true, W.unknown_animacy, "animacy of the candidate is unknown" end
   end
   local num = tostring(feats.number or "any")
@@ -193,9 +204,10 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
       local ok, pen, why = agreement(lex, feats, e, form)
       if not ok then rejected[#rejected + 1] = { id = key, type = e.type, reasons = { why } }
       else
-        local fit = (expected and e.type) and lex:compat(e.type, expected) or 0.25
+        local et = effective_type(lex, e)
+        local fit = (expected and et) and lex:compat(et, expected) or 0.25
         if fit == -1.0 then
-          rejected[#rejected + 1] = { id = key, type = e.type, reasons = { "type " .. tostring(e.type) .. " cannot fill " .. tostring(expected) } }
+          rejected[#rejected + 1] = { id = key, type = et, reasons = { "type " .. tostring(et) .. " cannot fill " .. tostring(expected) } }
         else
           local reasons = {}
           local sal = math.min(1, mem:salience(e)) * (e.weak and 0.4 or 1)
@@ -451,7 +463,8 @@ function C.mentions_from_state(S, text_of)
       local id, ty = next(ids)
       out[#out + 1] = { key = id, type = ty, name = text, c1 = k, c2 = k }
     elseif n == 0 and name_r then
-      out[#out + 1] = { key = "mention:" .. text:lower(), type = name_r.type_guess, name = text, weak = name_r.weak, c1 = k, c2 = k }
+      out[#out + 1] = { key = "mention:" .. text:lower(), type = name_r.type_guess, name = text, weak = name_r.weak, c1 = k, c2 = k,
+        pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil }
     end
   end
   return out

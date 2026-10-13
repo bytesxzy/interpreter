@@ -61,9 +61,24 @@ function H.bind_np(S, ctx, np, expected, h, role)
   local b = { cands = {}, status = "unresolved", expected = expected }
   if np.head_kind == "entity" then
     local scored = {}
+    -- "the country Georgia", "the company Apple": a type noun in front of a name tells which kind of thing the name denotes
+    local cls_types = {}
+    for _, md in ipairs(np.mods or {}) do
+      if md.kind == "mod" and md.chunk then
+        for _, sn in ipairs(md.chunk.senses or {}) do
+          if sn.sense and sn.sense.kind == "typenoun" and sn.sense.type then cls_types[#cls_types + 1] = sn.sense.type end
+        end
+      end
+    end
     for _, cd in ipairs(np.cands or {}) do
       local s, reasons = 0, {}
       local ty = cd.type
+      if ty and #cls_types > 0 then
+        local best = -1.0
+        for _, ct in ipairs(cls_types) do best = math.max(best, lex:compat(ty, ct)) end
+        if best >= 0.9 then s = s + 0.8; reasons[#reasons + 1] = "agrees with the type noun in front of the name"
+        elseif best == -1.0 then s = s - 0.8; reasons[#reasons + 1] = "contradicts the type noun in front of the name" end
+      end
       local fit
       if cd.unseen then
         s = s + W.unseen
@@ -111,6 +126,8 @@ function H.bind_np(S, ctx, np, expected, h, role)
       else b.status = "ambiguous" end
       b.margin = margin
       b.fit = live[1].fit
+      -- an open-set mention that fills a typed role is probably of that type ("Ninefold" as the work of 'author'); kept apart from attested types
+      if live[1].unseen and expected and not expected:find("|", 1, true) then b.itype = expected end
     else
       b.rejected = rejected
       b.status = "unresolved"
@@ -256,7 +273,7 @@ function H.finalize(S, ctx, h)
   if lex_bonus > 0 then h.factors[#h.factors + 1] = { name = "lexical_attestation", v = lex_bonus, note = "attested multiword/entity spans used" } end
 
   -- coverage
-  local total = math.max(1, content_chunks(S))
+  local total = math.max(1, content_chunks(S) + #(S.prefix_chunks or {}))
   local unexplained = Cons.unexplained(S, h)
   local explained = total - #unexplained
   local cov = explained / total

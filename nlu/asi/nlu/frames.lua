@@ -37,6 +37,9 @@ F.newh, F.addf, F.use_np = newh, addf, use_np
 
 local function is_be(c) return c and c.single and (cat(c, "aux_be") or cat(c, "clitic_s")) and not c.masked end
 local function is_do(c) return c and c.single and cat(c, "aux_do") and not c.masked end
+-- the auxiliary that licenses a subject-verb inversion with an object gap: do-support ("Which company did P found?") or the perfect ("Which company has P founded?")
+local function is_have_aux(c) return c and c.single and cat(c, "aux_have") and not c.masked and not barrier(c) end
+local function gap_aux(c) return (is_do(c) and "do") or (is_have_aux(c) and "have") or nil end
 local function is_prep(c, form) return c and c.single and not c.masked and cat(c, "prep") and (form == nil or c.unit.form == form) end
 
 -- a relational NP exposes (relation entry, argument NP, role of the known argument, role asked for)
@@ -300,13 +303,14 @@ function F.wh_do(S, out)
   for _, wh in ipairs(P.parse_wh(S, k0)) do
     if not wh.adverbial and wh.wh ~= "how_adj" then
       local dk = wh.nxt
-      local embedded_no_aux = S.embedded and not is_do(C(S, dk)) and not is_be(C(S, dk))
-      if is_do(C(S, dk)) or embedded_no_aux then
+      local embedded_no_aux = S.embedded and not gap_aux(C(S, dk)) and not is_be(C(S, dk))
+      local aux = gap_aux(C(S, dk))
+      if aux or embedded_no_aux then
         local nk = embedded_no_aux and dk or dk + 1
         local neg_chunk
         if P.is_neg(C(S, nk)) then neg_chunk = C(S, nk); nk = nk + 1 end
         for _, snp in ipairs(P.parse_np(S, nk, { no_of = false })) do
-          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do", finite_ok = embedded_no_aux })) do
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = aux or "do", finite_ok = embedded_no_aux })) do
             for _, e in ipairs(vp.analysis.entries) do
               local rel = S.lex:get_rel(e.rel)
               if rel and support_licensed(S, e, rel, wh, other(e.subj)) then

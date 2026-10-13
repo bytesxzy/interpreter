@@ -10,7 +10,7 @@ local F = require("asi.nlu.frames2")
 local Sem = {}
 
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
+  "request", "instruction", "exclusion_clause", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -32,8 +32,26 @@ local function ref(S, np, depth)
   depth = depth or 0
   if not np then return nil end
   local r = { text = P.span_text(S, np), kind = np.head_kind, span = { S.units[np.u1].s, S.units[np.u2].e }, chunk_range = { np.c1, np.c2 } }
+  -- "the company Apple", "CEO Dana Whitcombe": type nouns and titles in front of a name classify it; the mention is the name itself
+  if np.head_kind == "entity" and np.head and np.head.u1 > np.u1 and #(np.mods or {}) > 0 then
+    local all_cls = true
+    for _, md in ipairs(np.mods) do
+      local mc = md.chunk
+      if not (md.kind == "mod" and mc and ((mc.senses and #mc.senses > 0) or (mc.relnouns and #mc.relnouns > 0))) then all_cls = false end
+    end
+    if all_cls then
+      local first_mod = np.mods[1].chunk
+      r.classifier = S.an.original:sub(S.units[first_mod.u1].s, S.units[np.head.u1 - 1].e)
+      r.text = S.an.original:sub(S.units[np.head.u1].s, S.units[np.u2].e)
+    end
+  end
   if np.head then r.head = np.head.form end
   r.core = P.core_text(S, np)
+  -- a multiword capitalised name without organisation / place cues is probably a person's name (weak evidence for animate pronouns)
+  if np.head_kind == "entity" and np.head and np.head.names and np.head.names[1] then
+    local nm = np.head.names[1]
+    if nm.multiword and not nm.head_cue and not nm.type_guess then r.pname = true end
+  end
   local b = np.bound
   if b and b.deictic then r.deictic = b.deictic end
   if b and (b.expletive or b.indefinite) then r.non_anaphoric = b.expletive and "expletive" or "indefinite" end
@@ -46,6 +64,7 @@ local function ref(S, np, depth)
       else r.leading_candidate = b.top.id end -- ambiguous: a leading candidate is NOT a resolution
     end
     r.type = r.type or b.type
+    if b.itype and not r.type then r.itype = b.itype end
     if b.cands and #b.cands > 0 then
       r.candidates = U.map(b.cands, function(c) return { id = c.id, type = c.type, name = c.name, p = c.p, score = c.score, reasons = c.reasons, unseen = c.unseen or nil, weak = c.weak or nil, fuzzy = c.fuzzy } end)
     end
@@ -79,6 +98,28 @@ end
 Sem.ref = ref
 
 ---------------------------------------------------------------- run
+Sem.SUFFIX_TRIGGER = 1.0
+Sem.REPORT_WORDS = U.set({ "she", "he", "they", "someone", "somebody", "people", "told", "asked", "said", "says", "wants", "wanted", "suggested", "recommended", "thinks", "thought",
+  "claims", "claimed", "insists", "insisted", "advised", "reminded", "mentioned" })
+Sem.WEAK_INTENTS = { definition = true, entity_description = true, statement = true, unknown = true, explanation = true }
+local SUFFIX_JOINERS = U.set({ "but", "so", "and", "then", "because", "that", "whether", "while", "though", "although" })
+-- chunk indices (after the sentence's first chunk) where a new clause may start: after a comma / colon / dash / semicolon, after a joiner, or after "to" before a verb
+function Sem.clause_starts(S)
+  local out = {}
+  for k = S.first + 1, S.last - 1 do
+    local c, pc = S.chunks[k], S.chunks[k - 1]
+    if c and not c.masked then
+      local boundary = c.pre and (c.pre:find("comma") or c.pre:find("colon") or c.pre:find("dash") or c.pre:find("semi"))
+      if not boundary and pc and pc.single and not pc.masked and SUFFIX_JOINERS[pc.unit.form] then boundary = true end
+      if not boundary and pc and pc.single and not pc.masked and pc.unit.form == "to" and c.verbs then boundary = true end
+      if boundary then out[#out + 1] = k end
+    end
+  end
+  -- the later clauses are the likelier request; keep at most three
+  while #out > 3 do table.remove(out, 1) end
+  return out
+end
+
 function Sem.analyze_sentence(an, lat, lex, sent, ctx)
   ctx = ctx or {}
   local W = H.W
@@ -139,6 +180,69 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
       H.finalize(S, ctx, h)
       if meter then meter:tick("hypotheses", 1) end
       all[#all + 1] = h
+    end
+  end
+  -- Clause-suffix readings.  When no reading of the whole sentence is good, a clause that starts after a comma / "but" / "so" / "to" may be the request or
+  -- question proper ("Sorry to loop back, but who is the CEO of ...?", "Time to find some organisations ...").  Everything before it is then explicitly
+  -- unexplained (it counts against the reading like any other unexplained content), so a suffix reading wins only when the whole-sentence readings are poor.
+  if not (ctx.flags and ctx.flags.no_suffix) and covers[1] and states[1] then
+    local best, best_h = -math.huge, nil
+    for _, h in ipairs(all) do if h.score > best then best, best_h = h.score, h end end
+    -- only when the best whole-sentence reading is a fallback kind of reading (a bare definition / description / statement) or a poor one
+    if best_h == nil or Sem.WEAK_INTENTS[best_h.intent or "?"] or best < Sem.SUFFIX_TRIGGER then
+      local cover = covers[1]
+      local an_s = an
+      local S1 = states[1]
+      for si, p in ipairs(Sem.clause_starts(S1)) do
+        if meter and not meter:tick("frames", 1) then break end
+        local S2 = P.new_state(an_s, lex, lat, cover, ctx)
+        S2.cover_index, S2.cover_score, S2.sentence = 1, cover.score, sent
+        S2.first = p
+        S2.prefix_chunks = {}
+        for k = S1.first, p - 1 do
+          local ck = S2.chunks[k]
+          if ck and not P.is_function_chunk(S2, ck) then S2.prefix_chunks[#S2.prefix_chunks + 1] = ck end
+        end
+        -- "She told me to switch to the 2021 edition": an instruction reported from a third party is not an instruction to the system
+        local reported_prefix = false
+        for k = S1.first, p - 1 do
+          local ck = S2.chunks[k]
+          local f = ck and ck.single and ck.unit and ck.unit.form
+          if f and Sem.REPORT_WORDS[f] then reported_prefix = true end
+        end
+        local key = 100 + si
+        states[key] = S2
+        local _, wrapper = P.strip_wrapper(S2)
+        S2.wrapper = wrapper
+        local segs = Cons.find_segments(S2)
+        local seg_cons = Cons.parse_segments(S2, segs)
+        Cons.apply_masks(S2, segs)
+        S2.segs, S2.seg_cons = segs, seg_cons
+        local hyps = {}
+        for _, fname in ipairs(FRAME_FUNCS) do
+          local fn = F[fname]
+          if fn then fn(S2, hyps) end
+        end
+        for hi = #hyps, 1, -1 do
+          local hh = hyps[hi]
+          if reported_prefix and (hh.intent == "instruction_update" or hh.instruction) then table.remove(hyps, hi) end
+        end
+        for _, h in ipairs(hyps) do
+          h.cover_index = key
+          h.factors[#h.factors + 1] = { name = "clause_suffix", v = -0.15, note = "reading of the clause that starts at '" .. tostring(S2.chunks[p] and S2.chunks[p].text) .. "'; the words before it are not explained" }
+          if #seg_cons.unparsed > 0 then
+            h.factors[#h.factors + 1] = { name = "unparsed_segment", v = -0.3 * #seg_cons.unparsed, note = "a negation/preference cue had no parsable target" }
+          end
+          H.finalize(S2, ctx, h)
+          -- a clause reading is only justified when it explains clearly MORE of the sentence than the whole-sentence reading did
+          if best_h and (h.coverage or 0) < (best_h.coverage or 0) + 0.15 then
+            h.factors[#h.factors + 1] = { name = "suffix_explains_no_more", v = -1.0, note = "the clause reading does not explain more of the sentence than the whole-sentence reading" }
+            h.score = h.score - 1.0
+          end
+          if meter then meter:tick("hypotheses", 1) end
+          all[#all + 1] = h
+        end
+      end
     end
   end
   if ctx.flags and ctx.flags.no_hypotheses then

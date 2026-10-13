@@ -1,0 +1,262 @@
+# blind cases (interp_cases_blind1) first run — engine commit e700f7d, file sha256 05de53d954332bdae9b9ce1505f44a6fcd0972fa509929623b2a750772090357
+full/dev: n=170  all-fields accuracy=0.582 [0.507,0.654]  serious-error rate=0.400 [0.329,0.475]  (any-error 0.418)
+  ambiguous                    n=10  pass=3   acc=0.30 [0.11,0.60] serious=7
+  basic_factual                n=20  pass=10  acc=0.50 [0.30,0.70] serious=7
+  comparative                  n=5   pass=4   acc=0.80 [0.38,0.96] serious=1
+  direction                    n=10  pass=7   acc=0.70 [0.40,0.89] serious=3
+  geographic                   n=6   pass=4   acc=0.67 [0.30,0.90] serious=2
+  instruction                  n=7   pass=2   acc=0.29 [0.08,0.64] serious=5
+  intent                       n=15  pass=12  acc=0.80 [0.55,0.93] serious=3
+  malformed                    n=5   pass=5   acc=1.00 [0.57,1.00] serious=0
+  minimal_pair                 n=14  pass=9   acc=0.64 [0.39,0.84] serious=5
+  multi_turn                   n=16  pass=5   acc=0.31 [0.14,0.56] serious=11
+  multiword                    n=9   pass=9   acc=1.00 [0.70,1.00] serious=0
+  negation                     n=10  pass=3   acc=0.30 [0.11,0.60] serious=7
+  noise                        n=5   pass=2   acc=0.40 [0.12,0.77] serious=3
+  temporal                     n=11  pass=9   acc=0.82 [0.52,0.95] serious=2
+  typo                         n=7   pass=6   acc=0.86 [0.49,0.97] serious=1
+  unusual                      n=20  pass=9   acc=0.45 [0.26,0.66] serious=11
+  failing fields: rel=37 from=29 intent=22 ask=20 atype=9 to=9 ctx=8 ref=7 items=6 amb=5 inst=5 pos=5 neg=3 tc=3 pol=1
+
+FAILURES:
+B003 [basic_factual] "Who is the founder of Pellucid Freight?"
+    atype: got [agent] want [person]
+B005 [basic_factual] "Where was Nikola Tesla born?"
+    atype: got [place] want [city]
+B007 [basic_factual] "What currency do they use in Zembrova?" (SERIOUS)
+    from: got [text 'they' ~= 'Zembrova'] want [Zembrova]
+B008 [basic_factual] "How many people live in Lagos?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [number]
+    from: got [missing] want [Lagos]
+    intent: got [count] want [factual_lookup]
+    rel: got [-] want [population]
+B013 [basic_factual] "Which language is official in Brazil?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Brazil]
+    intent: got [definition] want [factual_lookup]
+    rel: got [-] want [official_language]
+B014 [basic_factual] "Sorry to bother you, but which continent is Kenya in?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Kenya]
+    intent: got [definition] want [factual_lookup]
+    rel: got [-] want [continent_of]
+B016 [basic_factual] "Quick question - how many moons does Neptune have?"
+    atype: got [celestial_body] want [number]
+B017 [basic_factual] "Hi! Would you mind telling me what industry Norvane Systems is in?" (SERIOUS)
+    ask: got [from] want [to]
+    from: got [missing] want [Norvane Systems]
+    rel: got [open:telling] want [industry]
+B018 [basic_factual] "How much does the Kelvane X2 cost?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [number]
+    from: got [missing] want [Kelvane X2]
+    intent: got [explanation] want [factual_lookup]
+    rel: got [-] want [price]
+B020 [basic_factual] "Who is Barack Obama married to?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    from: got [missing] want [Barack Obama]
+    intent: got [definition] want [factual_lookup]
+    rel: got [-] want [spouse]
+B022 [direction] "Which companies has Wexcombe Capital bought?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [company]
+    rel: got [-] want [acquirer]
+    to: got [missing] want [Wexcombe Capital]
+B023 [direction] "Fitbit was bought by whom?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Fitbit]
+    intent: got [statement] want [factual_lookup]
+    rel: got [-] want [acquirer]
+B027 [direction] "Name the startups Sequoia Capital has invested in." (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [investor]
+    to: got [missing] want [Sequoia Capital]
+B039 [minimal_pair] "Which countries are members of the European Union?" (SERIOUS)
+    ask: got [to] want [from]
+    rel: got [open:member] want [member_of]
+    to: got [text 'countries' ~= 'European Union'] want [European Union]
+B040 [minimal_pair] "Which organisations is the European Union a member of?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [European Union]
+    rel: got [-] want [member_of]
+B041 [minimal_pair] "What is Normandy part of?" (SERIOUS)
+    ask: got [from] want [to]
+    from: got [missing] want [Normandy]
+B043 [minimal_pair] "Did Siemens acquire Brightwater Collective?" (SERIOUS)
+    items: got [none] want [Siemens|Brightwater Collective]
+B044 [minimal_pair] "Did Brightwater Collective acquire Siemens?" (SERIOUS)
+    items: got [none] want [Brightwater Collective|Siemens]
+B056 [ambiguous] "Population of Springfield?" (SERIOUS)
+    amb: got [resolved] want [ambiguous]
+B057 [ambiguous] "Who is the CEO of Delta?" (SERIOUS)
+    amb: got [resolved] want [ambiguous]
+B059 [ambiguous] "phoenix" (SERIOUS)
+    amb: got [resolved] want [ambiguous]
+B060 [ambiguous] "what's oracle" (SERIOUS)
+    amb: got [resolved] want [ambiguous]
+B061 [ambiguous] "How long does Mercury take to orbit the Sun?" (SERIOUS)
+    from: got [missing] want [Mercury]
+    rel: got [-] want [orbital_period]
+B062 [ambiguous] "Who founded the company Apple?" (SERIOUS)
+    from: got [text 'the company Apple' ~= 'Apple'] want [Apple]
+B063 [ambiguous] "What is the capital of the country Georgia?" (SERIOUS)
+    amb: got [ambiguous] want [resolved]
+    from: got [text 'the country Georgia' ~= 'Georgia'] want [Georgia]
+B064 [intent] "Looking for firms offering carbon accounting software." (SERIOUS)
+    intent: got [definition] want [search]
+    pos: got [] want [relation:offers]
+B067 [intent] "What are the main differences between Lloyds Bank and Barclays?" (SERIOUS)
+    intent: got [definition] want [comparison]
+    items: got [none] want [Lloyds Bank|Barclays]
+B072 [intent] "Did Google acquire DeepMind?" (SERIOUS)
+    items: got [none] want [Google|DeepMind]
+B080 [negation] "What is the capital of Turkey? I do not mean the most populous city." (SERIOUS)
+    neg: got [] want [description:city]
+B081 [negation] "Find design studios in Lisbon but skip any agency." (SERIOUS)
+    intent: got [unknown] want [search]
+    pos: got [] want [geo:Lisbon]
+B082 [negation] "Recommend research labs in Finland, and exclude any hospital." (SERIOUS)
+    pos: got [] want [geo:Finland]
+B084 [negation] "Do not contact Wilhelmina Tosh about this." (SERIOUS)
+    pol: got [nil] want [negative]
+B085 [negation] "I can't remember who founded Kestrel & Vane." (SERIOUS)
+    from: got [missing] want [Kestrel & Vane]
+    rel: got [-] want [founder]
+B086 [negation] "Isn't Canberra the capital of Australia?" (SERIOUS)
+    from: got [missing] want [Australia]
+    intent: got [unknown] want [verification]
+    rel: got [-] want [capital]
+    to: got [missing] want [Canberra]
+B087 [negation] "List Nobel laureates in literature who were not born in France." (SERIOUS)
+    neg: got [] want [entity:France]
+B093 [temporal] "Who has been CEO of Orlenko Textiles since 2012?" (SERIOUS)
+    from: got [missing] want [Orlenko Textiles]
+    rel: got [-] want [ceo]
+    tc: got [] want [since:2012]
+B095 [temporal] "As of 2021, how many employees did Siemens have?" (SERIOUS)
+    tc: got [as_of:2021] want [as_of:2021]
+B101 [geographic] "Is there a decent plumber anywhere around Wexmoor?" (SERIOUS)
+    pos: got [] want [geo:Wexmoor]
+B104 [geographic] "Cinemas on Karsholm, please." (SERIOUS)
+    pos: got [] want [geo:Karsholm]
+B108 [comparative] "Which of the two firms, Quillfeather Labs or Harrowgate Analytics, has more employees?" (SERIOUS)
+    intent: got [unknown] want [comparison]
+    items: got [none] want [Quillfeather Labs|Harrowgate Analytics]
+    rel: got [-] want [employees]
+B112 [multi_turn] "U: Tell me about Perpetua Moncrieff. // A: Perpetua Moncrieff is a Belmorran engineer and entrepreneur. // U: When was she born?" (SERIOUS)
+    ctx: got [] want [pronoun]
+    ref: got [she>(none)] want [she>Perpetua Moncrieff]
+    rel: got [-] want [birth_date]
+B113 [multi_turn] "U: Name three Nordic capitals. // A: 1. Oslo 2. Stockholm 3. Helsinki // U: How many people live in the second one?" (SERIOUS)
+    ctx: got [] want [ordinal_reference]
+    ref: got [the second one>(none)] want [the second one>Stockholm]
+    rel: got [-] want [population]
+B114 [multi_turn] "U: Suggest three Baltic ports. // A: Sure: Tallinn, Riga and Klaipeda. // U: Tell me more about the third." (SERIOUS)
+    ctx: got [] want [ordinal_reference]
+    intent: got [definition] want [entity_description]
+    ref: got [the third>(none)] want [the third>Klaipeda]
+B116 [multi_turn] "U: Who is the CEO of Nokia? // A: Pekka Lundmark. // U: Sorry, I meant Nokian Tyres." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Nokian Tyres]
+    intent: got [correction] want [factual_lookup]
+    rel: got [-] want [ceo]
+B117 [multi_turn] "U: What's the capital of Kestavia? // A: Dravik. // U: And its currency?" (SERIOUS)
+    ctx: got [] want [pronoun]
+    ref: got [its>(none)] want [its>Kestavia]
+    rel: got [-] want [currency]
+B118 [multi_turn] "U: Compare Siemens and Bosch. // A: Siemens is larger by revenue, while Bosch is privately held. // U: Which of the two has more employees?" (SERIOUS)
+    ctx: got [] want [comparison_set]
+    intent: got [unknown] want [comparison]
+    rel: got [-] want [employees]
+B122 [multi_turn] "U: How many moons does Saturn have? // A: Saturn has well over a hundred confirmed moons. // U: What about Jupiter?" (SERIOUS)
+    from: got [missing] want [Jupiter]
+    rel: got [-] want [moons]
+B123 [multi_turn] "U: Who wrote Ninefold? // A: Ninefold was written by Idris Vanterpool. // U: What else has he written?" (SERIOUS)
+    ask: got [nil] want [from]
+    ctx: got [] want [pronoun]
+    ref: got [he>(none)] want [he>Idris Vanterpool]
+    rel: got [-] want [author]
+B124 [multi_turn] "U: Name two Nobel laureates in physics. // A: Marie Curie and Albert Einstein. // U: Where was the first born?" (SERIOUS)
+    ctx: got [] want [ordinal_reference]
+    ref: got [the first>(none)] want [the first>Marie Curie]
+    rel: got [located_in] want [birth_place]
+B125 [multi_turn] "U: Who is the CEO of Ilvanta Pharma? // A: Mirela Dacosta. // U: Same question for Sundrel Energy." (SERIOUS)
+    from: got [missing] want [Sundrel Energy]
+    rel: got [-] want [ceo]
+B126 [multi_turn] "U: Tell me about Karsholm. // A: Karsholm is an island in the Vesperian Sea. // U: What is its area?" (SERIOUS)
+    ctx: got [] want [pronoun]
+    ref: got [its>(none)] want [its>Karsholm]
+    rel: got [-] want [area]
+B128 [instruction] "Switch to version 3.2 of the pricing model." (SERIOUS)
+    inst: got [nil/version/nil/nil] want [slot=version,value=3.2]
+B129 [instruction] "Use the file sales_q3_final.csv instead." (SERIOUS)
+    inst: got [nil/file/nil/nil] want [slot=file,value=sales_q3_final.csv]
+B130 [instruction] "U: Please use the 2019 figures. // A: Using the 2019 figures. // U: Actually, make that the 2020 figures." (SERIOUS)
+    inst: got [] want [slot=figures,corr=1]
+    intent: got [task] want [instruction_update]
+B131 [instruction] "Going forward, only count the audited figures." (SERIOUS)
+    inst: got [] want [slot=figures]
+    intent: got [unknown] want [instruction_update]
+B132 [instruction] "Always answer in metric units from now on." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+B136 [typo] "Who is the cheif exectuive of Toyota?" (SERIOUS)
+    rel: got [open:exectuiv] want [ceo]
+B142 [noise] "WHO WROTE ROMEO AND JULIET" (SERIOUS)
+    from: got [text 'ROMEO' ~= 'ROMEO AND JULIET'] want [ROMEO AND JULIET]
+B143 [noise] "Hey!!! quick q... where is Strelka Optics headquartered,,, thx" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Strelka Optics]
+    rel: got [-] want [headquarters]
+B145 [noise] "...so um who exactly is the ceo of microsoft" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [microsoft]
+    rel: got [-] want [ceo]
+B151 [unusual] "Could you tell me whether Skype was ever bought by anyone?" (SERIOUS)
+    from: got [missing] want [Skype]
+    rel: got [-] want [acquirer]
+B153 [unusual] "Paris, which country is it the capital of?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [country]
+    rel: got [-] want [capital]
+    to: got [missing] want [Paris]
+B154 [unusual] "It was Dana Whitcombe who founded Pellucid Freight, wasn't it?" (SERIOUS)
+    intent: got [statement] want [verification]
+B155 [unusual] "Was it Microsoft that bought LinkedIn?" (SERIOUS)
+    from: got [missing] want [LinkedIn]
+    intent: got [unknown] want [verification]
+    items: got [none] want [Microsoft|LinkedIn]
+    rel: got [-] want [acquirer]
+    to: got [missing] want [Microsoft]
+B156 [unusual] "The company that Thorvald Eckhart founded in 2011, what is it called?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [company]
+    rel: got [-] want [founder]
+    to: got [missing] want [Thorvald Eckhart]
+B157 [unusual] "What does the word \"founder\" actually mean?" (SERIOUS)
+    intent: got [factual_lookup] want [definition]
+B161 [unusual] "Where is Area 51?" (SERIOUS)
+    from: got [text 'Area' ~= 'Area 51'] want [Area 51]
+B162 [unusual] "I can't find the CEO of Ravencroft Logistics anywhere, who is it?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Ravencroft Logistics]
+    neg: got [role:the CEO of Ravencroft Logistics anywhere,reference:it] want [none]
+    rel: got [-] want [ceo]
+B163 [unusual] "Madrid is the capital of Spain, right?" (SERIOUS)
+    from: got [missing] want [Spain]
+    intent: got [entity_description] want [verification]
+    rel: got [-] want [capital]
+    to: got [missing] want [Madrid]
+B164 [unusual] "My teacher says Alexander Fleming discovered penicillin in 1928, is that right?" (SERIOUS)
+    from: got [missing] want [penicillin]
+    intent: got [statement] want [verification]
+    rel: got [-] want [discoverer]
+    tc: got [] want [in:1928]
+    to: got [missing] want [Alexander Fleming]
+B166 [unusual] "What I need to know is where Mirabeau Robotics has its head office." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Mirabeau Robotics]
+    rel: got [-] want [headquarters]
+work=23619 wall=0.34s

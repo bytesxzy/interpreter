@@ -130,6 +130,40 @@ function F.parse_filters(S, k, target_np, limit_idx)
       end
       if done then goto continue_filters end
     end
+    -- object relative clause, with or without a relativiser:  "the companies (that) Google acquired",  "the startups Sequoia Capital has invested in"
+    -- the subject is a proper name; the verb is followed only by (a stranded preposition and) the end of the clause, so the target set fills the gap
+    if not (rel_marker and C(S, k) and C(S, k).single and cat(C(S, k), "aux_be")) then
+      local done
+      for _, snp in ipairs(P.parse_np(S, k, { no_of = true })) do
+        if snp.head_kind == "entity" or (snp.head_kind == "unknown" and snp.head and snp.head.cap) then
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, {})) do
+            if vp.voice == "active" then
+              for _, e in ipairs(vp.analysis.entries) do
+                local rel = lex:get_rel(e.rel)
+                if rel and not e.support and not e.as_only and not rel.open then
+                  local nxt, ok = vp.nxt, true
+                  if e.prep then
+                    local pc2 = C(S, nxt)
+                    if pc2 and pc2.single and not pc2.masked and pc2.unit.form == e.prep then nxt = nxt + 1 else ok = false end
+                  end
+                  local fc = C(S, nxt)
+                  local gap_end = (nxt > limit_idx) or (fc ~= nil and (fc.pre ~= nil or fc.temporal ~= nil or (fc.single and (cat(fc, "conj") or cat(fc, "prep")))))
+                  if ok and gap_end then
+                    filters[#filters + 1] = { kind = "relation", rel = rel.id, target_role = other(e.subj), value = snp, chunks = { start, nxt - 1 },
+                      span = { first = start, last = nxt - 1 }, adv = vp.tscope, polarity = vp.neg and "negative" or "positive", object_relative = true }
+                    k = nxt; done = true; progressed = true
+                    break
+                  end
+                end
+              end
+            end
+            if done then break end
+          end
+        end
+        if done then break end
+      end
+      if done then goto continue_filters end
+    end
     -- verb phrase (participial or relative)
     -- with a relativiser ("that currently offer ...") any finite form is fine; without one only participles can modify a noun
     local tmp = rel_marker and P.parse_vp(S, k, {}) or P.parse_vp(S, k, { participle_ok = true })
@@ -371,12 +405,27 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
         end
       end
     end
+    -- "give me a SUMMARY of the figures", "send me an overview of the results": a task noun requested through a retrieval verb is a task
+    local hf = np.head and np.head.single and np.head.unit and np.head.unit.form
+    if hf and (S.lex:cats(hf) or {}).tasknoun and (act == "retrieve" or act == "inform" or act == "task") then
+      local h = base("request:task_nominal")
+      h.op, h.intent = "task", "task"
+      h.task_verb, h.object, h.requires_context = hf, np.of_arg or np, true
+      addf(h, "task_noun", 0.9, "'" .. hf .. "' names a task (summary, analysis, overview ...) requested through the verb '" .. tostring(lemma) .. "'")
+      out[#out + 1] = h
+    end
     -- plural typenoun => search for a set;  singular typenoun after find/list => search too;  concept/unknown => define/describe
     local plural = np.plural
     -- "Find/Show/List <noun>" requests items of that kind, also when the noun is not in the lexicon
     if ((np.head_kind == "typenoun") and (plural or act == "retrieve")) or (np.head_kind == "unknown" and act == "retrieve") then
       local h = base("request:search")
       if np.head_kind == "unknown" then addf(h, "unknown_target_type", -0.1, "search target type is not in the lexicon") end
+      -- a target that swallows a named entity plus a lowercase word ("the companies Google acquired") has swallowed a clause, not named a set
+      if np.head_kind == "unknown" and np.head and np.head.single and not np.head.cap then
+        for _, md in ipairs(np.mods or {}) do
+          if md.kind == "entity_mod" then addf(h, "target_swallows_clause", -0.8, "the target phrase contains a named entity followed by a lowercase word: a clause, not a noun phrase"); break end
+        end
+      end
       h.op, h.intent, h.requires_evidence = "search", "search", true
       local filters, kf = F.parse_filters(S, np.nxt, np)
       finish_target_h(S, h, np, kf, filters)
@@ -855,6 +904,8 @@ function F.instruction(S, out)
           end
           local act_eff = a.act
           local ptc = C(S, np.nxt)
+          -- "swap the earlier dataset OUT": the object is what is being removed, not the new value
+          if REPLACE_VERBS[a.lemma] and ptc and ptc.single and not ptc.masked and (ptc.unit.form == "out" or ptc.unit.form == "off") then goto next_try end
           -- "KEEP hospitals OUT of ...", "LEAVE X OUT", "FILTER X OUT": a particle after the object turns the verb into an exclusion
           if PARTICLE_EXCLUDERS[a.lemma] and ptc and ptc.single and not ptc.masked and (ptc.unit.form == "out" or ptc.unit.form == "off" or ptc.unit.form == "away") then
             act_eff = "exclude"
@@ -885,6 +936,7 @@ function F.instruction(S, out)
           if persist then addf(h, "persist_cue", 0.3, "applies from now on") end
           F.mark_pron(h, np)
           out[#out + 1] = h
+          ::next_try::
         end
       end
     end
@@ -941,6 +993,87 @@ function F.instruction(S, out)
       end
     end
   end
+  -- A resource value stated as a fact about the resource, not as an imperative:
+  --   "The 2025 dataset replaces the one I named before."        (the subject is the NEW value)
+  --   "The right dataset is 2026."  "The dataset should be 2026 not what I said before."  "The one you should be using from now on is 2026."
+  do
+    local REPLACERS = U.set({ "replace", "replaces", "replacing", "supersede", "supersedes", "override", "overrides", "overrule", "overrules", "supplant", "supplants", "trump", "trumps" })
+    local CORRECT_ADJ = U.set({ "right", "correct", "proper", "actual", "real", "true", "intended", "new", "updated", "current" })
+    local function value_of_np(np)
+      if np.temporal_mod then return { year = np.temporal_mod.year, label = np.temporal_mod.text, expr = np.temporal_mod } end
+      if np.head_kind == "temporal" and np.head.temporal then return { year = np.head.temporal.year, label = np.head.temporal.text or P.span_text(S, np) } end
+      if np.head_kind == "number" then return { word = P.span_text(S, np), label = P.span_text(S, np) } end
+      if np.count then return { word = tostring(np.count), label = tostring(np.count) } end
+      return nil
+    end
+    local any_resource
+    for kk = S.first, S.last do
+      local ck = C(S, kk)
+      if ck and ck.single and S.lex:resource(ck.unit.form) then any_resource = S.lex:resource(ck.unit.form) end
+    end
+    -- candidate clause starts: the sentence start and every position after a comma / semicolon / colon / conjunction
+    local starts = { k }
+    for kk = k + 1, S.last do
+      local ck, pc = C(S, kk), C(S, kk - 1)
+      if ck and not ck.masked and ((ck.pre and (ck.pre:find("comma") or ck.pre:find("semi") or ck.pre:find("colon"))) or (pc and pc.single and cat(pc, "conj") and not pc.masked)) then starts[#starts + 1] = kk end
+    end
+    local np_list = {}
+    for _, st in ipairs(starts) do for _, np in ipairs(P.parse_np(S, st)) do np_list[#np_list + 1] = np end end
+    for _, np in ipairs(np_list) do
+      local slot = resource_slot(S, np) or ((np.head and np.head.single and np.head.unit.form == "one") and any_resource) or nil
+      local cb = C(S, np.nxt)
+      -- (a) "the 2025 dataset replaces the one I named before"
+      if slot and cb and cb.single and not cb.masked and REPLACERS[cb.unit.form] then
+        local val = value_of_np(np)
+        if val then
+          local h = newh(S, "instruction:subject_replaces", "instruction", "instruction_update", "instruct")
+          for _, s_ in ipairs(skipped) do h.used[s_] = true end
+          use_np(h, np); h.used[np.nxt] = true
+          for i = np.nxt + 1, S.last do if not C(S, i).masked then h.used[i] = true end end
+          h.instruction = { verb = "replace", act = "constraint", np = np, slot = slot, value = val, correction = true, persist = persist }
+          h.correction, h.persist = true, persist
+          addf(h, "resource_slot", 0.5, "the sentence says which '" .. slot .. "' replaces the earlier one")
+          addf(h, "replacement_statement", 0.5, "'" .. cb.unit.form .. "' marks the subject as the new value")
+          out[#out + 1] = h
+        end
+      end
+      -- (b) "the right dataset is 2026", "the dataset should be 2026 not what I said before", "the one you should be using from now on is 2026"
+      if slot then
+        local bk = np.nxt
+        -- skip a relative clause after "the one": "... you should be using from now on"
+        if np.head and np.head.single and np.head.unit.form == "one" then
+          local jj = bk
+          while C(S, jj) and not (C(S, jj).single and cat(C(S, jj), "aux_be") and C(S, jj + 1) and value_of_np((P.parse_np(S, jj + 1))[1] or {}) ) and jj < S.last do jj = jj + 1 end
+          bk = jj
+        end
+        local bc = C(S, bk)
+        -- optional modal: "should be", "must be", "needs to be", "will be"
+        local mk = bk
+        while C(S, mk) and C(S, mk).single and not C(S, mk).masked and (cat(C(S, mk), "modal") or cat(C(S, mk), "adv") or C(S, mk).unit.form == "to" or C(S, mk).unit.form == "need" or C(S, mk).unit.form == "needs") and mk < S.last do mk = mk + 1 end
+        local bc2 = C(S, mk)
+        if bc2 and bc2.single and not bc2.masked and cat(bc2, "aux_be") then
+          for _, vnp in ipairs(P.parse_np(S, mk + 1)) do
+            local val = value_of_np(vnp)
+            if val then
+              local adj_correct = false
+              for _, md in ipairs(np.mods) do if md.form and CORRECT_ADJ[md.form:lower()] then adj_correct = true end end
+              local h = newh(S, "instruction:resource_is_value", "instruction", "instruction_update", "instruct")
+              for _, s_ in ipairs(skipped) do h.used[s_] = true end
+              use_np(h, np); use_np(h, vnp)
+              for i = np.nxt, vnp.c1 do h.used[i] = true end
+              for i = vnp.nxt, S.last do if not C(S, i).masked then h.used[i] = true end end
+              h.instruction = { verb = "be", act = "constraint", np = np, slot = slot, value = val, correction = correction or adj_correct, persist = persist }
+              h.correction, h.persist = correction or adj_correct, persist
+              addf(h, "resource_slot", 0.5, "the sentence states which '" .. slot .. "' is the right one")
+              addf(h, "resource_is_value", 0.5, "a resource noun is equated with a value")
+              out[#out + 1] = h
+              break
+            end
+          end
+        end
+      end
+    end
+  end
   -- bare correction followed by a plain fragment: "Actually, the 2025 one."  handled as statement with correction flag
   if correction and #out == 0 then
     local nk = k
@@ -953,6 +1086,261 @@ function F.instruction(S, out)
       F.mark_pron(h, np)
       out[#out + 1] = h
       break
+    end
+  end
+end
+
+-- Exclusions and prohibitions that are NOT plain imperatives (F.instruction handles "Leave out X.", "Do not include X.", "Keep X out of ..."):
+--   passive / deontic   "Universities need to be excluded."  "Reposts should be left out."  "X are not to be included."  "make sure X are left out of the list"
+--   modal active        "The results should exclude X."  "Results must not contain any X."  "My brief says to exclude X."
+--   progressive         "We are ruling out X for this exercise."  "I'm leaving out X."
+--   wishes              "I don't want any X in the results."  "I'd rather not see any X."  "I'd really like X excluded."  "I'd rather you skipped X."
+--   states of affairs   "Anything involving X is off limits."  "No X in the output, please."
+--   a pronoun object    "If you come across any X, just drop them from the results."
+-- Each yields an instruction_update hypothesis shaped like the imperative ones, so memory treats it identically (a standing prohibition).
+local DEONTIC_WORDS = U.set({ "should", "must", "shall", "ought", "need", "needs", "needed", "supposed", "required", "expected" })
+local DIRECTIVE_WORDS = U.set({ "please", "ensure", "sure", "remember", "mind", "must", "should", "shall", "ought", "need", "needs", "needed", "want", "wants", "wanted", "prefer",
+  "rather", "always", "never", "require", "required", "requirement", "rule", "insist", "important", "essential", "crucial", "necessary", "wish" })
+local CHAIN_WORDS = U.set({ "to", "get", "gets", "got", "be", "been", "being", "is", "are", "was", "were", "am", "do", "does", "did", "rather", "just", "really", "please", "kindly",
+  "also", "then", "still", "actually", "simply", "now", "not", "never", "n't", "should", "must", "shall", "ought", "need", "needs", "needed", "supposed", "required", "expected",
+  "have", "has", "had", "will", "would", "can", "could", "may", "might", "going", "'d", "'ll", "'re", "'m", "'s", "'ve", "gotta", "always", "definitely", "absolutely", "all" })
+local OFF_LIMITS = { { "off", "limits" }, { "off", "the", "table" }, { "out", "of", "scope" }, { "out", "of", "bounds" }, { "banned" }, { "forbidden" }, { "prohibited" },
+  { "taboo" }, { "unwanted" }, { "not", "wanted" }, { "irrelevant" }, { "not", "relevant" }, { "excluded" }, { "out" }, { "off", "limit" } }
+local INDEF_LINK = U.set({ "involving", "with", "about", "from", "containing", "concerning", "featuring", "mentioning", "regarding", "on", "of", "by", "related", "relating" })
+local OUTPUT_NOUNS = U.set({ "results", "result", "output", "outputs", "list", "lists", "answer", "answers", "response", "responses", "report", "summary", "table", "search", "findings" })
+local WISH_VERBS = U.set({ "want", "wants", "wanted", "need", "needs", "needed", "like", "likes", "prefer", "prefers", "wish", "expect", "require", "requires", "insist" })
+local PERCEPTION_VERBS = U.set({ "see", "have", "get", "receive", "hear", "find", "want", "need", "like", "include", "use", "show", "contain", "list", "return", "mention", "feature",
+  "display", "give", "output", "surface", "produce", "present", "report", "read", "spot", "notice", "add", "incorporate" })
+local INSTRUCT_VERBS = U.set({ "says", "said", "say", "asks", "asked", "ask", "tells", "told", "tell", "requires", "required", "instructs", "instructed", "decided", "agreed", "wants", "wanted",
+  "needs", "needed", "want", "need", "prefer", "prefers", "wish", "plan", "plans", "idea", "goal", "aim" })
+
+function F.exclusion_clause(S, out)
+  if S.sentence and S.sentence.question_mark then return end
+  -- the constraint-segment masks (set because exclusion cue words such as "exclude" / "rule out" are in the sentence) hide exactly the words this frame reads:
+  -- lift them while scanning, restore them afterwards
+  local saved
+  for i, ch in ipairs(S.chunks) do if ch.masked then saved = saved or {}; saved[i] = ch.mask_kind or true end end
+  if saved then
+    for i in pairs(saved) do S.chunks[i].masked = nil end
+    S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+  end
+  local ok, err = pcall(F.exclusion_clause_scan, S, out)
+  if saved then
+    for i, kind in pairs(saved) do S.chunks[i].masked = true; S.chunks[i].mask_kind = kind ~= true and kind or nil end
+    S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+  end
+  if not ok then error(err, 0) end
+end
+
+function F.exclusion_clause_scan(S, out)
+  local function form_of(c) return c and c.single and c.unit and c.unit.form or nil end
+  local directive, persist = false, false
+  for k = S.first, S.last do
+    local c = C(S, k)
+    if c and not c.masked then
+      local f = form_of(c)
+      if f and DIRECTIVE_WORDS[f] then directive = true end
+      if c.temporal and (c.temporal.kind == "persist" or c.temporal.persist) then directive, persist = true, true end
+    end
+  end
+  -- "Someone asked whether universities should be excluded": a REPORTED question or a third party's debate is not an instruction to the system
+  local QUESTION_REPORT = U.set({ "whether", "asked", "asks", "asking", "wondered", "wonders", "wondering", "debated", "debating", "argued", "arguing", "questioned", "discussed", "discussing", "unclear", "unsure" })
+  local reported_question_at = {}
+  do
+    local seen_q = false
+    for k = S.first, S.last do
+      local c = C(S, k)
+      local f = c and c.single and c.unit and c.unit.form
+      if f and QUESTION_REPORT[f] then seen_q = true end
+      if f == "if" and k > S.first then seen_q = true end
+      reported_question_at[k] = seen_q
+    end
+  end
+  local seen = {}
+  local function emit(frame, np, used_from, used_to, verb, more_used)
+    local key = np.c1 .. ":" .. np.c2 .. ":" .. frame
+    if seen[key] then return end
+    -- the construction must not sit inside a reported question / conditional (the imperative-with-pronoun case below is the one place "if" is expected)
+    if frame ~= "pronoun_object" and reported_question_at[used_from] then return end
+    seen[key] = true
+    local h = newh(S, "instruction:" .. frame, "instruction", "instruction_update", "instruct")
+    for i = used_from, used_to do if C(S, i) then h.used[i] = true end end
+    for _, u in ipairs(more_used or {}) do h.used[u] = true end
+    use_np(h, np)
+    h.instruction = { verb = verb, act = "exclude", np = np, correction = false, persist = persist }
+    h.polarity = "negative"
+    h.persist = persist
+    addf(h, "exclusion_clause", 0.9, "an exclusion is stated (" .. frame .. ")")
+    if directive then addf(h, "directive_context", 0.2, "the sentence carries a directive marker") end
+    if persist then addf(h, "persist_cue", 0.3, "applies from now on") end
+    F.mark_pron(h, np)
+    out[#out + 1] = h
+  end
+  -- the NP that ends right before chunk `e` (longest first)
+  local function np_ending_before(e)
+    for i = S.first, e - 1 do
+      for _, np in ipairs(P.parse_np(S, i)) do if np.nxt == e then return np end end
+    end
+  end
+  -- "any X", "all X": the quantifier is part of the determiner; the target is the NP after it
+  for kv = S.first, S.last do
+    local c = C(S, kv)
+    if c and not c.masked and (c.single or c.kind == "mwe") then
+      for _, a in ipairs(P.verb_analyses(S, c)) do
+        local is_excl = a.act == "exclude"
+        local is_percep = a.act == "include" or PERCEPTION_VERBS[a.lemma] == true
+        if is_excl or is_percep then
+          -- the verb group in front of the verb
+          local j = kv - 1
+          local forms, has_neg, has_be, deontic, rather = {}, false, false, false, false
+          while j >= S.first and C(S, j) and C(S, j).single and not C(S, j).masked and not barrier(C(S, j)) and CHAIN_WORDS[form_of(C(S, j))] and kv - j <= 6 do
+            local f = form_of(C(S, j))
+            if f == "do" and forms[1] == "do" then break end      -- "whatever you DO don't include X": two do's are two clauses
+            table.insert(forms, 1, f)
+            if P.is_neg(C(S, j)) or f == "never" then has_neg = true end
+            if f == "be" or f == "been" or f == "being" or f == "is" or f == "are" or f == "was" or f == "were" or f == "am" or f == "get" or f == "gets" or f == "got" or f == "'re" or f == "'m" then has_be = true end
+            if DEONTIC_WORDS[f] then deontic = true end
+            if f == "rather" then rather = true end
+            j = j - 1
+          end
+          local chain_first = j + 1
+          for i, f in ipairs(forms) do
+            if f == "to" and i > 1 and (forms[i - 1] == "have" or forms[i - 1] == "has" or forms[i - 1] == "had" or forms[i - 1] == "going" or forms[i - 1] == "ought") then deontic = true end
+          end
+          local subj_form = j >= S.first and form_of(C(S, j)) or nil
+          local subj_pron = subj_form == "we" or subj_form == "i" or subj_form == "you"
+          local after, verb_end = kv + 1, kv
+          local nc = C(S, after)
+          if is_excl and c.kind ~= "mwe" and nc and nc.single and not nc.masked and not barrier(nc) and (nc.unit.form == "out" or nc.unit.form == "off") then after = after + 1; verb_end = after - 1 end
+          local to_before = forms[#forms] == "to"
+          local imperative_chain = true       -- nothing but do / not / please-like words in front: a plain imperative, F.instruction's business
+          for _, f in ipairs(forms) do
+            if not (f == "do" or f == "does" or f == "did" or f == "not" or f == "n't" or f == "never" or f == "please" or f == "just" or f == "kindly" or f == "also" or f == "then" or f == "always" or f == "really" or f == "definitely" or f == "absolutely" or f == "now") then imperative_chain = false end
+          end
+          if subj_pron then imperative_chain = false end
+
+          -- (1) passive: NP be/get ... excluded
+          if is_excl and (a.form == "pp" or a.form == "past") and has_be and not has_neg then
+            local np = np_ending_before(chain_first)
+            if np and (deontic or directive or rather or persist) then emit("passive", np, np.c1, verb_end) end
+          end
+          -- (1b) a negated passive of an include-like verb: "X are not to be included", "X should not be shown", "X must not appear"
+          if is_percep and not is_excl and (a.form == "pp" or a.form == "past") and has_be and has_neg and (deontic or to_before or directive) then
+            local np = np_ending_before(chain_first)
+            if np then emit("negated_passive", np, np.c1, verb_end) end
+          end
+          -- (2) modal / infinitive active: "the results should exclude X", "my brief says to exclude X"
+          if is_excl and a.form == "base" and not has_neg and not imperative_chain then
+            local pv = j >= S.first and C(S, j)
+            local instruct_prev = pv and pv.single and INSTRUCT_VERBS[form_of(pv)] or false
+            if deontic or (to_before and (instruct_prev or directive)) then
+              -- "My brief says to exclude X": the introducing clause is part of the directive
+              for _, np in ipairs(P.parse_np(S, after)) do emit("modal", np, instruct_prev and S.first or chain_first, np.c2, a.lemma); break end
+            end
+          end
+          -- (3) progressive with a first/second-person subject: "We are ruling out X"
+          if is_excl and a.form == "ing" and has_be and subj_pron and not has_neg then
+            for _, np in ipairs(P.parse_np(S, after)) do emit("progressive", np, j, np.c2, a.lemma); break end
+          end
+          -- (4) subjunctive wish: "I'd rather you skipped X"
+          if is_excl and (a.form == "past" or a.form == "base") and subj_form == "you" then
+            local before1, before2 = form_of(C(S, j - 1)), form_of(C(S, j - 2))
+            if before1 == "rather" or before2 == "rather" or before1 == "prefer" or before1 == "wish" then
+              for _, np in ipairs(P.parse_np(S, after)) do emit("subjunctive", np, j - 1, np.c2, a.lemma); break end
+            end
+          end
+          -- (5) negated include-like verbs: "Results must not contain any X", "I don't want any X", "I'd rather not see any X"
+          if is_percep and not is_excl and a.form == "base" and has_neg and not imperative_chain then
+            if deontic or rather or (subj_pron and WISH_VERBS[a.lemma]) or (subj_pron and rather) then
+              for _, np in ipairs(P.parse_np(S, after)) do emit("negated_wish", np, chain_first, np.c2, a.lemma); break end
+            end
+          end
+          -- (5b) a negated imperative that is not the first clause: "..., but whatever you do don't include X"
+          if is_percep and not is_excl and a.form == "base" and has_neg and imperative_chain and chain_first > S.first then
+            for _, np in ipairs(P.parse_np(S, after)) do emit("negated_imperative", np, chain_first, np.c2, a.lemma); break end
+          end
+          -- (6) wish + participle: "I'd really like X excluded", "we need X left out"
+          if WISH_VERBS[a.lemma] and not has_neg then
+            for _, np in ipairs(P.parse_np(S, kv + 1)) do
+              local k2 = np.nxt
+              local tc, bc = C(S, k2), C(S, k2 + 1)
+              if tc and tc.single and form_of(tc) == "to" and bc and bc.single and cat(bc, "aux_be") then k2 = k2 + 2 end
+              local vc = C(S, k2)
+              if vc and (vc.single or vc.kind == "mwe") and not vc.masked then
+                for _, a2 in ipairs(P.verb_analyses(S, vc)) do
+                  if a2.act == "exclude" and (a2.form == "pp" or a2.form == "past") then emit("wish_participle", np, kv, k2, a2.lemma) end
+                end
+              end
+            end
+          end
+          -- (7) imperative exclusion whose object is a pronoun: "If you come across any X, just drop THEM from the results"
+          if is_excl and a.form == "base" and imperative_chain and not has_neg then
+            for _, np in ipairs(P.parse_np(S, after)) do
+              if np.head_kind == "pronoun" and np.pron and (np.pron.form == "them" or np.pron.form == "those" or np.pron.form == "it") then
+                -- the antecedent: the nearest earlier noun phrase (not a pronoun) before this clause
+                local ante
+                for e = kv - 1, S.first, -1 do
+                  for i = e, S.first, -1 do
+                    for _, np2 in ipairs(P.parse_np(S, i)) do
+                      if np2.nxt == e + 1 and np2.head_kind ~= "pronoun" and (np2.head_kind == "typenoun" or np2.head_kind == "unknown" or np2.head_kind == "entity") then ante = ante or np2 end
+                    end
+                    if ante then break end
+                  end
+                  if ante then break end
+                end
+                if ante then emit("pronoun_object", ante, kv, np.c2, a.lemma, { np.c1 }) end
+              end
+              break
+            end
+          end
+        end
+      end
+    end
+  end
+  -- (8) states of affairs: "Anything involving X is off limits."
+  for kb = S.first + 1, S.last do
+    local bc = C(S, kb)
+    if bc and bc.single and not bc.masked and cat(bc, "aux_be") then
+      for _, pat in ipairs(OFF_LIMITS) do
+        local ok = true
+        for i, w in ipairs(pat) do
+          local ck = C(S, kb + i)
+          if not (ck and ck.single and not ck.masked and form_of(ck) == w) then ok = false break end
+        end
+        if ok then
+          local np = np_ending_before(kb)
+          local target = np
+          -- "anything involving X": the indefinite only introduces the target
+          for i = S.first, kb - 1 do
+            local ci = C(S, i)
+            local fi = form_of(ci)
+            if fi == "anything" or fi == "everything" or fi == "anyone" or fi == "all" then
+              local link = C(S, i + 1)
+              if link and link.single and INDEF_LINK[form_of(link)] then
+                local k3 = i + 2
+                if form_of(link) == "related" or form_of(link) == "relating" then if form_of(C(S, i + 2)) == "to" then k3 = i + 3 end end
+                for _, np2 in ipairs(P.parse_np(S, k3)) do if np2.nxt == kb then target = np2; break end end
+              end
+            end
+          end
+          if target then emit("off_limits", target, target.c1, kb + #pat) end
+          break
+        end
+      end
+    end
+  end
+  -- (9) "No X in the output, please."
+  do
+    local c0 = C(S, S.first)
+    if c0 and c0.single and not c0.masked and form_of(c0) == "no" then
+      for _, np in ipairs(P.parse_np(S, S.first + 1)) do
+        local pc = C(S, np.nxt)
+        if pc and pc.single and cat(pc, "prep") and not pc.masked then
+          for _, np2 in ipairs(P.parse_np(S, np.nxt + 1)) do
+            if np2.head and OUTPUT_NOUNS[np2.head.single and np2.head.unit.form or ""] then emit("no_x_in_output", np, S.first, np2.c2) end
+          end
+        end
+      end
     end
   end
 end
@@ -987,6 +1375,12 @@ function F.statement(S, out)
       local objs = P.parse_np(S, vp.nxt)
       local h = newh(S, "statement:svo", "statement", "statement", "assert")
       use_np(h, snp); for i = vp.c1, vp.c2 do h.used[i] = true end
+      -- "Results must not contain X", "universities should be excluded": a deontic verb group is a directive, not an assertion of fact
+      for i = snp.nxt, vp.c2 do
+        local ci = C(S, i)
+        local fi = ci and ci.single and ci.unit and ci.unit.form
+        if fi == "must" or fi == "should" or fi == "shall" or fi == "ought" then addf(h, "deontic_not_assertion", -0.9, "a verb group with '" .. fi .. "' is a directive, not a statement of fact"); break end
+      end
       h.statement = { subj = snp, vp = vp, lemma = vp.lemma, neg = vp.neg }
       if objs[1] then use_np(h, objs[1]); h.statement.obj = objs[1] end
       for _, e in ipairs(vp.analysis.entries) do
