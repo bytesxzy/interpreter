@@ -136,7 +136,7 @@ function F.parse_filters(S, k, target_np, limit_idx)
     for _, vp in ipairs(tmp) do
       for _, e in ipairs(vp.analysis.entries) do
         local rel = lex:get_rel(e.rel)
-        if rel then
+        if rel and not e.as_only then
           local f
           local nxt = vp.nxt
           local tc = C(S, nxt)
@@ -285,6 +285,13 @@ function F.expand_chain(S, h)
     for i = top_np.c1, var.c2 do h.used[i] = true end
     for i in pairs(used_extra) do h.used[i] = true end
     h.factors[#h.factors + 1] = { name = "multi_hop", v = 0.3, note = #steps .. "-step chain before " .. h.rel }
+    -- "the location of X's headquarters": a location-valued noun is answered by its own value; a second 'located_in' hop is redundant unless the
+    -- question asks for a narrower kind of place ("in which COUNTRY is ...")
+    local top = steps[#steps]
+    local wt = h.wh and h.wh.type
+    if h.rel == "located_in" and top and top.rel_obj.locus and top.ask_role == "to" and (not wt or wt == "place" or wt == "location") then
+      h.factors[#h.factors + 1] = { name = "redundant_location_hop", v = -0.9, note = "the noun's own relation already gives a location; a second located_in hop is redundant" }
+    end
   end
 end
 

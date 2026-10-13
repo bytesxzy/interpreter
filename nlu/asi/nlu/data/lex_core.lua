@@ -94,6 +94,8 @@ class aux_have: have has had having
 class ignorable: please kindly just actually really basically literally honestly um uh uhm er erm hmm ah eh well so like okay ok anyway hey quite simply truly seriously totally definitely obviously clearly
 class be_participle: designated named declared appointed chosen elected recognized recognised regarded considered known called deemed termed titled
 class copula_like: serve serves served serving function functions functioned functioning act acts acted acting stand stands stood standing
+class copula_become: become becomes became becoming
+class report_verb: said says say stated states state announced announces announce reported reports report noted notes note claimed claims claim declared declares declare confirmed confirms confirm explained explains explain added adds add stressed stresses stress revealed reveals reveal disclosed discloses disclose told tells tell wrote writes write mentioned mentions mention emphasized emphasised indicated indicates indicate acknowledged acknowledges maintained maintains insisted insists
 class modal: will would shall should can could may might must
 class adv: instead otherwise very also just only even still already ever always often usually really quite rather too enough almost nearly mostly mainly especially particularly currently now then there here again together ago soon never sometimes maybe perhaps actually
 class particle: up down out off away back
@@ -312,6 +314,7 @@ cue persist: from now on; going forward; henceforth; always; for the rest of; fr
 cue revoke: never mind; forget that; disregard; stop using; no longer; cancel that; undo that; don't use anymore; do not use anymore; scrap that
 cue preference: prioritize; prioritise; prefer; ideally; preferably; especially; rank higher; focus on; emphasize; favor; favour; bonus if; the more the better; lean toward; give priority to; most interested in
 cue restriction: only; just; solely; exclusively; only using; limited to; restricted to; strictly
+cue attribution: according to; as stated by; as reported by; as confirmed by; as announced by; as noted by; as per; as told by; in the words of; per; as claimed by; as described by; as explained by; as mentioned by
 cue source_intro: according to; based on; as stated in; as reported by; per; from the; in the; using; drawn from; taken from; as described in; as shown in; as of
 cue comparison: compare; compared to; compared with; versus; vs; difference between; differences between; differ; similar to; same as; relative to; contrast; as opposed to; in contrast to
 cue conditional: if; unless; provided that; assuming; in case; as long as; given that; whenever; once; in the event

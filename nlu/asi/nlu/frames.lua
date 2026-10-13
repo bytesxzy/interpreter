@@ -98,6 +98,21 @@ local function span_end_ok(S, k)
   return k > S.last
 end
 
+-- A support verb ("use", "keep", "have", "call", "recognize") carries no relation by itself: the relation comes from the noun it supports.  In a plain
+-- verb frame it is licensed only when the wh-phrase NAMES that noun ("WHICH CURRENCY does Sweden use?"); a bare "What does Acme keep?" is not a
+-- headquarters question.  (The possessed-noun and "as"-complement frames below license it with their own noun.)
+local function support_licensed(S, e, rel, wh, ask_role)
+  if not e.support then return true end
+  if e.as_only then return false end
+  if wh and wh.relnoun and wh.np then
+    for _, ne in ipairs(wh.np.relnouns or {}) do if ne.rel == rel.id then return true end end
+  end
+  -- the wh-phrase asks for the HOLDER and its type agrees with the relation's holder type: "WHICH COUNTRIES use the euro?"
+  if ask_role == "from" and wh and wh.type and S.lex:compat(rel.from, wh.type) >= 0.9 then return true end
+  return false
+end
+F.support_licensed = support_licensed
+
 -- a relational wh-noun ("What CURRENCY does X use?") names the relation asked about: it must agree with the relation the rest of the clause expresses
 local function wh_relnoun_agreement(h, wh, rel)
   if not (wh and wh.relnoun and wh.np) then return end
@@ -212,7 +227,7 @@ function F.wh_verb(S, out)
       for _, vp in ipairs(P.parse_vp(S, vk)) do
         for _, e in ipairs(vp.analysis.entries) do
           local rel = S.lex:get_rel(e.rel)
-          if rel then
+          if rel and support_licensed(S, e, rel, wh, (vp.voice == "active") and e.subj or other(e.subj)) then
             local function finish(h, known_np, known_role, ask_role)
               set_lookup(h, rel, known_role, known_np, ask_role, wh)
               h.wh = wh
@@ -294,7 +309,7 @@ function F.wh_do(S, out)
           for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do", finite_ok = embedded_no_aux })) do
             for _, e in ipairs(vp.analysis.entries) do
               local rel = S.lex:get_rel(e.rel)
-              if rel then
+              if rel and support_licensed(S, e, rel, wh, other(e.subj)) then
                 -- subject NP fills e.subj; the wh-gap is the object (other role). Stranded or absent preposition is fine.
                 local h = newh(S, "wh_do:object_gap", "question")
                 set_lookup(h, rel, e.subj, snp, other(e.subj), wh)
@@ -334,7 +349,9 @@ function F.wh_passive(S, out)
             if vp.voice == "passive" then
               for _, e in ipairs(vp.analysis.entries) do
                 local rel = S.lex:get_rel(e.rel)
-                if rel and e.prep and (is_prep(C(S, vp.nxt), e.prep) or wh.pied == e.prep) then
+                local lic_prep = rel and support_licensed(S, e, rel, wh, other(e.subj))
+                local lic_by = rel and support_licensed(S, e, rel, wh, e.subj)
+                if rel and lic_prep and e.prep and (is_prep(C(S, vp.nxt), e.prep) or wh.pied == e.prep) then
                   -- stative-prep verb: the grammatical subject keeps its own role, the wh-gap is the object of the (stranded or fronted) preposition
                   local h = newh(S, "wh_passive:stranded_prep", "question")
                   set_lookup(h, rel, e.subj, snp, other(e.subj), wh)
@@ -344,7 +361,7 @@ function F.wh_passive(S, out)
                   mark_unresolved_pron(h, snp)
                   out[#out + 1] = h
                 end
-                if rel and not e.prep then
+                if rel and lic_by and not e.prep then
                   local pk = vp.nxt
                   local pc = C(S, pk)
                   -- a passive followed by ANOTHER preposition ("is Java used for", "is X known for") is a different construction, not a stranded by-phrase
@@ -403,6 +420,23 @@ function F.wh_adverbial(S, out)
                     addf(h, "direction_explicit", 0.3, f .. "-question on passive participle")
                     mark_unresolved_pron(h, np)
                     out[#out + 1] = h
+                    -- "Where is the headquarters of X located?": 'located' adds nothing to a location-valued noun, which is answered by its own value
+                    if f == "where" and target_rel.id == "located_in" and np.head_kind == "relnoun" then
+                      for _, o in ipairs(relnp_options(S, np)) do
+                        if o.arg and o.rel.locus and o.ask_role == "to" then
+                          addf(h, "redundant_location_hop", -0.7, "the noun's own relation already gives a location; 'where ... located' needs no second hop")
+                          local hl = newh(S, "wh_adv:where:locus_passive", "question")
+                          set_lookup(hl, o.rel, o.known_role, o.arg, o.ask_role, wh)
+                          use_wh(hl, wh); use(hl, bk); use_np(hl, np); use_vp(hl, vp)
+                          addf(hl, "relnp_arg", 0.7, "relational noun with explicit argument")
+                          addf(hl, "where_locus", 0.3, "'where' asks for the location this relation's value gives")
+                          option_factors(hl, o)
+                          mark_unresolved_pron(hl, o.arg)
+                          out[#out + 1] = hl
+                          break
+                        end
+                      end
+                    end
                   end
                 end
               end
@@ -576,6 +610,48 @@ function F.where_support(S, out)
                     if wh.wh == "where" then addf(h, "where_locus", 0.3, "'where' asks for the location this relation's value gives") end
                     mark_unresolved_pron(h, snp)
                     out[#out + 1] = h
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- Support verb with an "as" complement, the wh-phrase being the value:
+--   "Who does Acme have as its CEO?"   "Whom did the board name as chief executive?"   "Which city does France recognize as its capital?"
+--   "What does Sweden use as its currency?"   embedded: "Tell me who Acme has as its CEO."
+-- The verb's subject is the holder, the (possessed or bare) relational noun after "as" names the relation, the wh-phrase is the relation's `to` side.
+function F.wh_support_as(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and wh.wh ~= "how_adj" and wh.wh ~= "how_many" and wh.wh ~= "how_much" and wh.wh ~= "where" and wh.wh ~= "when" then
+      local dk = wh.nxt
+      local embedded_no_aux = S.embedded and not is_do(C(S, dk))
+      if is_do(C(S, dk)) or embedded_no_aux then
+        local nk = embedded_no_aux and dk or dk + 1
+        for _, snp in ipairs(P.parse_np(S, nk)) do
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do", finite_ok = embedded_no_aux })) do
+            if is_prep(C(S, vp.nxt), "as") then
+              for _, onp in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                -- "name X as chief executive OF Acme" has its holder inside the noun phrase and an extra agent we cannot represent: not this frame
+                if onp.head_kind == "relnoun" and not onp.of_arg and not onp.possessor and not is_prep(C(S, onp.nxt), "of") then
+                  for _, o in ipairs(relnp_options(S, onp)) do
+                    local rel = o.rel
+                    local supported = (vp.lemma == "have" and rel.support_have) or false
+                    for _, e in ipairs(vp.analysis.entries or {}) do if e.support and e.rel == rel.id then supported = true end end
+                    local type_ok = (not wh.type) or S.lex:compat(rel.to, wh.type) >= 0.5
+                    if supported and type_ok and o.ask_role == "to" then
+                      local h = newh(S, "wh_do:support_as", "question")
+                      set_lookup(h, rel, "from", snp, "to", wh)
+                      use_wh(h, wh); if not embedded_no_aux then use(h, dk) end; use_np(h, snp); use_vp(h, vp); use(h, vp.nxt); use_np(h, onp)
+                      addf(h, "support_construction", 0.8, "'" .. tostring(vp.lemma) .. "' + 'as' + '" .. rel.id .. "' noun")
+                      wh_relnoun_agreement(h, wh, rel)
+                      mark_unresolved_pron(h, snp)
+                      out[#out + 1] = h
+                    end
                   end
                 end
               end

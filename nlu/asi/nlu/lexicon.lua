@@ -230,7 +230,7 @@ function L:add_rel(r)
   for _, n in ipairs(r.nouns_from) do noun_entries(n, "from") end
   for _, v in ipairs(r.verbs) do
     for _, f in ipairs(Morph.verb_forms(v.lemma)) do
-      self:trie_insert(f.form, { kind = "relverb", rel = r.id, subj = v.subj, vform = f.feat, lemma = v.lemma, prep = v.prep, support = v.support })
+      self:trie_insert(f.form, { kind = "relverb", rel = r.id, subj = v.subj, vform = f.feat, lemma = v.lemma, prep = v.prep, support = v.support, as_only = v.as_only })
     end
   end
 end
@@ -323,6 +323,14 @@ function DIRECTIVES.rel(self, rest)
     local lemma = trim(sv)
     r.support[#r.support + 1] = lemma
     if lemma == "have" then r.support_have = true else r.verbs[#r.verbs + 1] = { lemma = lemma, subj = "from", support = true } end
+  end
+  -- "as" verbs ("Acme APPOINTED Jane Doe as CEO", "France RECOGNIZES Paris as its capital"): the verb names the relation only together with "as <relational
+  -- noun>"; on its own ("Acme employs Jane Doe", "voters elected X") it says nothing about this relation, so these entries never drive a plain verb frame
+  r.as_verbs = {}
+  for _, sv in ipairs(list(f.as)) do
+    local lemma = trim(sv)
+    r.as_verbs[#r.as_verbs + 1] = lemma
+    r.verbs[#r.verbs + 1] = { lemma = lemma, subj = "from", support = true, as_only = true }
   end
   for _, k in ipairs(list(f.kinds)) do
     local mod, rid = k:match("^(.-):(.+)$")

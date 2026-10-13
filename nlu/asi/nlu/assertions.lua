@@ -59,6 +59,11 @@ local function describe_np(S, ctx, np, expected, role)
   -- the descriptor text is the mention WITHOUT its leading determiner ("the quokka" -> "quokka"); the surface span stays recoverable from the offsets
   local text = P.span_text(S, np)
   if np.det and np.head_kind ~= "entity" then text = text:gsub("^%a+%s+", "", 1) end
+  -- "the city of Grutuburn": the type noun only classifies; the descriptor names the entity itself
+  if np.type_noun and np.head_kind == "entity" or (np.type_noun and np.head_kind == "unknown") then
+    local u1 = np.type_noun.u2 + 2
+    if u1 <= np.u2 then text = S.an.original:sub(S.units[u1].s, S.units[np.u2].e) end
+  end
   local d = { text = text, type = b.type or (b.top and b.top.type), status = b.status, head_kind = np.head_kind }
   if b.top and (b.status == "resolved" or b.status == "unseen") then d.key = b.top.id
   elseif b.status == "ambiguous" then
@@ -100,6 +105,7 @@ local function qualifier_range(S, a)
     if a.vp and k >= a.vp.c1 and k <= a.vp.c2 then keep[k] = true end
   end
   for _, k in ipairs(a.copula and a.copula.skipped or {}) do keep[k] = true end
+  for _, k in ipairs(a.skipped or {}) do keep[k] = true end
   return keep
 end
 
@@ -180,7 +186,7 @@ local function copula_at(S, k)
     else used[j] = true end
     j = j + 1
   end
-  return { nxt = j, neg = neg, past = past, used = used, form = f, skipped = skipped, former = former }
+  return { nxt = j, neg = neg, past = past, used = used, form = f, skipped = skipped, former = former, hedged = c.hedged, onset = c.onset }
 end
 
 -- positions where the predicate may start after a subject NP ending at chunk `nxt`: directly, or after a comma-delimited appositive
@@ -251,6 +257,30 @@ local function copular_relational(self, S, ctx, out)
   end
 end
 
+-- "was founded IN 1998 by P", "was started in Oslo by P": a temporal expression, an adverb or one prepositional phrase may sit between the participle
+-- and its by-phrase.  Returns the chunk index of "by" and the chunks skipped (they still qualify the assertion), or nil.
+local function skip_adjuncts_to_by(S, k)
+  local skipped = {}
+  for _ = 1, 3 do
+    local c = C(S, k)
+    if not c or c.masked then return nil end
+    if c.single and c.unit.form == "by" then return k, skipped end
+    if c.temporal and c.temporal.kind ~= "marker" then skipped[#skipped + 1] = k; k = k + 1
+    elseif c.single and cat(c, "adv") and not barrier(c) then skipped[#skipped + 1] = k; k = k + 1
+    elseif c.single and cat(c, "prep") and not barrier(c) then
+      local hit
+      for _, np in ipairs(P.parse_np(S, k + 1)) do
+        local nc = C(S, np.nxt)
+        if nc and nc.single and not nc.masked and nc.unit.form == "by" then hit = np; break end
+      end
+      if not hit then return nil end
+      for i = k, hit.nxt - 1 do skipped[#skipped + 1] = i end
+      k = hit.nxt
+    else return nil end
+  end
+  return nil
+end
+
 -- Subject VERB Object  (active / passive-by / verb+prep), via the lexicon's role-directed relation verbs
 local function verb_relational(self, S, ctx, out)
   local lex = S.lex
@@ -259,20 +289,22 @@ local function verb_relational(self, S, ctx, out)
     for _, vp in ipairs(P.parse_vp(S, pos)) do
       for _, e in ipairs(vp.analysis.entries) do
         local rel = lex:get_rel(e.rel)
-        if rel then
+        if rel and not e.as_only then
           local k = vp.nxt
           local patient_first = vp.voice == "passive" and not e.prep
+          local skipped
           if e.prep then
             local pc = C(S, k)
             if pc and pc.single and pc.unit.form == e.prep and not pc.masked then k = k + 1 else k = nil end
           elseif vp.voice == "passive" then
-            local bc = C(S, k)
-            if bc and bc.single and bc.unit.form == "by" and not bc.masked then k = k + 1 else k = nil end
+            local kb
+            kb, skipped = skip_adjuncts_to_by(S, k)
+            if kb then k = kb + 1 else k = nil end
           end
           if k then
             for _, onp in ipairs(P.parse_np(S, k)) do
               local a = { rel = rel.id, rel_obj = rel, pattern = vp.voice == "passive" and "passive_by" or "svo", used_np = { snp, onp }, neg = vp.neg,
-                tense = (vp.vform == "past" or vp.perfect) and "past" or "present", vp = vp }
+                tense = (vp.vform == "past" or vp.perfect) and "past" or "present", vp = vp, skipped = skipped }
               if patient_first or (e.prep == nil and vp.voice == "passive") then
                 a.roles = { [other(e.subj)] = snp, [e.subj] = onp }
               else
@@ -454,16 +486,20 @@ local function support_statement(self, S, ctx, out)
             end
           end
         end
-        -- (2) verb + value + "as" + possessed relational noun
+        -- (2) verb + value + "as" + relational noun:  "France has Paris as its capital", "Acme appointed Jane Doe as CEO" (bare), "... as the CEO"
         for _, vnp in ipairs(P.parse_np(S, vp.nxt)) do
           local ac = C(S, vnp.nxt)
           if ac and ac.single and not ac.masked and ac.unit.form == "as" then
             for _, onp in ipairs(P.parse_np(S, vnp.nxt + 1)) do
-              if possessed_relnoun(S, onp) then
+              if onp.head_kind == "relnoun" and not onp.possessor and not (onp.of_arg and vp.lemma == "have") then
+                local pc2 = C(S, onp.nxt)
+                local dangling_of = pc2 and pc2.single and not pc2.masked and pc2.unit.form == "of"
                 for _, o in ipairs(F.relnp_options(S, onp)) do
-                  if o.rel and o.ask_role == "to" and supports(vp, o.rel) then
+                  if o.rel and o.ask_role == "to" and supports(vp, o.rel) and not dangling_of then
                     local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "support_as", used_np = { snp, vnp, onp }, neg = vp.neg, tense = tense, vp = vp }
-                    a.roles = { from = snp, to = vnp }
+                    -- "the board appointed Jane Doe as CEO OF Acme": the holder is the argument of the noun, the subject is only the agent of the appointment
+                    if o.arg and not onp.topic_arg then a.roles = { from = o.arg, to = vnp }
+                    else a.roles = { from = snp, to = vnp } end
                     a.end_chunk = onp.nxt
                     out[#out + 1] = a
                   end
@@ -543,7 +579,88 @@ local function description_identity(self, S, ctx, out)
   end
 end
 
-local PATTERNS = { copular_relational, verb_relational, have_attribute, support_statement, relative_identity, description_identity, classification, with_attribute, definition }
+local function comma_before(S, k) local c = C(S, k); return c ~= nil and c.pre ~= nil and c.pre:find("comma") ~= nil end
+
+-- A comma-delimited relational noun phrase next to a name states the relation between its argument and the name:
+--   "Brelmont, the capital of Tavoria, is a coastal city."     "The founder of Brennick Dynamics, Odalys Feurmann, spoke yesterday."
+--   "Tavoria's capital, Brelmont, hosts the parliament."       "Jane Doe, CEO of Acme Corp, said ..."
+local function apposition_relational(self, S, ctx, out)
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if comma_before(S, snp.nxt) then
+      for _, np2 in ipairs(P.parse_np(S, snp.nxt)) do
+        local nc = C(S, np2.nxt)
+        local closed = np2.nxt > S.last or (nc ~= nil and nc.pre ~= nil and (nc.pre:find("comma") ~= nil or nc.pre:find("dash") ~= nil))
+        if closed then
+          local function mk(o, valnp, argnp, pattern)
+            local a = { rel = o.rel.id, rel_obj = o.rel, pattern = pattern, used_np = { snp, np2 }, neg = false, tense = "present" }
+            a.roles = { [o.known_role] = o.arg, [o.ask_role] = valnp }
+            a.end_chunk = np2.nxt
+            out[#out + 1] = a
+          end
+          -- NAME , RELNP-of-X ,
+          if np2.head_kind == "relnoun" and (snp.head_kind == "entity" or (snp.head_kind == "unknown" and snp.head and snp.head.cap)) and not snp.det and not snp.poss_det then
+            for _, o in ipairs(F.relnp_options(S, np2)) do if o.arg and o.rel and not o.rel.open then mk(o, snp, o.arg, "apposition") end end
+          end
+          -- RELNP-of-X , NAME ,
+          if snp.head_kind == "relnoun" and (np2.head_kind == "entity" or (np2.head_kind == "unknown" and np2.head and np2.head.cap)) and not np2.det and not np2.poss_det then
+            for _, o in ipairs(F.relnp_options(S, snp)) do if o.arg and o.rel and not o.rel.open then mk(o, np2, o.arg, "apposition") end end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- A non-restrictive relative clause on the subject names the relation too:
+--   "Odalys Feurmann, who founded Brennick Dynamics, lives in Oslo."       "Brennick Dynamics, which was founded by Odalys Feurmann, is based in Oslo."
+local function relative_apposition(self, S, ctx, out)
+  local lex = S.lex
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    local rc = C(S, snp.nxt)
+    if rc and rc.single and not rc.masked and comma_before(S, snp.nxt) and (rc.unit.form == "who" or rc.unit.form == "which")
+      and (snp.head_kind == "entity" or (snp.head_kind == "unknown" and snp.head and snp.head.cap)) then
+      for _, vp in ipairs(P.parse_vp(S, snp.nxt + 1)) do
+        for _, e in ipairs(vp.analysis.entries or {}) do
+          local rel = lex:get_rel(e.rel)
+          if rel and not rel.open and not e.support and not e.as_only then
+            local tense = (vp.vform == "past" or vp.perfect) and "past" or "present"
+            if vp.voice == "active" and not e.prep then
+              for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+                local a = { rel = rel.id, rel_obj = rel, pattern = "relative_apposition", used_np = { snp, onp }, neg = vp.neg, tense = tense, vp = vp }
+                a.roles = { [e.subj] = snp, [other(e.subj)] = onp }
+                a.end_chunk = onp.nxt
+                out[#out + 1] = a
+              end
+            elseif vp.voice == "passive" and not e.prep then
+              local bc = C(S, vp.nxt)
+              if bc and bc.single and not bc.masked and bc.unit.form == "by" then
+                for _, onp in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                  local a = { rel = rel.id, rel_obj = rel, pattern = "relative_apposition", used_np = { snp, onp }, neg = vp.neg, tense = tense, vp = vp }
+                  a.roles = { [other(e.subj)] = snp, [e.subj] = onp }
+                  a.end_chunk = onp.nxt
+                  out[#out + 1] = a
+                end
+              end
+            elseif e.prep then
+              local pc = C(S, vp.nxt)
+              if pc and pc.single and not pc.masked and pc.unit.form == e.prep then
+                for _, onp in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                  local a = { rel = rel.id, rel_obj = rel, pattern = "relative_apposition", used_np = { snp, onp }, neg = vp.neg, tense = tense, vp = vp }
+                  a.roles = { [e.subj] = snp, [other(e.subj)] = onp }
+                  a.end_chunk = onp.nxt
+                  out[#out + 1] = a
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+local PATTERNS = { copular_relational, verb_relational, have_attribute, support_statement, relative_identity, description_identity, classification, with_attribute, definition,
+  apposition_relational, relative_apposition }
 
 ---------------------------------------------------------------- reader-directed content
 -- Data that addresses the reader is evidence ABOUT the data, never a command: such sentences are flagged and excluded from fact extraction.
@@ -655,8 +772,17 @@ function A:extract(text, meta)
             S.first = k
           end
           P.take_topic(S)
+          P.take_attribution(S)
+          P.take_reported(S, true)
           P.normalize_cleft(S)
+          P.normalize_inversion(S)
           for _, pat in ipairs(PATTERNS) do pat(self, S, ctx, cands) end
+          -- "Officials confirmed that X is Y.": a reporting clause is tried only when the sentence as written yields nothing
+          if #cands == 0 and P.take_reported(S) then
+            P.normalize_cleft(S)
+            P.normalize_inversion(S)
+            for _, pat in ipairs(PATTERNS) do pat(self, S, ctx, cands) end
+          end
           -- keep candidates that explain the most of the sentence; ties broken by pattern order (copular relational first)
           local best, best_cov = {}, -1
           for _, a in ipairs(cands) do
@@ -680,6 +806,8 @@ function A:extract(text, meta)
             end
             local q = qualifiers(self, S, used, { neg = a.neg, tense = a.tense, range = qualifier_range(S, a), former = a.copula and a.copula.former })
             if a.neg then q.polarity = "negative" end
+            if a.copula and a.copula.hedged then q.modality = "hedged" end          -- "is said to be", "is believed to be"
+            if S.attribution then q.attribution = S.attribution.text end
             local rel_obj = a.rel_obj
             local rec = { rel = a.rel, pattern = a.pattern, polarity = q.polarity, modality = q.modality, tense = q.tense, sent = sent.id,
               s = sent.s, e = sent.e, text = stext, cover = ci, coverage = a.coverage }
@@ -705,6 +833,9 @@ function A:extract(text, meta)
               rec.to = describe_np(S, ctx, a.roles.to, rel_obj and rel_obj.to, "to")
             end
             apply_time(rec, q, rel_obj, lex)
+            rec.attribution = q.attribution
+            -- "Brelmont became the capital in 1950": the time marks the START of the state
+            if a.copula and a.copula.onset and rec.valid_at then rec.valid_from = rec.valid_at.lo; rec.valid_at = nil end
             -- a clash between the entity's known type and the relation signature means the pattern misfired (e.g. a city as a "founder")
             local clash = (rec.from and rec.from.type_clash) or (rec.to and rec.to.type_clash)
             if rel_obj and rel_obj.open then
