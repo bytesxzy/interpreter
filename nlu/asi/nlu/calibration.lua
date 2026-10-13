@@ -280,6 +280,17 @@ function C.features(m)
   return f
 end
 
+-- the calibration model shipped with the engine: embedded in the bundle as module asi.nlu.data.cal_interp_v1 (a JSON string), or read from data/ in a checkout
+function C.default_model(root)
+  local ok, raw = pcall(require, "asi.nlu.data.cal_interp_v1")
+  if ok and type(raw) == "string" then
+    local model = U.json_decode(raw)
+    if model then return model end
+  end
+  if root then return C.load_file(root .. "/data/calibration/interp_v1.json") end
+  return nil
+end
+
 function C.load_file(path)
   local f = io.open(path, "rb")
   if not f then return nil, "cannot read " .. tostring(path) end

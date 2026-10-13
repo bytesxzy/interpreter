@@ -179,6 +179,39 @@ function Rng:shuffle(list)
   return list
 end
 
+---------------------------------------------------------------- byte-level text safety
+-- Replace every maximal run of bytes that is not part of a valid UTF-8 sequence by ONE U+FFFD.  Deterministic; valid text comes back unchanged
+-- (second result: whether anything was replaced).  The raw bytes stay recoverable through U.hex when a caller needs the lossless form.
+function U.scrub_utf8(s)
+  if utf8.len(s) then return s, false end
+  local out, pos, n = {}, 1, #s
+  while pos <= n do
+    local ok, bad = utf8.len(s, pos)
+    if ok then out[#out + 1] = s:sub(pos); break end
+    if bad > pos then out[#out + 1] = s:sub(pos, bad - 1) end
+    out[#out + 1] = "\u{FFFD}"
+    local j = bad + 1
+    while j <= n and not utf8.len(s, j, j) do j = j + 1 end
+    pos = j
+  end
+  return table.concat(out), true
+end
+
+function U.hex(s) return (s:gsub(".", function(c) return string.format("%02x", c:byte()) end)) end
+
+-- Deep copy in which every string (and string key) is made valid UTF-8; sharing and metatables are preserved.
+function U.scrub_tree(v, seen)
+  local tv = type(v)
+  if tv == "string" then return (U.scrub_utf8(v)) end
+  if tv ~= "table" or v == U.NULL then return v end
+  seen = seen or {}
+  if seen[v] then return seen[v] end
+  local r = {}
+  seen[v] = r
+  for k, x in pairs(v) do r[type(k) == "string" and (U.scrub_utf8(k)) or k] = U.scrub_tree(x, seen) end
+  return setmetatable(r, getmetatable(v))
+end
+
 ---------------------------------------------------------------- JSON (strict, bounded, data-only)
 U.NULL = setmetatable({}, { __tostring = function() return "null" end })
 U.OBJ = { __jsontype = "object" } -- marker metatable for empty objects

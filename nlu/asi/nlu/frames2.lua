@@ -378,7 +378,7 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
       out[#out + 1] = h
     end
     local h = base("request:concept")
-    if act == "retrieve" and np.head_kind == "unknown" then addf(h, "retrieval_verb_not_definition", -0.6, "a retrieval verb asks for items, not a definition") end
+    if act == "retrieve" and (np.head_kind == "unknown" or (np.head_kind == "typenoun" and plural)) then addf(h, "retrieval_verb_not_definition", -0.6, "a retrieval verb asks for items, not a definition") end
     if act == "inform" and lemma == "explain" then h.op, h.intent = "explain", "explanation"
     elseif act == "inform" and lemma == "describe" then h.op, h.intent = "describe", "entity_description"
     else h.op, h.intent = "define", "definition" end

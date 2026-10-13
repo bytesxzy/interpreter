@@ -336,9 +336,11 @@ function H.select(S, ctx, hyps)
   local merged, seen = {}, {}
   for _, h in ipairs(live) do
     h.sig = hyp_signature(S, h)
-    local m = seen[h.sig]
+    -- readings that are indistinguishable once summarised (same intent, relation, arguments, constraints) are ONE reading however many frames produced them
+    local key = h.sig .. "\1" .. summarize(S, h)
+    local m = seen[key]
     if m then m.agreeing_frames[#m.agreeing_frames + 1] = h.frame
-    else h.agreeing_frames = {}; seen[h.sig] = h; merged[#merged + 1] = h end
+    else h.agreeing_frames = {}; seen[key] = h; merged[#merged + 1] = h end
   end
   local ps = softmax(U.map(merged, function(h) return h.score end), (ctx.temperature or W.temperature))
   for i, h in ipairs(merged) do h.p = ps[i]; h.summary = summarize(S, h) end
@@ -374,9 +376,19 @@ function H.ambiguity(S, ctx, sel)
     end
   end
   -- (2) competing hypotheses that differ in relation / intent / sense
+  local function obj_type(h)
+    local obj = h.concept or h.target or h.focus or h.object
+    return obj and obj.bound and (obj.bound.type or (obj.bound.senses and obj.bound.senses[1] and obj.bound.senses[1].type)) or nil
+  end
   for i = 2, #sel.ranked do
     local alt = sel.ranked[i]
-    if alt.p >= 0.12 then
+    -- the same reading with a weaker lexical grounding (e.g. the word read as untyped instead of as the typed noun) is not a competing MEANING
+    local same_reading = alt.summary == top.summary and alt.intent == top.intent and alt.rel == top.rel
+    if same_reading then
+      local ta, tb = obj_type(top), obj_type(alt)
+      same_reading = (ta == nil or tb == nil or ta == tb)
+    end
+    if alt.p >= 0.12 and not same_reading then
       local kind
       if alt.rel ~= top.rel then kind = "relation"
       elseif alt.intent ~= top.intent then kind = "intent"

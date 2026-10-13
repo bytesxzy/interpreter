@@ -27,6 +27,7 @@ R.SPEC = {
     request_id = { type = "string", required = true, min = 8 },
     engine = { type = "object", required = true, fields = { name = S.str, version = S.str, flags = S.tab } },
     original_input = { type = "string", required = true },
+    input_encoding = { type = "object", required = true, fields = { valid_utf8 = S.bool, bytes = S.num, sha256 = S.str, raw_hex = S.str, note = S.str } },
     normalized_input = { type = "object", required = true, fields = { text = S.str, note = S.str } },
     lexical_analysis = { type = "object", required = true, fields = { status = S.str, utf8 = S.tab, n_tokens = S.num, sentences = arr(S.tab), temporal = arr(S.tab), numbers = arr(S.tab), notes = S.tab } },
     semantic_intent = { type = "object", required = true, fields = { speech_act = S.str, intent = S.str, op = S.any, frame = S.any, status = S.str } },
@@ -177,10 +178,15 @@ function R.build(ctx)
   local sentences = {}
   for _, s in ipairs(an and an.sentences or {}) do sentences[#sentences + 1] = { id = s.id, s = s.s, e = s.e, terminal = s.terminal, question_mark = s.question_mark or nil } end
   local mem = m.context and m.context.memory
+  -- A record is JSON: input that is not valid UTF-8 is shown with each invalid run as U+FFFD, and the exact bytes are kept in input_encoding.raw_hex.
+  local raw_input = result.original or ""
+  local clean_input, invalid_input = U.scrub_utf8(raw_input)
   local rec = {
     schema_version = R.SCHEMA,
     engine = { name = R.ENGINE, version = R.ENGINE_VERSION, flags = ctx.flags or {}, lexicon_revision = ctx.lexicon_revision, interpreter_version = ctx.interpreter_version },
-    original_input = result.original or "",
+    original_input = clean_input,
+    input_encoding = invalid_input and { valid_utf8 = false, bytes = #raw_input, sha256 = U.sha256(raw_input), raw_hex = U.hex(raw_input:sub(1, 65536)), raw_hex_truncated = #raw_input > 65536 or nil,
+      note = "the input contains bytes that are not valid UTF-8: original_input shows each invalid run as U+FFFD; raw_hex holds the exact bytes" } or { valid_utf8 = true, bytes = #raw_input },
     normalized_input = { text = (result.original or ""):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", ""),
       note = "whitespace-collapsed only; the original request is preserved verbatim in original_input and is what the interpretation refers to" },
     lexical_analysis = { status = result.status or "ok", utf8 = an and an.utf8 or {}, n_tokens = an and #an.units or 0, tokens = toks, sentences = sentences,
@@ -237,9 +243,17 @@ function R.build(ctx)
     ur[#ur + 1] = { kind = "evidence", status = evidence.status, requirement = table.concat(evidence.reasons or {}, "; ") }
   end
   -- deterministic request id + integrity hash (hash covers every section except the integrity block itself)
-  local body = U.json_encode(rec, { nan_null = true })
-  rec.request_id = U.sha256(table.concat({ rec.original_input, tostring(rec.retrieval_candidates.knowledge_digest), tostring(rec.memory_provenance.namespace), tostring(rec.memory_provenance.revision),
-    R.SCHEMA, R.ENGINE_VERSION }, "\0")):sub(1, 24)
+  local enc_ok, body = pcall(U.json_encode, rec, { nan_null = true })
+  if not enc_ok then
+    -- the only way the strict encoder fails here is an invalid-UTF-8 string that reached the record from a source other than the request
+    -- (dataset text, memory); make every string valid and say so instead of crashing or emitting broken JSON
+    if not tostring(body):find("invalid UTF%-8", 1) then error(body, 0) end
+    rec = U.scrub_tree(rec)
+    rec.input_encoding.scrubbed_other_fields = true
+    body = U.json_encode(rec, { nan_null = true })
+  end
+  rec.request_id = U.sha256(table.concat({ invalid_input and ("raw:" .. rec.input_encoding.sha256) or rec.original_input, tostring(rec.retrieval_candidates.knowledge_digest), tostring(rec.memory_provenance.namespace),
+    tostring(rec.memory_provenance.revision), R.SCHEMA, R.ENGINE_VERSION }, "\0")):sub(1, 24)
   rec.integrity = { sha256 = U.sha256(body), covers = "canonical JSON of all other fields (before request_id was assigned)" }
   return rec
 end
