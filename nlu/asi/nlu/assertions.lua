@@ -59,6 +59,12 @@ local function describe_np(S, ctx, np, expected, role)
   -- the descriptor text is the mention WITHOUT its leading determiner ("the quokka" -> "quokka"); the surface span stays recoverable from the offsets
   local text = P.span_text(S, np)
   if np.det and np.head_kind ~= "entity" then text = text:gsub("^%a+%s+", "", 1) end
+  -- "CEO Odalys Feurmann": a title in front of a name is not part of the name
+  if np.head_kind == "entity" and np.head and np.head.u1 > np.u1 and #(np.mods or {}) > 0 then
+    local all_titles = true
+    for _, m in ipairs(np.mods) do if not (m.chunk and #(m.chunk.relnouns or {}) > 0) then all_titles = false end end
+    if all_titles then text = S.an.original:sub(S.units[np.head.u1].s, S.units[np.u2].e) end
+  end
   -- "the city of Grutuburn": the type noun only classifies; the descriptor names the entity itself
   if np.type_noun and np.head_kind == "entity" or (np.type_noun and np.head_kind == "unknown") then
     local u1 = np.type_noun.u2 + 2
@@ -257,6 +263,42 @@ local function copular_relational(self, S, ctx, out)
   end
 end
 
+local function comma_at(S, k) local c = C(S, k); return c ~= nil and c.pre ~= nil and c.pre:find("comma") ~= nil end
+
+-- does relation `r` imply relation id `anc` through the isa chain (ceo isa leader)?
+local function rel_isa(lex, r, anc)
+  local cur, guard = r, 0
+  while cur and cur.isa and guard < 6 do
+    if cur.isa == anc then return true end
+    cur = lex:get_rel(cur.isa); guard = guard + 1
+  end
+  return false
+end
+
+-- "CEO P leads O", "O is headed by chief executive P", "O is run by its chief executive officer, P": a title attached to the value names a MORE SPECIFIC
+-- relation than the verb does ("leads" = leader); the more specific relation implies the verb's relation, so it is the better description of the sentence.
+local function title_specialize(S, a)
+  local rel = a.rel_obj
+  if not rel or rel.open or not a.roles then return end
+  for _, role in ipairs({ "to", "from" }) do
+    local np = a.roles[role]
+    if np then
+      local titles = {}
+      for _, m in ipairs(np.mods or {}) do
+        if m.chunk then for _, ne in ipairs(m.chunk.relnouns or {}) do titles[#titles + 1] = { entry = ne, form = m.chunk.form } end end
+      end
+      for _, ne in ipairs(a.title_entries or {}) do titles[#titles + 1] = { entry = ne, form = ne.lemma } end
+      for _, t in ipairs(titles) do
+        local r2 = S.lex:get_rel(t.entry.rel)
+        if r2 and not r2.open and r2.id ~= rel.id and t.entry.role == role and rel_isa(S.lex, r2, rel.id) then
+          a.rel, a.rel_obj, a.specialized_by = r2.id, r2, t.form
+          return
+        end
+      end
+    end
+  end
+end
+
 -- "was founded IN 1998 by P", "was started in Oslo by P": a temporal expression, an adverb or one prepositional phrase may sit between the participle
 -- and its by-phrase.  Returns the chunk index of "by" and the chunks skipped (they still qualify the assertion), or nil.
 local function skip_adjuncts_to_by(S, k)
@@ -302,15 +344,23 @@ local function verb_relational(self, S, ctx, out)
             if kb then k = kb + 1 else k = nil end
           end
           if k then
-            for _, onp in ipairs(P.parse_np(S, k)) do
+            for _, onp0 in ipairs(P.parse_np(S, k)) do
+              local onp, titles = onp0, nil
+              -- "... by its chief executive officer, P": the titled apposition names the participant
+              if onp0.head_kind == "relnoun" and not onp0.of_arg and comma_at(S, onp0.nxt) then
+                for _, ap in ipairs(P.parse_np(S, onp0.nxt)) do
+                  if ap.head_kind == "entity" or (ap.head_kind == "unknown" and ap.head and ap.head.cap) then onp, titles = ap, onp0.relnouns; break end
+                end
+              end
               local a = { rel = rel.id, rel_obj = rel, pattern = vp.voice == "passive" and "passive_by" or "svo", used_np = { snp, onp }, neg = vp.neg,
-                tense = (vp.vform == "past" or vp.perfect) and "past" or "present", vp = vp, skipped = skipped }
+                tense = (vp.vform == "past" or vp.perfect) and "past" or "present", vp = vp, skipped = skipped, title_entries = titles }
               if patient_first or (e.prep == nil and vp.voice == "passive") then
                 a.roles = { [other(e.subj)] = snp, [e.subj] = onp }
               else
                 a.roles = { [e.subj] = snp, [other(e.subj)] = onp }
               end
               a.end_chunk = onp.nxt
+              title_specialize(S, a)
               out[#out + 1] = a
             end
           end
@@ -794,6 +844,7 @@ function A:extract(text, meta)
             if cov > best_cov then best_cov = cov end
           end
           for _, a in ipairs(cands) do if a.coverage >= best_cov - 1 then best[#best + 1] = a end end
+
           for _, a in ipairs(best) do
             local used = {}
             for _, np in ipairs(a.used_np) do for i = np.c1, np.c2 do used[i] = true end end
@@ -852,6 +903,8 @@ function A:extract(text, meta)
             end
             res._seen = res._seen or {}
             local valid = rec.from and rec.from.status ~= "pronoun" and (rec.is_class or (rec.to and rec.to.status ~= "pronoun")) and not clash
+            -- a bare role word ("chief executive", "president") is a description of a participant, not a participant
+            if valid and not rec.is_class and ((rec.to and rec.to.head_kind == "relnoun" and not rec.to.key) or (rec.from and rec.from.head_kind == "relnoun" and not rec.from.key)) then valid = false end
             -- one reading of the sentence per (relation, subject): among VALID candidates the one explaining most of the sentence wins over
             -- truncated parses ("88" vs "88 days"); an invalid (type-clashing) candidate never shadows a valid one
             local skip = false

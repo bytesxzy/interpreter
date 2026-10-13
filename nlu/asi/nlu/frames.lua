@@ -663,6 +663,59 @@ function F.wh_support_as(S, out)
   end
 end
 
+-- The wh-phrase is the HOLDER (subject) of a support verb:
+--   "Which country has Paris as its capital?"   "Which companies have their headquarters in Oslo?"   "Which firm keeps its head office in Lyon?"
+-- The value is the known side, the wh-phrase fills the relation's `from` role.
+function F.wh_support_subject(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and wh.wh ~= "how_adj" and wh.wh ~= "how_many" and wh.wh ~= "how_much" and wh.wh ~= "where" and wh.wh ~= "when" and wh.wh ~= "why" and wh.wh ~= "how" then
+      for _, vp in ipairs(P.parse_vp(S, wh.nxt)) do
+        if vp.voice == "active" then
+          local function supported(rel)
+            local ok = (vp.lemma == "have" and rel.support_have) or false
+            for _, e in ipairs(vp.analysis.entries or {}) do if e.support and e.rel == rel.id then ok = true end end
+            return ok
+          end
+          local function emit(rel, vnp, onp, frame, extra_used)
+            if wh.type and S.lex:compat(rel.from, wh.type) < 0.5 then return end
+            local h = newh(S, frame, "question")
+            set_lookup(h, rel, "to", vnp, "from", wh)
+            use_wh(h, wh); use_vp(h, vp); use_np(h, vnp); use_np(h, onp)
+            if extra_used then use(h, extra_used) end
+            addf(h, "support_construction", 0.8, "'" .. tostring(vp.lemma) .. "' + '" .. rel.id .. "' noun with the wh-phrase as holder")
+            wh_relnoun_agreement(h, wh, rel)
+            mark_unresolved_pron(h, vnp)
+            out[#out + 1] = h
+          end
+          -- (a) VERB value as RELNOUN
+          for _, vnp in ipairs(P.parse_np(S, vp.nxt)) do
+            if is_prep(C(S, vnp.nxt), "as") then
+              for _, onp in ipairs(P.parse_np(S, vnp.nxt + 1)) do
+                if onp.head_kind == "relnoun" and not onp.of_arg and not onp.possessor and not is_prep(C(S, onp.nxt), "of") then
+                  for _, o in ipairs(relnp_options(S, onp)) do
+                    if o.ask_role == "to" and supported(o.rel) then emit(o.rel, vnp, onp, "wh_subject:support_as", vnp.nxt) end
+                  end
+                end
+              end
+            end
+          end
+          -- (b) VERB its RELNOUN in|at VALUE
+          for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+            local dc = C(S, onp.c1)
+            if onp.head_kind == "relnoun" and not onp.of_arg and dc and dc.single and cat(dc, "poss_det") and onp.c1 < onp.nxt - 1 and (is_prep(C(S, onp.nxt), "in") or is_prep(C(S, onp.nxt), "at")) then
+              for _, vnp in ipairs(P.parse_np(S, onp.nxt + 1)) do
+                for _, o in ipairs(relnp_options(S, onp)) do
+                  if o.ask_role == "to" and supported(o.rel) then emit(o.rel, vnp, onp, "wh_subject:support_possessed", onp.nxt) end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 -- generic clause: [aux]* [NP-subject] [aux]* [not] VERB [NP-object] -> {subj, verb, obj, neg, last}
 function F.parse_clause(S, k)
   local best
