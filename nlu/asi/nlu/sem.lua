@@ -11,7 +11,7 @@ require("asi.nlu.frames4")   -- attribution idioms, locus hosts, "where can I fi
 
 local Sem = {}
 
-local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "wh_impersonal", "wh_origin", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
+local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_place_stranded_in", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "compare_dimension", "wh_impersonal", "wh_origin", "recall_turn", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
   "request", "instruction", "exclusion_clause", "focus", "statement", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)

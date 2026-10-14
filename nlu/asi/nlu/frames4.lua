@@ -417,6 +417,180 @@ function F.generic_holder(S, out)
   end
 end
 
+---------------------------------------------------------------- "Which country is Kyoto in?"   (a typed place wh-noun + copula + subject + stranded "in")
+function F.wh_place_stranded_in(S, out)
+  local lrel = S.lex:get_rel("located_in")
+  if not lrel then return end
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and wh.np and wh.type and S.lex:compat(wh.type, "place") >= 0.9 and not wh.pied then
+      local bc = C(S, wh.nxt)
+      if is_be(bc) and not barrier(bc) then
+        for _, snp in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          local pc = C(S, snp.nxt)
+          if pc and pc.single and not pc.masked and not barrier(pc) and pc.unit.form == "in" and snp.nxt == S.last then
+            local h = newh(S, "wh_place_stranded_in", "question")
+            set_lookup(h, lrel, "from", snp, "to", wh)
+            use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use(h, snp.nxt)
+            addf(h, "stranded_in_place", 0.7, "'Which " .. tostring(wh.type) .. " is X in?' asks for the place that contains X")
+            mark_unresolved_pron(h, snp)
+            out[#out + 1] = h
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- comparisons with an explicit dimension
+--   "Compare the populations of Chile and Peru."   "Compare Tesla and Toyota by revenue."   "How does Norway compare with Sweden and Denmark in terms of area?"
+--   "Rank Mount Everest, K2 and Kangchenjunga by height."
+-- The dimension is a number-valued relation named by a relational noun; the items are the things compared.
+local function numeric_rel(S, np)
+  if not np or np.head_kind ~= "relnoun" then return nil end
+  for _, e in ipairs(np.relnouns or {}) do
+    local rel = S.lex:get_rel(e.rel)
+    if rel and not rel.open and e.role == "to" and S.lex:compat(rel.to, "number") >= 0.9 then return rel end
+  end
+end
+
+-- the unique defined relation of a measurable dimension ("height" -> height); nil when the dimension spans several ("age", "size")
+function F.dim_unique_rel(lex, dim)
+  local d = lex.dims and lex.dims[dim] or (lex.parent and lex.parent.dims and lex.parent.dims[dim])
+  if not d then return nil end
+  local found
+  for _, rid in ipairs(d.rels or {}) do
+    local r = lex:get_rel(rid)
+    if r and not r.open then
+      if found then return nil end
+      found = r
+    end
+  end
+  return found
+end
+
+local DIM_CUES = { "in terms of", "by", "on", "regarding", "with respect to", "as to", "according to", "based on", "using", "for" }
+-- "(by|in terms of|on ...) [the] DIM"  ->  rel, np, next chunk
+local function trailing_dimension(S, k)
+  local n = first_phrase(S, k, DIM_CUES)
+  if not n then return nil end
+  local dc = C(S, n)
+  if dc and dc.single and not dc.masked and cat(dc, "det") then n = n + 1 end
+  for _, np in ipairs(P.parse_np(S, n, { no_of = true })) do
+    local rel = numeric_rel(S, np)
+    if rel then return rel, np, np.nxt end
+  end
+end
+
+local ITEM_JOINERS = U.set({ "and", "or", "versus", "vs", "vs.", "against", "with", "to", "&", "and/or" })
+-- items "A, B and C" / "A with B": returns the NPs and the chunk after the last
+local function item_list(S, k, limit)
+  local items = {}
+  local cur = k
+  for _ = 1, 8 do
+    local np
+    for _, cand_np in ipairs(P.parse_np(S, cur, { no_of = true })) do
+      if cand_np.head_kind ~= "relnoun" or #items == 0 then np = cand_np; break end
+    end
+    if not np then break end
+    items[#items + 1] = np
+    cur = np.nxt
+    local nx = C(S, cur)
+    if not nx or nx.masked then break end
+    if nx.single and ITEM_JOINERS[nx.unit.form] and not (nx.pre and false) then cur = cur + 1
+    elseif nx.pre and nx.pre:find("comma") then
+      -- ", and C" or ", C"
+      local c2 = C(S, cur + 1)
+      if nx.single and ITEM_JOINERS[nx.unit.form] then cur = cur + 1 elseif nx.single and cat(nx, "prep") then break end
+    else break end
+    if limit and cur > limit then break end
+  end
+  return items, cur
+end
+
+local COMPARE_VERBS = U.set({ "compare", "contrast", "benchmark", "weigh" })
+local RANK_VERBS = U.set({ "rank", "sort", "order", "arrange", "list" })
+function F.compare_dimension(S, out)
+  local vc = C(S, S.first)
+  -- (1) imperative "Compare ..."   (2) imperative "Rank ... by DIM"
+  if vc and vc.single and not vc.masked and (COMPARE_VERBS[vc.unit.form] or RANK_VERBS[vc.unit.form]) then
+    local ranking = RANK_VERBS[vc.unit.form] and not COMPARE_VERBS[vc.unit.form]
+    local k = S.first + 1
+    local first_np
+    -- "the populations of Chile and Peru": the dimension noun with the first item as its argument
+    for _, np in ipairs(P.parse_np(S, k)) do
+      local rel = numeric_rel(S, np)
+      if rel and np.of_arg and not ranking then
+        local items, endk = { np.of_arg }, np.nxt
+        local jc = C(S, endk)
+        if jc and jc.single and ITEM_JOINERS[jc.unit.form] then
+          local rest, e2 = item_list(S, endk + 1)
+          for _, it in ipairs(rest) do items[#items + 1] = it end
+          endk = e2
+        end
+        if #items >= 2 then
+          local h = newh(S, "compare_dimension:noun", "request", "comparison", "compare")
+          use(h, S.first); use_np(h, np)
+          for _, it in ipairs(items) do use_np(h, it) end
+          for i = np.nxt, endk - 1 do h.used[i] = true end
+          h.items, h.rel, h.rel_obj, h.dimension = items, rel.id, rel, "size"
+          h.requires_evidence = true
+          addf(h, "comparison_items", 0.5, #items .. " items to compare on " .. rel.id)
+          addf(h, "dimension_noun", 0.5, "'" .. tostring(np.head and np.head.form) .. "' names the compared dimension")
+          out[#out + 1] = h
+        end
+      end
+    end
+    -- plain item list + trailing dimension
+    local items, endk = item_list(S, k)
+    if #items >= (ranking and 2 or 2) then
+      local rel, dnp, after = trailing_dimension(S, endk)
+      if rel then
+        local h = newh(S, ranking and "compare_dimension:rank" or "compare_dimension:by", "request", "comparison", ranking and "rank" or "compare")
+        use(h, S.first)
+        for _, it in ipairs(items) do use_np(h, it) end
+        for i = items[#items].nxt, after - 1 do h.used[i] = true end
+        h.items, h.rel, h.rel_obj, h.dimension = items, rel.id, rel, "size"
+        h.requires_evidence = true
+        addf(h, "comparison_items", 0.5, #items .. " items on " .. rel.id)
+        addf(h, "dimension_noun", 0.5, "'" .. tostring(dnp.head and dnp.head.form) .. "' names the compared dimension")
+        out[#out + 1] = h
+      end
+    end
+  end
+  -- (3) "How does A compare with B and C in terms of DIM?"
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh.adverbial and wh.wh == "how" then
+      local dc = C(S, wh.nxt)
+      if dc and dc.single and not dc.masked and cat(dc, "aux_do") then
+        for _, snp in ipairs(P.parse_np(S, wh.nxt + 1, { no_of = true })) do
+          local cvc = C(S, snp.nxt)
+          local pc = C(S, snp.nxt + 1)
+          if cvc and cvc.single and not cvc.masked and COMPARE_VERBS[cvc.unit.form] and pc and pc.single and ITEM_JOINERS[pc.unit.form] then
+            local rest, endk = item_list(S, snp.nxt + 2)
+            if #rest >= 1 then
+              local items = { snp }
+              for _, it in ipairs(rest) do items[#items + 1] = it end
+              local rel, dnp, after = trailing_dimension(S, endk)
+              local h = newh(S, "compare_dimension:how", "question", "comparison", "compare")
+              use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use(h, snp.nxt, snp.nxt + 1)
+              for _, it in ipairs(rest) do use_np(h, it) end
+              if rel then
+                for i = endk, after - 1 do h.used[i] = true end
+                h.rel, h.rel_obj = rel.id, rel
+              end
+              h.items, h.dimension = items, "size"
+              h.requires_evidence = true
+              addf(h, "comparison_items", 0.5, #items .. " items compared")
+              if rel then addf(h, "dimension_noun", 0.5, "'" .. tostring(dnp.head and dnp.head.form) .. "' names the compared dimension") end
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 ---------------------------------------------------------------- relational statements
 --   "Paris is the capital of France."   "The capital of France is Paris."   "Acme was founded by Jane Doe."   "Acme is headquartered in Oslo."
 -- With a negated copula ("Paris is not the capital of France.") the polarity is negative.  A statement that is asked for confirmation (", right?", "Is it true that ...")

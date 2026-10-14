@@ -364,6 +364,8 @@ function Cons.attach(S, h)
           if canon then
             local src = { kind = "source", resource = canon, text = P.span_text(S, np), quals = {}, cue = c.text }
             if np.temporal_mod then src.label = np.temporal_mod.text; src.label_year = np.temporal_mod.year end
+            -- "IN THE 2021 dataset": the year sits inside the cue chunk itself
+            if not src.label and c.temporal and c.temporal.year then src.label = c.temporal.year and tostring(c.temporal.year) or c.temporal.text; src.label_year = c.temporal.year end
             for _, m in ipairs(np.mods) do if m.kind == "mod" or m.kind == "ordinal" or m.kind == "superlative" or m.kind == "temporal_adj" then src.quals[#src.quals + 1] = m.form end end
             cons.source[#cons.source + 1] = src
             for i = k, np.c2 do used[i] = true end

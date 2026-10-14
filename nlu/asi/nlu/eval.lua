@@ -67,7 +67,16 @@ local function ref_ok(lex, pred, gold)
   local text, ty, id = gold:match("^([^:]*):?([^:]*):?(.*)$")
   -- a resolved pronoun / back-reference is judged by what it was resolved TO
   local ptext = (pred.antecedent and pred.antecedent.text) or pred.text
-  if text ~= "*" and text ~= "" and norm_text(ptext) ~= norm_text(text) then return false, "text '" .. tostring(ptext) .. "' ~= '" .. text .. "'" end
+  if text ~= "*" and text ~= "" and norm_text(ptext) ~= norm_text(text) then
+    -- a mention matched through a spelling variant ("Gemany") is judged by the entity it was resolved to
+    local by_name = false
+    if pred.resolved_id then
+      for _, c in ipairs(pred.candidates or {}) do
+        if c.id == pred.resolved_id and c.name and norm_text(c.name) == norm_text(text) then by_name = true end
+      end
+    end
+    if not by_name then return false, "text '" .. tostring(ptext) .. "' ~= '" .. text .. "'" end
+  end
   if ty ~= "" and ty ~= "*" then
     local pt = type_of(pred)
     if not pt then

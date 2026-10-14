@@ -529,6 +529,10 @@ end
 -- core NP (no possessor): [det|poss] modifiers* head [of-complement] [back-reference]
 -- "the post of chief executive at X", "the position of prime minister in Y": the post noun adds nothing; the role noun after "of" is read as its own post noun
 local ROLE_POST = U.set({ "post", "position", "role", "job", "office", "seat", "title", "chair", "mantle" })
+local DESCR_HEAD = U.set({ "dirt", "scoop", "lowdown", "skinny", "rundown", "background", "profile", "bio", "biography", "facts", "info", "information", "details", "data", "snapshot",
+  "primer", "introduction", "description", "story", "word" })
+local DESCR_PREP = U.set({ "on", "about", "regarding", "concerning", "of", "to", "with" })
+local MEASURE_NOUN = U.set({ "figure", "figures", "number", "numbers", "value", "values", "amount", "amounts", "total", "totals", "statistic", "statistics", "stat", "stats", "count", "counts" })
 local LOCATIVE_HOLDER_PREP = U.set({ "in", "throughout", "across", "within" })
 local STATUS_HEAD = U.set({ "status", "distinction", "honour", "honor", "rank", "designation", "label", "standing", "function", "role" })
 local NAMING = U.set({ "called", "named", "dubbed", "titled", "christened", "termed", "labelled", "labeled" })
@@ -640,6 +644,12 @@ local function parse_np_core(S, k, opts)
     ::continue_run::
   end
   if #run == 0 then return out end
+  -- "the revenue FIGURE for X", "the population NUMBER of Y": a measure noun after a relational noun adds nothing; the noun phrase absorbs it
+  local absorbed
+  if #run >= 2 then
+    local lastc = run[#run].c
+    if lastc.single and MEASURE_NOUN[lastc.unit.form] and run[#run - 1].cl.relnoun then absorbed = lastc; run[#run] = nil end
+  end
   -- candidate head positions: last head-capable element first, then shorter prefixes (so "Acme pioneered automation"
   -- can still be split as NP + verb + NP by the frames); each truncation is penalised
   local function head_capable(cl)
@@ -698,6 +708,7 @@ local function parse_np_core(S, k, opts)
     end
     np.u2 = head.c.u2; np.c2 = head.c.idx
     np.nxt = after
+    if absorbed and hi == #run then np.u2, np.c2, np.nxt = absorbed.u2, absorbed.idx, after + 1 end
     return np
   end
   local kinds = {}
@@ -906,7 +917,11 @@ function parse_np(S, k, opts)
     local shift
     if ca and cb and cc and ca.single and cb.single and cc.single and cat(ca, "det") and TRANSPARENT_HEAD[cb.unit.form] and cc.unit.form == "of"
       and not ca.masked and not barrier(cb) and not barrier(cc) then shift = 3
-    elseif ca and cb and ca.single and cb.single and TRANSPARENT_HEAD[ca.unit.form] and cb.unit.form == "of" and not ca.masked and not barrier(cb) then shift = 2 end
+    elseif ca and cb and ca.single and cb.single and TRANSPARENT_HEAD[ca.unit.form] and cb.unit.form == "of" and not ca.masked and not barrier(cb) then shift = 2
+    -- "the dirt ON X", "the background ON X", "info ABOUT X", "an introduction TO X": a description noun with its own preposition adds nothing to the thing described
+    elseif ca and cb and cc and ca.single and cb.single and cc.single and cat(ca, "det") and DESCR_HEAD[cb.unit.form] and DESCR_PREP[cc.unit.form]
+      and not ca.masked and not barrier(cb) and not barrier(cc) then shift = 3
+    elseif ca and cb and ca.single and cb.single and DESCR_HEAD[ca.unit.form] and DESCR_PREP[cb.unit.form] and not ca.masked and not barrier(cb) then shift = 2 end
     -- the post noun is transparent only over a ROLE noun ("the title of CEO"); "the title of the book" keeps "title" as its head
     local role_shift
     local any_relation = false
@@ -1407,7 +1422,7 @@ function P.invert_declarative(S)
   local f = S.first
   for _, np1 in ipairs(P.parse_np(S, f)) do
     local ac = C(S, np1.nxt)
-    if ac and ac.single and not ac.masked and not barrier(ac) and (cat(ac, "aux_be") or cat(ac, "aux_have")) and np1.nxt < S.last then
+    if ac and ac.single and not ac.masked and not barrier(ac) and (cat(ac, "aux_be") or cat(ac, "aux_have") or cat(ac, "clitic_s")) and np1.nxt < S.last then
       local new = {}
       for i = 1, f - 1 do new[#new + 1] = S.chunks[i] end
       new[#new + 1] = ac
@@ -1657,6 +1672,28 @@ function P.front_temporal(S)
   return true
 end
 
+-- "Siemens vs Bosch: who has more employees?": a versus-pair opening the sentence names the items the question that follows is about.  The pair is recorded
+-- (S.vs_items) and S.first moves past the separator.
+local VS_WORDS = U.set({ "vs", "vs.", "versus", "v", "v.", "against" })
+function P.take_versus(S)
+  if S.vs_items then return false end
+  local f = S.first
+  for _, np1 in ipairs(P.parse_np(S, f, { no_of = true })) do
+    local vc = C(S, np1.nxt)
+    if vc and vc.single and not vc.masked and not barrier(vc) and VS_WORDS[vc.unit.form] then
+      for _, np2 in ipairs(P.parse_np(S, np1.nxt + 1, { no_of = true })) do
+        local sc = C(S, np2.nxt)
+        if sc and not sc.masked and sc.pre and (sc.pre:find("colon") or sc.pre:find("dash") or sc.pre:find("comma")) and np2.nxt <= S.last then
+          S.vs_items = { np1, np2 }
+          S.first = np2.nxt
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
 -- "What WILL the population of Nigeria BE in 2050?": the future auxiliary and the copula that closes the subject noun phrase read as one future copula in front of it
 -- ("What will be the population ...").  The copula chunk is cloned so every other chunk keeps its place; the clone carries the future flag.
 function P.uninvert_will_be(S)
@@ -1867,6 +1904,7 @@ function P.strip_wrapper(S)
     end
   end
   S.first = k
+  P.take_versus(S)
   P.front_temporal(S)
   P.mid_temporal(S)
   P.uninvert_will_be(S)

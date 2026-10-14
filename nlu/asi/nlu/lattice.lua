@@ -7,6 +7,9 @@ local UC = require("asi.nlu.unicode")
 local Lattice = {}
 
 local NAME_CONNECTORS = U.set({ "of", "de", "van", "von", "der", "la", "le", "du", "di", "da", "del", "for", "the", "&", "den", "al", "bin" })
+local TITLE_VERBS = U.set({ "wrote", "write", "writes", "written", "directed", "direct", "directs", "painted", "paint", "composed", "compose", "authored", "published", "read", "reading",
+  "watched", "watch", "starred", "starring", "entitled", "titled", "called", "named", "about", "reviewed", "review", "adapted" })
+local TITLE_NOUNS = U.set({ "novel", "book", "film", "movie", "song", "album", "play", "poem", "series", "show", "game", "painting", "opera", "musical", "story", "article", "paper" })
 local TITLE_PREFIX = U.set({ "dr", "mr", "mrs", "ms", "prof", "sir", "lady", "lord", "president", "senator", "gen", "col", "capt", "rev" })
 
 local function span_key(i, j) return i .. ":" .. j end
@@ -165,7 +168,8 @@ function Lattice.build(an, lex, opts)
     local u = units[i]
     local sent = an.sentences[u.sent or 0]
     local shout = sent and sent.shout
-    local capital = u.cap and not shout and (u.kind == "word" or u.kind == "abbrev" or u.kind == "acronym" or u.kind == "initial") and not u.case_sensitive
+    -- a brand written with an inner capital ("iPhone", "eBay", "iPad") is as name-like as a capitalised word
+    local capital = (u.cap or u.mixed_case) and not shout and (u.kind == "word" or u.kind == "abbrev" or u.kind == "acronym" or u.kind == "initial") and not u.case_sensitive
     local initial = capital and sentence_initial(u)
     local common = capital and is_common(lex, u)
     -- "Compare", "Did", "Is" ... are capitalised only by position: they must not swallow the names that follow them
@@ -174,11 +178,51 @@ function Lattice.build(an, lex, opts)
       -- connectors ("of", "for", ...) join a name only after an organisation/place head word ("University of X", "Bank of X"),
       -- never after an ordinary common word ("CEO of Acme": CEO is a relational noun, not the start of a name)
       local connect_ok = lex:headcue(u.form) ~= nil or not common
-      -- extend over capitalised units and name connectors (never "and")
+      -- a title ("Pride and Prejudice", "Harry Potter and the Chamber of Secrets") follows a verb / noun that introduces a work
+      local merge_alts = {}
+      local title_ctx = false
+      do
+        local p1, p2 = units[i - 1], units[i - 2]
+        if p1 and p1.sent == u.sent and not u.pre and (TITLE_VERBS[p1.form] or (p2 and p2.sent == u.sent and TITLE_NOUNS[p1.form] == nil and TITLE_NOUNS[p2.form] and (p1.form == "titled" or p1.form == "called" or p1.form == "named" or p1.form == "entitled")) or TITLE_NOUNS[p1.form]) then title_ctx = true end
+      end
+      -- extend over capitalised units and name connectors ("and" only in a title or inside an organisation name that ends in a head word)
       while true do
         local nx = units[j + 1]
         if not nx or nx.pre or nx.sent ~= u.sent then break end
-        if nx.cap and not shout and (nx.kind == "word" or nx.kind == "abbrev" or nx.kind == "acronym" or nx.kind == "initial" or nx.kind == "number") then j = j + 1
+        if (nx.form == "and" or nx.form == "&") and not nx.cap then
+          -- look ahead over the capitalised tail
+          local t, head_found, tail_ok = j + 2, false, false
+          if units[t] and units[t].form == "the" and title_ctx then t = t + 1 end
+          local last_cap
+          while units[t] and not units[t].pre and units[t].sent == u.sent and (units[t].cap or (title_ctx and (units[t].form == "of" or units[t].form == "the" or units[t].form == "in" or units[t].form == "and" or units[t].form == "for" or units[t].form == "to" or units[t].form == "a"))) do
+            if units[t].cap then last_cap = t; tail_ok = true; if lex:headcue(units[t].form) then head_found = true end end
+            t = t + 1
+          end
+          -- "Company A and Company B": two organisations; "Pellucid Freight and Logistics Holdings": one name whose HEAD WORD comes last
+          local first_has_head = false
+          for q = i, j do if lex:headcue(units[q].form) then first_has_head = true end end
+          if first_has_head and not title_ctx then head_found = false end
+          if head_found and last_cap and not lex:headcue(units[last_cap].form) then head_found = false end
+          local known_entity = false
+          for q = i, last_cap or i do
+            if units[q].cap then
+              for _, m in ipairs(lex:match_at(units, q)) do
+                for _, e in ipairs(m.entries) do if e.kind == "entity" then known_entity = true end end
+              end
+            end
+          end
+          if tail_ok and last_cap and not known_entity and title_ctx then j = last_cap
+          elseif tail_ok and last_cap and not known_entity and head_found then
+            -- "Pellucid Freight AND Logistics Holdings": one name or two ("Harrow Dynamics and Vireo Labs")?  Both readings compete as alternative covers.
+            merge_alts[#merge_alts + 1] = last_cap
+            break
+          else break end
+        elseif nx.form == "the" and title_ctx and not nx.cap and units[j + 2] and units[j + 2].cap and not units[j + 2].pre then j = j + 2
+        elseif nx.form == "of" and title_ctx and units[j + 2] and not units[j + 2].pre then
+          local t = j + 2
+          if units[t].form == "the" and units[t + 1] and units[t + 1].cap then t = t + 1 end
+          if units[t].cap then j = t else break end
+        elseif nx.cap and not shout and (nx.kind == "word" or nx.kind == "abbrev" or nx.kind == "acronym" or nx.kind == "initial" or nx.kind == "number") then j = j + 1
         -- "Area 51", "Apollo 11", "Windows 11": a small whole number right after a capitalised name belongs to it (a year or a larger number does not)
         elseif nx.kind == "number" and nx.numval and nx.numval == math.floor(nx.numval) and nx.numval >= 1 and nx.numval <= 999 and j == i and not nx.unit and not (units[j + 2] and units[j + 2].kind == "word" and not units[j + 2].cap and not units[j + 2].pre and lex:resource(units[j + 2].form)) then j = j + 1
         elseif NAME_CONNECTORS[nx.form] and not nx.cap and connect_ok then
@@ -217,6 +261,11 @@ function Lattice.build(an, lex, opts)
         local weak = (initial and not multi and not type_guess) or nil
         add(i, j, { kind = "name", type_guess = type_guess, text = an.original:sub(units[i].s, units[j].e), multiword = multi, weak = weak,
           head_cue = (lex:headcue(last.form) or lex:headcue(u.form)) and true or nil }, "name_guess", sc)
+        for _, aj in ipairs(merge_alts) do
+          local al = units[aj]
+          add(i, aj, { kind = "name", type_guess = lex:headcue(al.form) or type_guess, text = an.original:sub(units[i].s, units[aj].e), multiword = true, head_cue = true },
+            "name_guess", 0.8 + 0.3 * (aj - i) - 0.2)
+        end
       end
       i = j + 1
     else

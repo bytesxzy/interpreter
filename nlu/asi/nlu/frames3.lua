@@ -93,7 +93,10 @@ function F.wh_pred_stranded(S, out)
           for _, rnp in ipairs(P.parse_np(S, snp.nxt)) do
             if rnp.head_kind == "relnoun" and not rnp.of_arg and not rnp.possessor then
               local pc = C(S, rnp.nxt)
-              if pc and pc.single and not pc.masked and not barrier(pc) and cat(pc, "prep") and rnp.nxt == S.last then
+              -- the preposition is stranded ("Which country is Bamako the capital OF?") or fronted with the wh-phrase ("OF which country is Bamako the capital?")
+              local stranded = pc and pc.single and not pc.masked and not barrier(pc) and cat(pc, "prep") and rnp.nxt == S.last
+              local fronted = wh.pied and rnp.nxt > S.last
+              if stranded or fronted then
                 for _, e in ipairs(rnp.relnouns) do
                   local rel = S.lex:get_rel(e.rel)
                   -- the predicate noun denotes role e.role of the SUBJECT ("France is a member of ..." / "Jane is the CEO of ..."); the preposition's object is the other role
@@ -101,7 +104,8 @@ function F.wh_pred_stranded(S, out)
                   if rel and ((not wh.type) or S.lex:compat(rel[ask], wh.type) >= 0.5) then
                     local h = newh(S, "wh_pred_stranded", "question")
                     set_lookup(h, rel, e.role, snp, ask, wh)
-                    use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use_np(h, rnp); use(h, rnp.nxt)
+                    use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use_np(h, rnp)
+                    if stranded then use(h, rnp.nxt) else h.pied_consumed = true end
                     addf(h, "pred_noun_relation", 0.7, "the predicate noun '" .. tostring(rnp.head and rnp.head.form) .. "' names " .. rel.id .. " for the subject")
                     mark_unresolved_pron(h, snp)
                     out[#out + 1] = h
@@ -562,6 +566,7 @@ function F.compare_which_of_two(S, out)
                       end
                     end
                   end
+                  if #its == 0 and S.vs_items then its = S.vs_items end      -- "Siemens vs Bosch: who has more employees?"
                   local h = newh(S, "compare_which_of_two", "question", "comparison", "rank_attribute")
                   h.wh = wh
                   h.rel, h.rel_obj = rel.id, rel

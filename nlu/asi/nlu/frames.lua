@@ -797,8 +797,8 @@ end
 function F.yes_no(S, out)
   local k0 = S.first
   local c0 = C(S, k0)
-  if not (c0 and c0.single and (cat(c0, "aux_be") or cat(c0, "aux_do") or cat(c0, "aux_have") or cat(c0, "modal")) and not cat(c0, "wh")) then return end
-  local akind = P.aux_kind(c0)
+  if not (c0 and c0.single and (cat(c0, "aux_be") or cat(c0, "aux_do") or cat(c0, "aux_have") or cat(c0, "modal") or c0.be_clitic or (cat(c0, "clitic_s") and S.inverted)) and not cat(c0, "wh")) then return end
+  local akind = P.aux_kind(c0) or (cat(c0, "clitic_s") and "be") or nil
   -- "Isn't Canberra the capital of Australia?": a negated auxiliary asks for confirmation; the claim being checked is the positive one
   local nstart, neg_first = k0 + 1, nil
   if P.is_neg(C(S, nstart)) and not barrier(C(S, nstart)) then neg_first = nstart; nstart = nstart + 1 end

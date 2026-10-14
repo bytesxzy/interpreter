@@ -344,6 +344,7 @@ local function finish_target_h(S, h, np, k_after, filters)
   end
 end
 
+local DESCRIBES = U.set({ "overview", "summary", "profile", "rundown", "background", "introduction", "snapshot", "briefing", "primer", "description", "biography", "bio" })
 -- build hypotheses from a request object NP (shared by imperatives, polite wrappers and "I want ...")
 local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fprefix)
   local act = verb_info and verb_info.act
@@ -411,6 +412,15 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
     end
     -- "give me a SUMMARY of the figures", "send me an overview of the results": a task noun requested through a retrieval verb is a task
     local hf = np.head and np.head.single and np.head.unit and np.head.unit.form
+    -- "give me an OVERVIEW of Corvane Plastics", "a PROFILE of X": a description noun over a named entity asks for the description of that entity
+    if hf and DESCRIBES[hf] and np.of_arg and np.of_arg.head_kind == "entity" and (act == "retrieve" or act == "inform" or act == "task") then
+      local h = base("request:entity")
+      h.op, h.intent, h.requires_evidence = "describe", "entity_description", true
+      h.subject = np.of_arg; h.roles.subject = np.of_arg
+      use_np(h, np.of_arg)
+      addf(h, "description_noun", 0.9, "'" .. hf .. "' of a named entity asks for a description of it")
+      out[#out + 1] = h
+    end
     if hf and (S.lex:cats(hf) or {}).tasknoun and (act == "retrieve" or act == "inform" or act == "task") then
       local h = base("request:task_nominal")
       h.op, h.intent = "task", "task"
@@ -656,6 +666,8 @@ function F.compare_q(S, out)
           local h = newh(S, "compare_q:wh_adj", "question", "comparison", "rank_attribute")
           use(h, wh.c1, wh.c2); use(h, bk, bk + 1)
           h.wh = wh; h.dimension = r.dim; h.degree = r.feat; h.adj = r.lemma
+          local drel = F.dim_unique_rel and F.dim_unique_rel(lex, r.dim)
+          if drel then h.rel, h.rel_obj = drel.id, drel end
           h.requires_evidence = true
           addf(h, "comparative_adjective", 0.5, r.lemma .. " (" .. r.feat .. ") on dimension " .. tostring(r.dim))
           -- candidates "A or B"
@@ -785,6 +797,29 @@ function F.recall(S, out)
           if h.subject then F.mark_pron(h, h.subject) end
           addf(h, "recall_construction", 0.9, "wh-question about what the participants said or decided ('" .. pf .. " " .. vp.lemma .. "')")
           out[#out + 1] = h
+        end
+      end
+    end
+  end
+end
+
+-- "What was my first question?"  "What was the last thing I asked?"  "What was my previous request?": a question about the user's own earlier turns
+local TURN_NOUNS = U.set({ "question", "request", "message", "query", "prompt", "instruction", "command", "remark", "comment", "statement" })
+function F.recall_turn(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and wh.wh == "what" and not wh.np then
+      local bc = C(S, wh.nxt)
+      if bc and bc.single and not bc.masked and (cat(bc, "aux_be") or cat(bc, "clitic_s")) and not barrier(bc) then
+        for _, np in ipairs(P.parse_np(S, wh.nxt + 1, { no_of = true })) do
+          local hn = np.head and np.head.single and np.head.unit.form
+          if hn and TURN_NOUNS[hn] and (np.poss_det == "my" or np.poss_det == "our" or np.det == "the") then
+            local h = newh(S, "recall:turn", "question", "conversation_recall", "recall")
+            use(h, wh.c1, wh.c2); use(h, wh.nxt); use_np(h, np)
+            h.recall = { verb = "ask", wh = "what", participant = "i", topic = nil, ordinal = np.ordinal }
+            h.requires_context = true
+            addf(h, "recall_construction", 0.9, "'what was my <ordinal> " .. hn .. "' asks about the user's own earlier turns")
+            out[#out + 1] = h
+          end
         end
       end
     end
