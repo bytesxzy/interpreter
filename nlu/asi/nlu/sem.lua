@@ -6,10 +6,11 @@ local P = require("asi.nlu.parse")
 local Cons = require("asi.nlu.constraints")
 local H = require("asi.nlu.hyp")
 local F = require("asi.nlu.frames2")
+require("asi.nlu.frames3")   -- registers the stranded-preposition, quantity, list and support-verb yes/no frames on the same table
 
 local Sem = {}
 
-local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "yes_no", "wh_change", "compare_q",
+local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "wh_impersonal", "wh_origin", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "yes_no", "wh_change", "compare_q",
   "request", "instruction", "exclusion_clause", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
 
 local function sentence_unit_range(an, sid)
@@ -155,6 +156,18 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
       if meter and not meter:tick("frames", 1) then break end
       local fn = F[fname]
       if fn then fn(S, hyps) end
+    end
+    -- a clause asked for confirmation ("..., right?", "Is it true that ...") whose reading is a relational statement is the verification of that statement
+    if S.polar then
+      for _, h in ipairs(hyps) do
+        if h.speech_act == "statement" and h.rel and h.rel_obj and h.roles and h.roles.from and h.roles.to and not h.verify then
+          h.speech_act, h.intent, h.op = "question", "verification", "verify"
+          h.requires_evidence = true
+          h.verify = { rel = h.rel, from = h.roles.from, to = h.roles.to }
+          h.items = (h.roles.from.u1 or 0) < (h.roles.to.u1 or 0) and { h.roles.from, h.roles.to } or { h.roles.to, h.roles.from }
+          h.factors[#h.factors + 1] = { name = "polar_confirmation", v = 0.3, note = "the clause is asked for confirmation (wrapper or tag question)" }
+        end
+      end
     end
     for _, h in ipairs(hyps) do
       h.cover_index = ci
@@ -349,6 +362,8 @@ function Sem.render(res, ctx)
     -- the answer type is the narrower of the wh-type ("who" -> agent) and the relation's range type (person)
     local answer_type = top.wh_type or top.ask_type
     if top.wh_type and top.ask_type and S.lex:compat(top.ask_type, top.wh_type) >= 0.9 then answer_type = top.ask_type end
+    -- "How many moons does Neptune have?" asks for a NUMBER of moons, not for moons
+    if top.answer_form == "number" then answer_type = "number" end
     interp.query = { known_role = top.known_role, ask = top.ask, answer_type = answer_type, relation_answer_type = top.ask_type,
       answer_form = top.answer_form, dimension = top.dimension, count = top.count_target or nil }
     if top.wh then interp.query.wh = top.wh.wh end
@@ -450,6 +465,7 @@ function Sem.render(res, ctx)
   for _, np in pairs(top.roles) do scan_dep(np) end
   scan_dep(top.concept); scan_dep(top.subject); scan_dep(top.target); scan_dep(top.focus); scan_dep(top.object)
   if top.recall then deps[#deps + 1] = { kind = "conversation_history", text = interp.sentence.text } end
+  if top.ellipsis then deps[#deps + 1] = { kind = "previous_question", text = interp.sentence.text, turn = top.ellipsis.turn } end
   if top.basis then scan_dep(top.basis.np) end
   if top.intent == "comparison" and (not top.items or #top.items < 2) then deps[#deps + 1] = { kind = "comparison_set", text = interp.sentence.text } end
   for _, it in ipairs(top.items or {}) do scan_dep(it) end

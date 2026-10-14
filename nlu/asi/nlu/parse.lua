@@ -472,11 +472,17 @@ local PARTICIPLE_PREP = U.set({ "in", "by", "throughout", "across", "within", "a
 local POSS_PRON = { its = "it", his = "he", her = "she", their = "they" }
 
 -- an unknown head noun with an entity argument ("the mascot of Zorbland", "Zorbland's mascot") may name an OPEN relation
-local function open_relnoun_alt(np, arg)
+local function open_relnoun_alt(S, np, arg)
   if np.head_kind ~= "unknown" or not np.head or not np.head.single or np.from_verb then return nil end
   if arg.head_kind ~= "entity" then return nil end
   local w = np.head.unit.form
   if #w < 3 or not w:match("^%a+$") then return nil end
+  -- a word the lexicon already knows as a relational noun ("members", "founders") has its KNOWN relation: an open relation of the same name would only compete with it
+  for _, m in ipairs(S.lex:match_at(S.units, np.head.u1)) do
+    if m.j == np.head.u2 then
+      for _, e in ipairs(m.entries) do if e.kind == "relnoun" then return nil end end
+    end
+  end
   local lemma = w
   if lemma:match("s$") and not lemma:match("ss$") and #lemma > 3 then lemma = lemma:sub(1, -2) end
   lemma = lemma:gsub("e$", "")
@@ -678,7 +684,7 @@ local function parse_np_core(S, k, opts)
           cp.u2 = sub.u2; cp.c2 = sub.c2
           cp.score = np.score + sub.score * 0.3
           alts[#alts + 1] = cp
-          local ocp = open_relnoun_alt(cp, sub)
+          local ocp = open_relnoun_alt(S, cp, sub)
           if ocp then ocp.score = cp.score - 0.2; alts[#alts + 1] = ocp end
         end
       end
@@ -794,7 +800,7 @@ function parse_np(S, k, opts)
           cp.u1, cp.c1 = a.u1, a.c1
           cp.score = b.score + a.score * 0.3 + 0.2
           out[#out + 1] = cp
-          local ocp = open_relnoun_alt(cp, a)
+          local ocp = open_relnoun_alt(S, cp, a)
           if ocp then ocp.score = cp.score - 0.2; out[#out + 1] = ocp end
         end
       end
@@ -950,6 +956,7 @@ end
 
 ---------------------------------------------------------------- wh-phrases
 local KIND_NOUN = U.set({ "kind", "type", "sort", "form" })
+local WH_INTENSIFIER = U.set({ "exactly", "precisely", "specifically", "actually", "even", "ever", "really" })
 
 -- a preposition fronted together with its wh-phrase ("In which city is X headquartered?", "By whom was X founded?", "To which country does P belong?")
 local PIED_PREP = U.set({ "in", "on", "at", "from", "to", "by", "with", "for", "of", "during", "under", "through", "into", "about", "against", "across" })
@@ -998,6 +1005,10 @@ function P.parse_wh(S, k)
           if np.head_kind == "typenoun" or np.head_kind == "concept" or np.head_kind == "unknown" then
             local t = np.senses and np.senses[1] and np.senses[1].type
             out[#out + 1] = { wh = f, type = t, np = np, nxt = np.nxt, c1 = k, c2 = np.c2, u1 = c.u1, u2 = np.u2, plural = np.plural }
+            -- "What YEAR did X start?": a wh-noun of time asks the same thing as "When did X start?"
+            if t and np.head and np.head.single and (np.head.unit.form == "year" or np.head.unit.form == "date") and S.lex:isa(t, "time") then
+              out[#out + 1] = { wh = "when", adverbial = true, type = t, nxt = np.nxt, c1 = k, c2 = np.c2, u1 = c.u1, u2 = np.u2, from_noun = true }
+            end
           elseif np.head_kind == "relnoun" and not np.of_arg and not np.possessor and #np.mods == 0 then
             -- the wh-noun names the RELATION that is asked about ("What currency does X use?", "Which language is spoken in Y?"); it is not a known argument
             local e = np.relnouns[1]
@@ -1018,12 +1029,24 @@ function P.parse_wh(S, k)
         for _, np in ipairs(parse_np(S, k + 2, { no_of = true })) do
           out[#out + 1] = { wh = "how_" .. n1.unit.form, np = np, nxt = np.nxt, c1 = k, c2 = np.c2, u1 = c.u1, u2 = np.u2, plural = true }
         end
+        -- "How much does X cost?", "How much is X?": the quantity word stands alone (an auxiliary follows)
+        local a1 = C(S, k + 2)
+        if a1 and a1.single and not a1.masked and not barrier(a1) and (cat(a1, "aux_do") or cat(a1, "aux_be") or cat(a1, "aux_have") or cat(a1, "modal")) then
+          out[#out + 1] = { wh = "how_" .. n1.unit.form, bare = true, nxt = k + 2, c1 = k, c2 = k + 1, u1 = c.u1, u2 = n1.u2 }
+        end
       elseif n1 and n1.single and n1.adjs and n1.adjs[1] then
         out[#out + 1] = { wh = "how_adj", adj = n1.unit.form, dim = n1.adjs[1].dim, nxt = k + 2, c1 = k, c2 = k + 1, u1 = c.u1, u2 = n1.u2 }
       elseif n1 and n1.single and (n1.unit.form == "often" or n1.unit.form == "far" or n1.unit.form == "long") then
         out[#out + 1] = { wh = "how_adj", adj = n1.unit.form, nxt = k + 2, c1 = k, c2 = k + 1, u1 = c.u1, u2 = n1.u2 }
       end
       out[#out + 1] = { wh = "how", adverbial = true, nxt = k + 1, c1 = k, c2 = k, u1 = c.u1, u2 = c.u2 }
+    end
+  end
+  -- "who EXACTLY is the CEO of X?", "what precisely is Y?": an intensifier right after the wh-phrase adds nothing
+  for _, w in ipairs(out) do
+    while true do
+      local ic = C(S, w.nxt)
+      if ic and ic.single and not ic.masked and not barrier(ic) and WH_INTENSIFIER[ic.unit.form] then w.nxt = w.nxt + 1 else break end
     end
   end
   S.wh_memo[key] = out
@@ -1209,6 +1232,86 @@ function P.normalize_cleft(S)
 end
 
 -- a wh-phrase left in place in a question ("Acme is headquartered in which city?") is fronted and the clause un-inverted ("In which city is Acme headquartered?")
+-- A declarative clause asked for confirmation is the yes/no question about it:
+--   "Is it true that Canberra is the capital of Australia?"   "Canberra is the capital of Australia, right?"   "Siemens has bought Brightwater, hasn't it?"
+-- The wrapper / tag is removed and, when the clause has a copula or a perfect auxiliary, the auxiliary moves to the front ("Is Canberra the capital of ...").
+function P.invert_declarative(S)
+  local f = S.first
+  for _, np1 in ipairs(P.parse_np(S, f)) do
+    local ac = C(S, np1.nxt)
+    if ac and ac.single and not ac.masked and not barrier(ac) and (cat(ac, "aux_be") or cat(ac, "aux_have")) and np1.nxt < S.last then
+      local new = {}
+      for i = 1, f - 1 do new[#new + 1] = S.chunks[i] end
+      new[#new + 1] = ac
+      for i = f, np1.nxt - 1 do new[#new + 1] = S.chunks[i] end
+      for i = np1.nxt + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+      for i, ch in ipairs(new) do ch.idx = i end
+      S.chunks, S.last = new, #new
+      S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+      S.inverted = true
+      return true
+    end
+  end
+  return false
+end
+
+function P.take_polar(S)
+  if S.polar or S.inverted then return false end
+  local f = S.first
+  local c = C(S, f)
+  if not c or c.masked then return false end
+  local opened, tagged = false, false
+  local n = S.lex:cue_at("polar_open", S.units, c.u1)
+  if n then
+    local k, consumed = f, 0
+    while k <= S.last and consumed < n do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); k = k + 1 end
+    if consumed == n and k <= S.last then S.first = k; opened = true end
+  end
+  -- a tag after the last comma: ", right?"  ", isn't it?"  ", correct?"
+  for p = S.last, S.first + 2, -1 do
+    local cp = C(S, p)
+    if cp and cp.pre and cp.pre:find("comma") then
+      local nt = S.lex:cue_at("polar_tag", S.units, cp.u1)
+      if nt then
+        local q, consumed = p, 0
+        while q <= S.last and consumed < nt do consumed = consumed + (C(S, q).u2 - C(S, q).u1 + 1); q = q + 1 end
+        if consumed == nt and q > S.last then
+          for i = S.last, p, -1 do table.remove(S.chunks, i) end
+          S.last = p - 1
+          S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+          tagged = true
+        end
+      end
+      break
+    end
+  end
+  -- an it-cleft question: "Was it Microsoft THAT bought LinkedIn?" asks whether "Microsoft bought LinkedIn"
+  if not opened and not tagged then
+    local f0 = S.first
+    local b0, it0 = C(S, f0), C(S, f0 + 1)
+    if b0 and it0 and b0.single and it0.single and not b0.masked and not it0.masked and cat(b0, "aux_be") and it0.unit.form == "it" and not barrier(it0) then
+      for _, np in ipairs(P.parse_np(S, f0 + 2)) do
+        local tc = C(S, np.nxt)
+        if tc and tc.single and not tc.masked and not barrier(tc) and (tc.unit.form == "that" or tc.unit.form == "who") and np.nxt < S.last then
+          local new = {}
+          for i = 1, f0 - 1 do new[#new + 1] = S.chunks[i] end
+          for i = np.c1, np.c2 do new[#new + 1] = S.chunks[i] end
+          for i = np.nxt + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+          for i, ch in ipairs(new) do ch.idx = i end
+          S.chunks, S.last = new, #new
+          S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+          S.polar = true
+          return true
+        end
+      end
+    end
+  end
+  if not (opened or tagged) then return false end
+  S.polar = true
+  P.invert_declarative(S)
+  return true
+end
+
 function P.front_insitu_wh(S)
   if not (S.sentence and S.sentence.question_mark) then return false end
   local f = S.first
@@ -1216,10 +1319,11 @@ function P.front_insitu_wh(S)
   if not c0 or #P.parse_wh(S, f) > 0 then return false end
   for p = f + 1, S.last do
     local cp = C(S, p)
-    if cp and cp.single and not cp.masked and cat(cp, "wh") and (cp.unit.form == "which" or cp.unit.form == "what") and not barrier(cp) then
+    if cp and cp.single and not cp.masked and cat(cp, "wh") and (cp.unit.form == "which" or cp.unit.form == "what" or cp.unit.form == "whom" or cp.unit.form == "who") and not barrier(cp) then
       local best
       for _, w in ipairs(P.parse_wh(S, p)) do if w.type and (not best or w.nxt > best.nxt) then best = w end end
-      if best then
+      -- truly in situ: the wh-phrase closes the sentence ("Kenya is on WHICH CONTINENT?"); after a clause break it is an ordinary fronted question ("..., but WHICH CONTINENT is Kenya in?")
+      if best and best.nxt > S.last and not (cp.pre and cp.pre:find("comma")) then
         local start = p
         local pc = C(S, p - 1)
         if pc and pc.single and cat(pc, "prep") and p - 1 >= f then start = p - 1 end
@@ -1552,6 +1656,7 @@ function P.strip_wrapper(S)
   S.first = k
   P.front_temporal(S)
   P.normalize_cleft(S)
+  P.take_polar(S)
   P.front_insitu_wh(S)
   w.first = S.first
   return S.first, w

@@ -179,6 +179,8 @@ function Lattice.build(an, lex, opts)
         local nx = units[j + 1]
         if not nx or nx.pre or nx.sent ~= u.sent then break end
         if nx.cap and not shout and (nx.kind == "word" or nx.kind == "abbrev" or nx.kind == "acronym" or nx.kind == "initial" or nx.kind == "number") then j = j + 1
+        -- "Area 51", "Apollo 11", "Windows 11": a small whole number right after a capitalised name belongs to it (a year or a larger number does not)
+        elseif nx.kind == "number" and nx.numval and nx.numval == math.floor(nx.numval) and nx.numval >= 1 and nx.numval <= 999 and j == i and not nx.unit and not (units[j + 2] and units[j + 2].kind == "word" and not units[j + 2].cap and not units[j + 2].pre and lex:resource(units[j + 2].form)) then j = j + 1
         elseif NAME_CONNECTORS[nx.form] and not nx.cap and connect_ok then
           local nn = units[j + 2]
           if nn and not nn.pre and nn.cap and nn.sent == u.sent then j = j + 2 else break end
@@ -187,6 +189,8 @@ function Lattice.build(an, lex, opts)
       local multi = j > i
       local last = units[j]
       local type_guess = lex:headcue(last.form) or lex:headcue(u.form) or (TITLE_PREFIX[u.form] and "person") or nil
+      -- a final token that mixes letters and digits ("X2", "A380", "RTX4090") is a model code: the name denotes a product
+      if not type_guess and (last.form:match("^%a+%d+%a*$") or last.form:match("^%d+%a+$")) and #last.form <= 8 and last.kind ~= "number" then type_guess = "product" end
       local sc = 0.8 + 0.3 * (j - i)
       -- "West Germany", "Northern Ireland": a capitalised modifier + an attested entity is a DIFFERENT, open-set entity of the attested one's type
       local extends

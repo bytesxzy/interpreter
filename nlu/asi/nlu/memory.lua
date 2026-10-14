@@ -376,6 +376,11 @@ function M:observe_sentence(interp, meta)
     local ten = topic and self.entities[topic]
     if topic and speaker == "user" and not (ten and ten.weak) then self.focus = { key = topic, turn = self.turn, text = ttext } end
   end
+  -- the last relational question the user asked: elliptical follow-ups ("What about Jupiter?", "Same question for Y", "Sorry, I meant Z") re-ask it about another argument
+  if speaker == "user" and interp.intent == "factual_lookup" and interp.relation and interp.query and interp.query.known_role and interp.query.ask
+    and (interp.speech_act == "question" or interp.speech_act == "request") and not meta.hedged then
+    self.last_query = { rel = interp.relation.id, known_role = interp.query.known_role, ask = interp.query.ask, answer_type = interp.query.answer_type, turn = self.turn, text = text }
+  end
   if interp.intent == "comparison" and interp.items then
     local ks = {}
     for _, it in ipairs(interp.items) do local k = ref_key(it); if k then ks[#ks + 1] = k end end
@@ -623,7 +628,9 @@ function M:classify_dependency(interp, coref)
   end
   -- dependencies no resolver looked at (e.g. coreference switched off) stay unresolved rather than silently self-contained
   for _, d in ipairs(interp.dependencies or {}) do
-    if d.kind == "conversation_history" then
+    if d.kind == "previous_question" then
+      if (self.turn - (d.turn or self.turn)) <= 2 then add("recent_message") else add("earlier_project_context") end
+    elseif d.kind == "conversation_history" then
       if coref and coref.recall_found then add("earlier_project_context") else add("ambiguous_missing_context"); unresolved = true end
     elseif not covered[d.text] and d.kind ~= "comparison_set" then add("ambiguous_missing_context"); unresolved = true end
   end
@@ -727,7 +734,8 @@ function M:serialize()
     items[#items + 1] = it
   end
   local body = { schema = M.SCHEMA, ns = self.ns, turn = self.turn, revision = self.revision, next_id = self.next_id, items = items,
-    entities = self.entities, slots = self.slots, focus = self.focus, comparison = self.comparison, artifacts = self.artifacts, evictions = self.evictions }
+    entities = self.entities, slots = self.slots, focus = self.focus, comparison = self.comparison, artifacts = self.artifacts, evictions = self.evictions,
+    last_query = self.last_query }
   local json = U.json_encode(body, { nan_null = true })
   return U.json_encode({ meta = { schema = M.SCHEMA, sha256 = U.sha256(json), bytes = #json }, body = U.json_decode(json) })
 end
@@ -745,6 +753,7 @@ function M.deserialize(s, opts)
   self.turn, self.revision, self.next_id = b.turn, b.revision, b.next_id
   self.entities, self.slots, self.focus, self.comparison = b.entities or {}, b.slots or {}, b.focus, b.comparison
   self.artifacts, self.evictions = b.artifacts or {}, b.evictions or {}
+  self.last_query = b.last_query
   for _, it in ipairs(b.items or {}) do
     self.items[it.id] = it
     self.order[#self.order + 1] = it.id

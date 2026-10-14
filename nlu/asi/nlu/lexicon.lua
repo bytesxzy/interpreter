@@ -310,6 +310,17 @@ function DIRECTIVES.rel(self, rest)
     verbs = {}, preps = list(f.prep), kinds = {}, when = f.when, where = f.where, how_many = f.how_many, derived = f.derived,
     weight = tonumber(f.weight) or 1.0, source = f.source or "seed", symmetric = f.symmetric == "1", attr = f.attr == "1", event = f.event == "1",
     locus = f.locus == "1", isa = f.isa, support = {} }
+  -- "How many PEOPLE LIVE IN X?" counts the relation's value without naming the relation: count_noun lists the countable nouns, count_verb the verbs
+  -- (lemma[/prep=P]) whose subject is counted; howmuch=1 marks the relation "How much is X?" asks for when X is a product-like thing
+  r.count_nouns = list(f.count_noun)
+  r.count_verbs = {}
+  for _, v in ipairs(list(f.count_verb)) do
+    local lemma, attrs = v:match("^([^/]+)/?(.*)$")
+    local ent = { lemma = trim(lemma) }
+    for k, val in (attrs or ""):gmatch("(%a+)=([%w_]+)") do ent[k] = val end
+    r.count_verbs[#r.count_verbs + 1] = ent
+  end
+  r.howmuch = f.howmuch == "1"
   if f.rolesuffix == "1" then
     r.role_nouns = {}
     for _, n in ipairs(r.nouns_to) do

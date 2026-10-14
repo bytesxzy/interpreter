@@ -1,0 +1,122 @@
+# DEV (construction coverage). Written by the engine's author while building: every question / statement construction the engine is expected to handle for the
+# relation inventory, in several wordings each. This file is TUNED ON; it measures construction coverage, not generalisation (see reports/FINAL_REPORT.md for the
+# independent blind sets). Format: ID | category | text | gold
+# ------------------------------------------------------------------ quantity questions
+K001 | quantity | How many people live in Gravenmoor? | intent=factual_lookup; rel=population; from=Gravenmoor; ask=to; atype=number
+K002 | quantity | How many inhabitants does Tarnby have? | intent=factual_lookup; rel=population; from=Tarnby; ask=to; atype=number
+K003 | quantity | How many residents are there in Oslo? | intent=factual_lookup; rel=population; from=Oslo; ask=to
+K004 | quantity | How populous is Quenby? | intent=factual_lookup; rel=population; from=Quenby; ask=to
+K005 | quantity | How many people are living in Dunwick? | intent=factual_lookup; rel=population; from=Dunwick; ask=to
+K006 | quantity | What is the number of inhabitants of Tarnby? | intent=factual_lookup; rel=population; from=Tarnby; ask=to
+K007 | quantity | How many employees does Ithari Foundry have? | intent=factual_lookup; rel=employees; from=Ithari Foundry; ask=to; atype=number
+K008 | quantity | How many people work at Ithari Foundry? | intent=factual_lookup; rel=employees; from=Ithari Foundry; ask=to
+K009 | quantity | How large is the workforce of Ithari Foundry? | intent=factual_lookup; rel=employees; from=Ithari Foundry; ask=to
+K010 | quantity | How much does the Kelvane X2 cost? | intent=factual_lookup; rel=price; from=Kelvane X2; ask=to
+K011 | quantity | What does the Kelvane X2 cost? | intent=factual_lookup; rel=price; from=Kelvane X2; ask=to
+K012 | quantity | How much is the Kelvane X2? | intent=factual_lookup; rel=price; from=Kelvane X2; ask=to
+K013 | quantity | What is the price of the Kelvane X2? | intent=factual_lookup; rel=price; from=Kelvane X2; ask=to
+K014 | quantity | How many moons does Neptune have? | intent=factual_lookup; rel=moons; from=Neptune; ask=to; atype=number
+K015 | quantity | How old is Marie Curie? | intent=factual_lookup; rel=age; from=Marie Curie; ask=to
+K016 | quantity | How tall is Mount Whitby? | intent=factual_lookup; rel=height; from=Mount Whitby; ask=to
+K017 | quantity | What is the height of Mount Whitby? | intent=factual_lookup; rel=height; from=Mount Whitby; ask=to
+K018 | quantity | How big is Tarnby in area? | intent=factual_lookup; rel=area; from=Tarnby; ask=to
+K019 | quantity | How much revenue does Ithari Foundry make? | intent=factual_lookup; rel=revenue; from=Ithari Foundry; ask=to
+K020 | quantity | What is the annual revenue of Ithari Foundry? | intent=factual_lookup; rel=revenue; from=Ithari Foundry; ask=to
+# ------------------------------------------------------------------ stranded prepositions and verb-final questions
+S001 | stranded | Which language is official in Brazil? | intent=factual_lookup; rel=official_language; from=Brazil; ask=to
+S002 | stranded | What language is officially spoken in Peru? | intent=factual_lookup; rel=official_language; from=Peru; ask=to
+S003 | stranded | Which continent is Kenya in? | intent=factual_lookup; rel=continent_of; from=Kenya; ask=to
+S004 | stranded | What continent is Kenya on? | intent=factual_lookup; rel=continent_of; from=Kenya; ask=to
+S005 | stranded | On which continent does Kenya lie? | intent=factual_lookup; rel=continent_of; from=Kenya; ask=to
+S006 | stranded | Kenya is on which continent? | intent=factual_lookup; rel=continent_of; from=Kenya; ask=to
+S007 | stranded | What industry is Norvane Systems in? | intent=factual_lookup; rel=industry; from=Norvane Systems; ask=to
+S008 | stranded | Which industry does Norvane Systems operate in? | intent=factual_lookup; rel=industry; from=Norvane Systems; ask=to
+S009 | stranded | What sector is Norvane Systems active in? | intent=factual_lookup; rel=industry; from=Norvane Systems; ask=to
+S010 | stranded | Who is Elena Vasquez married to? | intent=factual_lookup; rel=spouse; from=Elena Vasquez; ask=to; atype=person
+S011 | stranded | Who did Elena Vasquez marry? | intent=factual_lookup; rel=spouse; from=Elena Vasquez; ask=to
+S012 | stranded | Whom is Elena Vasquez married to? | intent=factual_lookup; rel=spouse; from=Elena Vasquez; ask=to
+S013 | stranded | Who is Elena Vasquez's husband? | intent=factual_lookup; rel=spouse; from=Elena Vasquez; ask=to
+S014 | stranded | What is Normandy part of? | intent=factual_lookup; rel=part_of; from=Normandy; ask=to
+S015 | stranded | Which region is Rouen part of? | intent=factual_lookup; rel=part_of; from=Rouen; ask=to
+S016 | stranded | What is part of Normandy? | intent=factual_lookup; rel=part_of; to=Normandy; ask=from
+S017 | stranded | Which organisations is the European Union a member of? | intent=factual_lookup; rel=member_of; from=European Union; ask=to
+S018 | stranded | Which countries are members of the European Union? | intent=factual_lookup; rel=member_of; to=European Union; ask=from
+S019 | stranded | Which countries belong to the European Union? | intent=factual_lookup; rel=member_of; to=European Union; ask=from
+S020 | stranded | What is France a member of? | intent=factual_lookup; rel=member_of; from=France; ask=to
+S021 | stranded | Fitbit was bought by whom? | intent=factual_lookup; rel=acquirer; from=Fitbit; ask=to
+S022 | stranded | Instagram was acquired by which company? | intent=factual_lookup; rel=acquirer; from=Instagram; ask=to
+S023 | stranded | Who was Zarnack Labs bought by? | intent=factual_lookup; rel=acquirer; from=Zarnack Labs; ask=to
+S024 | stranded | Which company did Zarnack Labs get taken over by? | intent=factual_lookup; rel=acquirer; from=Zarnack Labs; ask=to
+S025 | stranded | Who was Ulysses written by? | intent=factual_lookup; rel=author; from=Ulysses; ask=to
+S026 | stranded | Who is Dunwick Press published by? | intent=factual_lookup; rel=publisher; from=Dunwick Press; ask=to
+S027 | stranded | Where was Elena Vasquez born? | intent=factual_lookup; rel=birth_place; from=Elena Vasquez; ask=to
+S028 | stranded | In which city was Elena Vasquez born? | intent=factual_lookup; rel=birth_place; from=Elena Vasquez; ask=to
+S029 | stranded | Which country is Elena Vasquez from? | intent=factual_lookup; rel=nationality; from=Elena Vasquez; ask=to
+S030 | stranded | Who does Elena Vasquez work for? | intent=factual_lookup; rel=employer; from=Elena Vasquez; ask=to
+# ------------------------------------------------------------------ lists and relative-clause object gaps
+L001 | list | Name the startups Sequoia Capital has invested in. | rel=investor; to=Sequoia Capital; ask=from
+L002 | list | List the companies that Sequoia Capital has backed. | rel=investor; to=Sequoia Capital; ask=from
+L003 | list | Which startups has Sequoia Capital invested in? | rel=investor; to=Sequoia Capital; ask=from
+L004 | list | Which companies did Sequoia Capital fund? | rel=investor; to=Sequoia Capital; ask=from
+L005 | list | Which companies has Wexcombe Capital bought? | rel=acquirer; to=Wexcombe Capital; ask=from
+L006 | list | Give me the firms Wexcombe Capital has acquired. | rel=acquirer; to=Wexcombe Capital; ask=from
+L007 | list | Which novels were written by Imelda Strand? | rel=author; to=Imelda Strand; ask=from
+L008 | list | List all books by Imelda Strand. | rel=author; to=Imelda Strand; ask=from
+L009 | list | Who works for Ithari Foundry? | rel=employer; to=Ithari Foundry; ask=from
+L010 | list | Which firms partner with Ithari Foundry? | rel=partner; to=Ithari Foundry; ask=from
+L011 | list | Name the countries that use the euro. | rel=currency; to=euro; ask=from
+L012 | list | Which cities are the headquarters of banks? | rel=headquarters; from=banks; ask=to
+L013 | list | Which companies are headquartered in Zurich? | rel=headquarters; to=Zurich; ask=from
+L014 | list | Which companies have their head office in Lyon? | rel=headquarters; to=Lyon; ask=from
+L015 | list | Who founded Ithari Foundry? | rel=founder; from=Ithari Foundry; ask=to
+L016 | list | Which person created the Kelvane X2? | rel=creator; from=Kelvane X2; ask=to
+L017 | list | Which companies did Elena Vasquez found? | rel=founder; to=Elena Vasquez; ask=from
+L018 | list | Which firms does Ithari Foundry own? | rel=parent_org; to=Ithari Foundry; ask=from
+L019 | list | What does Ithari Foundry make? | rel=creator; to=Ithari Foundry; ask=from
+L020 | list | Which products has Ithari Foundry released? | rel=release; from=Ithari Foundry; ask=to
+# ------------------------------------------------------------------ verification with both arguments
+V001 | verification | Did Siemens acquire Brightwater Collective? | intent=verification; rel=acquirer; from=Brightwater Collective; to=Siemens; items=Siemens|Brightwater Collective
+V002 | verification | Did Brightwater Collective acquire Siemens? | intent=verification; rel=acquirer; from=Siemens; to=Brightwater Collective; items=Brightwater Collective|Siemens
+V003 | verification | Has Siemens bought Brightwater Collective? | intent=verification; rel=acquirer; from=Brightwater Collective; to=Siemens
+V004 | verification | Is Brightwater Collective owned by Siemens? | intent=verification; rel=parent_org; from=Brightwater Collective; to=Siemens
+V005 | verification | Is Canberra the capital of Australia? | intent=verification; rel=capital; from=Australia; to=Canberra
+V006 | verification | Isn't Canberra the capital of Australia? | intent=verification; rel=capital; from=Australia; to=Canberra
+V007 | verification | Is it true that Canberra is the capital of Australia? | intent=verification; rel=capital; from=Australia; to=Canberra
+V008 | verification | Canberra is the capital of Australia, right? | intent=verification; rel=capital; from=Australia; to=Canberra
+V009 | verification | Is Ithari Foundry headquartered in Lyon? | intent=verification; rel=headquarters; from=Ithari Foundry; to=Lyon
+V010 | verification | Does Ithari Foundry have its headquarters in Lyon? | intent=verification; rel=headquarters; from=Ithari Foundry; to=Lyon
+V011 | verification | Was Elena Vasquez born in Lisbon? | intent=verification; rel=birth_place; from=Elena Vasquez; to=Lisbon
+V012 | verification | Is Elena Vasquez the CEO of Ithari Foundry? | intent=verification; rel=ceo; from=Ithari Foundry; to=Elena Vasquez
+V013 | verification | Is France a member of NATO? | intent=verification; rel=member_of; from=France; to=NATO
+V014 | verification | Does Peru use the sol? | intent=verification; rel=currency; from=Peru; to=sol
+V015 | verification | Isn't Elena Vasquez married to Tomas Reyes? | intent=verification; rel=spouse; from=Elena Vasquez; to=Tomas Reyes
+# ------------------------------------------------------------------ stative / copular variants of the core relations
+C001 | copular | Who is the person in charge of Tarnby Council? | intent=factual_lookup; rel=leader; from=Tarnby Council; ask=to
+C002 | copular | Who's running Ithari Foundry? | intent=factual_lookup; rel=leader; from=Ithari Foundry; ask=to
+C003 | copular | Who heads up Ithari Foundry? | intent=factual_lookup; rel=leader; from=Ithari Foundry; ask=to
+C004 | copular | Who currently holds the CEO position at Ithari Foundry? | intent=factual_lookup; rel=ceo; from=Ithari Foundry; ask=to
+C005 | copular | I'd like the name of whoever is CEO at Ithari Foundry. | intent=factual_lookup; rel=ceo; from=Ithari Foundry; ask=to
+C006 | copular | Going back to Ithari Foundry, who is its CEO? | intent=factual_lookup; rel=ceo; from=Ithari Foundry; ask=to
+C007 | copular | Where is Ithari Foundry based? | intent=factual_lookup; rel=headquarters; from=Ithari Foundry; ask=to
+C008 | copular | Where does Ithari Foundry have its head office? | intent=factual_lookup; rel=headquarters; from=Ithari Foundry; ask=to
+C009 | copular | In what city is the headquarters of Ithari Foundry? | intent=factual_lookup; rel=headquarters; from=Ithari Foundry; ask=to
+C010 | copular | When was Ithari Foundry founded? | intent=factual_lookup; rel=founded_on; from=Ithari Foundry; ask=to; atype=date
+C011 | copular | What year did Ithari Foundry start? | intent=factual_lookup; rel=founded_on; from=Ithari Foundry; ask=to
+C012 | copular | Who owns Ithari Foundry? | intent=factual_lookup; rel=parent_org; from=Ithari Foundry; ask=to
+C013 | copular | Who wrote Embers of the Tide? | intent=factual_lookup; rel=author; from=Embers of the Tide; ask=to
+C014 | copular | Who is the author of Embers of the Tide? | intent=factual_lookup; rel=author; from=Embers of the Tide; ask=to
+C015 | copular | Who discovered penicillin? | intent=factual_lookup; rel=discoverer; from=penicillin; ask=to
+C016 | copular | Who invented the Kelvane X2? | intent=factual_lookup; rel=inventor; from=Kelvane X2; ask=to
+C017 | copular | When was Marie Curie born? | intent=factual_lookup; rel=birth_date; from=Marie Curie; ask=to
+C018 | copular | What is the atomic number of neon? | intent=factual_lookup; rel=atomic_number; from=neon; ask=to
+C019 | copular | What is the chemical symbol for gold? | intent=factual_lookup; rel=symbol; from=gold; ask=to
+C020 | copular | What does Ithari Foundry do? | intent=factual_lookup; rel=industry; from=Ithari Foundry; ask=to
+# ------------------------------------------------------------------ ambiguous names (several known referents)
+A001 | ambiguous | Population of Springfield? | intent=factual_lookup; rel=population; amb=ambiguous
+A002 | ambiguous | Who is the CEO of Delta? | intent=factual_lookup; rel=ceo; amb=ambiguous
+A003 | ambiguous | What's oracle | amb=ambiguous
+A004 | ambiguous | phoenix | amb=ambiguous
+A005 | ambiguous | How long does Mercury take to orbit the Sun? | intent=factual_lookup; rel=orbital_period; from=Mercury
+A006 | ambiguous | Where is Georgia? | amb=ambiguous
+A007 | ambiguous | Tell me about Springfield. | amb=ambiguous
+A008 | ambiguous | What is the capital of Georgia? | rel=capital; amb=ambiguous

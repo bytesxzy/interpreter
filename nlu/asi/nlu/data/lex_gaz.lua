@@ -67,4 +67,32 @@ entity company.meta: company | names=Meta; Meta Platforms | domain=technology; b
 entity color.orange: color | names=orange | domain=color; design; art; paint
 entity fruit.orange: fruit | names=orange; oranges | domain=food; biology
 entity company.orange_telecom: company | names=Orange | domain=business; technology
+
+# ---- names that several well-known referents share: listing them as separate entities is what lets the engine report the ambiguity instead of guessing
+entity city.springfield_il: city | names=Springfield | domain=geography
+entity city.springfield_ma: city | names=Springfield | domain=geography
+entity city.springfield_mo: city | names=Springfield | domain=geography
+entity company.delta_air_lines: company | names=Delta; Delta Air Lines | domain=business; travel
+entity company.delta_faucet: company | names=Delta; Delta Faucet | domain=business
+entity myth.oracle: mythological_figure | names=Oracle; oracle | domain=mythology
+entity city.phoenix_az: city | names=Phoenix | domain=geography
+entity myth.phoenix: mythological_figure | names=Phoenix; phoenix | domain=mythology
+entity city.portland_or: city | names=Portland | domain=geography
+entity city.portland_me: city | names=Portland | domain=geography
+entity city.birmingham_uk: city | names=Birmingham | domain=geography
+entity city.birmingham_al: city | names=Birmingham | domain=geography
+entity city.santiago_cl: city | names=Santiago | domain=geography
+entity city.santiago_es: city | names=Santiago de Compostela; Santiago | domain=geography
+entity city.alexandria_eg: city | names=Alexandria | domain=geography
+entity city.alexandria_va: city | names=Alexandria | domain=geography
+entity city.richmond_va: city | names=Richmond | domain=geography
+entity city.richmond_uk: city | names=Richmond | domain=geography
+entity city.lincoln_uk: city | names=Lincoln | domain=geography
+entity city.lincoln_ne: city | names=Lincoln | domain=geography
+entity person.abraham_lincoln: person | names=Abraham Lincoln; Lincoln | domain=history; politics
+entity subnational.victoria_au: subnational | names=Victoria | domain=geography; politics
+entity city.victoria_bc: city | names=Victoria | domain=geography
+entity river.jordan: river | names=Jordan River; Jordan | domain=geography
+entity city.columbia_sc: city | names=Columbia | domain=geography
+entity river.columbia: river | names=Columbia River; Columbia | domain=geography
 ]==]

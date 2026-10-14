@@ -554,6 +554,8 @@ function F.wh_adverbial(S, out)
       if is_be(C(S, bk)) then
         for _, np in ipairs(P.parse_np(S, bk + 1)) do
           local dim = wh.dim and S.lex:dim(wh.dim)
+          -- "How large is the workforce of X?": a relational noun with its argument names the relation itself (see F.how_adj_relnoun)
+          if np.head_kind == "relnoun" and (np.of_arg or np.possessor) then dim = nil end
           for _, rid in ipairs(dim and dim.rels or {}) do
             local rel = S.lex:get_rel(rid)
             if rel then
@@ -756,6 +758,9 @@ function F.wh_role_holder(S, out)
   end
 end
 
+-- helpers shared with asi.nlu.frames3
+F.set_lookup, F.use_wh, F.use_vp, F.is_be, F.is_do, F.is_prep, F.gap_aux = set_lookup, use_wh, use_vp, is_be, is_do, is_prep, gap_aux
+
 -- generic clause: [aux]* [NP-subject] [aux]* [not] VERB [NP-object] -> {subj, verb, obj, neg, last}
 function F.parse_clause(S, k)
   local best
@@ -793,10 +798,14 @@ function F.yes_no(S, out)
   local c0 = C(S, k0)
   if not (c0 and c0.single and (cat(c0, "aux_be") or cat(c0, "aux_do") or cat(c0, "aux_have") or cat(c0, "modal")) and not cat(c0, "wh")) then return end
   local akind = P.aux_kind(c0)
-  for _, np1 in ipairs(P.parse_np(S, k0 + 1)) do
+  -- "Isn't Canberra the capital of Australia?": a negated auxiliary asks for confirmation; the claim being checked is the positive one
+  local nstart, neg_first = k0 + 1, nil
+  if P.is_neg(C(S, nstart)) and not barrier(C(S, nstart)) then neg_first = nstart; nstart = nstart + 1 end
+  for _, np1 in ipairs(P.parse_np(S, nstart)) do
     local function base(frame)
       local h = newh(S, frame, "question", "verification", "verify")
       use(h, k0); use_np(h, np1)
+      if neg_first then use(h, neg_first); addf(h, "confirmation_question", 0.0, "negated auxiliary: the question asks for confirmation of the positive claim") end
       h.requires_evidence = true
       mark_unresolved_pron(h, np1)
       return h
@@ -816,6 +825,7 @@ function F.yes_no(S, out)
                 h.roles[o.known_role] = o.arg
                 h.roles[o.ask_role] = value
                 h.verify = { rel = o.rel.id, from = h.roles.from, to = h.roles.to }
+                h.items = (value.u1 or 0) < (o.arg.u1 or 0) and { value, o.arg } or { o.arg, value }
                 h.known_role, h.ask = o.known_role, nil
                 addf(h, "relnp_arg", 0.6, "verification of a relational statement")
                 mark_unresolved_pron(h, o.arg); mark_unresolved_pron(h, value)
@@ -847,6 +857,7 @@ function F.yes_no(S, out)
                   h.rel, h.rel_obj = rel.id, rel
                   h.roles[e.subj] = np1; h.roles[other(e.subj)] = np2
                   h.verify = { rel = rel.id, from = h.roles.from, to = h.roles.to }
+                  h.items = { np1, np2 }
                   out[#out + 1] = h
                 end
               elseif not e.prep and is_prep(C(S, vp.nxt), "by") then
@@ -856,6 +867,7 @@ function F.yes_no(S, out)
                   h.rel, h.rel_obj = rel.id, rel
                   h.roles[other(e.subj)] = np1; h.roles[e.subj] = np2
                   h.verify = { rel = rel.id, from = h.roles.from, to = h.roles.to }
+                  h.items = { np1, np2 }
                   if vp.neg then h.polarity = "negative" end
                   out[#out + 1] = h
                 end
@@ -872,6 +884,7 @@ function F.yes_no(S, out)
           h.rel, h.rel_obj = "located_in", lrel
           h.roles.from, h.roles.to = np1, np2
           h.verify = { rel = "located_in", from = np1, to = np2 }
+          h.items = { np1, np2 }
           out[#out + 1] = h
         end
       end
@@ -891,6 +904,7 @@ function F.yes_no(S, out)
                 h.rel, h.rel_obj = rel.id, rel
                 h.roles[e.subj] = np1; h.roles[other(e.subj)] = np2
                 h.verify = { rel = rel.id, from = h.roles.from, to = h.roles.to }
+                h.items = { np1, np2 }
                 if vp.neg then h.polarity = "negative" end
                 addf(h, "direction_explicit", 0.3, "role direction fixed by active verb")
                 mark_unresolved_pron(h, np2)
