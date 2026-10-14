@@ -158,6 +158,13 @@ function P.make_chunks(S, cover)
     end
     chunks[i] = c
   end
+  -- "who's running X", "she's leading Y", "there's ...": a clitic 's right after a wh-word / personal pronoun is the auxiliary "is"
+  for i = 2, #chunks do
+    local c, p = chunks[i], chunks[i - 1]
+    if c.single and c.cats and c.cats.clitic_s and not c.pre and p.single and p.cats and (p.cats.wh or p.cats.pron or p.unit.form == "there" or p.unit.form == "here") then
+      c.be_clitic = true
+    end
+  end
   return chunks
 end
 
@@ -828,7 +835,7 @@ P.parse_np = parse_np
 ---------------------------------------------------------------- verb phrases
 local function aux_kind(c)
   if not c or not c.single then return nil end
-  if cat(c, "aux_be") then return "be" end
+  if cat(c, "aux_be") or c.be_clitic then return "be" end
   if cat(c, "aux_do") then return "do" end
   if cat(c, "aux_have") then return "have" end
   if cat(c, "modal") then return "modal" end
@@ -1449,6 +1456,11 @@ function P.strip_wrapper(S)
       guard = guard + 1
       local c0 = C(S, k)
       local n0 = c0 and not c0.masked and lex:cue_at("lead_in", units, c0.u1)
+      -- "Going back to X, who ...": a longer topic introducer starting at the same word wins over the shorter lead-in ("going back")
+      if n0 then
+        local nt = lex:cue_at("topic_intro", units, c0.u1)
+        if nt and nt > n0 then n0 = nil end
+      end
       -- "Remind me, which ...": a lead-in only when a comma follows; "Remind me what we decided" is a recall request of its own
       if n0 and c0.unit.form == "remind" then
         local after, consumed, kk2 = nil, 0, k

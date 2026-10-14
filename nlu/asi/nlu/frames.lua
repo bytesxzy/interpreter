@@ -154,10 +154,16 @@ function F.wh_copular(S, out)
       local bk = wh.nxt
       local be = C(S, bk)
       if is_be(be) and not barrier(be) then
-        for _, np in ipairs(P.parse_np(S, bk + 1)) do
+        -- "Who is CURRENTLY the CEO of X?", "Who is NOW in charge of Y?": adverbs between the copula and the predicate carry no content here
+        local nk, advs = bk + 1, {}
+        while C(S, nk) and C(S, nk).single and not C(S, nk).masked and not barrier(C(S, nk)) and cat(C(S, nk), "adv") and not P.is_neg(C(S, nk)) do
+          advs[#advs + 1] = nk; nk = nk + 1
+        end
+        for _, np in ipairs(P.parse_np(S, nk)) do
           local base = function(frame)
             local h = newh(S, frame, "question", nil, nil)
             use_wh(h, wh); use(h, bk); use_np(h, np)
+            for _, a in ipairs(advs) do use(h, a) end
             -- "What is France's capital city CALLED?" -- the closing participle only asks for the name of the noun phrase
             local tail = C(S, np.nxt)
             if tail and tail.single and not tail.masked and np.nxt == S.last and (tail.unit.form == "called" or tail.unit.form == "named") then
