@@ -327,7 +327,7 @@ function F.expand_chain(S, h)
     -- question asks for a narrower kind of place ("in which COUNTRY is ...")
     local top = steps[#steps]
     local wt = h.wh and h.wh.type
-    if h.rel == "located_in" and top and top.rel_obj.locus and top.ask_role == "to" and (not wt or wt == "place" or wt == "location") then
+    if h.rel == "located_in" and top and top.rel_obj.locus and top.ask_role == "to" and (not wt or wt == "place" or wt == "location" or S.lex:compat(top.rel_obj.to, wt) >= 0.9) then
       h.factors[#h.factors + 1] = { name = "redundant_location_hop", v = -0.9, note = "the noun's own relation already gives a location; a second located_in hop is redundant" }
     end
   end

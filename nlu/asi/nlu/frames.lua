@@ -600,10 +600,11 @@ function F.where_support(S, out)
     if wh.wh == "where" or wh.wh == "what" or wh.wh == "which" then
       local dk = wh.nxt
       local embedded_no_aux = S.embedded and not is_do(C(S, dk))
-      if is_do(C(S, dk)) or embedded_no_aux then
+      local gap = gap_aux(C(S, dk))      -- "Where DOES X keep ...", "Where HAS X established ..."
+      if gap or embedded_no_aux then
         local nk = embedded_no_aux and dk or dk + 1
         for _, snp in ipairs(P.parse_np(S, nk)) do
-          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do", finite_ok = embedded_no_aux })) do
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = gap or "do", finite_ok = embedded_no_aux })) do
             for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
               local dc = C(S, onp.c1)
               if onp.head_kind == "relnoun" and not onp.of_arg and dc and dc.single and (cat(dc, "poss_det") or cat(dc, "det")) and onp.c1 < onp.nxt - 1 then
@@ -744,7 +745,7 @@ function F.wh_role_holder(S, out)
                   local h = newh(S, "wh_role_holder", "question")
                   set_lookup(h, o.rel, "from", o.arg, "to", wh)
                   use_wh(h, wh); use_vp(h, vp); use_np(h, onp)
-                  addf(h, "role_holder_construction", 0.9, "'" .. tostring(vp.lemma) .. "' + the post noun of " .. o.rel.id)
+                  addf(h, "role_holder_construction", 1.3, "'" .. tostring(vp.lemma) .. "' + the post noun of " .. o.rel.id)
                   option_factors(h, o)
                   mark_unresolved_pron(h, o.arg)
                   out[#out + 1] = h

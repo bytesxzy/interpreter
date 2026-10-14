@@ -42,7 +42,28 @@ local function merge_copula_like(S, spans)
         merged = { i = sp.i, j = nx.j, kind = "word", readings = {}, text = sp.text .. " " .. nx.text, copula_like = true, past = past, score = sp.score }
       end
     end
-    if merged then out[#out + 1] = merged; i = i + 2
+    if merged then
+      -- "has served as", "was serving as", "has been serving as", "will serve as": the auxiliaries right before the copula-like verb join its chunk
+      for _ = 1, 2 do
+        local pv = out[#out]
+        if pv and pv.copula_like and pv.i ~= pv.j and not units[merged.i].pre then      -- an already merged "has been"
+          merged.i = pv.i; merged.text = pv.text .. " " .. merged.text
+          merged.past = merged.past or pv.past; merged.future = merged.future or pv.future
+          out[#out] = nil
+          break
+        end
+        local pu = pv and pv.i == pv.j and units[pv.i]
+        if not (pu and pu.kind == "word" and not units[merged.i].pre) then break end
+        local f = pu.form
+        if f == "has" or f == "have" or f == "had" or f == "been" or f == "is" or f == "are" or f == "was" or f == "were" or f == "will" or f == "shall" then
+          merged.i = pv.i
+          merged.text = pv.text .. " " .. merged.text
+          if f == "was" or f == "were" or f == "had" then merged.past = true end
+          if f == "will" or f == "shall" then merged.future = true end
+          out[#out] = nil
+        else break end
+      end
+      out[#out + 1] = merged; i = i + 2
     else
       -- "(has been) designated (as) the capital", "is (widely) known as", "was named the CEO": a be-participle that introduces a noun phrase is a copula;
       -- "is said to be the capital": a raising participle + "to be" is a (possibly hedged) copula;  "became the capital": an inchoative copula
@@ -97,6 +118,18 @@ local function merge_copula_like(S, spans)
           goto continue
         end
       end
+      -- "will be the CEO of X": a future auxiliary + "be" that introduces a noun phrase is one (future) copula chunk
+      if cl and cl.modal and (u.form == "will" or u.form == "shall") and nx and nx.i == nx.j and units[nx.i].form == "be" and not units[nx.i].pre and after then
+        local fu = units[after.i]
+        local fcl = fu and lex:cats(fu.form) or {}
+        local verbish = false
+        for _, r in ipairs(fu and lex:readings(fu.form) or {}) do if r.pos == "verb" and (r.feat == "past" or r.feat == "pp" or r.feat == "ing") then verbish = true end end
+        if fu and not fu.pre and fu.kind ~= "punct" and not fcl.prep and not verbish and not fcl.neg_word and not fcl.adv then
+          out[#out + 1] = { i = sp.i, j = nx.j, kind = "word", readings = {}, text = sp.text .. " " .. nx.text, copula_like = true, past = false, future = true, score = sp.score }
+          i = i + 2
+          goto continue
+        end
+      end
       if cl and cl.copula_become and not units[sp.i].pre and nx then
         local nu = units[nx.i]
         if nu and not nu.pre and nu.kind ~= "punct" and not (lex:cats(nu.form) or {}).prep then
@@ -139,7 +172,7 @@ function P.make_chunks(S, cover)
     if sp.copula_like then
       -- one copula chunk; its proxy unit reads "is"/"was" so every frame that tests for the copula accepts it, while offsets stay those of the surface words
       c.single, c.copula_like = true, true
-      c.hedged, c.onset = sp.hedged, sp.onset
+      c.hedged, c.onset, c.future = sp.hedged, sp.onset, sp.future
       c.unit = setmetatable({ form = sp.past and "was" or "is", surface_form = c.form }, { __index = u })
       c.cats = lex:cats("is") or {}
     end
@@ -494,6 +527,11 @@ local function open_relnoun_alt(S, np, arg)
 end
 
 -- core NP (no possessor): [det|poss] modifiers* head [of-complement] [back-reference]
+-- "the post of chief executive at X", "the position of prime minister in Y": the post noun adds nothing; the role noun after "of" is read as its own post noun
+local ROLE_POST = U.set({ "post", "position", "role", "job", "office", "seat", "title", "chair", "mantle" })
+local LOCATIVE_HOLDER_PREP = U.set({ "in", "throughout", "across", "within" })
+local STATUS_HEAD = U.set({ "status", "distinction", "honour", "honor", "rank", "designation", "label", "standing", "function", "role" })
+local NAMING = U.set({ "called", "named", "dubbed", "titled", "christened", "termed", "labelled", "labeled" })
 local function parse_np_core(S, k, opts)
   local out = {}
   local c = C(S, k)
@@ -735,7 +773,18 @@ local function parse_np_core(S, k, opts)
   for _, np in ipairs(out) do
     local alts = { np }
     local nx = C(S, np.nxt)
-    if nx and nx.single and (nx.unit.form == "of" or ((nx.unit.form == "at" or nx.unit.form == "for") and np.head_kind == "relnoun")) and not nx.masked and not barrier(nx) and not opts.no_of then
+    local role_head = false
+    -- "the prime minister IN Spain", "the currency IN Tavoria", "legal tender THROUGHOUT Tavoria": a post / territory-valued noun takes a locative holder
+    if np.head_kind == "relnoun" and nx and nx.single and LOCATIVE_HOLDER_PREP[nx.unit.form] then
+      for _, e in ipairs(np.relnouns or {}) do
+        local r = S.lex:get_rel(e.rel)
+        if r and e.role == "to" then
+          if r.role_nouns and #r.role_nouns > 0 then role_head = true
+          elseif S.lex:compat("country", r.from) >= 0.9 then role_head = true end
+        end
+      end
+    end
+    if nx and nx.single and (nx.unit.form == "of" or ((nx.unit.form == "at" or nx.unit.form == "for") and np.head_kind == "relnoun") or role_head) and not nx.masked and not barrier(nx) and not opts.no_of then
       local subs = parse_np(S, np.nxt + 1, { depth = (opts.depth or 0) + 1 })
       if (opts.depth or 0) < 3 then
         for si = 1, math.min(#subs, 2) do
@@ -780,6 +829,26 @@ local function parse_np_core(S, k, opts)
       cp.type_noun = np
       cp.score = sub.score + 0.45
       alts[#alts + 1] = cp
+    end
+    -- "the country called Tavoria", "the company named Zorvex", "the firm known as Acme": a type noun + a naming participle + a proper name denotes the named entity
+    if np.head_kind == "typenoun" and not np.plural and nx and nx.single and not nx.masked and not barrier(nx) then
+      local nk
+      if NAMING[nx.unit.form] then nk = np.nxt + 1
+      elseif nx.unit.form == "known" then
+        local asc = C(S, np.nxt + 1)
+        if asc and asc.single and not asc.masked and not barrier(asc) and asc.unit.form == "as" then nk = np.nxt + 2 end
+      end
+      if nk then
+        for _, sub in ipairs(parse_np(S, nk, { no_of = true, depth = (opts.depth or 0) + 1 })) do
+          if sub.head_kind == "entity" or (sub.head_kind == "unknown" and sub.head and sub.head.cap) then
+            local cp = U.shallow(sub)
+            cp.u1, cp.c1 = np.u1, np.c1
+            cp.type_noun = np
+            cp.score = sub.score + 0.45
+            alts[#alts + 1] = cp
+          end
+        end
+      end
     end
     for _, a in ipairs(alts) do
       local br, who = backref_at(S, a.nxt)
@@ -838,6 +907,34 @@ function parse_np(S, k, opts)
     if ca and cb and cc and ca.single and cb.single and cc.single and cat(ca, "det") and TRANSPARENT_HEAD[cb.unit.form] and cc.unit.form == "of"
       and not ca.masked and not barrier(cb) and not barrier(cc) then shift = 3
     elseif ca and cb and ca.single and cb.single and TRANSPARENT_HEAD[ca.unit.form] and cb.unit.form == "of" and not ca.masked and not barrier(cb) then shift = 2 end
+    -- the post noun is transparent only over a ROLE noun ("the title of CEO"); "the title of the book" keeps "title" as its head
+    local role_shift
+    local any_relation = false
+    if not shift and ca and cb and cc and ca.single and cb.single and cc.single and cat(ca, "det") and (ROLE_POST[cb.unit.form] or STATUS_HEAD[cb.unit.form]) and cc.unit.form == "of"
+      and not ca.masked and not cb.masked and not barrier(cb) and not barrier(cc) then role_shift = 3; any_relation = STATUS_HEAD[cb.unit.form] and not ROLE_POST[cb.unit.form]
+    elseif not shift and ca and cb and ca.single and cb.single and (ROLE_POST[ca.unit.form] or STATUS_HEAD[ca.unit.form]) and cb.unit.form == "of" and not ca.masked and not barrier(cb) then
+      role_shift = 2; any_relation = STATUS_HEAD[ca.unit.form] and not ROLE_POST[ca.unit.form] end
+    if role_shift then
+      local subs = parse_np(S, k + role_shift, opts)
+      for si = 1, math.min(#subs, 3) do
+        local sub = subs[si]
+        if sub.head_kind == "relnoun" then
+          local entries = {}
+          for _, e in ipairs(sub.relnouns or {}) do
+            local r = S.lex:get_rel(e.rel)
+            if r and e.role == "to" and (any_relation or (r.role_nouns and #r.role_nouns > 0)) then local ce = U.shallow(e); ce.rolesuffix = true; entries[#entries + 1] = ce end
+          end
+          if #entries > 0 then
+            local cp = U.shallow(sub)
+            cp.c1, cp.u1 = ca.idx, ca.u1
+            cp.relnouns = entries
+            cp.transparent_head = true
+            cp.score = sub.score + 0.3
+            out[#out + 1] = cp
+          end
+        end
+      end
+    end
     if shift then
       local subs = parse_np(S, k + shift, opts)
       for si = 1, math.min(#subs, 4) do
@@ -1254,7 +1351,8 @@ function P.normalize_cleft(S)
       local rc = C(S, np.nxt)
       if rc and rc.single and not rc.masked and not barrier(rc) and (rc.unit.form == "who" or rc.unit.form == "that" or rc.unit.form == "which") then
         -- a subject cleft only: the relativizer must be followed by a verb phrase
-        if #P.parse_vp(S, np.nxt + 1) > 0 then
+        local vb = C(S, np.nxt + 1)
+        if #P.parse_vp(S, np.nxt + 1) > 0 or (vb and vb.single and not vb.masked and not barrier(vb) and cat(vb, "aux_be")) then   -- "It is Paris that SERVES AS the capital"
           remove_chunks(S, { [f] = true, [f + 1] = true, [np.nxt] = true })
           S.cleft = true
           return true
@@ -1559,6 +1657,23 @@ function P.front_temporal(S)
   return true
 end
 
+-- "Who currently is the CEO of X?" / "Who now serves as ...": a present-time adverb between the wh-word and the verb moves to the end of the clause,
+-- where the temporal analysis reads it exactly as in "Who is the CEO of X currently?".  Only chunk order changes (offsets stay).
+function P.mid_temporal(S)
+  local f = S.first
+  local w, t, v = C(S, f), C(S, f + 1), C(S, f + 2)
+  if not (w and t and v and w.single and not w.masked and cat(w, "wh") and t.single and not t.masked and t.temporal and t.temporal.kind == "marker") then return false end
+  if barrier(t) or barrier(v) or v.masked or f + 2 > S.last then return false end
+  local new = {}
+  for i = 1, f do new[#new + 1] = S.chunks[i] end
+  for i = f + 2, #S.chunks do new[#new + 1] = S.chunks[i] end
+  new[#new + 1] = t
+  for i, ch in ipairs(new) do ch.idx = i end
+  S.chunks = new
+  S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+  return true
+end
+
 ---------------------------------------------------------------- indirect questions
 -- "what [a quokka] is" -> "what is [a quokka]": the copula that closes (or precedes the participle of) an embedded wh-clause moves in front of the subject
 -- noun phrase.  Only the chunk ORDER changes -- chunks keep their unit offsets, so every span, quote and provenance record still points at the original text.
@@ -1725,6 +1840,7 @@ function P.strip_wrapper(S)
   end
   S.first = k
   P.front_temporal(S)
+  P.mid_temporal(S)
   P.normalize_cleft(S)
   P.take_polar(S)
   P.front_insitu_wh(S)

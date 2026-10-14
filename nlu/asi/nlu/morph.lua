@@ -141,9 +141,30 @@ function M.adj_forms(lemma)
 end
 
 -- Conservative suffix guesses for words that are NOT in the lexicon. Returns candidates {lemma, pos, feat, conf}.
+-- irregular past / participle forms -> their lemma (for words the lexicon does not know: "held", "led", "built")
+local IRREG_REV
+local function irreg_rev()
+  if IRREG_REV then return IRREG_REV end
+  IRREG_REV = {}
+  for k, forms in pairs(IRREG_VERB) do
+    local base = norm_key(k)
+    if base ~= "be" and base ~= "have" and base ~= "do" then
+      for fi, feat in ipairs({ "past", "pp" }) do
+        local f = forms[fi]
+        if type(f) == "string" and f ~= base then
+          IRREG_REV[f] = IRREG_REV[f] or {}
+          IRREG_REV[f][#IRREG_REV[f] + 1] = { lemma = base, feat = feat }
+        end
+      end
+    end
+  end
+  return IRREG_REV
+end
+
 function M.guess(form)
   local out = {}
   local function add(l, pos, feat, conf) out[#out + 1] = { lemma = l, pos = pos, feat = feat, conf = conf } end
+  for _, r in ipairs(irreg_rev()[form] or {}) do add(r.lemma, "verb", r.feat, 0.6) end
   if #form >= 5 and form:find("ing$") then
     local stem = form:sub(1, -4)
     add(stem, "verb", "ing", 0.5)

@@ -94,19 +94,22 @@ A.describe_np = describe_np
 ---------------------------------------------------------------- qualifiers
 local function qualifier_range(S, a)
   -- chunks that qualify THIS assertion: a fronted adverbial before the subject, and what follows the object up to the next comma-delimited clause
+  -- (a fact mined from a sub-clause is qualified by that clause only: "Not many people know that P founded O" is not a negated founding)
   local keep = {}
+  local lo, hi = S.first, S.last
+  if a.span then lo, hi = a.span[1], a.span[2] end
   local first_used = a.used_np[1].c1
   for _, np in ipairs(a.used_np) do if np.c1 < first_used then first_used = np.c1 end end
-  for k = S.first, first_used - 1 do keep[k] = true end
-  local start = a.end_chunk or (S.last + 1)
-  for k = start, S.last do
+  for k = lo, first_used - 1 do keep[k] = true end
+  local start = a.end_chunk or (hi + 1)
+  for k = start, hi do
     local c = C(S, k)
     if c and c.pre and c.pre:find("comma") and not c.temporal then break end
     keep[k] = true
   end
-  for k = S.lead_first or S.first, S.first - 1 do keep[k] = true end
+  if not a.span then for k = S.lead_first or S.first, S.first - 1 do keep[k] = true end end
   -- the predicate (copula / verb / negation) sits between the NPs
-  for k = S.first, S.last do
+  for k = lo, hi do
     if a.copula and a.copula.used[k] then keep[k] = true end
     if a.vp and k >= a.vp.c1 and k <= a.vp.c2 then keep[k] = true end
   end
@@ -171,6 +174,20 @@ end
 
 ---------------------------------------------------------------- patterns
 local COPULA = U.set({ "is", "are", "was", "were", "be", "been", "being" })
+local NAMED_VALUE = U.set({ "person", "agent", "organization", "company", "city", "country", "place", "political_territory", "institution", "location" })
+local DEGREE_WORD = U.set({ "best", "better", "most", "mostly", "largely", "chiefly", "mainly", "principally", "primarily", "particularly", "especially" })
+-- sentence adverbs that open a clause and say how the writer stands to it; the hedging ones mark the assertion as reported, not certain
+local HEDGE_LEAD = U.set({ "reportedly", "allegedly", "supposedly", "apparently", "purportedly", "presumably", "seemingly", "ostensibly", "reputedly", "rumoredly", "rumouredly" })
+local LEAD_ADVERB = U.set({ "reportedly", "allegedly", "supposedly", "apparently", "purportedly", "presumably", "seemingly", "ostensibly", "reputedly", "officially", "publicly", "notably",
+  "famously", "importantly", "interestingly", "indeed", "actually", "naturally", "obviously", "clearly", "certainly", "undoubtedly", "surely", "admittedly", "incidentally",
+  "historically", "traditionally", "nowadays", "currently", "meanwhile", "however", "still", "also", "besides", "furthermore", "moreover", "additionally", "firstly", "secondly",
+  "finally", "lastly", "overall", "essentially", "basically", "ultimately", "evidently", "frankly", "honestly", "briefly", "simply", "technically", "strictly", "formally", "legally",
+  "constitutionally", "unsurprisingly", "fortunately", "unfortunately", "sadly", "thankfully", "remarkably", "strangely", "curiously", "tellingly", "crucially", "significantly",
+  "today", "originally", "initially", "eventually", "subsequently", "recently", "later", "earlier", "yet", "again", "then", "thus", "therefore", "hence", "so", "well", "now", "anyway" })
+local DIRECT_PARTICIPLE = U.set({ "designated", "named", "declared", "appointed", "chosen", "elected", "deemed", "termed", "titled", "called", "considered", "crowned", "proclaimed", "voted",
+  "installed", "confirmed", "made" })
+local AS_PARTICIPLE = U.set({ "known", "regarded", "recognised", "recognized", "listed", "described", "identified", "credited", "named", "cited", "presented", "introduced", "acknowledged",
+  "celebrated", "remembered", "hailed", "billed", "designated", "registered", "recorded", "characterised", "characterized", "portrayed", "depicted", "seen", "viewed", "considered", "treated" })
 local function copula_at(S, k)
   local c = C(S, k)
   if not (c and c.single and not c.masked) then return nil end
@@ -194,11 +211,22 @@ local function copula_at(S, k)
   elseif not (cat(c, "aux_be") or cat(c, "clitic_s")) then return nil end
   local skipped, former = {}, false
   while C(S, j) and C(S, j).single and not barrier(C(S, j)) and (P.is_neg(C(S, j)) or cat(C(S, j), "adv") or (C(S, j).temporal and C(S, j).temporal.kind == "marker")
-    or (C(S, j).unit.form == "no" and C(S, j + 1) and C(S, j + 1).unit.form == "longer")) do
+    or (C(S, j).unit.form == "no" and C(S, j + 1) and C(S, j + 1).unit.form == "longer")
+    or (DEGREE_WORD[C(S, j).unit.form] and C(S, j + 1) and C(S, j + 1).single and AS_PARTICIPLE[C(S, j + 1).unit.form])) do
     if C(S, j).unit.form == "no" then former = true; used[j] = true; used[j + 1] = true; j = j + 1
     elseif P.is_neg(C(S, j)) then neg = true; used[j] = true
     elseif C(S, j).temporal then skipped[#skipped + 1] = j
     else used[j] = true end
+    j = j + 1
+  end
+  -- "is best known as", "was listed as", "is widely regarded as": a passive participle + "as" is a copula that introduces a role or identity
+  local pc, ac = C(S, j), C(S, j + 1)
+  if pc and ac and pc.single and ac.single and not pc.masked and not ac.masked and not barrier(pc) and not barrier(ac) and AS_PARTICIPLE[pc.unit.form] and ac.unit.form == "as" then
+    used[j], used[j + 1] = true, true
+    j = j + 2
+  -- "has been designated the capital", "was named the CEO": a participle that takes its complement directly
+  elseif pc and ac and pc.single and not pc.masked and not barrier(pc) and not barrier(ac) and DIRECT_PARTICIPLE[pc.unit.form] and not ac.masked and not cat(ac, "prep") and not P.is_neg(ac) then
+    used[j] = true
     j = j + 1
   end
   return { nxt = j, neg = neg, past = past, used = used, form = f, skipped = skipped, former = former, hedged = c.hedged or hedged_modal, future = future_modal, onset = c.onset }
@@ -243,7 +271,10 @@ local function copular_relational(self, S, ctx, out)
       if snp.head_kind == "relnoun" then
         for _, o in ipairs(F.relnp_options(S, snp)) do
           if o.arg and o.rel then
-            for _, vnp in ipairs(P.parse_np(S, cp.nxt)) do
+            -- "is held by P" is a passive, not a value
+            local pvc, pby = C(S, cp.nxt), C(S, cp.nxt + 1)
+            local passive_follows = pvc and pby and pvc.single and pby.single and pby.unit.form == "by" and #P.verb_analyses(S, pvc) > 0
+            for _, vnp in ipairs(not passive_follows and P.parse_np(S, cp.nxt) or {}) do
               local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "copular_value", used_np = { snp, vnp }, neg = cp.neg, tense = cp.past and "past" or "present", copula = cp }
               a.roles = { [o.known_role] = o.arg, [o.ask_role] = vnp }
               a.end_chunk = vnp.nxt
@@ -340,7 +371,7 @@ local function verb_relational(self, S, ctx, out)
     for _, vp in ipairs(P.parse_vp(S, pos)) do
       for _, e in ipairs(vp.analysis.entries) do
         local rel = lex:get_rel(e.rel)
-        if rel and not e.as_only then
+        if rel and not e.as_only and not e.np_only then
           local k = vp.nxt
           local patient_first = vp.voice == "passive" and not e.prep
           local skipped
@@ -721,6 +752,14 @@ end
 local PATTERNS = { copular_relational, verb_relational, have_attribute, support_statement, relative_identity, description_identity, classification, with_attribute, definition,
   apposition_relational, relative_apposition }
 
+-- clause-level mining (appositives, whose-clauses, fronted participles, purpose clauses ...): localised patterns plus whole-sentence patterns re-run on sub-clauses
+local X = require("asi.nlu.assertions2")
+X.init({ copula_at = copula_at, comma_at = comma_at })
+local WHOLE_PATTERNS = {}
+for i, pat in ipairs(PATTERNS) do WHOLE_PATTERNS[i] = pat end
+local LOCAL_PATTERNS = X.patterns
+for _, pat in ipairs(LOCAL_PATTERNS) do PATTERNS[#PATTERNS + 1] = pat end
+
 ---------------------------------------------------------------- reader-directed content
 -- Data that addresses the reader is evidence ABOUT the data, never a command: such sentences are flagged and excluded from fact extraction.
 local function reader_directed(self, S, sent_text)
@@ -751,6 +790,18 @@ local function reader_directed(self, S, sent_text)
     end
   end
   if addresses and ai then reasons[#reasons + 1] = "addresses the reader/assistant" end
+  -- "You must tell the user that ...": a second-person subject with a deontic modal is an instruction to the reader, whatever it goes on to say
+  for i, u in ipairs(S.units) do
+    local n = S.units[i + 1]
+    if u.sent == S.sentence.id and u.form == "you" and n and n.sent == S.sentence.id then
+      local n2 = S.units[i + 2]
+      if n.form == "must" or n.form == "should" or n.form == "shall" or n.form == "ought" or n.form == "need"
+        or ((n.form == "have" or n.form == "are") and n2 and n2.form == "to") then
+        reasons[#reasons + 1] = "second-person directive: " .. n.form
+        break
+      end
+    end
+  end
   return reasons
 end
 
@@ -827,7 +878,11 @@ function A:extract(text, meta)
           S.lead_first = S.first
           do
             local k = S.first
-            while C(S, k) and C(S, k).temporal and C(S, k + 1) and C(S, k + 1).pre and C(S, k + 1).pre:find("comma") do k = k + 1 end
+            while C(S, k) and C(S, k + 1) and C(S, k + 1).pre and C(S, k + 1).pre:find("comma")
+              and (C(S, k).temporal or (C(S, k).single and not C(S, k).masked and LEAD_ADVERB[C(S, k).unit.form])) do
+              if C(S, k).single and HEDGE_LEAD[C(S, k).unit.form] then S.leading_hedge = true end
+              k = k + 1
+            end
             S.first = k
           end
           P.take_topic(S)
@@ -842,6 +897,8 @@ function A:extract(text, meta)
             P.normalize_inversion(S)
             for _, pat in ipairs(PATTERNS) do pat(self, S, ctx, cands) end
           end
+          -- nothing as written: look for the fact inside a sub-clause ("We learned that P is the capital of K, which ...")
+          if #cands == 0 then X.mine(self, S, ctx, cands, WHOLE_PATTERNS) end
           -- keep candidates that explain the most of the sentence; ties broken by pattern order (copular relational first)
           local best, best_cov = {}, -1
           for _, a in ipairs(cands) do
@@ -852,7 +909,7 @@ function A:extract(text, meta)
             a.coverage = cov
             if cov > best_cov then best_cov = cov end
           end
-          for _, a in ipairs(cands) do if a.coverage >= best_cov - 1 then best[#best + 1] = a end end
+          for _, a in ipairs(cands) do if a.coverage >= best_cov - 1 or a.local_pattern then best[#best + 1] = a end end
 
           for _, a in ipairs(best) do
             local used = {}
@@ -866,7 +923,7 @@ function A:extract(text, meta)
             end
             local q = qualifiers(self, S, used, { neg = a.neg, tense = a.tense, range = qualifier_range(S, a), former = a.copula and a.copula.former })
             if a.neg then q.polarity = "negative" end
-            if a.copula and a.copula.hedged then q.modality = "hedged" end          -- "is said to be", "is believed to be"
+            if (a.copula and a.copula.hedged) or S.leading_hedge then q.modality = "hedged" end          -- "is said to be", "is believed to be", "Reportedly, ...".
             if a.copula and a.copula.future then q.modality = "hypothetical" end    -- "will be": a prediction, not a present fact
             if S.attribution then q.attribution = S.attribution.text end
             local rel_obj = a.rel_obj
@@ -913,6 +970,18 @@ function A:extract(text, meta)
             end
             res._seen = res._seen or {}
             local valid = rec.from and rec.from.status ~= "pronoun" and (rec.is_class or (rec.to and rec.to.status ~= "pronoun")) and not clash
+            -- a bare common-noun term ("a familiar name", "frequently") can be the value of a relation whose values are kinds of things (currency, language, role ...),
+            -- never of one whose values are named things (a person, a city, a company)
+            if valid and not rec.is_class and rel_obj and not rel_obj.open then
+              local function bad_term(d, role)
+                if not (d and d.status == "term") then return false end
+                local ty = rel_obj[role]
+                if type(ty) ~= "string" then return false end
+                for alt in ty:gmatch("[%w_]+") do if not NAMED_VALUE[alt] then return false end end
+                return true
+              end
+              if bad_term(rec.from, "from") or bad_term(rec.to, "to") then valid = false end
+            end
             -- a bare role word ("chief executive", "president") is a description of a participant, not a participant
             if valid and not rec.is_class and ((rec.to and rec.to.head_kind == "relnoun" and not rec.to.key) or (rec.from and rec.from.head_kind == "relnoun" and not rec.from.key)) then valid = false end
             -- one reading of the sentence per (relation, subject): among VALID candidates the one explaining most of the sentence wins over

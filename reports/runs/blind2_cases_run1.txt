@@ -1,0 +1,207 @@
+# blind cases (interp_cases_blind2) first run — engine commit 4c2704b, file sha256 86987622ad6ddf9a6ad009efb4f31cec72b699f2cd31c038ee821ca8229f7685
+full/dev: n=170  all-fields accuracy=0.641 [0.567,0.709]  serious-error rate=0.347 [0.280,0.421]  (any-error 0.359)
+  ambiguous                    n=9   pass=9   acc=1.00 [0.70,1.00] serious=0
+  basic_factual                n=22  pass=19  acc=0.86 [0.67,0.95] serious=3
+  comparative                  n=7   pass=2   acc=0.29 [0.08,0.64] serious=5
+  direction                    n=12  pass=11  acc=0.92 [0.65,0.99] serious=1
+  geographic                   n=7   pass=2   acc=0.29 [0.08,0.64] serious=5
+  instruction                  n=9   pass=4   acc=0.44 [0.19,0.73] serious=5
+  intent                       n=12  pass=9   acc=0.75 [0.47,0.91] serious=3
+  malformed                    n=4   pass=3   acc=0.75 [0.30,0.95] serious=0
+  minimal_pair                 n=14  pass=12  acc=0.86 [0.60,0.96] serious=2
+  multi_turn                   n=16  pass=8   acc=0.50 [0.28,0.72] serious=8
+  multiword                    n=7   pass=5   acc=0.71 [0.36,0.92] serious=2
+  negation                     n=14  pass=4   acc=0.29 [0.12,0.55] serious=10
+  noise                        n=5   pass=3   acc=0.60 [0.23,0.88] serious=2
+  temporal                     n=11  pass=9   acc=0.82 [0.52,0.95] serious=1
+  typo                         n=6   pass=3   acc=0.50 [0.19,0.81] serious=3
+  unusual                      n=15  pass=6   acc=0.40 [0.20,0.64] serious=9
+  failing fields: from=25 rel=24 ask=14 intent=13 neg=8 to=6 active=5 items=4 atype=3 ref=3 ctx=2 dep=2 evid=2 inst=2 pol=2 subject=2 temporal=2 pos=1 sel=1 src=1 status=1 tc=1
+
+FAILURES:
+C012 [basic_factual] "Who wrote Pride and Prejudice?" (SERIOUS)
+    from: got [text 'Pride' ~= 'Pride and Prejudice'] want [Pride and Prejudice]
+C015 [basic_factual] "What does the iPhone 15 cost?" (SERIOUS)
+    ask: got [from] want [to]
+    from: got [missing] want [iPhone 15]
+    rel: got [open:cost] want [price]
+C020 [basic_factual] "Give me the revenue figure for Dunwick Robotics." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Dunwick Robotics]
+    rel: got [-] want [revenue]
+C028 [direction] "Bamako is the capital of which country?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [country]
+    rel: got [-] want [capital]
+    to: got [missing] want [Bamako]
+C035 [negation] "Which countries other than Switzerland use the franc?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [currency]
+    to: got [missing] want [franc]
+C038 [negation] "Find companies in Leeds that don't hire interns." (SERIOUS)
+    neg: got [] want [type:company+hires:intern]
+C039 [negation] "Give me articles on solar power but nothing about politics." (SERIOUS)
+    neg: got [] want [topic:politics]
+C040 [negation] "Isn't Sydney the capital of Australia?" (SERIOUS)
+    pol: got [positive] want [negative]
+C041 [negation] "Is it not the case that Vienna is not the capital of Austria?" (SERIOUS)
+    from: got [missing] want [Austria]
+    intent: got [entity_description] want [verification]
+    rel: got [-] want [capital]
+    to: got [missing] want [Vienna]
+C044 [negation] "Name some universities that are not located in Germany." (SERIOUS)
+    neg: got [] want [entity:germany]
+C045 [negation] "Name a few banks besides Deutsche Bank." (SERIOUS)
+    neg: got [] want [entity:deutsche bank]
+C046 [negation] "Aviation job listings that have nothing to do with marketing." (SERIOUS)
+    neg: got [] want [topic:marketing]
+C047 [negation] "Which carriers other than Pellucid Freight serve Hamburg?" (SERIOUS)
+    neg: got [] want [entity:pellucid freight]
+C048 [negation] "Is Tornwick not in Wales?" (SERIOUS)
+    from: got [missing] want [Tornwick]
+    intent: got [unknown] want [verification]
+    pol: got [nil] want [negative]
+    rel: got [-] want [located_in]
+    to: got [missing] want [Wales]
+C055 [temporal] "Back in 1998, what was the currency of Slovakia?"
+    temporal: got [nil] want [past]
+C056 [temporal] "What will the population of Nigeria be in 2050?" (SERIOUS)
+    from: got [missing] want [Nigeria]
+    rel: got [-] want [population]
+    tc: got [] want [in:2050]
+    temporal: got [nil] want [future]
+C069 [comparative] "Compare the populations of Chile and Peru." (SERIOUS)
+    items: got [the populations of Chile|Peru] want [Chile|Peru]
+    rel: got [-] want [population]
+C070 [comparative] "Which is taller, the Kelvane X2 or the Kelvane X3?" (SERIOUS)
+    rel: got [-] want [height]
+C071 [comparative] "Siemens vs Bosch: who has more employees?" (SERIOUS)
+    items: got [none] want [Siemens|Bosch]
+C072 [comparative] "How does Norway compare with Sweden and Denmark in terms of area?" (SERIOUS)
+    intent: got [explanation] want [comparison]
+    items: got [none] want [Norway|Sweden|Denmark]
+    rel: got [-] want [area]
+C074 [comparative] "Rank Mount Everest, K2 and Kangchenjunga by height." (SERIOUS)
+    items: got [none] want [Mount Everest|K2|Kangchenjunga]
+    rel: got [-] want [height]
+C079 [multiword] "Where is Pellucid Freight and Logistics Holdings headquartered?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Pellucid Freight and Logistics Holdings]
+    rel: got [-] want [headquarters]
+C080 [multiword] "Who wrote Harry Potter and the Chamber of Secrets?" (SERIOUS)
+    from: got [text 'Harry Potter' ~= 'Harry Potter and the Chamber of Secrets'] want [Harry Potter and the Chamber of Secrets]
+C083 [geographic] "Which country is Kyoto in?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [country]
+    from: got [missing] want [Kyoto]
+    rel: got [-] want [located_in]
+C084 [geographic] "Find me a hotel near the headquarters of Siemens in Munich." (SERIOUS)
+    intent: got [definition] want [search]
+C086 [geographic] "List wineries outside France." (SERIOUS)
+    neg: got [] want [entity:france]
+C088 [geographic] "I'm looking for a flat in Porto, ideally close to the river." (SERIOUS)
+    intent: got [definition] want [search]
+C089 [geographic] "Which cities in Germany have more than a million inhabitants?" (SERIOUS)
+    atype: got [nil] want [city]
+    pos: got [] want [geo:Germany]
+C090 [instruction] "From now on, use the 2021 dataset." (SERIOUS)
+    active: got [] want [dataset:2021]
+C091 [instruction] "Switch to the 2023 dataset." (SERIOUS)
+    active: got [] want [dataset:2023]
+C092 [instruction] "Forget the 2022 dataset and use 2024 instead." (SERIOUS)
+    active: got [] want [dataset:2024]
+C097 [instruction] "Answer only in French from here on." (SERIOUS)
+    intent: got [entity_description] want [instruction_update]
+C098 [instruction] "For all my next questions, rely on the 2019 dataset only." (SERIOUS)
+    active: got [] want [dataset:2019]
+    inst: got [dataset/2019/nil/nil] want [slot=dataset,value=2019,persist=1]
+C105 [intent] "Find me coworking spaces in Lisbon with a quiet room." (SERIOUS)
+    intent: got [statement] want [search]
+C107 [intent] "What did I ask you earlier?" (SERIOUS)
+    evid: got [true] want [0]
+    intent: got [factual_lookup] want [conversation_recall]
+C110 [intent] "Give me an overview of Corvane Plastics." (SERIOUS)
+    intent: got [task] want [entity_description]
+    subject: got [missing] want [Corvane Plastics]
+C116 [minimal_pair] "Which companies do not hire interns?" (SERIOUS)
+    neg: got [] want [type:company+hires:intern]
+C122 [minimal_pair] "What was the population of Chad in the 2021 dataset?" (SERIOUS)
+    src: got [1 source constraint(s)] want [dataset:2021]
+C127 [multi_turn] "U: Use the 2022 dataset. // A: Okay, I will use the 2022 dataset. // U: Sorry, I meant 2023." (SERIOUS)
+    active: got [] want [dataset:2023]
+    inst: got [nil/-/true/nil] want [slot=dataset,value=2023,corr=1]
+    intent: got [correction] want [instruction_update]
+C129 [multi_turn] "U: Compare the populations of Kenya, Uganda and Rwanda. // A: Kenya is the largest, followed by Uganda and then Rwanda. // U: And what about Tanzania?" (SERIOUS)
+    ctx: got [] want [comparison_set]
+    rel: got [-] want [population]
+C130 [multi_turn] "U: My dog is called Biscuit and I live in Tromsø. // A: Lovely! Biscuit is a great name. // U: What did I say my dog was called?" (SERIOUS)
+    sel: got [0 selected] want [+Biscuit]
+C132 [multi_turn] "U: I work at Ithari Foundry. // A: Great, what can I help you with? // U: Where is my employer based?" (SERIOUS)
+    from: got [text 'my employer' ~= 'Ithari Foundry'] want [Ithari Foundry]
+    ref: got [my employer>(none)] want [my employer>Ithari Foundry]
+C133 [multi_turn] "U: Who is the CEO of Siemens? // A: Roland Busch is the CEO of Siemens. // U: And of Bosch?" (SERIOUS)
+    ask: got [nil] want [to]
+    dep: got [self_contained] want [recent_message]
+    from: got [missing] want [Bosch]
+    rel: got [-] want [ceo]
+C134 [multi_turn] "U: Where is Mateo Quispe from? // A: He was born in Cusco. // U: How many people live there?" (SERIOUS)
+    ctx: got [] want [pronoun]
+    from: got [missing] want [Cusco]
+    ref: got [there>(none)] want [there>Cusco]
+    rel: got [-] want [population]
+C138 [multi_turn] "U: What is the population of Ghana? // A: About 33 million people. // U: What was my first question?" (SERIOUS)
+    evid: got [true] want [0]
+    intent: got [definition] want [conversation_recall]
+C140 [multi_turn] "U: My sister Odalys lives in Hobart. // A: Hobart is a lovely city. // U: What's the capital of Peru? // A: Lima. // U: What is the population of the city my sister lives in?" (SERIOUS)
+    dep: got [self_contained] want [earlier_context]
+    from: got [text 'the city my sister lives' ~= 'Hobart'] want [Hobart]
+    ref: got [the city my sister lives in>(none)] want [the city my sister lives in>Hobart]
+C143 [typo] "Whats the populaton of Gemany" (SERIOUS)
+    from: got [text 'Gemany' ~= 'Germany'] want [Germany]
+C144 [typo] "Which curreny does Switzerlnd use?" (SERIOUS)
+    from: got [text 'Switzerlnd' ~= 'Switzerland'] want [Switzerland]
+C145 [typo] "Is Canbera the capitol of Australia?" (SERIOUS)
+    to: got [text 'Canbera' ~= 'Canberra'] want [Canberra]
+C149 [noise] "😀 so umm like how many people live in Hanoi lol" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Hanoi]
+    rel: got [-] want [population]
+C151 [noise] "hi claude, can u tell me when xanmark was founded?? 🙏" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [xanmark]
+    rel: got [-] want [founded_on]
+C152 [unusual] "I was wondering whether you could tell me how many people live in Dunwick." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Dunwick]
+    rel: got [-] want [population]
+C154 [unusual] "Who's running the show at Lindgren Aerospace these days?" (SERIOUS)
+    from: got [text 'the show' ~= 'Lindgren Aerospace'] want [Lindgren Aerospace]
+C158 [unusual] "How many souls live in Reykjavik, roughly?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Reykjavik]
+    rel: got [-] want [population]
+C159 [unusual] "I'd love to know whom Ines Marrow tied the knot with." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Ines Marrow]
+    rel: got [-] want [spouse]
+C161 [unusual] "Gimme the dirt on Brenmark Steel." (SERIOUS)
+    intent: got [definition] want [entity_description]
+    subject: got [missing] want [Brenmark Steel]
+C163 [unusual] "You wouldn't happen to know Elara Voss's date of birth, would you?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Elara Voss]
+    rel: got [-] want [birth_date]
+C164 [unusual] "Ghana's in West Africa, isn't it?" (SERIOUS)
+    from: got [missing] want [Ghana]
+    intent: got [entity_description] want [verification]
+    rel: got [-] want [located_in]
+    to: got [missing] want [West Africa]
+C165 [unusual] "I don't suppose you could tell me the capital of Uruguay?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Uruguay]
+    rel: got [-] want [capital]
+C166 [unusual] "Who wrote the novel It?" (SERIOUS)
+    from: got [text 'the novel It' ~= 'It'] want [It]
+C168 [malformed] "xkq vlorp wzzt jnn"
+    status: got [ok] want [no_interpretation]
+work=33943 wall=0.34s

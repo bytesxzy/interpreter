@@ -7,11 +7,12 @@ local Cons = require("asi.nlu.constraints")
 local H = require("asi.nlu.hyp")
 local F = require("asi.nlu.frames2")
 require("asi.nlu.frames3")   -- registers the stranded-preposition, quantity, list and support-verb yes/no frames on the same table
+require("asi.nlu.frames4")   -- attribution idioms, locus hosts, "where can I find", generic-subject holders
 
 local Sem = {}
 
-local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "wh_impersonal", "wh_origin", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "exclusion_clause", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
+local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "wh_impersonal", "wh_origin", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
+  "request", "instruction", "exclusion_clause", "focus", "statement", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -45,6 +46,11 @@ local function ref(S, np, depth)
       r.classifier = S.an.original:sub(S.units[first_mod.u1].s, S.units[np.head.u1 - 1].e)
       r.text = S.an.original:sub(S.units[np.head.u1].s, S.units[np.u2].e)
     end
+  end
+  -- "the country called Tavoria", "the city of Paris": the type noun classifies the name; the mention is the name itself
+  if np.type_noun and np.head and np.head.u1 > np.u1 and not r.classifier then
+    r.classifier = S.an.original:sub(S.units[np.u1].s, S.units[np.head.u1 - 1].e)
+    r.text = S.an.original:sub(S.units[np.head.u1].s, S.units[np.u2].e)
   end
   if np.head then r.head = np.head.form end
   r.core = P.core_text(S, np)
@@ -437,6 +443,13 @@ function Sem.render(res, ctx)
   end
   interp.constraints = cons
   if top.ordering then interp.ordering = top.ordering end
+  -- a future copula chunk ("Who WILL BE the CEO ...?") marks the question as about the future when no explicit time expression says so
+  if not top.temporal_scope and #cons.temporal == 0 then
+    for k in pairs(top.used or {}) do
+      local ck = S.chunks[k]
+      if ck and ck.future then top.temporal_scope = "future"; break end
+    end
+  end
   interp.temporal_scope = top.temporal_scope or ((#cons.temporal == 0) and (top.op == "lookup" or top.op == "describe") and "current_unspecified") or nil
   -- grammatical tense of the question's own predicate ("was the capital" -> past); "did" is neutral
   do

@@ -4,7 +4,7 @@
 --   verb=  lemma/subj=to|from[/prep=P]: which role the grammatical subject plays; with prep the construction is stative (X is VERB-ed P Y)
 return [==[
 # ------------------------------------------------------------ geography and politics
-rel capital: from=political_territory to=city | noun=capital; capital city; seat of government | support=have; call | as=recognize; designate; name; use; consider; regard; treat; choose | kinds=financial:financial_center; cultural:cultural_center; economic:economic_center; administrative:administrative_capital; legislative:legislative_capital; judicial:judicial_capital; commercial:commercial_center; political:capital; national:capital; official:capital | label=capital city
+rel capital: from=political_territory to=city | noun=capital; capital city; seat of government | support=have; call | as=recognize; designate; name; use; consider; regard; treat; choose; list; record; identify; describe; cite; register; present; introduce; show; recognise | kinds=financial:financial_center; cultural:cultural_center; economic:economic_center; administrative:administrative_capital; legislative:legislative_capital; judicial:judicial_capital; commercial:commercial_center; political:capital; national:capital; official:capital | label=capital city
 rel financial_center: from=political_territory to=city | noun=financial center; financial centre; financial hub | derived=capital | label=financial center
 rel cultural_center: from=political_territory to=city | noun=cultural center; cultural centre; cultural hub | derived=capital | label=cultural center
 rel economic_center: from=political_territory to=city | noun=economic center; economic centre; economic hub | derived=capital | label=economic center
@@ -12,11 +12,11 @@ rel administrative_capital: from=political_territory to=city | noun=administrati
 rel legislative_capital: from=political_territory to=city | noun=legislative capital | derived=capital | label=legislative capital
 rel judicial_capital: from=political_territory to=city | noun=judicial capital | derived=capital | label=judicial capital
 rel commercial_center: from=political_territory to=city | noun=commercial center; commercial centre; commercial hub | derived=capital | label=commercial center
-rel head_of_state: from=political_territory to=person | noun=head of state; president; monarch; king; queen; ruler | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install | label=head of state
-rel prime_minister: from=country to=person | noun=prime minister; premier | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install | label=prime minister
+rel head_of_state: from=political_territory to=person | noun=head of state; president; monarch; king; queen; ruler | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install; list; record; identify; describe; cite; register; present; introduce; show; recognise | label=head of state
+rel prime_minister: from=country to=person | noun=prime minister; premier | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install; list; record; identify; describe; cite; register; present; introduce; show; recognise | label=prime minister
 rel population: from=place to=number | noun=population; inhabitants; number of inhabitants; number of residents | count_noun=people; persons; individuals; residents; inhabitants; citizens; folks | count_verb=live/prep=in; reside/prep=in; dwell/prep=in; inhabit; have | attr=1 | label=population
 rel area: from=place to=number | noun=area; surface area; land area | attr=1 | label=area
-rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency; legal tender | support=use; adopt; have; call | as=recognize; accept; designate; name; treat; issue; introduce; declare | label=currency
+rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency; legal tender; official currency; national currency; local currency; money | support=use; adopt; have; call; pay with; pay in; spend; trade in; transact in; price in | as=recognize; accept; designate; name; treat; issue; introduce; declare; list; record; identify; describe; cite; register; present; show; recognise | label=currency
 rel official_language: from=country to=language | noun=official language; national language | label=official language
 rel continent_of: from=country to=continent | noun=continent | verb=lie/subj=from/prep=on; lie/subj=from/prep=in; sit/subj=from/prep=on | label=continent
 rel height: from=entity to=number | noun=height; elevation; altitude | attr=1 | label=height
@@ -26,14 +26,14 @@ rel diameter: from=celestial_body to=number | noun=diameter | attr=1 | label=dia
 rel orbital_period: from=planet to=number | noun=orbital period | attr=1 | label=orbital period
 
 # ------------------------------------------------------------ organisations and people
-rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | noun_from=brainchild | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to; create/subj=to | support=have | as=credit; recognize | isa=creator | when=founded_on | label=founder | event=1
+rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | noun_from=brainchild | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to; create/subj=to; start up/subj=to; form/subj=to | support=have | as=credit; recognize; list; record; identify; describe; cite; register; present; introduce; show; recognise | isa=creator | when=founded_on | deverbal=founding; foundation; creation; establishment; formation; launch; inception; incorporation; setup | label=founder | event=1
 rel founded_on: from=organization to=date | noun=founding date; founding year; foundation date; date of founding; year of founding | label=founding date | event=1
-rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive; chief exec | rolesuffix=1 | support=have | as=appoint; name; hire; employ; choose; elect; install; retain | isa=leader | label=CEO
-rel leader: from=organization to=person | noun=leader; head; chief; boss; person in charge; head honcho | verb=lead/subj=to; head/subj=to; run/subj=to; manage/subj=to; head up/subj=to; oversee/subj=to; direct/subj=to; be in charge of/subj=to; steer/subj=to | support=have | as=appoint; name; choose; elect; install; retain | label=leader
-rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office; corporate headquarters; home office; main headquarters | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | support=have; maintain; keep; operate | locus=1 | label=headquarters
+rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive; chief exec | rolesuffix=1 | support=have | as=appoint; name; hire; employ; choose; elect; install; retain; list; record; identify; describe; cite; register; present; introduce; show; recognise | isa=leader | label=CEO
+rel leader: from=organization to=person | noun=leader; head; chief; boss; person in charge; head honcho | verb=lead/subj=to; head/subj=to; run/subj=to; manage/subj=to; head up/subj=to; oversee/subj=to; direct/subj=to; be in charge of/subj=to; steer/subj=to; be at the helm of/subj=to; be at the head of/subj=to | support=have | as=appoint; name; choose; elect; install; retain; list; record; identify; describe; cite; register; present; introduce; show; recognise | deverbal=leadership; running; management; direction | label=leader
+rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office; corporate headquarters; home office; main headquarters; headquarters location; head office location; hq location; seat of operations; corporate seat; principal office; principal executive offices; principal place of business; head quarters | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | support=have | support_np=maintain; keep; operate; establish; set up; open; base; put; build; locate; place; house | locus=1 | label=headquarters
 rel member_of: from=agent,political_territory to=organization | noun_from=member | verb=belong/subj=from/prep=to; join/subj=from | label=membership
 rel parent_org: from=organization to=organization | noun=parent company; parent organization; parent; owner | noun_from=subsidiary | verb=own/subj=to | label=parent organization
-rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to; snap up/subj=to; buy out/subj=to; buy up/subj=to; scoop up/subj=to; swallow up/subj=to; gobble up/subj=to | when=acquired_on | label=acquirer | event=1
+rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to; snap up/subj=to; buy out/subj=to; buy up/subj=to; scoop up/subj=to; swallow up/subj=to; gobble up/subj=to | when=acquired_on | deverbal=acquisition; purchase; takeover; buyout | label=acquirer | event=1
 rel acquired_on: from=organization to=date | noun=acquisition date; date of acquisition | label=acquisition date | event=1
 rel investor: from=organization to=agent | noun=investor; backer; funder | verb=invest/subj=to/prep=in; fund/subj=to; finance/subj=to; back/subj=to | label=investor | event=1
 rel employees: from=organization to=number | noun=employees; staff; headcount; workforce; number of employees; number of staff | how_many=employees | count_noun=people; persons; individuals; workers; staffers; employees; staff | count_verb=work/prep=at; work/prep=for; employ; have | attr=1 | label=employees
@@ -53,12 +53,12 @@ rel death_date: from=person to=date | noun=date of death; death date | verb=die/
 rel age: from=agent to=number | noun=age | attr=1 | label=age
 
 # ------------------------------------------------------------ works, products, software
-rel author: from=work to=person | noun=author; writer | verb=write/subj=to; author/subj=to | isa=creator | label=author | event=1
+rel author: from=work to=person | noun=author; writer | verb=write/subj=to; author/subj=to | isa=creator | deverbal=writing; authorship | label=author | event=1
 rel publisher: from=work to=organization | noun=publisher | verb=publish/subj=to | label=publisher | event=1
-rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to; paint/subj=to; compose/subj=to; sculpt/subj=to; build/subj=to; craft/subj=to | label=creator | event=1
-rel developer: from=software to=agent | noun=developer; maintainer | verb=develop/subj=to | isa=creator | label=developer | event=1
-rel inventor: from=product to=person | noun=inventor | verb=invent/subj=to | isa=creator | label=inventor | event=1
-rel discoverer: from=entity to=agent | noun=discoverer | verb=discover/subj=to | label=discoverer | event=1
+rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to; paint/subj=to; compose/subj=to; sculpt/subj=to; build/subj=to; craft/subj=to | deverbal=creation; making; production; design | label=creator | event=1
+rel developer: from=software to=agent | noun=developer; maintainer | verb=develop/subj=to | isa=creator | deverbal=development | label=developer | event=1
+rel inventor: from=product to=person | noun=inventor | verb=invent/subj=to | isa=creator | deverbal=invention | label=inventor | event=1
+rel discoverer: from=entity to=agent | noun=discoverer | verb=discover/subj=to | deverbal=discovery | label=discoverer | event=1
 rel release: from=agent to=product | noun=release; product; launch | verb=release/subj=from; launch/subj=from; ship/subj=from; unveil/subj=from | label=release | event=1
 rel published_on: from=work to=date | noun=publication date; date of publication; release date | when=published_on | label=publication date | event=1
 rel price: from=product to=money | noun=price; cost | verb=cost/subj=from; sell/subj=from/prep=for | howmuch=1 | attr=1 | label=price

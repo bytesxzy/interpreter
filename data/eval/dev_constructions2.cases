@@ -1,0 +1,38 @@
+# DEV (construction coverage, part 2). Written by the engine's author after the first independent round showed which question constructions were missing:
+# role-post wrappers ("holds the post of ..."), "serves as", credit idioms ("is credited with founding"), locus hosts ("which city hosts the headquarters of"),
+# "where can I find ...", "the country called K", generic subjects with a locative holder ("what currency do they use in K"), predicate adjectives
+# ("which currency is official in K"). This file is TUNED ON; it measures construction coverage, not generalisation. Format: ID | category | text | gold
+R001 | role_post | Who holds the post of chief executive at Zorvex Ltd? | intent=factual_lookup; rel=ceo; from=Zorvex Ltd; ask=to
+R002 | role_post | Who currently holds the title of CEO at Zorvex Ltd? | intent=factual_lookup; rel=ceo; from=Zorvex Ltd; ask=to
+R003 | role_post | Who occupies the position of prime minister in Tavoria? | intent=factual_lookup; rel=prime_minister; from=Tavoria; ask=to
+R004 | role_post | Who has the job of CEO at Zorvex Ltd? | intent=factual_lookup; rel=ceo; from=Zorvex Ltd; ask=to
+R005 | role_post | Who currently serves as CEO of Zorvex Ltd? | intent=factual_lookup; rel=ceo; from=Zorvex Ltd; ask=to
+R006 | role_post | Who serves as the chief executive of Zorvex Ltd these days? | intent=factual_lookup; rel=ceo; from=Zorvex Ltd; ask=to
+R007 | role_post | I'd like to know who serves as CEO of Zorvex Ltd. | intent=factual_lookup; rel=ceo; from=Zorvex Ltd; ask=to
+R008 | role_post | Who is the person serving as CEO of Zorvex Ltd right now? | intent=factual_lookup; rel=ceo; from=Zorvex Ltd; ask=to
+R009 | credit | Who was behind the founding of Zorvex Ltd? | intent=factual_lookup; rel=founder; from=Zorvex Ltd; ask=to
+R010 | credit | Who was responsible for setting up Zorvex Ltd? | intent=factual_lookup; rel=founder; from=Zorvex Ltd; ask=to
+R011 | credit | Who is credited with founding Zorvex Ltd? | intent=factual_lookup; rel=founder; from=Zorvex Ltd; ask=to
+R012 | credit | Who gets the credit for starting Zorvex Ltd? | intent=factual_lookup; rel=founder; from=Zorvex Ltd; ask=to
+R013 | credit | Whom do we have to thank for founding Zorvex Ltd? | intent=factual_lookup; rel=founder; from=Zorvex Ltd; ask=to
+R014 | credit | Do you know who started up Zorvex Ltd? | intent=factual_lookup; rel=founder; from=Zorvex Ltd; ask=to
+R015 | locus | Which city hosts the headquarters of Zorvex Ltd? | intent=factual_lookup; rel=headquarters; from=Zorvex Ltd; ask=to
+R016 | locus | Which city is home to the head office of Zorvex Ltd? | intent=factual_lookup; rel=headquarters; from=Zorvex Ltd; ask=to
+R017 | locus | Where can I find the headquarters of Zorvex Ltd? | intent=factual_lookup; rel=headquarters; from=Zorvex Ltd; ask=to
+R018 | locus | Where would I find the head office of Zorvex Ltd? | intent=factual_lookup; rel=headquarters; from=Zorvex Ltd; ask=to
+R019 | locus | In which city is the head office of Zorvex Ltd located? | intent=factual_lookup; rel=headquarters; from=Zorvex Ltd; ask=to
+R020 | locus | Where has Zorvex Ltd established its headquarters? | intent=factual_lookup; rel=headquarters; from=Zorvex Ltd; ask=to
+R021 | naming | Which city is the capital of the country called Tavoria? | intent=factual_lookup; rel=capital; from=Tavoria; ask=to
+R022 | naming | What is the capital of the nation named Tavoria? | intent=factual_lookup; rel=capital; from=Tavoria; ask=to
+R023 | generic_subject | What currency do the locals use when they shop in Tavoria? | intent=factual_lookup; rel=currency; from=Tavoria; ask=to
+R024 | generic_subject | What money do they use in Tavoria? | intent=factual_lookup; rel=currency; from=Tavoria; ask=to
+R025 | predicate | Which currency is legal tender in Tavoria? | intent=factual_lookup; rel=currency; from=Tavoria; ask=to
+R026 | predicate | Which currency is official in Tavoria? | intent=factual_lookup; rel=currency; from=Tavoria; ask=to
+R027 | compound | What is the headquarters location of Zorvex Ltd? | intent=factual_lookup; rel=headquarters; from=Zorvex Ltd; ask=to
+R029 | wrapper | Would you happen to know the capital of Tavoria? | intent=factual_lookup; rel=capital; from=Tavoria; ask=to
+R030 | generic_subject | Quick question, what currency do people pay with in Tavoria? | intent=factual_lookup; rel=currency; from=Tavoria; ask=to
+R031 | idiom | Who is at the helm of Zorvex Ltd? | intent=factual_lookup; rel=leader; from=Zorvex Ltd; ask=to
+R032 | role_post | Who has been serving as prime minister of Tavoria since 2019? | intent=factual_lookup; rel=prime_minister; from=Tavoria; ask=to; tc=since:2019
+R033 | credit | Who deserves credit for founding Zorvex Ltd? | intent=factual_lookup; rel=founder; from=Zorvex Ltd; ask=to
+R034 | credit | Who was the driving force behind the creation of Zorvex Ltd? | intent=factual_lookup; rel=founder; from=Zorvex Ltd; ask=to
+R035 | locus | Which town is home to Zorvex Ltd's head office? | intent=factual_lookup; rel=headquarters; from=Zorvex Ltd; ask=to

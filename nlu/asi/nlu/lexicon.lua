@@ -232,7 +232,7 @@ function L:add_rel(r)
   for _, n in ipairs(r.nouns_from) do noun_entries(n, "from") end
   for _, v in ipairs(r.verbs) do
     for _, f in ipairs(Morph.verb_forms(v.lemma)) do
-      self:trie_insert(f.form, { kind = "relverb", rel = r.id, subj = v.subj, vform = f.feat, lemma = v.lemma, prep = v.prep, support = v.support, as_only = v.as_only })
+      self:trie_insert(f.form, { kind = "relverb", rel = r.id, subj = v.subj, vform = f.feat, lemma = v.lemma, prep = v.prep, support = v.support, as_only = v.as_only, np_only = v.np_only })
     end
   end
 end
@@ -321,6 +321,8 @@ function DIRECTIVES.rel(self, rest)
     r.count_verbs[#r.count_verbs + 1] = ent
   end
   r.howmuch = f.howmuch == "1"
+  -- derived event nouns ("the FOUNDING of X", "the ACQUISITION of Y"): the noun names the event whose agent fills the role of the relation's verbs
+  r.deverbals = list(f.deverbal)
   if f.rolesuffix == "1" then
     r.role_nouns = {}
     for _, n in ipairs(r.nouns_to) do
@@ -342,6 +344,12 @@ function DIRECTIVES.rel(self, rest)
     local lemma = trim(sv)
     r.support[#r.support + 1] = lemma
     if lemma == "have" then r.support_have = true else r.verbs[#r.verbs + 1] = { lemma = lemma, subj = "from", support = true } end
+  end
+  -- support verbs that only work with a possessed relational noun ("Acme ESTABLISHED its headquarters in Oslo"); "Acme established Brennick" says nothing about this relation
+  for _, sv in ipairs(list(f.support_np)) do
+    local lemma = trim(sv)
+    r.support[#r.support + 1] = lemma
+    r.verbs[#r.verbs + 1] = { lemma = lemma, subj = "from", support = true, np_only = true }
   end
   -- "as" verbs ("Acme APPOINTED Jane Doe as CEO", "France RECOGNIZES Paris as its capital"): the verb names the relation only together with "as <relational
   -- noun>"; on its own ("Acme employs Jane Doe", "voters elected X") it says nothing about this relation, so these entries never drive a plain verb frame
