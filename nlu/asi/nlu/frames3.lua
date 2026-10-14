@@ -706,6 +706,7 @@ local REPORT_MARKERS = U.set({ "she", "he", "they", "someone", "somebody", "frie
   "suggested", "suggests", "recommended", "recommends", "mentioned", "claimed", "thinks", "thought", "reckons", "reckoned", "heard", "read" })
 local FIRST_PERSON_DIRECTIVE = U.set({ "i", "we", "let's", "lets", "please", "kindly" })
 local NAMING = U.set({ "named", "called", "titled", "labelled", "labeled", "dubbed", "number", "no", "id", "version" })
+local REPLACE_VERBS = U.set({ "use", "switch", "go", "pick", "choose", "take", "try", "prefer", "adopt", "select", "rely", "stick", "move" })
 function F.resource_directive(S, out)
   if S.sentence and S.sentence.question_mark then return end
   if #P.parse_wh(S, S.first) > 0 then return end
@@ -727,6 +728,30 @@ function F.resource_directive(S, out)
   if not has_dir then return end
   -- "My friend said to use the 2021 dataset in her statistics class.": reported, no directive of the speaker's own
   if reported and not first_person then return end
+  local function emit(c, slot, value)
+    -- a retraction or replacement marker anywhere makes it a correction; a standing marker makes it persist
+    local correction, persist = false, false
+    for k = S.first, S.last do
+      local ck = C(S, k)
+      if ck and not ck.masked then
+        if lex:cue_at("correction", S.units, ck.u1) or lex:cue_at("revoke", S.units, ck.u1) then correction = true end
+        if ck.temporal and (ck.temporal.kind == "persist" or ck.temporal.persist) then persist = true end
+        if ck.single and (ck.unit.form == "instead" or ck.unit.form == "replace" or ck.unit.form == "replaces" or ck.unit.form == "scrap" or ck.unit.form == "disregard") then correction = true end
+        if ck.single and (ck.unit.form == "whenever" or ck.unit.form == "always" or ck.unit.form == "everytime") then persist = true end
+      end
+    end
+    local h = newh(S, "instruction:resource_directive", "instruction", "instruction_update", "instruct")
+    for k = S.first, S.last do if C(S, k) and not C(S, k).masked then h.used[k] = true end end
+    h.instruction = { verb = "use", act = "constraint", np = { head = c, head_kind = "concept", mods = {}, u1 = c.u1, u2 = c.u2, c1 = c.idx, c2 = c.idx, nxt = c.idx + 1, notes = {}, score = 0 },
+      slot = slot, value = value, correction = correction, persist = persist }
+    h.correction, h.persist = correction, persist
+    addf(h, "resource_slot", 0.5, "the sentence names a '" .. slot .. "' with a value as what to use")
+    addf(h, "directive_framing", 0.4, "directive wording around the resource phrase")
+    if correction then addf(h, "correction_cue", 0.4, "explicit correction / replacement marker") end
+    if persist then addf(h, "persist_cue", 0.3, "applies to every later request") end
+    out[#out + 1] = h
+  end
+  local retracted    -- { chunk, slot } of a resource phrase that an exclusion verb retracts ("Forget the 2022 dataset ...")
   for i = S.first, S.last do
     local c = C(S, i)
     local slot = c and c.single and not c.masked and lex:resource(c.unit.form)
@@ -747,28 +772,35 @@ function F.resource_directive(S, out)
         end
       end
       if value then
-        -- a retraction or replacement marker anywhere makes it a correction; a standing marker makes it persist
-        local correction, persist = false, false
-        for k = S.first, S.last do
-          local ck = C(S, k)
-          if ck and not ck.masked then
-            if lex:cue_at("correction", S.units, ck.u1) or lex:cue_at("revoke", S.units, ck.u1) then correction = true end
-            if ck.temporal and (ck.temporal.kind == "persist" or ck.temporal.persist) then persist = true end
-            if ck.single and (ck.unit.form == "instead" or ck.unit.form == "replace" or ck.unit.form == "replaces" or ck.unit.form == "scrap" or ck.unit.form == "disregard") then correction = true end
-            if ck.single and (ck.unit.form == "whenever" or ck.unit.form == "always" or ck.unit.form == "everytime") then persist = true end
+        -- the object of an exclusion verb ("Forget / Ignore / Drop the 2022 dataset") is retracted, not adopted
+        local excluded = false
+        for b = i - 1, math.max(S.first, i - 5), -1 do
+          local bc = C(S, b)
+          if bc and not bc.masked then
+            for _, v in ipairs(bc.verbs or {}) do if v.act == "exclude" then excluded = true end end
+            if excluded or (b < i - 1 and barrier(bc)) then break end
           end
         end
-        local h = newh(S, "instruction:resource_directive", "instruction", "instruction_update", "instruct")
-        for k = S.first, S.last do if C(S, k) and not C(S, k).masked then h.used[k] = true end end
-        h.instruction = { verb = "use", act = "constraint", np = { head = c, head_kind = "concept", mods = {}, u1 = c.u1, u2 = c.u2, c1 = c.idx, c2 = c.idx, nxt = c.idx + 1, notes = {}, score = 0 },
-          slot = slot, value = value, correction = correction, persist = persist }
-        h.correction, h.persist = correction, persist
-        addf(h, "resource_slot", 0.5, "the sentence names a '" .. slot .. "' with a value as what to use")
-        addf(h, "directive_framing", 0.4, "directive wording around the resource phrase")
-        if correction then addf(h, "correction_cue", 0.4, "explicit correction / replacement marker") end
-        if persist then addf(h, "persist_cue", 0.3, "applies to every later request") end
-        out[#out + 1] = h
-        break
+        if excluded then retracted = retracted or { chunk = c, slot = slot }
+        else emit(c, slot, value); return end
+      end
+    end
+  end
+  -- "Forget the 2022 dataset and use 2024 instead.": the retracted phrase names the slot, the replacement is a bare value after a choosing verb
+  if retracted then
+    for k = S.first, S.last do
+      local ck = C(S, k)
+      if ck and ck.single and not ck.masked and REPLACE_VERBS[ck.unit.form] then
+        local nk = k + 1
+        local tc = C(S, nk)
+        if tc and tc.single and not tc.masked and (tc.unit.form == "to" or tc.unit.form == "with") then nk = nk + 1 end
+        local vc = C(S, nk)
+        if vc and not vc.masked and not barrier(vc) then
+          local value
+          if vc.temporal and vc.temporal.year then value = { year = vc.temporal.year, label = vc.text, expr = vc.temporal }
+          elseif vc.single and (vc.unit.kind == "ident" or (vc.unit.kind == "number" and vc.unit.numval and not vc.unit.ordinal)) then value = { word = vc.text, label = vc.text } end
+          if value then emit(retracted.chunk, retracted.slot, value); return end
+        end
       end
     end
   end
@@ -788,10 +820,14 @@ function F.style_instruction(S, out)
   for k = S.first, S.last do
     local c = C(S, k)
     if c and c.single and not c.masked and STYLE_VERBS[c.unit.form] then
-      local pc = C(S, k + 1)
+      local pk = k + 1
+      local ac = C(S, pk)
+      -- "answer ONLY in French": a restricting adverb carries no content of its own here
+      if ac and ac.single and not ac.masked and not barrier(ac) and (ac.unit.form == "only" or ac.unit.form == "just" or ac.unit.form == "exclusively" or ac.unit.form == "strictly" or ac.unit.form == "solely") then pk = pk + 1 end
+      local pc = C(S, pk)
       -- the manner phrase:  in / with / using / as  X
       if pc and pc.single and not pc.masked and not barrier(pc) and (pc.unit.form == "in" or pc.unit.form == "with" or pc.unit.form == "using" or pc.unit.form == "as" or pc.unit.form == "like") then
-        for _, np in ipairs(P.parse_np(S, k + 2)) do
+        for _, np in ipairs(P.parse_np(S, pk + 1)) do
           local h = newh(S, "instruction:style", "instruction", "instruction_update", "instruct")
           for i = S.first, np.nxt - 1 do
             local ci = C(S, i)

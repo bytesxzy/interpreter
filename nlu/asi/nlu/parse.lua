@@ -1657,6 +1657,34 @@ function P.front_temporal(S)
   return true
 end
 
+-- "What WILL the population of Nigeria BE in 2050?": the future auxiliary and the copula that closes the subject noun phrase read as one future copula in front of it
+-- ("What will be the population ...").  The copula chunk is cloned so every other chunk keeps its place; the clone carries the future flag.
+function P.uninvert_will_be(S)
+  local f = S.first
+  local w, m = C(S, f), C(S, f + 1)
+  if not (w and m and w.single and not w.masked and cat(w, "wh") and m.single and not m.masked and not barrier(m) and cat(m, "modal") and (m.unit.form == "will" or m.unit.form == "shall")) then return false end
+  for _, np in ipairs(P.parse_np(S, f + 2, { no_of = false })) do
+    local bc = C(S, np.nxt)
+    if bc and bc.single and not bc.masked and not barrier(bc) and bc.unit.form == "be" and np.nxt < S.last + 1 then
+      local clone = U.shallow(bc)
+      clone.unit = setmetatable({ form = "is", surface_form = "will be" }, { __index = bc.unit })
+      clone.cats = S.lex:cats("is") or bc.cats
+      clone.future = true
+      clone.copula_like = true
+      local new = {}
+      for i = 1, f do new[#new + 1] = S.chunks[i] end
+      new[#new + 1] = clone
+      for i = f + 2, np.nxt - 1 do new[#new + 1] = S.chunks[i] end
+      for i = np.nxt + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+      for i, ch in ipairs(new) do ch.idx = i end
+      S.chunks, S.last = new, #new
+      S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+      return true
+    end
+  end
+  return false
+end
+
 -- "Who currently is the CEO of X?" / "Who now serves as ...": a present-time adverb between the wh-word and the verb moves to the end of the clause,
 -- where the temporal analysis reads it exactly as in "Who is the CEO of X currently?".  Only chunk order changes (offsets stay).
 function P.mid_temporal(S)
@@ -1841,6 +1869,7 @@ function P.strip_wrapper(S)
   S.first = k
   P.front_temporal(S)
   P.mid_temporal(S)
+  P.uninvert_will_be(S)
   P.normalize_cleft(S)
   P.take_polar(S)
   P.front_insitu_wh(S)

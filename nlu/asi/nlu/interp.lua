@@ -230,6 +230,8 @@ function I:interpret(text, call)
         interp.context = ctxinfo
         if interp.status == "ok" and (speaker == "user" or call.observe_all) then
           mem:observe_sentence(interp, { speaker = speaker, sent = si, hedged = cues.hedged, revoke = cues.revoke, additive = cues.additive, scoped = cues.scoped })
+          -- an instruction turn reports the standing state AFTER it took effect (all slots, whatever kind of request would use them)
+          if interp.intent == "instruction_update" and not flags.no_memory_select then ctxinfo.active_constraints = mem:active_constraints(interp, { all = true }) end
           local items = {}
           Coref.walk(interp, function(r)
             local key = r.antecedent and r.antecedent.key or r.resolved_id

@@ -55,7 +55,7 @@ V062 | negation | Show the results without sponsored items. | neg=topic:sponsore
 V063 | negation | Exclude hospitals. | intent=instruction_update; neg=type:hospital
 V064 | negation | Do not include blogs. | intent=instruction_update; pol=negative
 V065 | negation | What is the capital of Canada, not Toronto? | rel=capital; from=Canada; neg=entity:toronto
-V066 | negation | Which claims are not supported by the evidence? | rel=supported_by; pol=negative; neg=none
+V066 | negation | Which claims are not supported by the evidence? | rel=supported_by; pol=negative
 # ------------------------------------------------------------------ temporal
 V070 | temporal | What was the capital of Brazil in 1950? | rel=capital; from=Brazil; tc=in:1950
 V071 | temporal | Who was the CEO of Harrow Dynamics before 2005? | rel=ceo; from=Harrow Dynamics; tc=before:2005

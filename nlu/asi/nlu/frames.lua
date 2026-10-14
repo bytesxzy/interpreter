@@ -803,16 +803,20 @@ function F.yes_no(S, out)
   local nstart, neg_first = k0 + 1, nil
   if P.is_neg(C(S, nstart)) and not barrier(C(S, nstart)) then neg_first = nstart; nstart = nstart + 1 end
   for _, np1 in ipairs(P.parse_np(S, nstart)) do
+    -- "Is Sydney NOT the capital of Australia?": the negation follows the subject
+    local neg_mid
+    if akind == "be" and np1.nxt <= S.last and P.is_neg(C(S, np1.nxt)) and not barrier(C(S, np1.nxt)) then neg_mid = np1.nxt end
     local function base(frame)
       local h = newh(S, frame, "question", "verification", "verify")
       use(h, k0); use_np(h, np1)
-      if neg_first then use(h, neg_first); addf(h, "confirmation_question", 0.0, "negated auxiliary: the question asks for confirmation of the positive claim") end
+      if neg_first then use(h, neg_first); h.polarity = "negative"; addf(h, "confirmation_question", 0.0, "negated auxiliary: the question asks for confirmation; the claim checked is the positive one") end
+      if neg_mid then use(h, neg_mid); h.polarity = "negative"; addf(h, "confirmation_question", 0.0, "negated question: asks for confirmation; the claim checked is the positive one") end
       h.requires_evidence = true
       mark_unresolved_pron(h, np1)
       return h
     end
     if akind == "be" then
-      local nk = np1.nxt
+      local nk = neg_mid and (np1.nxt + 1) or np1.nxt
       -- "Is Paris the capital of France?"  /  "Is the capital of France Paris?"
       for _, np2 in ipairs(P.parse_np(S, nk)) do
         for _, pair in ipairs({ { np1, np2 }, { np2, np1 } }) do

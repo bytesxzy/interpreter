@@ -51,6 +51,7 @@ local function negated_inclusion(S, k)
   return nil
 end
 
+local STYLE_PREV = U.set({ "answer", "answers", "respond", "responds", "reply", "replies", "speak", "speaks", "write", "writes", "talk", "talks", "format", "express", "phrase", "explain", "summarize", "summarise" })
 local function seg_start(S, k)
   local c = C(S, k)
   if not c or c.masked then return nil end
@@ -76,6 +77,9 @@ local function seg_start(S, k)
   end
   -- restriction: "only using", "only from", "based only on", "limited to", "restricted to"
   local rn = lex:cue_at("restriction", units, c.u1)
+  -- "Answer ONLY IN French": after a verb of communication the restriction is a manner (a style instruction), not a restriction on the evidence
+  local pv = C(S, k - 1)
+  if rn and pv and pv.single and not pv.masked and not pv.pre and STYLE_PREV[pv.unit.form] then rn = nil end
   if rn then
     local nxt = C(S, k + 1)
     if nxt and nxt.single and (nxt.unit.form == "using" or nxt.unit.form == "from" or nxt.unit.form == "in" or nxt.unit.form == "on" or nxt.unit.form == "with") then
@@ -143,6 +147,70 @@ local function seg_end(S, body_first)
   return e
 end
 
+-- cues whose body is a noun phrase (or a coordinated list of them) and nothing more: "countries OTHER THAN Switzerland use the franc" ends the body at "Switzerland"
+local NP_SCOPED = U.set({ "other than", "besides", "apart from", "aside from", "except", "excepting", "except for", "save for", "excluding", "barring", "not including", "outside", "outside of", "bar" })
+local RELATIVIZERS = U.set({ "that", "who", "which", "whose", "whom" })
+local function np_chain_end(S, k)
+  local nps = P.parse_np(S, k)
+  if #nps == 0 then return nil end
+  -- a verb inside the noun phrase ("Pellucid Freight SERVE Hamburg") means the phrase has run into the clause that follows it
+  local function verbish(np)
+    local function bad(c)
+      return c and (c.copula_like or (c.cats and (c.cats.copula_like or c.cats.aux_be or c.cats.aux_do or c.cats.aux_have or c.cats.modal))
+        or (c.verbs and #c.verbs > 0 and #c.senses == 0 and #c.entities == 0 and #c.relnouns == 0)) or false
+    end
+    for _, m in ipairs(np.mods or {}) do if bad(m.chunk) then return true end end
+    return np.head and np.head.single and bad(np.head) or false
+  end
+  local best
+  for _, np in ipairs(nps) do
+    if not verbish(np) and (not best or np.score > best.score) then best = np end
+  end
+  if not best then return nil end
+  local e = best.c2
+  for _ = 1, 8 do
+    local nx = C(S, e + 1)
+    if not nx or nx.masked then break end
+    if nx.single and cat(nx, "conj") and (nx.unit.form == "and" or nx.unit.form == "or" or nx.unit.form == "nor") then
+      local n2 = P.parse_np(S, e + 2)
+      if #n2 > 0 then e = n2[1].c2 else break end
+    elseif nx.pre and nx.pre:find("comma") then
+      local n2 = P.parse_np(S, e + 1)
+      if #n2 > 0 and not (n2[1].head_kind == "pronoun") then
+        local after = C(S, n2[1].c2 + 1)
+        if after and ((after.single and cat(after, "conj") and (after.unit.form == "and" or after.unit.form == "or")) or (after.pre and after.pre:find("comma"))) then e = n2[1].c2 else break end
+      else break end
+    else break end
+  end
+  local after = C(S, e + 1)
+  if after and after.single and RELATIVIZERS[after.unit.form] then return nil end    -- "excluding those that hire interns": the relative clause belongs to the body
+  return e
+end
+
+-- "Which countries OTHER THAN SWITZERLAND use the franc?": a noun-phrase-internal exclusion sits between the wh-phrase and its verb.  Its chunks move to the end of
+-- the sentence (unit offsets untouched), so the clause around it reads as if the exclusion were absent.
+local function relocate_inner_segments(S, segs)
+  for si = #segs, 1, -1 do
+    local sg = segs[si]
+    local nx = C(S, sg.b + 1)
+    if sg.kind == "exclusion" and sg.cue and NP_SCOPED[sg.cue:lower()] and nx and not nx.pre and not (nx.single and cat(nx, "conj")) and sg.b < S.last and sg.a > S.first then
+      local len = sg.b - sg.a + 1
+      local new = {}
+      for i = 1, sg.a - 1 do new[#new + 1] = S.chunks[i] end
+      for i = sg.b + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+      for i = sg.a, sg.b do new[#new + 1] = S.chunks[i] end
+      for i, ch in ipairs(new) do ch.idx = i end
+      S.chunks = new
+      for sj, o in ipairs(segs) do
+        if sj ~= si and o.a > sg.b then o.a, o.b, o.body_first, o.body_last = o.a - len, o.b - len, o.body_first - len, o.body_last - len end
+      end
+      local total = #new
+      sg.a, sg.b, sg.body_first, sg.body_last = total - len + 1, total, sg.body_first + (total - len + 1 - sg.a), sg.body_last + (total - len + 1 - sg.a)
+      S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+    end
+  end
+end
+
 function Cons.find_segments(S)
   local segs = {}
   local k = S.first
@@ -151,12 +219,17 @@ function Cons.find_segments(S)
     if kind then
       local body_first = k + ncue
       local e = seg_end(S, body_first)
+      if kind == "exclusion" and cue and NP_SCOPED[cue:lower()] and e >= body_first then
+        local ne = np_chain_end(S, body_first)
+        if ne and ne < e then e = ne end
+      end
       if e >= body_first then
         segs[#segs + 1] = { kind = kind, cue = cue, a = k, b = e, body_first = body_first, body_last = e }
         k = e + 1
       else k = k + 1 end
     else k = k + 1 end
   end
+  relocate_inner_segments(S, segs)
   return segs
 end
 
@@ -222,6 +295,8 @@ local function parse_items(S, first, last)
   end
   return items, unparsed
 end
+
+Cons.describe_target = describe_target
 
 function Cons.parse_segments(S, segs)
   local out = { negative = {}, preferences = {}, restrictions = {}, ordering = {}, unparsed = {} }

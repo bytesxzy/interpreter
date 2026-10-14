@@ -571,6 +571,12 @@ function T.annotate(an, opts)
           ex = mkexpr(an, "marker", idx, (phrase2 == "going forward") and idx + 1 or idx + 2, { scope = "future", relative = "future", persist = phrase2 == "going forward" or nil })
         elseif phrase3 == "from now on" or phrase3 == "from here on" or phrase3 == "for the rest" or phrase3 == "until further notice" then
           ex = mkexpr(an, "persist", idx, idx + 2, { scope = "future", persist = true })
+        elseif w == "for" and (w2 == "all" or w2 == "every" or w2 == "each") and ((w3 == "my" and (fm(units, idx + 3) == "next" or fm(units, idx + 3) == "following" or fm(units, idx + 3) == "future" or fm(units, idx + 3) == "later") and fm(units, idx + 4))
+          or (w3 == "future" or w3 == "following" or w3 == "later" or w3 == "subsequent" or w3 == "next" or w3 == "question" or w3 == "request" or w3 == "answer" or w3 == "query")) then
+          -- "for all my next questions", "for every question", "for all future requests": a standing scope over the requests that follow
+          local last = (w3 == "my") and (idx + 4) or (idx + 2)
+          if w3 ~= "my" and (w3 == "future" or w3 == "following" or w3 == "later" or w3 == "subsequent" or w3 == "next") then last = idx + 3 end
+          ex = mkexpr(an, "persist", idx, last, { scope = "future", persist = true })
         elseif w == "henceforth" or w == "hereafter" or w == "henceforward" then
           ex = mkexpr(an, "persist", idx, idx, { scope = "future", persist = true })
         elseif w == "yesterday" or w == "today" or w == "tomorrow" then

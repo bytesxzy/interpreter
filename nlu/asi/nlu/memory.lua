@@ -654,11 +654,11 @@ function M:select(interp, opts)
 end
 
 -- the standing constraints that are in force for this request (slot-keyed values, exclusions, preferences), with provenance
-function M:active_constraints(interp)
+function M:active_constraints(interp, opts)
   local out = {}
   for slot, st in pairs(self.slots) do
     local it = st.active and self.items[st.active]
-    if it and it.status == "active" and self:slot_applicable(slot, interp) then
+    if it and it.status == "active" and ((opts and opts.all) or self:slot_applicable(slot, interp)) then
       out[#out + 1] = { kind = it.kind, slot = slot, value = it.value, label = it.value_label, item = it.id, turn = it.turn, text = it.text, standing = it.standing or false,
         supersedes = it.supersedes, correction = it.correction or false }
     end

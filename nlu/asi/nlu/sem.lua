@@ -12,7 +12,7 @@ require("asi.nlu.frames4")   -- attribution idioms, locus hosts, "where can I fi
 local Sem = {}
 
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "wh_impersonal", "wh_origin", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "exclusion_clause", "focus", "statement", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
+  "request", "instruction", "exclusion_clause", "focus", "statement", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -411,7 +411,25 @@ function Sem.render(res, ctx)
   end
   -- constraints -------------------------------------------------------------
   local cons = { positive = {}, negative = {}, preferences = {}, restrictions = {}, temporal = {}, geographic = {}, source = {} }
-  for _, f in ipairs(top.filters or {}) do cons.positive[#cons.positive + 1] = filter_to_constraint(S, f) end
+  -- a NEGATED relative clause over a typed target ("companies that DON'T hire interns") excludes the members of the type that do: it is a negative constraint
+  local target_np = top.target
+  for _, f in ipairs(top.filters or {}) do
+    if f.kind == "relation" and f.polarity == "negative" and target_np and (target_np.head_kind == "typenoun" or target_np.head_kind == "concept") then
+      local pos = U.shallow(f); pos.polarity = "positive"
+      local ftext = S.an.original:sub(S.units[S.chunks[f.span.first].u1].s, S.units[S.chunks[f.span.last].u2].e)
+      local val = f.value
+      if val and (val.head_kind == "entity" or (val.head_kind == "unknown" and val.head and val.head.cap)) then
+        -- "universities that are not located in GERMANY": a named value is excluded as such (the relation stays recorded)
+        cons.negative[#cons.negative + 1] = { cue = "not", text = ftext, target = describe_target(Cons.describe_target(S, val)), applies_to = "result_set",
+          relation = f.rel, filters = { filter_to_constraint(S, pos) } }
+      else
+        cons.negative[#cons.negative + 1] = { cue = "not", text = ftext, target = describe_target(Cons.describe_target(S, target_np)), applies_to = "result_set",
+          filters = { filter_to_constraint(S, pos) } }
+      end
+    else
+      cons.positive[#cons.positive + 1] = filter_to_constraint(S, f)
+    end
+  end
   for _, t in ipairs(top.constraints.temporal or {}) do cons.temporal[#cons.temporal + 1] = t end
   for _, g in ipairs(top.constraints.geographic or {}) do cons.geographic[#cons.geographic + 1] = { prep = g.prep, value = ref(S, g.value), text = g.text } end
   for _, s in ipairs(top.constraints.source or {}) do cons.source[#cons.source + 1] = s end
@@ -422,6 +440,13 @@ function Sem.render(res, ctx)
     cons.negative[#cons.negative + 1] = { cue = n.cue, text = n.scope_text, target = describe_target(n.target), applies_to = applies,
       filters = U.map(n.target.filters or {}, function(f) return filter_to_constraint(S, f) end),
       inherits_scope = (top.op == "lookup" and n.target.scope == "description") and (top.roles[top.known_role] and ref(S, top.roles[top.known_role]).text) or nil }
+  end
+  -- "Which companies do NOT hire interns?": a negated predicate over a typed wh-noun excludes the members of that type who DO satisfy it
+  if top.op == "lookup" and top.polarity == "negative" and top.wh and top.wh.np and top.wh.type and top.known_role and top.roles and top.roles[top.known_role]
+    and (top.wh.np.head_kind == "typenoun" or top.wh.np.head_kind == "concept") and top.wh.np.plural then
+    local wn = top.wh.np
+    cons.negative[#cons.negative + 1] = { cue = "not", text = ref(S, wn).text, target = describe_target(Cons.describe_target(S, wn)), applies_to = "result_set",
+      filters = { filter_to_constraint(S, { kind = "relation", rel = top.rel, target_role = top.known_role, value = top.roles[top.known_role], polarity = "positive" }) } }
   end
   for _, n in ipairs(sc.preferences) do
     cons.preferences[#cons.preferences + 1] = { cue = n.cue, text = n.scope_text, target = describe_target(n.target),
@@ -462,6 +487,14 @@ function Sem.render(res, ctx)
       end
     end
     interp.tense = past and "past" or "present"
+    -- an explicit time expression plus a past-tense predicate ("was ... in 1998") puts the question in the past; a future copula ("will be ... in 2050") in the future
+    if not interp.temporal_scope and #cons.temporal > 0 then
+      local explicit = false
+      for _, t in ipairs(cons.temporal) do if t.role ~= "derived" and t.role ~= "label" and t.basis ~= "source_label" then explicit = true end end
+      local future = false
+      for k in pairs(top.used) do local ck = S.chunks[k]; if ck and ck.future then future = true end end
+      if explicit then interp.temporal_scope = future and "future" or (past and "past" or nil) end
+    end
   end
   interp.persist = top.persist or nil
   interp.unexplained = U.map(top.unexplained or {}, function(k) return S.chunks[k].text end)

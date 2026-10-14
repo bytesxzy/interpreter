@@ -74,7 +74,7 @@ D080 | intent | Is Paris in France? | intent=verification; rel=located_in; from=
 D090 | negation | I want the capital of France, not the largest city. | intent=factual_lookup; rel=capital; from=France; neg=description:city; mm=notcap:eq
 D091 | negation | Find companies looking for partnerships, not employment. | intent=search; target=companies; neg=topic:employment; pos=relation:seeks
 D092 | negation | Show the newest result, excluding reposts. | neg=topic:repost
-D093 | negation | Which claims are not supported by the documents? | rel=supported_by; pol=negative; from=claims; to=documents; ask=from; neg=none
+D093 | negation | Which claims are not supported by the documents? | rel=supported_by; pol=negative; from=claims; to=documents; ask=from
 D094 | negation | Find companies interested in partnerships, not companies hiring interns. | intent=search; target=companies; pos=relation:seeks; neg=type:company+hires:intern
 D095 | negation | List universities without a computer science program. | neg=topic:computer science
 D096 | negation | Exclude universities. | intent=instruction_update; neg=type:university

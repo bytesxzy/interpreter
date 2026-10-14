@@ -417,4 +417,76 @@ function F.generic_holder(S, out)
   end
 end
 
+---------------------------------------------------------------- relational statements
+--   "Paris is the capital of France."   "The capital of France is Paris."   "Acme was founded by Jane Doe."   "Acme is headquartered in Oslo."
+-- With a negated copula ("Paris is not the capital of France.") the polarity is negative.  A statement that is asked for confirmation (", right?", "Is it true that ...")
+-- becomes a verification in asi.nlu.sem.
+local function is_prep_chunk(c, form) return c and c.single and not c.masked and cat(c, "prep") and (form == nil or c.unit.form == form) end
+function F.statement_relational(S, out)
+  if S.sentence and S.sentence.question_mark and not S.polar then return end
+  for _, np1 in ipairs(P.parse_np(S, S.first)) do
+    local bk = np1.nxt
+    local bc = C(S, bk)
+    if is_be(bc) and not barrier(bc) then
+      local nk, neg_chunk = bk + 1, nil
+      local nc = C(S, nk)
+      if nc and P.is_neg(nc) and not barrier(nc) then neg_chunk = nk; nk = nk + 1 end
+      local function base(frame)
+        local h = newh(S, frame, "statement", "statement", "assert")
+        use_np(h, np1); use(h, bk)
+        if neg_chunk then use(h, neg_chunk); h.polarity = "negative" end
+        mark_unresolved_pron(h, np1)
+        return h
+      end
+      for _, np2 in ipairs(P.parse_np(S, nk)) do
+        for _, pair in ipairs({ { np1, np2 }, { np2, np1 } }) do
+          local value, relnp = pair[1], pair[2]
+          if relnp.head_kind == "relnoun" and value.head_kind ~= "relnoun" and value.head_kind ~= "pronoun" then
+            for _, o in ipairs(relnp_options(S, relnp)) do
+              if o.arg and o.rel and not o.rel.open then
+                local h = base("statement:be_rel")
+                use_np(h, np2)
+                h.rel, h.rel_obj = o.rel.id, o.rel
+                h.roles[o.known_role] = o.arg
+                h.roles[o.ask_role] = value
+                h.known_role = o.known_role
+                addf(h, "relnp_statement", 0.5, "statement of a relational fact")
+                F.option_factors(h, o)
+                mark_unresolved_pron(h, o.arg); mark_unresolved_pron(h, value)
+                out[#out + 1] = h
+              end
+            end
+          end
+        end
+      end
+      for _, vp in ipairs(P.parse_vp(S, bk)) do
+        if vp.voice == "passive" then
+          for _, e in ipairs(vp.analysis.entries or {}) do
+            local rel = S.lex:get_rel(e.rel)
+            if rel and not rel.open and not e.support and not e.as_only then
+              local pc = C(S, vp.nxt)
+              local frame, ok_prep
+              if e.prep and is_prep_chunk(pc, e.prep) then frame, ok_prep = "statement:be_stative", true
+              elseif not e.prep and is_prep_chunk(pc, "by") then frame, ok_prep = "statement:be_passive", true end
+              if ok_prep then
+                for _, np2 in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                  local h = base(frame)
+                  use_vp(h, vp); use(h, vp.nxt); use_np(h, np2)
+                  h.rel, h.rel_obj = rel.id, rel
+                  if e.prep then h.roles[e.subj] = np1; h.roles[other(e.subj)] = np2
+                  else h.roles[other(e.subj)] = np1; h.roles[e.subj] = np2 end
+                  if vp.neg then h.polarity = "negative" end
+                  addf(h, "relation_statement", 0.5, "statement over a relation verb (" .. tostring(vp.voice) .. ")")
+                  mark_unresolved_pron(h, np2)
+                  out[#out + 1] = h
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 return F
