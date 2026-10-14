@@ -10,7 +10,7 @@ require("asi.nlu.frames3")   -- registers the stranded-preposition, quantity, li
 
 local Sem = {}
 
-local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "wh_impersonal", "wh_origin", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "yes_no", "wh_change", "compare_q",
+local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "wh_impersonal", "wh_origin", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
   "request", "instruction", "exclusion_clause", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
 
 local function sentence_unit_range(an, sid)
@@ -82,6 +82,7 @@ local function ref(S, np, depth)
     if b and b.discourse and b.status ~= "resolved" and not b.deictic then r.antecedent_reason = b.none_reason end
   end
   if np.backref then r.backref = true; r.needs_context = true; r.backref_who = np.backref_who end
+  if np.head_kind == "ordinal_ref" then r.ordinal_ref = true; r.needs_context = true end
   if np.det then r.det = np.det end
   if np.plural then r.plural = true end
   if np.superlative then r.superlative = np.superlative end

@@ -498,6 +498,43 @@ local function parse_np_core(S, k, opts)
   local out = {}
   local c = C(S, k)
   if not c or c.masked then return out end
+  -- "the second one", "the third", "the last one", "the former": an ordinal reference to a member of the latest list in the conversation
+  -- (only offered when the conversation holds such a list; an ordinal followed by a nominal -- "the second solution" -- is an ordinary modifier)
+  do
+    local dm = S.ctx and S.ctx.discourse and S.ctx.discourse.mem
+    if dm and dm.artifacts and dm.artifacts.entity and #dm.artifacts.entity > 0 then
+      local k1, dc = k, nil
+      if c.single and cat(c, "det") and c.unit.form == "the" then dc = c; k1 = k + 1 end
+      local oc = C(S, k1)
+      local ord
+      if dc and oc and oc.single and not oc.masked and not barrier(oc) then
+        if oc.unit.ordinal then ord = oc.unit.ordinal
+        elseif oc.number and oc.number.kind == "ordinal" then ord = oc.number.value
+        elseif oc.unit.form == "last" or oc.unit.form == "latter" then ord = "last"
+        elseif oc.unit.form == "former" then ord = 1 end
+      end
+      if ord then
+        local nk = k1 + 1
+        local oc2 = C(S, nk)
+        if oc2 and oc2.single and not oc2.masked and not barrier(oc2) and (oc2.unit.form == "one" or oc2.unit.form == "ones") then nk = nk + 1 end
+        local nominal = false
+        local nxt = C(S, nk)
+        if nxt and not nxt.masked and not barrier(nxt) then
+          local nn = nclass(S, nxt, true)
+          if nn and (nn.sense or nn.relnoun or nn.entity or nn.number or nn.temporal) then nominal = true end
+        end
+        if not nominal then
+          local np = new_np(dc)
+          local lastc = C(S, nk - 1)
+          np.head_kind, np.head, np.ordinal, np.det = "ordinal_ref", oc, ord, "the"
+          np.hchunk_idx = oc.idx
+          np.u2, np.c2, np.nxt, np.score = lastc.u2, lastc.idx, nk, 0.9
+          out[#out + 1] = np
+          return out
+        end
+      end
+    end
+  end
   local j = k
   local det, poss_det
   local c0 = c
@@ -536,7 +573,19 @@ local function parse_np_core(S, k, opts)
       local ncn = nn and not barrier(nn) and nclass(S, nn, true)
       if ncn and not ncn.pron then m = m + 1; goto continue_run end
     end
-    local nc = nclass(S, cm, (m > j) or det ~= nil or poss_det ~= nil)
+    local np_ctx = (m > j) or det ~= nil or poss_det ~= nil
+    -- "Find DESIGN studios", "RESEARCH labs", "CLEANING services": a verb-form word that opens a bare noun phrase is a compound-noun modifier when a noun follows it
+    if not np_ctx then
+      -- an imperative / speech-act verb ("define", "find", "list") opens a clause, not a compound noun
+      local acty = false
+      for _, v in ipairs(cm.verbs or {}) do if v.act then acty = true end end
+      local nx = (not acty) and C(S, m + 1) or nil
+      if nx and not nx.masked and not barrier(nx) then
+        local nn = nclass(S, nx, true)
+        if nn and (nn.sense or nn.unknown or nn.relnoun) and not nn.from_verb and not nn.pron and not nn.adj then np_ctx = true end
+      end
+    end
+    local nc = nclass(S, cm, np_ctx)
     if not nc then break end
     if nc.pron and not nc.entity and not nc.sense then break end
     -- a verb form right after a head noun starts a participial/relative clause ("companies hiring interns"); it is only a
@@ -564,6 +613,19 @@ local function parse_np_core(S, k, opts)
     if #heads >= 3 then break end
   end
   if #heads == 0 then return out end
+  -- "firms OFFERING carbon accounting software", "startups SEEKING funding": a head noun directly followed by a participial verb form may end the noun phrase there
+  for hi_ = #run - 1, 1, -1 do
+    if head_capable(run[hi_].cl) and not run[hi_].cl.entity and not run[hi_].cl.number and not run[hi_].cl.temporal then
+      local nxtc = run[hi_ + 1].c
+      local part = false
+      if nxtc.single then for _, a in ipairs(P.verb_analyses(S, nxtc)) do if a.form == "ing" or a.form == "pp" then part = true end end end
+      if part then
+        local already = false
+        for _, x in ipairs(heads) do if x == hi_ then already = true end end
+        if not already then heads[#heads + 1] = hi_ end
+      end
+    end
+  end
   for hn, hi in ipairs(heads) do
   local head = run[hi]
   local after = j + hi -- chunk index after head
@@ -731,6 +793,14 @@ local function parse_np_core(S, k, opts)
         final[#final + 1] = cp
       end
       final[#final + 1] = a
+      -- "this company", "that firm": a demonstrative + kind noun denotes something already in the conversation
+      if S.ctx and S.ctx.discourse and (a.det == "this" or a.det == "that") and a.head_kind == "typenoun" and not a.plural and not a.of_arg and not a.possessor and not a.backref
+        and not (S.ctx.flags and S.ctx.flags.no_coref) then
+        local cp = U.shallow(a)
+        cp.backref, cp.demonstrative = true, true
+        cp.score = a.score + 0.35
+        final[#final + 1] = cp
+      end
     end
   end
   -- a possessive determiner of the fronted-topic frame ("As for France, ITS capital ...") takes the topic as its argument

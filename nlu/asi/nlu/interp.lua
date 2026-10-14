@@ -148,6 +148,7 @@ function I:interpret(text, call)
   end
   if call.light and mem then
     -- light observation (assistant / document turns): attested entity mentions only, no semantic parse and no standing instructions
+    local turn_items = {}
     for _, sent in ipairs(an.sentences) do
       local ua, ub = Sem.sentence_unit_range(an, sent.id)
       local cover = ua and lat:covers(1, ua, ub)[1]
@@ -161,20 +162,28 @@ function I:interpret(text, call)
         local text = an.original:sub(an.units[sp.i].s, an.units[sp.j].e)
         local n, only = 0, nil
         for id in pairs(ids) do n = n + 1; only = id end
+        local ustart, uend = an.units[sp.i].s, an.units[sp.j].e
         if n == 1 then
           mem:mention(only, { type = ids[only], name = text, w = 0.2, role = "mention", speaker = speaker })
           found[#found + 1] = { key = only, c1 = si, c2 = si }
+          turn_items[#turn_items + 1] = { key = only, text = text, type = ids[only], s = ustart, e = uend }
         elseif n == 0 and name_r then
           local key = "mention:" .. text:lower()
           mem:mention(key, { type = name_r.type_guess, name = text, w = 0.2, role = "mention", speaker = speaker, weak = name_r.weak,
             pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil })
           found[#found + 1] = { key = key, c1 = si, c2 = si }
+          turn_items[#turn_items + 1] = { key = key, text = text, type = name_r.type_guess, s = ustart, e = uend }
         end
       end
       if #found > 0 then
         local S = P.new_state(an, self.lex, lat, cover, { flags = flags, meter = meter })
         Coref.describe_entities(view, S, found, speaker)
       end
+    end
+    -- a list the assistant gave ("1. Oslo 2. Stockholm 3. Helsinki"): later "the second one" / "the last" refer to its members
+    if #turn_items >= 2 and speaker ~= "user" then
+      local members = Memory.detect_enumeration(text, turn_items)
+      if members then mem:note_enumeration(members) end
     end
     if not call.skip_utterance then mem:note_utterance(text, speaker) end
     result.light, result.work = true, meter:snapshot()

@@ -162,6 +162,20 @@ function H.bind_np(S, ctx, np, expected, h, role)
     else
       b.status, b.fit, b.pending = "pending", 0.25, true
     end
+  elseif np.head_kind == "ordinal_ref" then
+    -- "the second one": the member of the latest enumeration of entities
+    local dm = ctx.discourse and ctx.discourse.mem
+    local a, size = nil, 0
+    if dm then a, size = dm:find_entity_ordinal(np.ordinal) end
+    if a then
+      b.status = "resolved"
+      b.antecedent = { key = a.key, text = a.text, type = a.etype, turn = a.turn, via = "ordinal_enumeration", ordinal = np.ordinal, p = 1.0 }
+      b.top = { id = a.key, type = a.etype, name = a.text }
+      b.type, b.fit = a.etype, lex:compat(a.etype, expected)
+      b.cands = { { id = a.key, type = a.etype, name = a.text, p = 1.0, score = 1.0, reasons = { "member " .. tostring(np.ordinal) .. " of the latest list (" .. tostring(size) .. " members)" } } }
+    else
+      b.status, b.fit = "unresolved", 0.25
+    end
   elseif np.head_kind == "temporal" then b.type, b.fit, b.status = "date", lex:compat("date", expected), "resolved"
   elseif np.head_kind == "number" then b.type, b.fit, b.status = "number", lex:compat("number", expected), "resolved"
   elseif np.head_kind == "quote" or np.head_kind == "literal" then b.type, b.fit, b.status = "text", 0.25, "resolved"

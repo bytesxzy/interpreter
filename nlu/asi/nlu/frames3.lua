@@ -611,7 +611,13 @@ function F.list_relative(S, out)
       local relativizer = rc and rc.single and not rc.masked and not barrier(rc) and (rc.unit.form == "that" or rc.unit.form == "which" or rc.unit.form == "who")
       if relativizer then rk = rk + 1 end
       local wh = { wh = "which", type = t, np = nnp, nxt = rk, c1 = nnp.c1, c2 = nnp.c2, u1 = nnp.u1, u2 = nnp.u2, plural = true, synthetic = true }
+      -- the known side of a LOOKUP is a named thing ("Sequoia Capital", "the euro"); a descriptive phrase ("Series A funding") makes the clause a FILTER of a search
+      local function named(np)
+        return np.head_kind == "entity" or (np.head_kind == "unknown" and np.head and np.head.cap)
+          or ((np.head_kind == "typenoun" or np.head_kind == "unknown") and not np.plural and np.det == "the")   -- "the euro": one definite thing
+      end
       local function finish(h, rel, known_role, known_np, ask_role, vp, prep_k)
+        if not named(known_np) then return end
         set_lookup(h, rel, known_role, known_np, ask_role, wh)
         use(h, head, k - 1); use_np(h, nnp); use_np(h, known_np); use_vp(h, vp)
         if relativizer then use(h, nnp.nxt) end
@@ -682,6 +688,153 @@ function F.list_relative(S, out)
               end
             end
           end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- a resource named with a value in a directive sentence: "the analysis should now run on dataset 2025 rather than the one I mentioned before"
+-- "Scrap the earlier dataset, I want dataset 2026 used from here on."  "Whenever you run the analysis, pull from the 2020 dataset and nothing else."
+-- Any sentence that frames a resource phrase WITH A VALUE (the 2021 dataset, dataset 2019, the dataset named 2026, version 3.2, the file a.csv) as what to use is an instruction
+-- about that resource's slot -- whatever the verb ("lean on", "run on", "pull from", "built on", "carried out on", "go with").  Questions and reported speech are not.
+local DIR_WORDS = U.set({ "use", "using", "run", "running", "pull", "pulling", "build", "built", "base", "based", "carry", "carried", "lean", "rely", "relying", "work", "working",
+  "analyse", "analyze", "analysed", "analyzed", "go", "going", "switch", "switching", "stick", "sticking", "draw", "drawing", "take", "taking", "apply", "applied", "operate",
+  "compute", "computed", "calculate", "calculated", "process", "load", "read", "query", "select", "choose", "pick", "prefer", "adopt", "default", "point", "restrict", "limit",
+  "stay", "remain", "keep", "set", "need", "want", "wish", "should", "must", "ensure", "replace", "replaces", "swap", "change", "update", "upgrade", "move", "refer", "consult", "feed", "fall" })
+local REPORT_MARKERS = U.set({ "she", "he", "they", "someone", "somebody", "friend", "colleague", "teacher", "professor", "boss", "manager", "said", "says", "told", "tells", "asked", "asks",
+  "suggested", "suggests", "recommended", "recommends", "mentioned", "claimed", "thinks", "thought", "reckons", "reckoned", "heard", "read" })
+local FIRST_PERSON_DIRECTIVE = U.set({ "i", "we", "let's", "lets", "please", "kindly" })
+local NAMING = U.set({ "named", "called", "titled", "labelled", "labeled", "dubbed", "number", "no", "id", "version" })
+function F.resource_directive(S, out)
+  if S.sentence and S.sentence.question_mark then return end
+  if #P.parse_wh(S, S.first) > 0 then return end
+  local lex = S.lex
+  local has_dir, reported, first_person = false, false, false
+  for i = S.first, S.last do
+    local c = C(S, i)
+    local f = c and not c.masked and ((c.single and c.unit.form) or (c.form and c.form:match("^(%S+)")))   -- a multiword verb ("set up") counts by its first word
+    if f then
+      if DIR_WORDS[f] then has_dir = true end
+      if REPORT_MARKERS[f] then reported = true end
+      if FIRST_PERSON_DIRECTIVE[f] then first_person = true end
+      if f == "let" then
+        local nx = C(S, i + 1)
+        if nx and nx.single and (nx.unit.form == "us" or nx.unit.form == "'s" or cat(nx, "clitic_s")) then first_person = true end
+      end
+    end
+  end
+  if not has_dir then return end
+  -- "My friend said to use the 2021 dataset in her statistics class.": reported, no directive of the speaker's own
+  if reported and not first_person then return end
+  for i = S.first, S.last do
+    local c = C(S, i)
+    local slot = c and c.single and not c.masked and lex:resource(c.unit.form)
+    if slot and not (lex:resource(c.unit.form) == "solution") then
+      local value
+      local pc = C(S, i - 1)
+      if pc and not pc.masked and not barrier(c) then
+        if pc.temporal and pc.temporal.year then value = { year = pc.temporal.year, label = pc.text, expr = pc.temporal }
+        elseif pc.single and pc.unit.kind == "number" and pc.unit.numval and not pc.unit.ordinal then value = { word = pc.text, label = pc.text } end
+      end
+      if not value then
+        local nk = i + 1
+        local nc = C(S, nk)
+        if nc and nc.single and not nc.masked and not barrier(nc) and NAMING[nc.unit.form] then nk = nk + 1; nc = C(S, nk) end
+        if nc and not nc.masked and not barrier(nc) then
+          if nc.temporal and nc.temporal.year then value = { year = nc.temporal.year, label = nc.text, expr = nc.temporal }
+          elseif nc.single and (nc.literal or nc.unit.kind == "ident" or (nc.unit.kind == "number" and nc.unit.numval and not nc.unit.ordinal)) then value = { word = nc.text, label = nc.text } end
+        end
+      end
+      if value then
+        -- a retraction or replacement marker anywhere makes it a correction; a standing marker makes it persist
+        local correction, persist = false, false
+        for k = S.first, S.last do
+          local ck = C(S, k)
+          if ck and not ck.masked then
+            if lex:cue_at("correction", S.units, ck.u1) or lex:cue_at("revoke", S.units, ck.u1) then correction = true end
+            if ck.temporal and (ck.temporal.kind == "persist" or ck.temporal.persist) then persist = true end
+            if ck.single and (ck.unit.form == "instead" or ck.unit.form == "replace" or ck.unit.form == "replaces" or ck.unit.form == "scrap" or ck.unit.form == "disregard") then correction = true end
+            if ck.single and (ck.unit.form == "whenever" or ck.unit.form == "always" or ck.unit.form == "everytime") then persist = true end
+          end
+        end
+        local h = newh(S, "instruction:resource_directive", "instruction", "instruction_update", "instruct")
+        for k = S.first, S.last do if C(S, k) and not C(S, k).masked then h.used[k] = true end end
+        h.instruction = { verb = "use", act = "constraint", np = { head = c, head_kind = "concept", mods = {}, u1 = c.u1, u2 = c.u2, c1 = c.idx, c2 = c.idx, nxt = c.idx + 1, notes = {}, score = 0 },
+          slot = slot, value = value, correction = correction, persist = persist }
+        h.correction, h.persist = correction, persist
+        addf(h, "resource_slot", 0.5, "the sentence names a '" .. slot .. "' with a value as what to use")
+        addf(h, "directive_framing", 0.4, "directive wording around the resource phrase")
+        if correction then addf(h, "correction_cue", 0.4, "explicit correction / replacement marker") end
+        if persist then addf(h, "persist_cue", 0.3, "applies to every later request") end
+        out[#out + 1] = h
+        break
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- standing style / format instructions: "Always answer in metric units from now on."  "Reply in formal English."
+-- A persistence marker (always, never, from now on, going forward) with a verb of communication and a manner phrase is a standing instruction about HOW to answer.
+local STYLE_VERBS = U.set({ "answer", "respond", "reply", "write", "format", "present", "explain", "speak", "talk", "summarize", "summarise", "keep", "report", "express", "phrase", "address" })
+local PERSIST_WORDS = U.set({ "always", "never", "henceforth", "hereafter" })
+function F.style_instruction(S, out)
+  local persist = false
+  for _, ch in ipairs(S.chunks) do
+    if ch.temporal and (ch.temporal.kind == "persist" or ch.temporal.persist) then persist = true end
+    if ch.single and PERSIST_WORDS[ch.unit.form] then persist = true end
+  end
+  if not persist then return end
+  for k = S.first, S.last do
+    local c = C(S, k)
+    if c and c.single and not c.masked and STYLE_VERBS[c.unit.form] then
+      local pc = C(S, k + 1)
+      -- the manner phrase:  in / with / using / as  X
+      if pc and pc.single and not pc.masked and not barrier(pc) and (pc.unit.form == "in" or pc.unit.form == "with" or pc.unit.form == "using" or pc.unit.form == "as" or pc.unit.form == "like") then
+        for _, np in ipairs(P.parse_np(S, k + 2)) do
+          local h = newh(S, "instruction:style", "instruction", "instruction_update", "instruct")
+          for i = S.first, np.nxt - 1 do
+            local ci = C(S, i)
+            if ci and not ci.masked and (i >= k or (ci.single and (PERSIST_WORDS[ci.unit.form] or ci.temporal or cat(ci, "polite") or cat(ci, "adv") or cat(ci, "discourse")))) then h.used[i] = true end
+          end
+          -- trailing persistence marker ("... from now on")
+          for i = np.nxt, S.last do local ci = C(S, i); if ci and ci.temporal and (ci.temporal.kind == "persist" or ci.temporal.persist) then h.used[i] = true end end
+          h.instruction = { verb = c.unit.form, act = "constraint", np = np, slot = "style", value = { word = np.head and np.head.form or "", label = P.span_text(S, np) }, persist = true }
+          h.persist = true
+          addf(h, "style_instruction", 0.9, "a standing instruction about how to answer ('" .. c.unit.form .. " " .. pc.unit.form .. " ...')")
+          addf(h, "persist_cue", 0.3, "applies from now on")
+          out[#out + 1] = h
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- existential questions: "Is there a bakery in Wexmoor?"  "Are there any hospitals in Finland?"  -> a search for such things
+local EXIST_FILLERS = U.set({ "anywhere", "somewhere", "around", "nearby", "locally" })
+function F.existential_search(S, out)
+  local c0, c1 = C(S, S.first), C(S, S.first + 1)
+  if not (c0 and c1 and c0.single and c1.single and not c0.masked and not c1.masked and cat(c0, "aux_be") and c1.unit.form == "there" and not barrier(c1)) then return end
+  local k = S.first + 2
+  local qc = C(S, k)
+  local lead = { S.first, S.first + 1 }
+  if qc and qc.single and not qc.masked and not barrier(qc) and (qc.unit.form == "any" or qc.unit.form == "a" or qc.unit.form == "an" or qc.unit.form == "some") then
+    lead[#lead + 1] = k; k = k + 1
+  end
+  for _, np in ipairs(P.parse_np(S, k, { no_of = false })) do
+    -- "a decent plumber ANYWHERE around X": a place adverb before the locative phrase carries nothing
+    local sk = np.nxt
+    local ac = C(S, sk)
+    local skipped = {}
+    while ac and ac.single and not ac.masked and not barrier(ac) and EXIST_FILLERS[ac.unit.form] and not cat(ac, "prep") do skipped[#skipped + 1] = sk; sk = sk + 1; ac = C(S, sk) end
+    if np.head_kind == "typenoun" or np.head_kind == "unknown" or np.head_kind == "concept" then
+      local hs = {}
+      F.from_object_np(S, hs, np, { act = "retrieve", lemma = "find" }, "question", lead)
+      for _, h in ipairs(hs) do
+        if h.intent == "search" then
+          for _, i in ipairs(skipped) do h.used[i] = true end
+          addf(h, "existential_question", 0.4, "'is there ...?' asks for such things")
+          out[#out + 1] = h
         end
       end
     end

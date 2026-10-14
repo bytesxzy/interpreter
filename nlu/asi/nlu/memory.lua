@@ -266,6 +266,69 @@ function M:extract_artifacts(text, item)
   return n
 end
 
+-- An enumeration of entities in a turn: "1. Oslo 2. Stockholm 3. Helsinki", "Tallinn, Riga and Klaipeda", "Marie Curie and Albert Einstein".
+-- items = { {key=, text=, type=, s=, e=}, ... } (entity mentions of the turn with byte offsets); returns the members of the list, or nil
+function M.detect_enumeration(text, items)
+  if #items < 2 then return nil end
+  table.sort(items, function(a, b) return a.s < b.s end)
+  -- (1) numbered items: markers 1. 2. 3. ... each followed by one item
+  local nums = {}
+  for pos, num in text:gmatch("()%f[%d](%d+)[%.%)]%s") do nums[#nums + 1] = { pos = pos, n = tonumber(num) } end
+  if #nums >= 2 then
+    local ok = true
+    for i, x in ipairs(nums) do if x.n ~= i then ok = false end end
+    if ok then
+      local out = {}
+      for i, x in ipairs(nums) do
+        local hi = nums[i + 1] and nums[i + 1].pos or (#text + 1)
+        for _, it in ipairs(items) do if it.s >= x.pos and it.s < hi then out[#out + 1] = it; break end end
+      end
+      if #out >= 2 then return out end
+    end
+  end
+  -- (2) a run of items separated only by commas / "and" / "or" that makes up most of the message
+  local lead = text:match("^[^:]*:%s*()") or 1
+  local body = text:sub(lead):gsub("[%.%!%?%s]+$", "")
+  local best
+  local run = { items[1] }
+  local function close()
+    if #run >= 2 and (not best or #run > #best) then
+      local span = run[#run].e - run[1].s + 1
+      if span >= 0.5 * #body then best = run end
+    end
+  end
+  for i = 2, #items do
+    local a, b = items[i - 1], items[i]
+    local between = text:sub(a.e + 1, b.s - 1):lower()
+    if between:match("^[%s,;&]*$") and between:find("[,;&]") or between:match("^[%s,]*and[%s,]*$") or between:match("^[%s,]*or[%s,]*$") or between:match("^[%s,]*as well as[%s,]*$") then
+      run[#run + 1] = b
+    else close(); run = { b } end
+  end
+  close()
+  return best
+end
+
+function M:note_enumeration(members)
+  for i, m in ipairs(members) do
+    local list = self.artifacts["entity"]
+    if not list then list = {}; self.artifacts["entity"] = list end
+    list[#list + 1] = { class = "entity", ordinal = i, label = m.text, text = m.text, turn = self.turn, speaker = self.speaker, key = m.key, etype = m.type, size = #members }
+  end
+end
+
+-- the member of the latest entity enumeration an ordinal ("second", 2) or "last" / "first" refers to
+function M:find_entity_ordinal(ordinal)
+  local list = self.artifacts["entity"] or {}
+  local latest = -1
+  for _, a in ipairs(list) do if a.turn > latest then latest = a.turn end end
+  local members = {}
+  for _, a in ipairs(list) do if a.turn == latest then members[#members + 1] = a end end
+  table.sort(members, function(x, y) return x.ordinal < y.ordinal end)
+  if #members == 0 then return nil, 0 end
+  if ordinal == "last" then return members[#members], #members end
+  return members[tonumber(ordinal)], #members
+end
+
 function M:find_artifact(class, ordinal, label_word)
   local list = self.artifacts[class] or {}
   if ordinal then

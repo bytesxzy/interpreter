@@ -10,89 +10,89 @@ variants are what give the calibration data its errors. The calibration is valid
 
 | scoring | n | accuracy | ECE | Brier | log-loss | AUROC |
 |---|---|---|---|---|---|---|
-| raw (uncalibrated) | 558 | 0.889 | 0.1761 | 0.1261 | 0.7193 | 0.593 |
-| temperature/Platt | 558 | 0.889 | 0.0978 | 0.0990 | 0.3756 | 0.593 |
-| isotonic on semantic_raw | 558 | 0.889 | 0.1223 | 0.0918 | 0.3251 | 0.593 |
-| logistic over interpretation features | 558 | 0.889 | 0.0653 | 0.0719 | 0.2725 | 0.814 |
+| raw (uncalibrated) | 558 | 0.894 | 0.1565 | 0.1157 | 0.6513 | 0.609 |
+| temperature/Platt | 558 | 0.894 | 0.1039 | 0.0959 | 0.3607 | 0.609 |
+| isotonic on semantic_raw | 558 | 0.894 | 0.1140 | 0.0891 | 0.3183 | 0.609 |
+| logistic over interpretation features | 558 | 0.894 | 0.0646 | 0.0707 | 0.2713 | 0.818 |
 
-Logistic weights (standardised features): semantic_raw=+0.82, coverage=+1.60, repaired=+0.00, n_repairs=+0.00, unknown_lowercase=-0.16, open_relation=-0.52, ambiguous=-0.23, fuzzy_entity=+0.00, min_entity=+0.00, unresolved_ref=+0.00, no_interpretation=-0.01, bias=+1.92
+Logistic weights (standardised features): semantic_raw=+0.72, coverage=+1.48, repaired=+0.00, n_repairs=+0.00, unknown_lowercase=-0.16, open_relation=-0.50, ambiguous=-0.21, fuzzy_entity=+0.00, min_entity=+0.00, unresolved_ref=+0.00, no_interpretation=-0.01, bias=+1.90
 
 Reliability of the RAW score on the evaluation set:
 
 | bin | n | mean confidence | accuracy | range |
 |---|---|---|---|---|
-| 1 | 55 | 0.359 | 0.673 | 0.000-0.494 |
-| 2 | 56 | 0.545 | 0.839 | 0.498-0.603 |
-| 3 | 56 | 0.632 | 0.929 | 0.605-0.680 |
-| 4 | 56 | 0.727 | 0.911 | 0.688-0.757 |
-| 5 | 56 | 0.784 | 0.964 | 0.760-0.814 |
-| 6 | 55 | 0.838 | 0.946 | 0.814-0.875 |
-| 7 | 56 | 0.898 | 0.964 | 0.875-0.919 |
-| 8 | 56 | 0.940 | 0.964 | 0.919-0.969 |
-| 9 | 56 | 0.992 | 0.839 | 0.969-1.000 |
-| 10 | 56 | 1.000 | 0.857 | 1.000-1.000 |
+| 1 | 55 | 0.357 | 0.654 | 0.000-0.502 |
+| 2 | 56 | 0.551 | 0.875 | 0.503-0.615 |
+| 3 | 56 | 0.666 | 0.929 | 0.615-0.701 |
+| 4 | 56 | 0.759 | 0.911 | 0.702-0.807 |
+| 5 | 56 | 0.834 | 0.946 | 0.807-0.858 |
+| 6 | 55 | 0.874 | 0.964 | 0.858-0.893 |
+| 7 | 56 | 0.911 | 0.982 | 0.893-0.934 |
+| 8 | 56 | 0.948 | 0.946 | 0.934-0.964 |
+| 9 | 56 | 0.990 | 0.893 | 0.969-1.000 |
+| 10 | 56 | 1.000 | 0.839 | 1.000-1.000 |
 
 Reliability after logistic calibration (evaluation set, not used for fitting):
 
 | bin | n | mean confidence | accuracy | range |
 |---|---|---|---|---|
-| 1 | 55 | 0.231 | 0.382 | 0.000-0.578 |
-| 2 | 56 | 0.695 | 0.857 | 0.589-0.765 |
-| 3 | 56 | 0.826 | 0.893 | 0.765-0.867 |
-| 4 | 56 | 0.886 | 0.946 | 0.867-0.910 |
-| 5 | 56 | 0.921 | 0.982 | 0.910-0.929 |
-| 6 | 55 | 0.933 | 1.000 | 0.929-0.938 |
-| 7 | 56 | 0.946 | 0.982 | 0.938-0.952 |
-| 8 | 56 | 0.957 | 0.911 | 0.953-0.960 |
-| 9 | 56 | 0.963 | 0.964 | 0.960-0.965 |
-| 10 | 56 | 0.968 | 0.964 | 0.965-0.970 |
+| 1 | 55 | 0.215 | 0.400 | 0.000-0.565 |
+| 2 | 56 | 0.696 | 0.839 | 0.569-0.766 |
+| 3 | 56 | 0.833 | 0.946 | 0.792-0.867 |
+| 4 | 56 | 0.885 | 0.982 | 0.868-0.901 |
+| 5 | 56 | 0.915 | 0.946 | 0.903-0.926 |
+| 6 | 55 | 0.933 | 0.982 | 0.926-0.939 |
+| 7 | 56 | 0.944 | 0.946 | 0.939-0.948 |
+| 8 | 56 | 0.950 | 0.964 | 0.948-0.955 |
+| 9 | 56 | 0.956 | 0.964 | 0.955-0.956 |
+| 10 | 56 | 0.961 | 0.964 | 0.956-0.963 |
 
 ## Fit on val variants, evaluate on dev variants
 
 | scoring | n | accuracy | ECE | Brier | log-loss | AUROC |
 |---|---|---|---|---|---|---|
-| raw (uncalibrated) | 637 | 0.834 | 0.1312 | 0.1299 | 0.6257 | 0.700 |
-| temperature/Platt | 637 | 0.834 | 0.1149 | 0.1408 | 0.4592 | 0.700 |
-| isotonic on semantic_raw | 637 | 0.834 | 0.1184 | 0.1175 | 0.4103 | 0.700 |
-| logistic over interpretation features | 637 | 0.834 | 0.0544 | 0.0925 | 0.3211 | 0.834 |
+| raw (uncalibrated) | 637 | 0.830 | 0.1074 | 0.1314 | 0.6334 | 0.686 |
+| temperature/Platt | 637 | 0.830 | 0.1038 | 0.1424 | 0.4633 | 0.686 |
+| isotonic on semantic_raw | 637 | 0.830 | 0.1648 | 0.1265 | 0.4398 | 0.686 |
+| logistic over interpretation features | 637 | 0.830 | 0.0683 | 0.0997 | 0.3422 | 0.829 |
 
-Logistic weights (standardised features): semantic_raw=+0.46, coverage=+1.13, repaired=+0.00, n_repairs=-0.05, unknown_lowercase=-0.39, open_relation=-0.42, ambiguous=+0.00, fuzzy_entity=+0.00, min_entity=+0.00, unresolved_ref=+0.00, no_interpretation=-0.14, bias=+2.51
+Logistic weights (standardised features): semantic_raw=+0.50, coverage=+1.10, repaired=+0.00, n_repairs=+0.00, unknown_lowercase=-0.35, open_relation=-0.42, ambiguous=+0.00, fuzzy_entity=+0.00, min_entity=+0.00, unresolved_ref=+0.00, no_interpretation=-0.13, bias=+2.59
 
 Reliability of the RAW score on the evaluation set:
 
 | bin | n | mean confidence | accuracy | range |
 |---|---|---|---|---|
-| 1 | 63 | 0.304 | 0.444 | 0.000-0.500 |
-| 2 | 64 | 0.546 | 0.672 | 0.502-0.602 |
-| 3 | 64 | 0.631 | 0.859 | 0.603-0.665 |
-| 4 | 63 | 0.708 | 0.936 | 0.665-0.753 |
-| 5 | 64 | 0.788 | 0.906 | 0.754-0.834 |
-| 6 | 64 | 0.857 | 0.938 | 0.834-0.877 |
-| 7 | 63 | 0.900 | 0.968 | 0.877-0.917 |
-| 8 | 64 | 0.936 | 0.797 | 0.917-0.981 |
-| 9 | 64 | 0.996 | 0.812 | 0.983-1.000 |
+| 1 | 63 | 0.347 | 0.476 | 0.000-0.507 |
+| 2 | 64 | 0.560 | 0.672 | 0.509-0.611 |
+| 3 | 64 | 0.660 | 0.891 | 0.611-0.700 |
+| 4 | 63 | 0.754 | 0.857 | 0.701-0.812 |
+| 5 | 64 | 0.842 | 0.906 | 0.814-0.860 |
+| 6 | 64 | 0.879 | 0.953 | 0.860-0.898 |
+| 7 | 63 | 0.911 | 0.936 | 0.899-0.921 |
+| 8 | 64 | 0.949 | 0.812 | 0.922-0.982 |
+| 9 | 64 | 0.997 | 0.797 | 0.983-1.000 |
 | 10 | 64 | 1.000 | 1.000 | 1.000-1.000 |
 
 Reliability after logistic calibration (evaluation set, not used for fitting):
 
 | bin | n | mean confidence | accuracy | range |
 |---|---|---|---|---|
-| 1 | 63 | 0.359 | 0.206 | 0.002-0.800 |
-| 2 | 64 | 0.874 | 0.797 | 0.806-0.901 |
-| 3 | 64 | 0.914 | 0.734 | 0.902-0.923 |
-| 4 | 63 | 0.933 | 0.889 | 0.923-0.941 |
-| 5 | 64 | 0.948 | 0.922 | 0.941-0.953 |
-| 6 | 64 | 0.957 | 0.938 | 0.953-0.961 |
-| 7 | 63 | 0.964 | 0.968 | 0.961-0.966 |
-| 8 | 64 | 0.967 | 0.969 | 0.966-0.970 |
-| 9 | 64 | 0.972 | 0.969 | 0.970-0.974 |
-| 10 | 64 | 0.975 | 0.938 | 0.974-0.976 |
+| 1 | 63 | 0.438 | 0.206 | 0.002-0.825 |
+| 2 | 64 | 0.877 | 0.672 | 0.825-0.902 |
+| 3 | 64 | 0.918 | 0.875 | 0.902-0.931 |
+| 4 | 63 | 0.938 | 0.873 | 0.932-0.945 |
+| 5 | 64 | 0.952 | 0.906 | 0.946-0.956 |
+| 6 | 64 | 0.962 | 0.969 | 0.956-0.966 |
+| 7 | 63 | 0.967 | 0.952 | 0.966-0.967 |
+| 8 | 64 | 0.969 | 0.969 | 0.967-0.971 |
+| 9 | 64 | 0.973 | 0.938 | 0.971-0.976 |
+| 10 | 64 | 0.976 | 0.938 | 0.976-0.976 |
 
 ## Original vs perturbed accuracy
 
 | split | original | perturbed |
 |---|---|---|
-| dev | 95/95 = 1.000 | 436/542 = 0.804 |
-| val | 82/82 = 1.000 | 414/476 = 0.870 |
+| dev | 95/95 = 1.000 | 434/542 = 0.801 |
+| val | 82/82 = 1.000 | 417/476 = 0.876 |
 
-Saved model: `data/calibration/interp_v1.json` (logistic over 11 features, 1195 samples, digest 27172f30fbd44926).
+Saved model: `data/calibration/interp_v1.json` (logistic over 11 features, 1195 samples, digest 04ce1deae9c7691e).

@@ -294,6 +294,12 @@ function LC.score(sc, m)
   elseif ex.pronoun then
     local found
     for _, ref in ipairs(m.context and m.context.references or {}) do if norm(ref.mention) == ex.pronoun then found = ref end end
+    -- externally authored final wordings refer to the company in other ways ("them", "they", "that company", "this company"): any anaphoric reference counts
+    if not found and T ~= DEFAULT_T then
+      for _, ref in ipairs(m.context and m.context.references or {}) do
+        if ref.kind == "pronoun" or ref.kind == "entity_backref" then found = found or ref end
+      end
+    end
     chk("pronoun_found", found ~= nil)
     -- correct = resolves to the right entity, or honestly reports ambiguity / no antecedent.  WRONG = resolves to the stale one.
     local wrong = found and found.status == "resolved" and found.antecedent and norm(found.antecedent.text) == norm(ex.wrong)

@@ -64,7 +64,7 @@ type beverage < food
 type mythological_figure < entity
 type quantity < entity
 type number < quantity
-type money < quantity
+type money < number
 type time < entity
 type date < time
 type language < entity
@@ -162,6 +162,20 @@ verb send: act=retrieve
 verb pull together: act=retrieve
 verb bring up: act=retrieve
 verb ferret out: act=retrieve
+verb recommend: act=retrieve
+verb suggest: act=retrieve
+verb propose: act=retrieve
+verb bring me: act=retrieve
+verb point me to: act=retrieve
+verb direct me to: act=retrieve
+verb refer me to: act=retrieve
+verb surface: act=retrieve
+verb unearth: act=retrieve
+verb list out: act=retrieve
+verb rank: act=retrieve
+verb sort: act=retrieve
+verb pick: act=retrieve
+verb select: act=retrieve
 verb decide: act=discourse
 verb agree: act=discourse
 verb say: act=discourse

@@ -1,0 +1,170 @@
+C001 | basic_factual | What is the capital of Mongolia? | intent=factual_lookup; rel=capital; from=Mongolia; ask=to; atype=city; act=question
+C002 | basic_factual | Who is the CEO of Siemens? | intent=factual_lookup; rel=ceo; from=Siemens; ask=to; atype=person; dep=self_contained
+C003 | basic_factual | how many people live in Osaka | rel=population; from=Osaka; ask=to; atype=number
+C004 | basic_factual | What currency does Japan use? | rel=currency; from=Japan; ask=to; act=question
+C005 | basic_factual | Which language is officially spoken in Brazil? | rel=official_language; from=Brazil; ask=to
+C006 | basic_factual | Who founded Pellucid Freight? | intent=factual_lookup; rel=founder; from=Pellucid Freight; ask=to
+C007 | basic_factual | When was Marie Curie born? | rel=birth_date; from=Marie Curie; ask=to; atype=date
+C008 | basic_factual | Where is Toyota headquartered? | rel=headquarters; from=Toyota; ask=to
+C009 | basic_factual | What is the atomic number of tungsten? | rel=atomic_number; from=tungsten; ask=to; atype=number
+C010 | basic_factual | What's the chemical symbol for sodium? | rel=symbol; from=sodium; ask=to
+C011 | basic_factual | How tall is Mount Kilimanjaro? | rel=height; from=Mount Kilimanjaro; ask=to; atype=number
+C012 | basic_factual | Who wrote Pride and Prejudice? | intent=factual_lookup; rel=author; from=Pride and Prejudice; ask=to
+C013 | basic_factual | Who is Mateo Quispe married to? | rel=spouse; from=Mateo Quispe; ask=to; atype=person
+C014 | basic_factual | How many moons does Saturn have? | rel=moons; from=Saturn
+C015 | basic_factual | What does the iPhone 15 cost? | rel=price; from=iPhone 15; ask=to
+C016 | basic_factual | Which continent is Madagascar on? | rel=continent_of; from=Madagascar; ask=to
+C017 | basic_factual | Who is the prime minister of Canada? | intent=factual_lookup; rel=prime_minister; from=Canada; ask=to
+C018 | basic_factual | Who invented the telephone? | rel=inventor; from=telephone; ask=to; atype=person
+C019 | basic_factual | How many employees does Volkswagen have? | rel=employees; from=Volkswagen; ask=to; atype=number
+C020 | basic_factual | Give me the revenue figure for Dunwick Robotics. | rel=revenue; from=Dunwick Robotics; ask=to
+C021 | basic_factual | When was Nokia founded? | rel=founded_on; from=Nokia; ask=to; atype=date
+C022 | basic_factual | Name the head of state of Ghana. | rel=head_of_state; from=Ghana; ask=to
+C023 | direction | Which firm took over Halvorsen Marine? | rel=acquirer; from=Halvorsen Marine; ask=to
+C024 | direction | Which startups has Ithari Foundry bought up? | rel=acquirer; to=Ithari Foundry; ask=from
+C025 | direction | Which countries belong to NATO? | rel=member_of; to=NATO; ask=from; atype=country
+C026 | direction | Which organizations is Japan a member of? | rel=member_of; from=Japan; ask=to
+C027 | direction | Which firms are headquartered in Rotterdam? | rel=headquarters; to=Rotterdam; ask=from
+C028 | direction | Bamako is the capital of which country? | rel=capital; to=Bamako; ask=from; atype=country
+C029 | direction | Which books did Tolstoy write? | rel=author; to=Tolstoy; ask=from
+C030 | direction | Which startups has Vektor Capital invested in? | rel=investor; to=Vektor Capital; ask=from
+C031 | direction | Who works for Garrick Biotech? | rel=employer; to=Garrick Biotech; ask=from; atype=person
+C032 | direction | Which companies are subsidiaries of Siemens? | rel=parent_org; to=Siemens; ask=from
+C033 | direction | Who is the parent company of Tarnholt Brewing? | rel=parent_org; from=Tarnholt Brewing; ask=to
+C034 | direction | Which companies did Mateo Quispe found? | rel=founder; to=Mateo Quispe; ask=from
+C035 | negation | Which countries other than Switzerland use the franc? | rel=currency; to=franc; ask=from; neg=entity:switzerland
+C036 | negation | List the European capitals except Paris. | neg=entity:paris
+C037 | negation | Show me logistics firms, excluding startups. | neg=type:startup
+C038 | negation | Find companies in Leeds that don't hire interns. | neg=type:company+hires:intern; pos=geo:Leeds
+C039 | negation | Give me articles on solar power but nothing about politics. | neg=topic:politics
+C040 | negation | Isn't Sydney the capital of Australia? | intent=verification; pol=negative; rel=capital; from=Australia; to=Sydney
+C041 | negation | Is it not the case that Vienna is not the capital of Austria? | intent=verification; rel=capital; from=Austria; to=Vienna
+C042 | negation | Who founded Nothing Technology? | neg=none; rel=founder; from=Nothing Technology; ask=to
+C043 | negation | Who wrote Never Let Me Go? | neg=none; ctx=none; rel=author; from=Never Let Me Go; ask=to
+C044 | negation | Name some universities that are not located in Germany. | neg=entity:germany
+C045 | negation | Name a few banks besides Deutsche Bank. | neg=entity:deutsche bank
+C046 | negation | Aviation job listings that have nothing to do with marketing. | neg=topic:marketing
+C047 | negation | Which carriers other than Pellucid Freight serve Hamburg? | neg=entity:pellucid freight
+C048 | negation | Is Tornwick not in Wales? | intent=verification; pol=negative; rel=located_in; from=Tornwick; to=Wales
+C049 | temporal | Who was the CEO of Siemens as of 2019? | rel=ceo; from=Siemens; ask=to; tc=as_of:2019
+C050 | temporal | What was the population of Ghana in 2015? | rel=population; from=Ghana; ask=to; tc=in:2015
+C051 | temporal | Which companies did Orvane Holdings acquire before 2010? | rel=acquirer; to=Orvane Holdings; ask=from; tc=before:2010
+C052 | temporal | Who has been the CEO of Nokia since 2020? | rel=ceo; from=Nokia; ask=to; tc=since:2020
+C053 | temporal | Which products did Ithari Foundry release after 2018? | rel=release; from=Ithari Foundry; ask=to; tc=after:2018
+C054 | temporal | Who was prime minister of Canada between 2006 and 2015? | rel=prime_minister; from=Canada; ask=to; tc=between:2006-2015
+C055 | temporal | Back in 1998, what was the currency of Slovakia? | rel=currency; from=Slovakia; ask=to; tc=in:1998; temporal=past
+C056 | temporal | What will the population of Nigeria be in 2050? | rel=population; from=Nigeria; tc=in:2050; temporal=future
+C057 | temporal | Which firm did Xanmark buy last year? | rel=acquirer; to=Xanmark; ask=from; temporal=past
+C058 | temporal | Who was the CEO of Corvane Plastics up until 2012? | rel=ceo; from=Corvane Plastics; ask=to; tc=until:2012
+C059 | temporal | Was Bonn the capital of West Germany in 1985? | intent=verification; rel=capital; from=West Germany; to=Bonn; tc=in:1985
+C060 | ambiguous | What is the population of Georgia? | amb=ambiguous; rel=population; from=Georgia; ask=to
+C061 | ambiguous | Tell me about Mercury. | amb=ambiguous; intent=entity_description; subject=Mercury
+C062 | ambiguous | Who is the CEO of Apple? | amb=resolved; rel=ceo; from=Apple; ask=to
+C063 | ambiguous | Where is Victoria? | amb=ambiguous; rel=located_in; from=Victoria
+C064 | ambiguous | What's the population of Springfield? | amb=ambiguous; rel=population; from=Springfield
+C065 | ambiguous | How old is Washington? | amb=ambiguous; from=Washington
+C066 | ambiguous | Who founded Amazon? | amb=resolved; rel=founder; from=Amazon; ask=to
+C067 | ambiguous | What is its capital? | ref=its>unresolved; dep=ambiguous_missing_context; rel=capital; ctx=pronoun
+C068 | ambiguous | Which one is bigger? | dep=ambiguous_missing_context
+C069 | comparative | Compare the populations of Chile and Peru. | intent=comparison; rel=population; items=Chile|Peru
+C070 | comparative | Which is taller, the Kelvane X2 or the Kelvane X3? | intent=comparison; rel=height; items=Kelvane X2|Kelvane X3
+C071 | comparative | Siemens vs Bosch: who has more employees? | intent=comparison; rel=employees; items=Siemens|Bosch
+C072 | comparative | How does Norway compare with Sweden and Denmark in terms of area? | intent=comparison; rel=area; items=Norway|Sweden|Denmark
+C073 | comparative | Which has more inhabitants, Lisbon or Porto? | intent=comparison; rel=population; items=Lisbon|Porto
+C074 | comparative | Rank Mount Everest, K2 and Kangchenjunga by height. | rel=height; items=Mount Everest|K2|Kangchenjunga
+C075 | comparative | Compare Tesla and Toyota. | intent=comparison; items=Tesla|Toyota
+C076 | multiword | What is the population of Bosnia and Herzegovina? | rel=population; from=Bosnia and Herzegovina; ask=to
+C077 | multiword | Who is the CEO of Bank of New Zealand? | rel=ceo; from=Bank of New Zealand; ask=to
+C078 | multiword | Who is the CEO of Capital One? | rel=ceo; from=Capital One; ask=to
+C079 | multiword | Where is Pellucid Freight and Logistics Holdings headquartered? | rel=headquarters; from=Pellucid Freight and Logistics Holdings; ask=to
+C080 | multiword | Who wrote Harry Potter and the Chamber of Secrets? | rel=author; from=Harry Potter and the Chamber of Secrets; ask=to
+C081 | multiword | When was the University of Cape Town founded? | rel=founded_on; from=University of Cape Town; ask=to
+C082 | multiword | Where was Ludwig van Beethoven born? | rel=birth_place; from=Ludwig van Beethoven; ask=to
+C083 | geographic | Which country is Kyoto in? | rel=located_in; from=Kyoto; ask=to; atype=country
+C084 | geographic | Find me a hotel near the headquarters of Siemens in Munich. | intent=search; rel!=headquarters
+C085 | geographic | Show me manufacturers in Texas but not in Houston. | pos=geo:Texas; neg=entity:houston
+C086 | geographic | List wineries outside France. | intent=search; neg=entity:france
+C087 | geographic | How many people live in the Brussels-Capital Region? | rel=population; from=Brussels-Capital Region; ask=to
+C088 | geographic | I'm looking for a flat in Porto, ideally close to the river. | intent=search; pos=geo:Porto; pref=close to the river
+C089 | geographic | Which cities in Germany have more than a million inhabitants? | pos=geo:Germany; atype=city
+C090 | instruction | From now on, use the 2021 dataset. | intent=instruction_update; inst=slot=dataset,value=2021,persist=1; active=dataset:2021
+C091 | instruction | Switch to the 2023 dataset. | intent=instruction_update; inst=slot=dataset,value=2023; active=dataset:2023
+C092 | instruction | Forget the 2022 dataset and use 2024 instead. | intent=instruction_update; active=dataset:2024; inactive=dataset:2022
+C093 | instruction | Don't use the 2020 dataset anymore. | intent=instruction_update; inactive=dataset:2020
+C094 | instruction | Could you kindly keep your answers brief from now on? | intent=instruction_update
+C095 | instruction | Write me a short poem about the Nile. | intent=task
+C096 | instruction | Translate 'good morning' into Japanese. | intent=task
+C097 | instruction | Answer only in French from here on. | intent=instruction_update
+C098 | instruction | For all my next questions, rely on the 2019 dataset only. | intent=instruction_update; inst=slot=dataset,value=2019,persist=1; active=dataset:2019
+C099 | intent | Can you confirm that Nairobi is Kenya's capital? | intent=verification; rel=capital; from=Kenya; to=Nairobi
+C100 | intent | What does 'fiduciary' mean? | intent=definition; concept=fiduciary
+C101 | intent | Define opportunity cost. | intent=definition; concept=opportunity cost
+C102 | intent | Who was Ada Lovelace? | intent=entity_description; subject=Ada Lovelace
+C103 | intent | Why did the Roman Empire fall? | intent=causal_explanation
+C104 | intent | How does a heat pump work? | intent=explanation
+C105 | intent | Find me coworking spaces in Lisbon with a quiet room. | intent=search; pos=geo:Lisbon
+C106 | intent | I just moved to Tromsø. | intent=statement; act=statement
+C107 | intent | What did I ask you earlier? | intent=conversation_recall; evid=0
+C108 | intent | Draft an email to my landlord about the broken heater. | intent=task
+C109 | intent | What's the difference between a crocodile and an alligator? | intent=comparison; items=crocodile|alligator
+C110 | intent | Give me an overview of Corvane Plastics. | intent=entity_description; subject=Corvane Plastics
+C111 | minimal_pair | Which company acquired Brightmoor Textiles? | rel=acquirer; from=Brightmoor Textiles; ask=to
+C112 | minimal_pair | Which company did Brightmoor Textiles acquire? | rel=acquirer; to=Brightmoor Textiles; ask=from
+C113 | minimal_pair | Is the capital of Peru Lima? | intent=verification; rel=capital; from=Peru; to=Lima
+C114 | minimal_pair | Is capital punishment legal in Peru? | intent=verification; rel!=capital
+C115 | minimal_pair | Which companies hire interns? | rel=hires; ask=from; neg=none
+C116 | minimal_pair | Which companies do not hire interns? | neg=type:company+hires:intern
+C117 | minimal_pair | Which firms did Haldane Group buy before 2010? | rel=acquirer; to=Haldane Group; ask=from; tc=before:2010
+C118 | minimal_pair | Which firms did Haldane Group buy after 2010? | rel=acquirer; to=Haldane Group; ask=from; tc=after:2010
+C119 | minimal_pair | Did Vexel Mining acquire Orsino Metals? | intent=verification; rel=acquirer; from=Orsino Metals; to=Vexel Mining
+C120 | minimal_pair | Did Orsino Metals acquire Vexel Mining? | intent=verification; rel=acquirer; from=Vexel Mining; to=Orsino Metals
+C121 | minimal_pair | What was the population of Chad in 2021? | rel=population; from=Chad; tc=in:2021
+C122 | minimal_pair | What was the population of Chad in the 2021 dataset? | rel=population; from=Chad; src=dataset:2021
+C123 | minimal_pair | What is the atomic number of Mercury? | rel=atomic_number; from=Mercury; amb=resolved
+C124 | minimal_pair | What is the orbital period of Mercury? | rel=orbital_period; from=Mercury; amb=resolved
+C125 | multi_turn | U: Who founded Dunwick Robotics? // A: Dunwick Robotics was founded by Ines Marrow. // U: When was she born? | rel=birth_date; from=Ines Marrow; ask=to; ref=she>Ines Marrow; ctx=pronoun; dep=recent_message
+C126 | multi_turn | U: Name four Nordic countries. // A: 1. Sweden 2. Norway 3. Finland 4. Denmark // U: What is the capital of the second one? | rel=capital; from=Norway; ask=to; ref=the second one>Norway; ctx=ordinal_reference
+C127 | multi_turn | U: Use the 2022 dataset. // A: Okay, I will use the 2022 dataset. // U: Sorry, I meant 2023. | intent=instruction_update; inst=slot=dataset,value=2023,corr=1; active=dataset:2023; inactive=dataset:2022
+C128 | multi_turn | U: I'm thinking about investing in Brenmark Steel. // A: Sounds interesting. What would you like to know about it? // U: Who runs the company I mentioned? | ref=the company I mentioned>Brenmark Steel; ctx=backref; from=Brenmark Steel; ask=to
+C129 | multi_turn | U: Compare the populations of Kenya, Uganda and Rwanda. // A: Kenya is the largest, followed by Uganda and then Rwanda. // U: And what about Tanzania? | ctx=comparison_set; rel=population
+C130 | multi_turn | U: My dog is called Biscuit and I live in Tromsø. // A: Lovely! Biscuit is a great name. // U: What did I say my dog was called? | intent=conversation_recall; sel=+Biscuit; evid=0
+C131 | multi_turn | U: Marnock and Teverley are both small towns. // A: Yes, they are only a few miles apart. // U: What is its population? | rel=population; ref=its>ambiguous; dep=ambiguous_missing_context
+C132 | multi_turn | U: I work at Ithari Foundry. // A: Great, what can I help you with? // U: Where is my employer based? | ref=my employer>Ithari Foundry; from=Ithari Foundry
+C133 | multi_turn | U: Who is the CEO of Siemens? // A: Roland Busch is the CEO of Siemens. // U: And of Bosch? | rel=ceo; from=Bosch; ask=to; dep=recent_message
+C134 | multi_turn | U: Where is Mateo Quispe from? // A: He was born in Cusco. // U: How many people live there? | rel=population; from=Cusco; ref=there>Cusco; ctx=pronoun
+C135 | multi_turn | U: List three big Japanese carmakers. // A: Toyota, Honda and Nissan. // U: How many employees does the last one have? | rel=employees; from=Nissan; ref=the last one>Nissan; ctx=ordinal_reference
+C136 | multi_turn | U: Who is the CEO of Fennimore Labs? // A: I could not find a company called Fennimore Labs. // U: Sorry, I meant Fennimore Logistics. | rel=ceo; from=Fennimore Logistics; ask=to
+C137 | multi_turn | U: Name some banks in Germany. // A: Deutsche Bank, Commerzbank and DZ Bank. // U: Give me more, but not Deutsche Bank. | neg=entity:deutsche bank
+C138 | multi_turn | U: What is the population of Ghana? // A: About 33 million people. // U: What was my first question? | intent=conversation_recall; sel=+population of Ghana; evid=0
+C139 | multi_turn | U: From now on use the 2021 dataset. // A: Understood, I will use the 2021 dataset. // U: What is the population of Chad? | rel=population; from=Chad; ask=to; active=dataset:2021
+C140 | multi_turn | U: My sister Odalys lives in Hobart. // A: Hobart is a lovely city. // U: What's the capital of Peru? // A: Lima. // U: What is the population of the city my sister lives in? | rel=population; from=Hobart; ref=the city my sister lives in>Hobart; dep=earlier_context
+C141 | typo | waht is the captial of Portugal? | rel=capital; from=Portugal; ask=to
+C142 | typo | Who fouded Quillon Textiles | rel=founder; from=Quillon Textiles; ask=to
+C143 | typo | Whats the populaton of Gemany | rel=population; from=Germany; ask=to
+C144 | typo | Which curreny does Switzerlnd use? | rel=currency; from=Switzerland; ask=to
+C145 | typo | Is Canbera the capitol of Australia? | intent=verification; rel=capital; from=Australia; to=Canberra
+C146 | typo | Which comapny acqiured Teverley Mills? | rel=acquirer; from=Teverley Mills; ask=to
+C147 | noise | hey!! quick q — what's the capital of Kenya??? thx | rel=capital; from=Kenya; ask=to
+C148 | noise | WHO IS THE PRIME MINISTER OF NEW ZEALAND | rel=prime_minister; from=New Zealand; ask=to
+C149 | noise | 😀 so umm like how many people live in Hanoi lol | rel=population; from=Hanoi; ask=to
+C150 | noise | ok so basically i was wondering, like, you know, who founded ithari foundry, if you happen to know | rel=founder; from=ithari foundry; ask=to
+C151 | noise | hi claude, can u tell me when xanmark was founded?? 🙏 | rel=founded_on; from=xanmark; ask=to
+C152 | unusual | I was wondering whether you could tell me how many people live in Dunwick. | rel=population; from=Dunwick; ask=to
+C153 | unusual | Iceland population | rel=population; from=Iceland; dep=self_contained
+C154 | unusual | Who's running the show at Lindgren Aerospace these days? | from=Lindgren Aerospace; ask=to; atype=person
+C155 | unusual | What is the population of the capital of Australia? | rel=population; ask=to
+C156 | unusual | I'm writing a report on Nordic economies, and I need to know the currency of Denmark. | rel=currency; from=Denmark; ask=to
+C157 | unusual | Can you tell me who founded the company that makes the Kelvane X2? | rel=founder; ask=to
+C158 | unusual | How many souls live in Reykjavik, roughly? | rel=population; from=Reykjavik; ask=to
+C159 | unusual | I'd love to know whom Ines Marrow tied the knot with. | rel=spouse; from=Ines Marrow; ask=to
+C160 | unusual | By whom was Middlemarch written? | rel=author; from=Middlemarch; ask=to
+C161 | unusual | Gimme the dirt on Brenmark Steel. | intent=entity_description; subject=Brenmark Steel
+C162 | unusual | Excuse me, is it correct that Quito is the capital of Ecuador? | intent=verification; rel=capital; from=Ecuador; to=Quito
+C163 | unusual | You wouldn't happen to know Elara Voss's date of birth, would you? | neg=none; rel=birth_date; from=Elara Voss; ask=to
+C164 | unusual | Ghana's in West Africa, isn't it? | intent=verification; neg=none; rel=located_in; from=Ghana; to=West Africa
+C165 | unusual | I don't suppose you could tell me the capital of Uruguay? | neg=none; rel=capital; from=Uruguay; ask=to
+C166 | unusual | Who wrote the novel It? | ctx=none; rel=author; from=It; ask=to
+C167 | malformed | ?!?!?! | status=no_interpretation
+C168 | malformed | xkq vlorp wzzt jnn | status=no_interpretation
+C169 | malformed | 🙂 🙂 🙂 | status=no_interpretation
+C170 | malformed | ... ,,, ;;; | status=no_interpretation

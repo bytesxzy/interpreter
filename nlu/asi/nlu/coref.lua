@@ -694,7 +694,11 @@ function C.resolve_references(view, interp)
       if c == "correction" then corr = true else artifact_classes[c] = true end
     end
     local rec
-    if r.pronoun then
+    if r.ordinal_ref then
+      rec = { kind = "ordinal_entity", mention = r.text, role = role, ordinal = r.ordinal, status = (r.status == "resolved") and "resolved" or "unresolved", antecedent = r.antecedent }
+      if rec.status == "resolved" then rec.distance_turns = mem.turn - (r.antecedent.turn or mem.turn)
+      else rec.requirement = "the conversation holds no list with a member number " .. tostring(r.ordinal) end
+    elseif r.pronoun then
       if r.deictic or r.non_anaphoric then return end
       local st = r.status
       rec = { kind = "pronoun", mention = r.text, role = role, status = (st == "resolved") and "resolved" or (st == "ambiguous" and "ambiguous" or "unresolved"),

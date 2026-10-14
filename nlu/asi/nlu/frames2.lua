@@ -27,9 +27,13 @@ local function skip_fillers(S, k)
   local used = {}
   while true do
     local c = C(S, k)
+    local nx = C(S, k + 1)
     if c and c.single and not c.masked and (c.unit.form == "me" or c.unit.form == "for" or c.unit.form == "about" or c.unit.form == "up"
       or c.unit.form == "out" or c.unit.form == "regarding" or c.unit.form == "on" and false) then
       used[#used + 1] = k; k = k + 1
+    -- "tell me MORE / MORE ABOUT / A BIT MORE ABOUT / EVERYTHING ABOUT X": the quantity word asks for more of the same
+    elseif c and c.single and not c.masked and (c.unit.form == "more" or c.unit.form == "everything" or c.unit.form == "anything" or c.unit.form == "all") and nx and nx.single and nx.unit.form == "about" and not barrier(nx) then
+      used[#used + 1] = k; used[#used + 1] = k + 1; k = k + 2
     else break end
   end
   return k, used
@@ -224,7 +228,7 @@ function F.parse_filters(S, k, target_np, limit_idx)
       if rel_marker then pc = nil end
       if pc and pc.single and cat(pc, "prep") and not pc.masked then
         local f = pc.unit.form
-        if f == "in" or f == "near" or f == "around" or f == "within" or f == "across" then
+        if f == "in" or f == "near" or f == "around" or f == "within" or f == "across" or f == "on" or f == "at" or f == "throughout" or f == "outside" or f == "inside" then
           for _, np in ipairs(P.parse_np(S, start + 1, { no_of = false })) do
             if np.head_kind == "entity" then
               filters[#filters + 1] = { kind = "geo", prep = f, value = np, chunks = { start }, span = { first = start, last = np.nxt - 1 } }
@@ -417,7 +421,15 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
     -- plural typenoun => search for a set;  singular typenoun after find/list => search too;  concept/unknown => define/describe
     local plural = np.plural
     -- "Find/Show/List <noun>" requests items of that kind, also when the noun is not in the lexicon
-    if ((np.head_kind == "typenoun") and (plural or act == "retrieve")) or (np.head_kind == "unknown" and act == "retrieve") then
+    -- a bare plural noun phrase with a locative / relative filter and no verb ("Cinemas in Karsholm, please.") is a search as well
+    local bare_filtered = false
+    if not act and np.head_kind == "unknown" and plural then
+      local fl, kf0 = F.parse_filters(S, np.nxt, np)
+      local only_fillers = true
+      for i = kf0, S.last do local ci = C(S, i); if not (ci and ci.single and (cat(ci, "polite") or cat(ci, "discourse") or cat(ci, "ignorable"))) then only_fillers = false end end
+      bare_filtered = #fl > 0 and only_fillers
+    end
+    if ((np.head_kind == "typenoun") and (plural or act == "retrieve")) or (np.head_kind == "unknown" and act == "retrieve") or bare_filtered then
       local h = base("request:search")
       if np.head_kind == "unknown" then addf(h, "unknown_target_type", -0.1, "search target type is not in the lexicon") end
       -- a target that swallows a named entity plus a lowercase word ("the companies Google acquired") has swallowed a clause, not named a set
@@ -443,7 +455,7 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
     if np.head_kind == "unknown" then addf(h, "unknown_term", -0.15, "term not in the lexicon") end
     if np.of_arg then addf(h, "concept_of_arg", -0.4, "a non-relational concept noun with an 'of' argument is a weaker structure than a relational noun") end
     out[#out + 1] = h
-  elseif np.head_kind == "pronoun" then
+  elseif np.head_kind == "pronoun" or np.head_kind == "ordinal_ref" then
     local h = base("request:pronoun")
     h.op, h.intent = "describe", "entity_description"
     h.subject = np
@@ -532,6 +544,9 @@ function F.request(S, out)
     end
   end
 end
+
+F.from_object_np = from_object_np
+F.resource_slot = resource_slot
 
 ---------------------------------------------------------------- bare NP (fragment)  "capital of France"  "france capital?"  "Mercury"
 function F.np_only(S, out)
@@ -813,6 +828,25 @@ local function resource_slot(S, np)
   return canon
 end
 
+-- "version 3.2", "the file sales_q3_final.csv", "figure 12": a number / identifier / file name inside a resource phrase is its value
+function F.literal_value(S, np)
+  if not np then return nil end
+  for ci = np.c1, np.c2 do
+    local c = C(S, ci)
+    if c and c.single and not c.masked and c ~= np.head then
+      local u = c.unit
+      if c.literal or u.kind == "ident" or (u.kind == "number" and u.numval ~= nil and not c.temporal and not u.ordinal) then return { word = c.text, label = c.text } end
+    end
+  end
+  local hc = np.head
+  if hc and hc.single then
+    local u = hc.unit
+    if hc.literal or u.kind == "ident" then return { word = hc.text, label = hc.text } end
+    if u.kind == "number" and u.numval ~= nil and not hc.temporal and not u.ordinal then return { word = hc.text, label = hc.text } end
+  end
+  return nil
+end
+
 function F.instruction(S, out)
   local lex = S.lex
   local k = S.first
@@ -871,10 +905,25 @@ function F.instruction(S, out)
     end
     local cv = C(S, kk)
     if not (cv and cv.single and not cv.masked) then return end
-    for _, a in ipairs(P.verb_analyses(S, cv)) do
-      if (a.form == "base" or (allow_ing and a.form == "ing")) and (a.act == "constraint" or a.act == "exclude" or a.act == "include") then
+    local analyses = P.verb_analyses(S, cv)
+    -- "Actually, MAKE THAT the 2020 figures": a replacement phrased with "make that / it / this"
+    local make_pron
+    if cv.unit.form == "make" or cv.unit.form == "turn" then
+      local pr = C(S, kk + 1)
+      if pr and pr.single and not pr.masked and not barrier(pr) and (pr.unit.form == "that" or pr.unit.form == "it" or pr.unit.form == "this") then
+        analyses = { { lemma = "make", form = "base", act = "constraint", entries = {} } }
+        make_pron = kk + 1
+      end
+    end
+    -- "Going forward, ONLY COUNT the audited figures": with "only", a retrieval verb restricts what is used
+    local only_pre = false
+    for _, pk in ipairs(pre) do if C(S, pk).unit.form == "only" then only_pre = true end end
+    for _, a in ipairs(analyses) do
+      local act_ok = a.act == "constraint" or a.act == "exclude" or a.act == "include" or (only_pre and (a.act == "retrieve" or a.act == "inform"))
+      if (a.form == "base" or (allow_ing and a.form == "ing")) and act_ok then
         local nk = kk + 1
         local fill = {}
+        if make_pron then fill[#fill + 1] = make_pron; nk = make_pron + 1 end
         local nc = C(S, nk)
         -- "switch to X" / "go with X" / "stick with X" / "switch over to X"
         if nc and nc.single and (nc.unit.form == "over") and C(S, nk + 1) and C(S, nk + 1).unit.form == "to" then fill[#fill + 1] = nk; nk = nk + 1; nc = C(S, nk) end
@@ -903,6 +952,10 @@ function F.instruction(S, out)
             end
           end
           local act_eff = a.act
+          if only_pre and (a.act == "retrieve" or a.act == "inform") then
+            act_eff = "constraint"
+            if not resource_slot(S, tr.antecedent_np or np) then goto next_try end   -- "Only list companies ..." is a request, not a restriction of a resource
+          end
           local ptc = C(S, np.nxt)
           -- "swap the earlier dataset OUT": the object is what is being removed, not the new value
           if REPLACE_VERBS[a.lemma] and ptc and ptc.single and not ptc.masked and (ptc.unit.form == "out" or ptc.unit.form == "off") then goto next_try end
@@ -928,6 +981,7 @@ function F.instruction(S, out)
           else
             for _, m in ipairs(vnp.mods) do if m.kind == "mod" or m.kind == "ordinal" then value = value or { word = m.form, label = m.text } end end
           end
+          value = value or F.literal_value(S, vnp)
           h.instruction = { verb = a.lemma, act = act_eff, np = vnp, slot = slot, value = value, correction = correction, persist = persist }
           if act_eff == "exclude" then h.polarity = "negative" end
           h.correction, h.persist = correction, persist
