@@ -20,9 +20,10 @@ local function ls(dir)
 end
 
 local modules = {}
+local EXCLUDE = require("asi.nlu.bundler").LIBRARY_EXCLUDE   -- modules that exist only for the one-file command line
 for _, f in ipairs(ls(root .. "/nlu/asi/nlu")) do
   local n = f:match("^(.+)%.lua$")
-  if n then modules[#modules + 1] = { name = "asi.nlu." .. n, path = root .. "/nlu/asi/nlu/" .. f } end
+  if n and not EXCLUDE[n] then modules[#modules + 1] = { name = "asi.nlu." .. n, path = root .. "/nlu/asi/nlu/" .. f } end
 end
 for _, f in ipairs(ls(root .. "/nlu/asi/nlu/data")) do
   local n = f:match("^(.+)%.lua$")
