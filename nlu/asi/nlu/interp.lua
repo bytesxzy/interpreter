@@ -84,6 +84,7 @@ local function sentence_cues(an, sent, lex)
     local u = an.units[i]
     do
       if lex:cue_at("hedge", an.units, i) then cues.hedged = true end
+      if lex:cue_at("exact_mention", an.units, i) then cues.exact = true end
       local rn = lex:cue_at("revoke", an.units, i)
       if rn and not cues.revoke then
         -- a revocation needs a TARGET: a slot noun ("the dataset instruction"), an instruction-class noun ("my last constraint"), or nothing but
@@ -232,6 +233,29 @@ function I:interpret(text, call)
           mem:observe_sentence(interp, { speaker = speaker, sent = si, hedged = cues.hedged, revoke = cues.revoke, additive = cues.additive, scoped = cues.scoped })
           -- an instruction turn reports the standing state AFTER it took effect (all slots, whatever kind of request would use them)
           if interp.intent == "instruction_update" and not flags.no_memory_select then ctxinfo.active_constraints = mem:active_constraints(interp, { all = true }) end
+          -- a long message can carry a directive in one of its clauses ("..., and yes, drop retailers from your results before I forget"): the clause reading
+          -- that is an instruction / exclusion is remembered too, although the sentence as a whole read as a statement
+          if speaker == "user" and interp.intent ~= "instruction_update" and interp.speech_act ~= "instruction" and res.ranked and not flags.no_suffix then
+            for _, h in ipairs(res.ranked) do
+              local is_suffix = false
+              for _, f in ipairs(h.factors or {}) do if f.name == "clause_suffix" then is_suffix = true end end
+              if is_suffix and h ~= res.top and (h.intent == "instruction_update" or h.instruction) and not h.veto then
+                local st2 = res.states and res.states[h.cover_index]
+                if st2 then
+                  local H = require("asi.nlu.hyp")
+                  H.rebind(st2, ctx, h)
+                  local res2 = U.shallow(res)
+                  res2.top, res2.S, res2.seg_cons = h, st2, st2.seg_cons
+                  local ok2, interp2 = pcall(Sem.render, res2, ctx)
+                  if ok2 and interp2 and interp2.status == "ok" and (interp2.intent == "instruction_update" or interp2.speech_act == "instruction") then
+                    interp2.sentence = interp.sentence
+                    mem:observe_sentence(interp2, { speaker = speaker, sent = si, hedged = cues.hedged, additive = cues.additive, scoped = cues.scoped })
+                    break
+                  end
+                end
+              end
+            end
+          end
           local items = {}
           Coref.walk(interp, function(r)
             local key = r.antecedent and r.antecedent.key or r.resolved_id
@@ -246,7 +270,7 @@ function I:interpret(text, call)
           for key in pairs(mem.entities) do have[key] = true end
           local extra = {}
           for _, m in ipairs(Coref.mentions_from_state(res.S)) do
-            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak, pname = m.pname })
+            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak, pname = m.pname, exact = cues.exact })
             extra[#extra + 1] = { key = m.key, c1 = m.c1, c2 = m.c2 }
           end
           if #extra > 0 then Coref.describe_entities(view, res.S, extra, speaker) end

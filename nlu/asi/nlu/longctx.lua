@@ -234,7 +234,7 @@ local function selected_text(m)
 end
 
 -- returns { ok = bool, checks = { name = bool }, selected = {...}, false_memory = n, relevant_selected = n }
-function LC.score(sc, m)
+function LC.score(sc, m, lex)
   local r = { ok = true, checks = {} }
   local function chk(name, ok) r.checks[name] = ok and true or false; if not ok then r.ok = false end end
   local ex = sc.expect
@@ -268,7 +268,14 @@ function LC.score(sc, m)
     end
     chk("reference_found", found ~= nil)
     chk("entity_recovered", found ~= nil and found.status == "resolved" and found.antecedent and norm(found.antecedent.text) == norm(ex.antecedent))
-    chk("relation", m.relation and m.relation.id == ex.relation)
+    -- "Who LEADS / is the HEAD of the company I mentioned?" asks for the leader, of which the CEO is a kind (ceo isa leader): when the wording does not say CEO,
+    -- the parent relation is the correct reading of the question.  A wording that names the CEO must produce ceo.
+    local rel_ok = m.relation and m.relation.id == ex.relation
+    if not rel_ok and m.relation and lex and not (sc.final or ""):lower():find("ceo", 1, true) and not (sc.final or ""):lower():find("chief executive", 1, true) then
+      local want = lex:get_rel(ex.relation)
+      rel_ok = want ~= nil and want.isa == m.relation.id
+    end
+    chk("relation", rel_ok)
   elseif ex.slot then
     local act = {}
     for _, c in ipairs(m.context and m.context.active_constraints or {}) do if c.slot then act[c.slot] = tostring(c.value) end end
@@ -322,7 +329,7 @@ function LC.run(interp, Memory, sc, opts)
   end
   local fin = interp:interpret(sc.final, { memory = mem, speaker = "user" })
   last = fin.main
-  local score = LC.score(sc, last)
+  local score = LC.score(sc, last, interp.lex)
   score.work_final = fin.work and fin.work.total or 0
   score.work_total = work + score.work_final
   score.wall = os.clock() - t0

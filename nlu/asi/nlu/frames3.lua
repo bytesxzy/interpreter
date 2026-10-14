@@ -722,7 +722,10 @@ function F.resource_directive(S, out)
     local f = c and not c.masked and ((c.single and c.unit.form) or (c.form and c.form:match("^(%S+)")))   -- a multiword verb ("set up") counts by its first word
     if f then
       if DIR_WORDS[f] then has_dir = true end
-      if REPORT_MARKERS[f] then reported = true end
+      -- "On second thought, ...": the idiom is not a report of someone's thinking
+      local prevc = C(S, i - 1)
+      local idiom = f == "thought" and prevc and prevc.single and (prevc.unit.form == "second" or prevc.unit.form == "first" or prevc.unit.form == "after")
+      if REPORT_MARKERS[f] and not idiom then reported = true end
       if FIRST_PERSON_DIRECTIVE[f] then first_person = true end
       if f == "let" then
         local nx = C(S, i + 1)
@@ -757,23 +760,55 @@ function F.resource_directive(S, out)
     out[#out + 1] = h
   end
   local retracted    -- { chunk, slot } of a resource phrase that an exclusion verb retracts ("Forget the 2022 dataset ...")
+  -- a value written at chunk k: a year, a number or an identifier ("2021", "v3.2", "a.csv"); "the ONE" is a pronoun, not the number one
+  local function value_at(k)
+    local vc = C(S, k)
+    if not vc or vc.masked or barrier(vc) and false then return nil end
+    if vc.temporal and vc.temporal.year then return { year = vc.temporal.year, label = vc.text, expr = vc.temporal } end
+    if vc.single and (vc.literal or vc.unit.kind == "ident" or (vc.unit.kind == "number" and vc.unit.numval and not vc.unit.ordinal)) then
+      local prev = C(S, k - 1)
+      if vc.unit.form == "one" and prev and prev.single and (cat(prev, "det") or prev.unit.form == "which") then return nil end
+      return { word = vc.text, label = vc.text }
+    end
+  end
+  local COPULA_FORMS = U.set({ "is", "was", "are", "be", "'s", "will", "should", "must" })
+  -- words that may stand between a resource noun and its value: "dataset WITH THE ONE FROM 2026", "dataset FOR THE YEAR 2020", "dataset NAMED 2021"
+  local VALUE_FILL = U.set({ "one", "ones", "year", "version", "number", "no", "id", "named", "called", "titled", "labelled", "labeled", "dubbed", "edition", "release", "from", "for", "of",
+    "with", "to", "by", "using", "as", "in", "at", "covering", "dated", "marked", "tagged" })
   for i = S.first, S.last do
     local c = C(S, i)
-    local slot = c and c.single and not c.masked and lex:resource(c.unit.form)
-    if slot and not (lex:resource(c.unit.form) == "solution") then
+    local slot = c and not c.masked and lex:resource(c.single and c.unit.form or c.form)
+    if slot and not (slot == "solution") then
       local value
       local pc = C(S, i - 1)
-      if pc and not pc.masked and not barrier(c) then
-        if pc.temporal and pc.temporal.year then value = { year = pc.temporal.year, label = pc.text, expr = pc.temporal }
-        elseif pc.single and pc.unit.kind == "number" and pc.unit.numval and not pc.unit.ordinal then value = { word = pc.text, label = pc.text } end
-      end
+      if pc and not pc.masked and not barrier(c) then value = value_at(i - 1) end
+      if value and pc.single and pc.unit.kind == "number" and pc.unit.form == "one" then value = nil end
       if not value then
-        local nk = i + 1
-        local nc = C(S, nk)
-        if nc and nc.single and not nc.masked and not barrier(nc) and NAMING[nc.unit.form] then nk = nk + 1; nc = C(S, nk) end
-        if nc and not nc.masked and not barrier(nc) then
-          if nc.temporal and nc.temporal.year then value = { year = nc.temporal.year, label = nc.text, expr = nc.temporal }
-          elseif nc.single and (nc.literal or nc.unit.kind == "ident" or (nc.unit.kind == "number" and nc.unit.numval and not nc.unit.ordinal)) then value = { word = nc.text, label = nc.text } end
+        -- a value after the noun, over at most six function words
+        local k = i + 1
+        for _ = 1, 6 do
+          local cn = C(S, k)
+          if not cn or cn.masked or (barrier(cn) and k > i + 1) then break end
+          value = value_at(k)
+          if value then break end
+          if cn.single and (cat(cn, "det") or cat(cn, "prep") or VALUE_FILL[cn.unit.form]) then k = k + 1 else break end
+        end
+        -- predicate value: "the dataset I need IS the one for 2026", "the right dataset should be 2026"
+        if not value then
+          for jk = i + 1, math.min(S.last, i + 9) do
+            local cj = C(S, jk)
+            if cj and cj.single and not cj.masked and COPULA_FORMS[cj.unit.form] then
+              local vk = jk + 1
+              for _ = 1, 6 do
+                local cn = C(S, vk)
+                if not cn then break end
+                value = value_at(vk)
+                if value then break end
+                if cn.single and (cat(cn, "det") or cat(cn, "prep") or cn.unit.form == "be" or VALUE_FILL[cn.unit.form]) then vk = vk + 1 else break end
+              end
+              break
+            end
+          end
         end
       end
       if value then

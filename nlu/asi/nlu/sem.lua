@@ -12,7 +12,7 @@ require("asi.nlu.frames4")   -- attribution idioms, locus hosts, "where can I fi
 local Sem = {}
 
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_place_stranded_in", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "compare_dimension", "wh_impersonal", "wh_origin", "recall_turn", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "exclusion_clause", "focus", "statement", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
+  "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -107,8 +107,119 @@ Sem.ref = ref
 
 ---------------------------------------------------------------- run
 Sem.SUFFIX_TRIGGER = 1.0
+-- Is the chunk at position p inside a clause that REPORTS what a third party said, wanted or taught ("The lecturer tells students TO SWITCH to the 2020 dataset",
+-- "The recipe says TO SKIP the garlic")?  A reporting verb (a communication verb, or one of REPORT_WORDS) in the same clause before p, with no first / second person
+-- subject in front of it, makes the clause a report; a clause boundary between the verb and p ends the report's scope ("..., but use the 2021 dataset").
+local function cat_of(c, name) return c ~= nil and c.cats ~= nil and c.cats[name] == true end
+local SPEAKER_WORDS = U.set({ "i", "we", "you", "let's", "lets", "please", "kindly" })
+local BOUNDARY_WORDS = U.set({ "but", "so", "and", "then", "because", "while", "whereas", "although", "though", "yet" })
+-- is byte offset `pos` of `text` inside a quotation ("...", '...', or curly quotes)?  An apostrophe between two letters is not a quotation mark.
+function Sem.in_quotes(text, pos)
+  local open = false
+  local i = 1
+  while i < pos do
+    local b = text:byte(i)
+    if b == 34 then open = not open; i = i + 1
+    elseif b == 39 then
+      local before, after = text:sub(i - 1, i - 1), text:sub(i + 1, i + 1)
+      if not (before:match("%a") and after:match("%a")) then open = not open end
+      i = i + 1
+    elseif b == 0xE2 and text:byte(i + 1) == 0x80 then
+      local t = text:byte(i + 2)
+      if t == 0x9C or t == 0x98 then open = true elseif t == 0x9D or t == 0x99 then
+        -- a closing curly single quote between letters is an apostrophe
+        local before, after = text:sub(i - 1, i - 1), text:sub(i + 3, i + 3)
+        if not (t == 0x99 and before:match("%a") and after:match("%a")) then open = false end
+      end
+      i = i + 3
+    else i = i + 1 end
+  end
+  return open
+end
+
+function Sem.reported_directive(S, p, lo)
+  p = p or S.last
+  lo = lo or S.first
+  local r
+  for k = p - 1, lo, -1 do
+    local c = S.chunks[k]
+    if not c then break end
+    if k < p - 1 and c.pre and (c.pre:find("comma") or c.pre:find("semi") or c.pre:find("colon") or c.pre:find("dash") or c.pre:find("sent")) then
+      -- the chunk right after a boundary may itself be the reporting verb's subject: keep scanning only when this chunk sits before the verb
+      if not r then return false end
+    end
+    if c.single and c.unit then
+      local f = c.unit.form
+      if not r and BOUNDARY_WORDS[f] then return false end
+      if not r then
+        local reports = Sem.REPORT_WORDS[f]
+        if not reports and c.verbs then for _, v in ipairs(c.verbs) do if v.act == "inform" or v.act == "discourse" then reports = true end end end
+        if reports and k > lo then r = k end
+      end
+    end
+    if r and k < r then
+      local c2 = S.chunks[k]
+      if c2.single and c2.unit and SPEAKER_WORDS[c2.unit.form] then return false end
+      if c2.pre and (c2.pre:find("comma") or c2.pre:find("semi") or c2.pre:find("colon") or c2.pre:find("dash") or c2.pre:find("sent")) then return true end
+    end
+  end
+  return r ~= nil
+end
+
+-- A sentence whose only directive content sits inside a clause that reports a third party's words ("The recipe says to skip the garlic, which seems odd to me.").
+-- The report verb needs a subject that is neither the speaker nor the addressee; the report's scope runs to the next clause boundary.
+local DIRECTIVE_ACTS = U.set({ "exclude", "include", "constraint", "task", "retrieve", "focus", "compare" })
+local function boundary_at(S, k)
+  local c = S.chunks[k]
+  if not c then return true end
+  if c.pre and (c.pre:find("comma") or c.pre:find("semi") or c.pre:find("colon") or c.pre:find("dash") or c.pre:find("sent")) then return true end
+  if c.single and c.unit and BOUNDARY_WORDS[c.unit.form] then return true end
+  return false
+end
+function Sem.report_only(S)
+  local lo, hi = S.first, S.last
+  -- find a reporting verb with a third-party subject
+  local clause_start = lo
+  for k = lo, hi do
+    if k > lo and boundary_at(S, k) then clause_start = k end
+    local c = S.chunks[k]
+    if c and c.single and c.unit and k > clause_start then
+      local f = c.unit.form
+      local reports = Sem.REPORT_WORDS[f]
+      if not reports and c.verbs then for _, v in ipairs(c.verbs) do if v.act == "inform" or v.act == "discourse" then reports = true end end end
+      if reports then
+        local speaker = false
+        for j = clause_start, k - 1 do
+          local cj = S.chunks[j]
+          if cj and cj.single and cj.unit and SPEAKER_WORDS[cj.unit.form] then speaker = true end
+        end
+        if not speaker then
+          -- scope of the report: up to the next boundary
+          local scope_hi = hi
+          for j = k + 1, hi do if boundary_at(S, j) then scope_hi = j - 1; break end end
+          -- a directive outside the report (before it, or after its clause) makes the sentence a genuine instruction
+          local outside = false
+          for j = lo, hi do
+            if j < clause_start or (j > scope_hi) or (j >= clause_start and j < k) then
+              local cj = S.chunks[j]
+              if cj and not cj.masked_for_report then
+                if cj.verbs then for _, v in ipairs(cj.verbs) do if DIRECTIVE_ACTS[v.act] then outside = true end end end
+                if cj.single and cj.unit and (cat_of(cj, "polite") or cj.unit.form == "never") then outside = true end
+              end
+            end
+          end
+          if not outside then return true end
+        end
+      end
+    end
+  end
+  return false
+end
+
 Sem.REPORT_WORDS = U.set({ "she", "he", "they", "someone", "somebody", "people", "told", "asked", "said", "says", "wants", "wanted", "suggested", "recommended", "thinks", "thought",
-  "claims", "claimed", "insists", "insisted", "advised", "reminded", "mentioned" })
+  "claims", "claimed", "insists", "insisted", "advised", "reminded", "mentioned", "tells", "tell", "asks", "ask", "suggests", "recommends", "advises", "instructs", "instructed",
+  "requires", "required", "demands", "demanded", "orders", "ordered", "urges", "urged", "teaches", "taught", "writes", "wrote", "states", "stated", "specifies", "specified",
+  "reads", "explains", "explained", "notes", "noted", "warns", "warned", "reckons", "reckoned" })
 Sem.WEAK_INTENTS = { definition = true, entity_description = true, statement = true, unknown = true, explanation = true }
 local SUFFIX_JOINERS = U.set({ "but", "so", "and", "then", "because", "that", "whether", "while", "though", "although" })
 -- chunk indices (after the sentence's first chunk) where a new clause may start: after a comma / colon / dash / semicolon, after a joiner, or after "to" before a verb
@@ -163,6 +274,14 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
       if meter and not meter:tick("frames", 1) then break end
       local fn = F[fname]
       if fn then fn(S, hyps) end
+    end
+    -- a directive that a third party issued ("The recipe says to skip the garlic.", "My friend said to use the 2021 dataset.") is not an instruction to the system
+    if Sem.report_only(S) then
+      for _, h in ipairs(hyps) do
+        if h.speech_act == "instruction" or h.intent == "instruction_update" or h.instruction then
+          h.factors[#h.factors + 1] = { name = "reported_directive", v = -1.6, note = "the directive is reported from a third party; it is not an instruction to the system" }
+        end
+      end
     end
     -- a clause asked for confirmation ("..., right?", "Is it true that ...") whose reading is a relational statement is the verification of that statement
     if S.polar then
@@ -224,12 +343,9 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
           if ck and not P.is_function_chunk(S2, ck) then S2.prefix_chunks[#S2.prefix_chunks + 1] = ck end
         end
         -- "She told me to switch to the 2021 edition": an instruction reported from a third party is not an instruction to the system
-        local reported_prefix = false
-        for k = S1.first, p - 1 do
-          local ck = S2.chunks[k]
-          local f = ck and ck.single and ck.unit and ck.unit.form
-          if f and Sem.REPORT_WORDS[f] then reported_prefix = true end
-        end
+        local reported_prefix = Sem.reported_directive(S2, p, S1.first)
+        -- a clause inside quotation marks ("'when in doubt, leave it out'") is quoted, not said to the system
+        if S1.chunks[p] and Sem.in_quotes(an.original, S1.units[S1.chunks[p].u1].s) then reported_prefix = true end
         local key = 100 + si
         states[key] = S2
         local _, wrapper = P.strip_wrapper(S2)

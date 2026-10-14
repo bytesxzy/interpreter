@@ -591,6 +591,146 @@ function F.compare_dimension(S, out)
   end
 end
 
+---------------------------------------------------------------- bans stated as what must (not) appear
+--   "Agencies should never appear in your answers."   "Make sure agencies never show up in your answers."   "Don't let agencies show up in your answers."
+--   "Please make sure there are no agencies in the results."   "Leave agencies out of the results."   "Take agencies off the list."
+-- All of them exclude the noun phrase from the results; the particle verbs put the object BETWEEN verb and particle, which the cue-led exclusion segments do not see.
+local APPEAR_PHRASES = { "show up", "shows up", "showing up", "appear", "appears", "appearing", "come up", "comes up", "turn up", "turns up", "pop up", "pops up", "surface", "surfaces",
+  "occur", "occurs", "feature", "features", "be included", "be listed", "be shown", "be returned", "be displayed", "be present", "be there", "be in", "be among", "creep in", "slip in", "get in",
+  "get through", "make it in", "make it into", "end up in" }
+local PARTICLE_VERBS = U.set({ "leave", "keep", "take", "cut", "weed", "filter", "strike", "screen", "throw", "kick", "drop", "rule", "block", "shut", "sort", "leave" })
+local PARTICLES = U.set({ "out", "off", "away" })
+local MODALS_BAN = U.set({ "should", "must", "shall", "will", "can", "may", "might", "ought", "could", "would" })
+local NEG_WORDS_BAN = U.set({ "never", "not", "no longer", "n't" })
+local MAKE_SURE = { "make sure that", "make sure", "ensure that", "ensure", "see to it that", "be sure that", "be sure", "check that", "just make sure", "please make sure", "do make sure" }
+
+local MAKE_SURE_WORDS = U.set({ "make", "sure", "ensure", "check", "see", "to", "it", "that", "be", "careful", "just", "do", "also", "and", "so", "please", "kindly", "always", "okay", "ok", "yes", "oh" })
+local function ban_hyp(S, frame, np, from, to, verb)
+  local persist = false
+  for _, ch in ipairs(S.chunks) do
+    if ch.temporal and (ch.temporal.kind == "persist" or ch.temporal.persist) then persist = true end
+    if ch.single and ch.unit and (ch.unit.form == "always" or ch.unit.form == "never") then persist = true end
+  end
+  local h = newh(S, "instruction:" .. frame, "instruction", "instruction_update", "instruct")
+  for i = from, to do if C(S, i) then h.used[i] = true end end
+  use_np(h, np)
+  -- the frame words in front of the clause ("make sure", "ensure that", "see to it that", "be careful that") belong to the instruction too
+  for i = S.first, from - 1 do
+    local ci = C(S, i)
+    if ci and ci.single and ci.unit and MAKE_SURE_WORDS[ci.unit.form] then h.used[i] = true end
+  end
+  -- a persistence marker or a polite word around the clause belongs to the instruction too
+  for i = S.first, S.last do
+    local ci = C(S, i)
+    if ci and ((ci.temporal and (ci.temporal.kind == "persist" or ci.temporal.persist)) or (ci.single and ci.unit and (cat(ci, "polite") or cat(ci, "discourse")))) then h.used[i] = true end
+  end
+  h.instruction = { verb = verb, act = "exclude", np = np, correction = false, persist = persist }
+  h.polarity = "negative"
+  h.persist = persist
+  addf(h, "exclusion_clause", 0.9, "an exclusion is stated (" .. frame .. ")")
+  if persist then addf(h, "persist_cue", 0.3, "applies from now on") end
+  mark_unresolved_pron(h, np)
+  return h
+end
+
+local function ban_scan(S, out)
+  if S.sentence and S.sentence.question_mark then return end
+  local function neg_at(k)
+    local c = C(S, k)
+    if not (c and c.single and c.unit and not barrier(c)) then return nil end
+    if c.unit.form == "never" or P.is_neg(c) then return k + 1 end
+  end
+  local function appear_at(k)
+    for _, ph in ipairs(APPEAR_PHRASES) do
+      local n = phrase_at(S, k, ph)
+      if n then return n end
+    end
+  end
+  for k = S.first, math.min(S.last, S.first + 199) do      -- a request is short; longer inputs are not scanned for bans here
+    -- (A) NP [modal] never|not APPEAR: find the negation first, then the noun phrase that ends right before it (a bounded look-back keeps this linear)
+    local nk0 = neg_at(k)
+    if nk0 then
+      local e = appear_at(nk0)
+      if e then
+        local end_before = k
+        local pm = C(S, k - 1)
+        if pm and pm.single and pm.unit and MODALS_BAN[pm.unit.form] and k - 1 > S.first then end_before = k - 1 end
+        local made = false
+        for kstart = math.max(S.first, end_before - 6), end_before - 1 do
+          if made then break end
+          for _, np in ipairs(P.parse_np(S, kstart, { no_of = false })) do
+            if np.c1 == kstart and np.nxt == end_before and (np.head_kind == "typenoun" or np.head_kind == "unknown" or np.head_kind == "concept" or np.head_kind == "entity" or np.head_kind == "relnoun") then
+              out[#out + 1] = ban_hyp(S, "appearance", np, kstart, e - 1, "appear")
+              made = true
+              break
+            end
+          end
+        end
+      end
+    end
+    -- (C) don't let|allow|have NP APPEAR
+    local c = C(S, k)
+    if c and c.single and (cat(c, "aux_do") or cat(c, "modal")) and not c.masked then
+      local nk = neg_at(k + 1)
+      if nk then
+        local lc = C(S, nk)
+        if lc and lc.single and (lc.unit.form == "let" or lc.unit.form == "allow" or lc.unit.form == "have" or lc.unit.form == "permit") then
+          for _, np in ipairs(P.parse_np(S, nk + 1)) do
+            local e = appear_at(np.nxt)
+            if e then out[#out + 1] = ban_hyp(S, "let_appear", np, k, e - 1, "let") end
+          end
+        end
+      end
+    end
+    -- (D) make sure there are no NP in the results / there should be no NP
+    local tc = C(S, k)
+    if tc and tc.single and tc.unit and tc.unit.form == "there" and not tc.masked then
+      local bk = k + 1
+      local bc = C(S, bk)
+      if bc and bc.single and MODALS_BAN[bc.unit.form] then bk = bk + 1; bc = C(S, bk) end
+      if bc and bc.single and (cat(bc, "aux_be") or bc.unit.form == "be") then
+        local nc = C(S, bk + 1)
+        if nc and nc.single and nc.unit.form == "no" then
+          for _, np in ipairs(P.parse_np(S, bk + 2)) do
+            out[#out + 1] = ban_hyp(S, "no_existential", np, k, np.nxt - 1, "exclude")
+          end
+        end
+      end
+    end
+    -- (E) leave|keep|take NP out|off (of|from X)
+    if c and c.single and PARTICLE_VERBS[c.unit.form] and not c.masked then
+      for _, np in ipairs(P.parse_np(S, k + 1, { no_of = false })) do
+        local pc = C(S, np.nxt)
+        if pc and pc.single and PARTICLES[pc.unit.form] and not barrier(pc) then
+          local e = np.nxt
+          local oc = C(S, e + 1)
+          if oc and oc.single and (oc.unit.form == "of" or oc.unit.form == "from") then
+            local nps = P.parse_np(S, e + 2)
+            e = nps[1] and (nps[1].nxt - 1) or (e + 1)
+          end
+          out[#out + 1] = ban_hyp(S, "particle_out", np, k, e, c.unit.form)
+        end
+      end
+    end
+  end
+end
+
+function F.appearance_ban(S, out)
+  -- the exclusion cue words of the sentence mask exactly what this frame reads: lift the masks while scanning
+  local saved
+  for i, ch in ipairs(S.chunks) do if ch.masked then saved = saved or {}; saved[i] = ch.mask_kind or true end end
+  if saved then
+    for i in pairs(saved) do S.chunks[i].masked = nil end
+    S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+  end
+  local ok, err = pcall(ban_scan, S, out)
+  if saved then
+    for i, kind in pairs(saved) do S.chunks[i].masked = true; S.chunks[i].mask_kind = kind ~= true and kind or nil end
+    S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+  end
+  if not ok then error(err, 0) end
+end
+
 ---------------------------------------------------------------- relational statements
 --   "Paris is the capital of France."   "The capital of France is Paris."   "Acme was founded by Jane Doe."   "Acme is headquartered in Oslo."
 -- With a negated copula ("Paris is not the capital of France.") the polarity is negative.  A statement that is asked for confirmation (", right?", "Is it true that ...")

@@ -169,6 +169,7 @@ function M:mention(key, info)
     e = { key = key, names = {}, type = info.type, mentions = {}, first_turn = self.turn, by_user = false }
     self.entities[key] = e
   end
+  if info.exact then e.exact = true end      -- the speaker stressed that THIS is the intended name ("exactly X, no lookalikes")
   if info.type and not e.type then e.type = info.type end
   if info.itype and not e.type and not e.itype then e.itype = info.itype end
   if info.pname and not e.type then e.pname = true end
@@ -557,6 +558,8 @@ local function query_terms(interp)
     if e.ref.antecedent then add(e.ref.antecedent.text) end
   end
   if interp.relation then add(interp.relation.label) end
+  -- no semantic reading (or none that names anything): the content words of the sentence itself are the only evidence of what it is about
+  if (#terms == 0 or interp.status ~= "ok") and interp.sentence and interp.sentence.text then add(interp.sentence.text) end
   return terms
 end
 
@@ -608,6 +611,12 @@ function M:select(interp, opts)
     else
       local st, so, f = 0, 0, {}   -- structural evidence (identity, standing constraints, typed references) vs soft evidence (recency, words)
       if it.kind == "decision" and opts.decision_ref then st = st + 1.5; f.decision_reference = true end
+      -- a question that shares at least two content words with a recorded decision is asking about what that decision settled ("what is the billing service running on?")
+      if it.kind == "decision" and not f.decision_reference and (interp.speech_act == "question" or interp.speech_act == "request") then
+        local shared_t = 0
+        for _, t in ipairs(terms) do if (self.index.terms[t] or {})[it.id] then shared_t = shared_t + 1 end end
+        if shared_t >= 2 then st = st + 1.0; f.decision_subject_overlap = shared_t end
+      end
       if it.kind == "instruction" or it.kind == "correction" or it.kind == "preference" then
         if self:slot_applicable(it.slot or "any", interp) or (not it.slot and it.kind == "preference") then
           st = st + (it.standing and 3.0 or 2.0); f.standing_constraint = true

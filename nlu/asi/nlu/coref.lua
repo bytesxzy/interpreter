@@ -428,6 +428,7 @@ function View:resolve_entity_backref(r, expected, exclude)
             if not type_ok and best == 0 then s = s - 1.0; reasons[#reasons + 1] = "no evidence that it is a " .. r.head end
           end
         end
+        if e.exact then s = s + 1.0; reasons[#reasons + 1] = "the speaker stressed this exact name (no lookalikes)" end
         if e.weak then s = s - 0.8; reasons[#reasons + 1] = "weak name evidence (sentence-initial capital only)" end
         cands[#cands + 1] = { id = e.key, type = e.type, name = e.names and next(e.names) and select(2, next(e.names)) or e.key, score = s, reasons = reasons, turn = e.last_turn }
       end
