@@ -37,7 +37,9 @@ local EXPAND = { gonna = { "going", "to" }, wanna = { "want", "to" }, gotta = { 
   wasnt = { "was", "not" }, werent = { "were", "not" }, cant = { "can", "not" }, wont = { "will", "not" }, wouldnt = { "would", "not" },
   shouldnt = { "should", "not" }, couldnt = { "could", "not" }, hasnt = { "has", "not" }, havent = { "have", "not" }, hadnt = { "had", "not" },
   im = { "i", "am" }, ive = { "i", "have" }, youre = { "you", "are" }, theyre = { "they", "are" }, weve = { "we", "have" }, youve = { "you", "have" },
-  theyve = { "they", "have" } }
+  theyve = { "they", "have" },
+  -- free-relative wh-words read as the plain wh-word when they open a question-like clause ("the name of whoever is CEO at X")
+  whoever = { "who" }, whomever = { "whom" }, whichever = { "which" } }
 local EXPAND_LOWER_ONLY = S({ "im", "ive" })   -- "IM" / "IVE" are initialisms, not contractions
 local UNIT_SUFFIX = S({ "km", "kg", "m", "cm", "mm", "mg", "g", "ml", "l", "ms", "h", "hr", "hrs", "min", "gb", "mb", "kb", "tb",
   "hz", "khz", "mhz", "ghz", "mph", "kph", "kmh", "px", "pt", "usd", "eur", "gbp", "k", "bn", "mn", "x", "mi", "ft", "in", "lb",

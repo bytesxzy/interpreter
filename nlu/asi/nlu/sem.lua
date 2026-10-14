@@ -9,7 +9,7 @@ local F = require("asi.nlu.frames2")
 
 local Sem = {}
 
-local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "yes_no", "wh_change", "compare_q",
+local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "yes_no", "wh_change", "compare_q",
   "request", "instruction", "exclusion_clause", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
 
 local function sentence_unit_range(an, sid)

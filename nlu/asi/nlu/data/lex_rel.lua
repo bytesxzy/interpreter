@@ -12,8 +12,8 @@ rel administrative_capital: from=political_territory to=city | noun=administrati
 rel legislative_capital: from=political_territory to=city | noun=legislative capital | derived=capital | label=legislative capital
 rel judicial_capital: from=political_territory to=city | noun=judicial capital | derived=capital | label=judicial capital
 rel commercial_center: from=political_territory to=city | noun=commercial center; commercial centre; commercial hub | derived=capital | label=commercial center
-rel head_of_state: from=political_territory to=person | noun=head of state; president; monarch; king; queen; ruler | support=have | as=appoint; name; choose; elect; install | label=head of state
-rel prime_minister: from=country to=person | noun=prime minister; premier | support=have | as=appoint; name; choose; elect; install | label=prime minister
+rel head_of_state: from=political_territory to=person | noun=head of state; president; monarch; king; queen; ruler | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install | label=head of state
+rel prime_minister: from=country to=person | noun=prime minister; premier | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install | label=prime minister
 rel population: from=place to=number | noun=population; inhabitants; number of inhabitants; number of residents | attr=1 | label=population
 rel area: from=place to=number | noun=area; surface area; land area | attr=1 | label=area
 rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency; legal tender | support=use; adopt; have; call | as=recognize; accept; designate; name; treat; issue; introduce; declare | label=currency
@@ -28,8 +28,8 @@ rel orbital_period: from=planet to=number | noun=orbital period | attr=1 | label
 # ------------------------------------------------------------ organisations and people
 rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | noun_from=brainchild | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to; create/subj=to | support=have | as=credit; recognize | isa=creator | when=founded_on | label=founder | event=1
 rel founded_on: from=organization to=date | noun=founding date; founding year; foundation date; date of founding; year of founding | label=founding date | event=1
-rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive | support=have | as=appoint; name; hire; employ; choose; elect; install; retain | isa=leader | label=CEO
-rel leader: from=organization to=person | noun=leader; head; chief | verb=lead/subj=to; head/subj=to; run/subj=to; manage/subj=to | support=have | as=appoint; name; choose; elect; install; retain | label=leader
+rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive; chief exec | rolesuffix=1 | support=have | as=appoint; name; hire; employ; choose; elect; install; retain | isa=leader | label=CEO
+rel leader: from=organization to=person | noun=leader; head; chief; boss; person in charge; head honcho | verb=lead/subj=to; head/subj=to; run/subj=to; manage/subj=to; head up/subj=to; oversee/subj=to; direct/subj=to; be in charge of/subj=to; steer/subj=to | support=have | as=appoint; name; choose; elect; install; retain | label=leader
 rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office; corporate headquarters; home office; main headquarters | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | support=have; maintain; keep; operate | locus=1 | label=headquarters
 rel member_of: from=agent to=organization | noun_from=member | verb=belong/subj=from/prep=to; join/subj=from | label=membership
 rel parent_org: from=organization to=organization | noun=parent company; parent organization; parent; owner | noun_from=subsidiary | verb=own/subj=to | label=parent organization

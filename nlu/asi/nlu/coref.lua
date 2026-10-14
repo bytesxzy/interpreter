@@ -374,6 +374,7 @@ end
 function View:resolve_entity_backref(r, expected, exclude)
   local mem, lex, W = self.mem, self.lex, C.W
   local cands, rejected = {}, {}
+  local kind_evidence = false -- some candidate is known (by type or by the conversation's own description) to be the kind the head noun names
   local ranks = recency_ranks(mem)
   local order = {}
   for _, e in pairs(mem.entities) do order[#order + 1] = e end
@@ -422,7 +423,8 @@ function View:resolve_entity_backref(r, expected, exclude)
           local head_type
           for _, sn in ipairs(lex.sense_by_head[(r.head or ""):lower()] or {}) do if sn.type and sn.kind == "typenoun" then head_type = head_type or sn.type end end
           if head_type then
-            local type_ok = e.type and lex:compat(e.type, head_type) >= 0.9
+            local type_ok = e.type and lex:compat(e.type, head_type) >= 0.5
+            if type_ok or best > 0 then kind_evidence = true end
             if not type_ok and best == 0 then s = s - 1.0; reasons[#reasons + 1] = "no evidence that it is a " .. r.head end
           end
         end
@@ -445,6 +447,10 @@ function View:resolve_entity_backref(r, expected, exclude)
     local ps = softmax(U.map(cands, function(c) return c.score end), W.temperature)
     for i, c in ipairs(cands) do c.p = ps[i] end
   end
+  -- the head noun names a KIND ("the company ...") but nothing in the conversation says that ANY candidate is one: ranking by recency alone is a guess
+  local head_named = false
+  if r.head then for _, sn in ipairs(lex.sense_by_head[(r.head or ""):lower()] or {}) do if sn.type and sn.kind == "typenoun" then head_named = true end end end
+  cands.kind_unverified = head_named and not kind_evidence and #cands > 1 or nil
   return cands, rejected
 end
 
@@ -462,7 +468,7 @@ function C.mentions_from_state(S, text_of)
     if n == 1 then
       local id, ty = next(ids)
       out[#out + 1] = { key = id, type = ty, name = text, c1 = k, c2 = k }
-    elseif n == 0 and name_r then
+    elseif n == 0 and name_r and not (c.single and #c.relnouns > 0) then
       out[#out + 1] = { key = "mention:" .. text:lower(), type = name_r.type_guess, name = text, weak = name_r.weak, c1 = k, c2 = k,
         pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil }
     end
@@ -471,6 +477,97 @@ function C.mentions_from_state(S, text_of)
 end
 
 local NAMING_BEFORE = { { "called" }, { "named" }, { "dubbed" }, { "known", "as" }, { "by", "the", "name" }, { "by", "the", "name", "of" }, { "goes", "by" }, { "go", "by" }, { "labelled" }, { "labeled" } }
+
+-- determiners that open a classifying noun phrase after a name ("X, a small business", "X, this little company", "X, my new supplier")
+local DESCRIPTOR_DET = U.set({ "a", "an", "the", "this", "that", "another", "my", "our", "their", "his", "her", "your", "one" })
+-- words that name a NAME, not a kind ("the name he gave me was X"): the kind is then given by the closest earlier noun phrase
+local NAME_WORD = U.set({ "name", "names", "brand", "label" })
+-- conjunctions that open a new clause: the subject of the introducer of a name starts after them
+local SEG_CONJ = U.set({ "and", "but", "so", "because", "since", "while", "although", "though", "whereas", "yet", "or", "if", "when", "then" })
+
+local function chunk_form(S, i)
+  local ck = S.chunks[i]
+  return ck and ck.single and ck.unit and ck.unit.form or nil
+end
+
+-- where does the introducer of the name at chunk k1 begin?  "is X", "was called X", "goes by the name X", "the name he gave me was X" -> index of its first chunk
+local function name_introducer(S, k1)
+  local q = k1 - 1
+  if chunk_form(S, q) == "of" and chunk_form(S, q - 1) == "name" then q = q - 1 end
+  if chunk_form(S, q) == "name" and (chunk_form(S, q - 1) == "the" or chunk_form(S, q - 1) == "a") then q = q - 2 end
+  local f, ck = chunk_form(S, q), S.chunks[q]
+  if not f then return nil end
+  local function be(i) local c = S.chunks[i]; return c and c.single and c.cats and c.cats.aux_be == true end
+  if be(q) then return q end
+  if f == "called" or f == "named" or f == "dubbed" or f == "labelled" or f == "labeled" then return be(q - 1) and q - 1 or q end
+  if f == "as" and chunk_form(S, q - 1) == "known" then return be(q - 2) and q - 2 or q - 1 end
+  if f == "by" and (chunk_form(S, q - 1) == "go" or chunk_form(S, q - 1) == "goes" or chunk_form(S, q - 1) == "went") then return q - 1 end
+  return nil
+end
+
+-- the classifying noun phrase that is the subject of the clause ending right before chunk e: first chunk index it may start at -> np
+local function classifying_np_in(P, S, b, e, strict)
+  local fallback
+  for k0 = b, e do
+    local c0 = S.chunks[k0]
+    if c0 and c0.single and c0.cats and (c0.cats.det or c0.cats.poss_det) then
+      for _, np in ipairs(P.parse_np(S, k0)) do
+        if np.head and np.nxt <= e + 1 and (np.head_kind == "typenoun" or np.head_kind == "unknown" or np.head_kind == "concept") then
+          -- punctuation or a clause-linking conjunction between the noun phrase and the introducer means the noun phrase belongs to a different clause
+          -- (a relative clause such as "I'm vetting" or "we might partner with" has neither)
+          local crosses = false
+          for z = np.nxt, e do
+            local cz = S.chunks[z]
+            if cz and (cz.pre or (cz.single and SEG_CONJ[cz.unit.form])) then crosses = true end
+          end
+          if not crosses then
+            if np.head_kind == "typenoun" then return np end
+            if k0 == b and not fallback then fallback = np end
+          end
+          break
+        end
+      end
+    end
+  end
+  return not strict and fallback or nil
+end
+
+-- "the small company I'm auditing for work this month IS Brindle Analytics", "the tiny business I'm vetting GOES BY THE NAME X", "a small company we might
+-- partner with, and THE NAME he gave me WAS X": a noun phrase that opens the clause classifies the name that completes it
+local function describe_by_introducer(P, S, mem, it, speaker)
+  local ks = name_introducer(S, it.c1)
+  if not ks or ks < 2 then return end
+  local e = ks - 1
+  local sent = S.chunks[e].sent
+  local b, steps = e, 0
+  while b >= 1 and steps < 20 do
+    local ck = S.chunks[b]
+    if ck.sent ~= sent then b = b + 1; break end
+    if ck.single and SEG_CONJ[ck.unit.form] and b < e then b = b + 1; break end
+    if ck.pre then
+      if ck.single and SEG_CONJ[ck.unit.form] and b < e then b = b + 1 end
+      break
+    end
+    b = b - 1; steps = steps + 1
+  end
+  if b < 1 then b = 1 end
+  local np = classifying_np_in(P, S, b, e, false)
+  if np and NAME_WORD[np.head.unit and np.head.unit.form or ""] then np = nil; b = b - 1
+    -- the subject only names a name: the kind is given by the closest earlier classifying noun phrase of the sentence
+    local lo = math.max(1, b - 20)
+    for k0 = b, lo, -1 do
+      local c0 = S.chunks[k0]
+      if c0 and c0.sent ~= sent then break end
+      if c0 and c0.single and c0.cats and (c0.cats.det or c0.cats.poss_det) then
+        for _, cand in ipairs(P.parse_np(S, k0)) do
+          if cand.head_kind == "typenoun" and cand.head and not NAME_WORD[cand.head.unit and cand.head.unit.form or ""] then np = cand; break end
+        end
+        if np then break end
+      end
+    end
+  end
+  if np and np.head and np.head.form then mem:describe(it.key, np.head.form, P.span_text(S, np), speaker) end
+end
 
 function C.describe_entities(view, S, items, speaker)
   local P = require("asi.nlu.parse")
@@ -510,6 +607,7 @@ function C.describe_entities(view, S, items, speaker)
       end
       ::next_pattern::
     end
+    describe_by_introducer(P, S, mem, it, speaker)
     local k = it.c2 + 1
     local c = S.chunks[k]
     -- "X, which is a small business" / "X, who is a founder": skip a relativiser + copula after the comma
@@ -519,10 +617,10 @@ function C.describe_entities(view, S, items, speaker)
     end
     if c then
       local copula = c.single and c.cats and (c.cats.aux_be == true) and (not c.pre or c.relcl)
-      local appos = c.pre and c.pre:find("comma") and c.single and c.cats and c.cats.det == true
+      local appos = c.pre and c.pre:find("comma") and c.single and c.cats and (c.cats.det == true or c.cats.poss_det == true)
       if copula then k = k + 1; c = S.chunks[k] end
       if c and (copula or appos) then
-        local det = c.single and c.cats and c.cats.det == true and (c.unit.form == "a" or c.unit.form == "an" or c.unit.form == "the")
+        local det = c.single and c.cats and (c.cats.det == true or c.cats.poss_det == true) and DESCRIPTOR_DET[c.unit.form]
         if det then
           for _, np in ipairs(P.parse_np(S, k)) do
             if (np.head_kind == "typenoun" or np.head_kind == "unknown" or np.head_kind == "concept") and np.head then
@@ -544,7 +642,13 @@ function C.descriptor_match(view, head, d)
   local ta, tb
   for _, sn in ipairs(lex.sense_by_head[head] or {}) do ta = ta or sn.type end
   for _, sn in ipairs(lex.sense_by_head[d.head] or {}) do tb = tb or sn.type end
-  if ta and tb and lex:compat(ta, tb) >= 0.9 and lex:compat(tb, ta) >= 0.9 then return 0.7 end
+  if ta and tb then
+    local ab, ba = lex:compat(ta, tb), lex:compat(tb, ta)
+    if ab >= 0.9 and ba >= 0.9 then return 0.7 end
+    -- "the organisation I mentioned" may denote what was described as "a company" (the description names a subtype of the reference's kind); the converse is weaker
+    if ba >= 0.9 then return 0.6 end
+    if ab >= 0.9 then return 0.4 end
+  end
   return 0
 end
 
@@ -653,7 +757,7 @@ function C.resolve_references(view, interp)
         rec.candidates = U.map(cands, function(c) return { id = c.id, type = c.type, name = c.name, p = c.p, score = c.score, reasons = c.reasons, turn = c.turn } end)
         local top = cands[1]
         local margin = top.p - (cands[2] and cands[2].p or 0)
-        if #cands == 1 or (top.p >= C.W.resolve_p and margin >= C.W.resolve_margin) then
+        if #cands == 1 or (top.p >= C.W.resolve_p and margin >= C.W.resolve_margin and not cands.kind_unverified) then
           rec.status = "resolved"
           rec.antecedent = { key = top.id, text = top.name, type = top.type, turn = top.turn, distance_turns = mem.turn - (top.turn or mem.turn), via = "backreference", p = top.p }
           rec.distance_turns = rec.antecedent.distance_turns
@@ -661,7 +765,8 @@ function C.resolve_references(view, interp)
           if top.type and not r.type then r.type = top.type end
         else
           rec.status = "ambiguous"
-          rec.requirement = "several earlier entities fit '" .. r.text .. "'; the intended one is not determined"
+          rec.requirement = cands.kind_unverified and ("nothing in the conversation says which earlier entity is a " .. tostring(r.head) .. "; the intended one is not determined")
+            or ("several earlier entities fit '" .. r.text .. "'; the intended one is not determined")
         end
       end
     end

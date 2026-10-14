@@ -221,12 +221,14 @@ function L:add_rel(r)
   self.rels[r.id] = r
   self.revision = self.revision + 1
   -- relational nouns (with plural forms) and verbs -> trie
-  local function noun_entries(noun, role)
+  local function noun_entries(noun, role, rolesuffix)
     for _, f in ipairs(Morph.noun_forms(noun)) do
-      self:trie_insert(f.form, { kind = "relnoun", rel = r.id, role = role, num = f.feat, lemma = noun })
+      self:trie_insert(f.form, { kind = "relnoun", rel = r.id, role = role, num = f.feat, lemma = noun, rolesuffix = rolesuffix })
     end
   end
   for _, n in ipairs(r.nouns_to) do noun_entries(n, "to") end
+  -- "CEO position", "prime minister role": the post a person holds, named after the role noun (see the `rolesuffix=1` field of person-valued relations)
+  for _, n in ipairs(r.role_nouns or {}) do noun_entries(n, "to", true) end
   for _, n in ipairs(r.nouns_from) do noun_entries(n, "from") end
   for _, v in ipairs(r.verbs) do
     for _, f in ipairs(Morph.verb_forms(v.lemma)) do
@@ -308,6 +310,12 @@ function DIRECTIVES.rel(self, rest)
     verbs = {}, preps = list(f.prep), kinds = {}, when = f.when, where = f.where, how_many = f.how_many, derived = f.derived,
     weight = tonumber(f.weight) or 1.0, source = f.source or "seed", symmetric = f.symmetric == "1", attr = f.attr == "1", event = f.event == "1",
     locus = f.locus == "1", isa = f.isa, support = {} }
+  if f.rolesuffix == "1" then
+    r.role_nouns = {}
+    for _, n in ipairs(r.nouns_to) do
+      for _, sfx in ipairs({ "position", "role", "post", "job", "seat", "title", "office" }) do r.role_nouns[#r.role_nouns + 1] = n .. " " .. sfx end
+    end
+  end
   -- verb entries:  lemma/subj=to|from[/prep=in]   (prep => stative "X is VERB-ed PREP Y": X fills subj role, Y the other)
   for _, v in ipairs(list(f.verb)) do
     local lemma, attrs = v:match("^([^/]+)/(.*)$")

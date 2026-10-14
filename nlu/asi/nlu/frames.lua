@@ -720,6 +720,36 @@ function F.wh_support_subject(S, out)
   end
 end
 
+-- The wh-phrase is the HOLDER of a post that a role noun names:
+--   "Who holds the CEO position at Acme?"   "Who currently occupies the prime minister role in Spain?"   "Who has the president's job in France?"
+-- The role noun carries the relation, the verb only says that the wh-phrase holds the post: the answer is the relation's value for the argument.
+local ROLE_HOLD = { hold = true, occupy = true, fill = true, have = true, assume = true }
+function F.wh_role_holder(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and (wh.wh == "who" or wh.wh == "which" or wh.wh == "whom") then
+      for _, vp in ipairs(P.parse_vp(S, wh.nxt)) do
+        if vp.voice == "active" and ROLE_HOLD[vp.lemma] then
+          for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+            if onp.head_kind == "relnoun" and (onp.of_arg or onp.possessor) then
+              for _, o in ipairs(relnp_options(S, onp)) do
+                if o.entry and o.entry.rolesuffix and o.ask_role == "to" and o.arg and ((not wh.type) or S.lex:compat(o.rel.to, wh.type) >= 0.5) then
+                  local h = newh(S, "wh_role_holder", "question")
+                  set_lookup(h, o.rel, "from", o.arg, "to", wh)
+                  use_wh(h, wh); use_vp(h, vp); use_np(h, onp)
+                  addf(h, "role_holder_construction", 0.9, "'" .. tostring(vp.lemma) .. "' + the post noun of " .. o.rel.id)
+                  option_factors(h, o)
+                  mark_unresolved_pron(h, o.arg)
+                  out[#out + 1] = h
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 -- generic clause: [aux]* [NP-subject] [aux]* [not] VERB [NP-object] -> {subj, verb, obj, neg, last}
 function F.parse_clause(S, k)
   local best

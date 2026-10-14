@@ -305,6 +305,14 @@ local function nclass(S, c, in_np)
     if cats.poss_det then f.poss_det = true end
     local closed = cats.det or cats.prep or cats.conj or cats.wh or cats.aux_be or cats.aux_do or cats.aux_have or cats.modal or cats.polite
       or cats.neg_word or cats.clitic_s or cats.adv or cats.particle or f.pron or f.poss_det
+    -- "a VERY small business", "an extremely successful firm": a degree adverb inside a noun phrase modifies the adjective after it
+    if cats.degree and in_np then
+      local nx = S.chunks[(c.idx or 0) + 1]
+      if nx and not nx.masked and not barrier(nx) then
+        local nn = nclass(S, nx, true)
+        if nn and not nn.pron then f.adj = true end
+      end
+    end
     if not closed then
       -- open-class word with no noun reading in the lexicon: modifier / unknown noun / verb used as a noun
       if c.adjs then
@@ -381,6 +389,9 @@ function P.is_function_chunk(S, c)
   return true
 end
 
+-- adverbs that may stand between the subject and the verb of mention in a discourse-linked relative clause ("the company I FIRST brought up")
+local BACKREF_ADV_WORD = U.set({ "first", "originally", "initially", "previously", "earlier", "briefly", "once", "recently", "already", "just", "also", "actually", "really", "even", "ever", "only" })
+
 -- consume a back-reference cue ("I mentioned earlier") starting at chunk index m; returns next chunk index or nil
 local function backref_at(S, m)
   local c = C(S, m)
@@ -404,9 +415,11 @@ local function backref_at(S, m)
     local f = p and p.single and p.unit.form
     if p and not barrier(p) and (f == "i" or f == "we" or f == "you") then
       local q = k + 1
-      while C(S, q) and C(S, q).single and not barrier(C(S, q)) and (cat(C(S, q), "aux_be") or cat(C(S, q), "aux_have")) do q = q + 1 end
+      -- auxiliaries and adverbs between the subject and the verb of mention: "I was", "I have", "I first brought up", "I originally mentioned", "I had actually told you about"
+      while C(S, q) and C(S, q).single and not barrier(C(S, q)) and (cat(C(S, q), "aux_be") or cat(C(S, q), "aux_have") or cat(C(S, q), "adv") or cat(C(S, q), "ignorable") or BACKREF_ADV_WORD[C(S, q).unit.form]) do q = q + 1 end
       local vc = C(S, q)
-      if vc and vc.single and not barrier(vc) then
+      -- a multiword verb of mention ("brought up", "talked about") is one chunk
+      if vc and (vc.single or (vc.verbs and #vc.verbs > 0)) and not barrier(vc) then
         for _, a in ipairs(P.verb_analyses(S, vc)) do
           if a.form == "past" or a.form == "pp" or a.form == "ing" then
             j = q + 1
@@ -414,7 +427,12 @@ local function backref_at(S, m)
             local oc = C(S, j)
             if oc and oc.single and not barrier(oc) and (oc.unit.form == "you" or oc.unit.form == "me" or oc.unit.form == "us") then j = j + 1 end
             local pc = C(S, j)
-            if pc and pc.single and not barrier(pc) and (cat(pc, "particle") or pc.unit.form == "about" or pc.unit.form == "of" or pc.unit.form == "across" or pc.unit.form == "to") then j = j + 1 end
+            if pc and pc.single and not barrier(pc) and (cat(pc, "particle") or pc.unit.form == "about" or pc.unit.form == "of" or pc.unit.form == "across" or pc.unit.form == "to") then
+              j = j + 1
+              -- "brought up WITH YOU", "talked about WITH YOU": the addressee after a particle
+              local wc, yc = C(S, j), C(S, j + 1)
+              if wc and yc and wc.single and yc.single and not barrier(wc) and not barrier(yc) and wc.unit.form == "with" and (yc.unit.form == "you" or yc.unit.form == "me" or yc.unit.form == "us") then j = j + 2 end
+            end
             break
           end
         end
@@ -499,6 +517,12 @@ local function parse_np_core(S, k, opts)
     local cm = C(S, m)
     if not cm or cm.masked then break end
     if m > j and barrier(cm) then break end
+    -- "the ONE small business I'm evaluating", "the one company I trust": "one" after a determiner only emphasises uniqueness when a noun phrase follows
+    if m == j and det and cm.single and cm.unit.form == "one" then
+      local nn = C(S, m + 1)
+      local ncn = nn and not barrier(nn) and nclass(S, nn, true)
+      if ncn and not ncn.pron then m = m + 1; goto continue_run end
+    end
     local nc = nclass(S, cm, (m > j) or det ~= nil or poss_det ~= nil)
     if not nc then break end
     if nc.pron and not nc.entity and not nc.sense then break end
@@ -513,6 +537,7 @@ local function parse_np_core(S, k, opts)
     -- an entity directly followed by 's ends the run (possessor boundary handled by the caller)
     local nx = C(S, m)
     if nx and nx.single and cat(nx, "clitic_s") then break end
+    ::continue_run::
   end
   if #run == 0 then return out end
   -- candidate head positions: last head-capable element first, then shorter prefixes (so "Acme pioneered automation"
