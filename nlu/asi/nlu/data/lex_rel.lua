@@ -17,7 +17,7 @@ rel prime_minister: from=country to=person | noun=prime minister; premier | role
 rel population: from=place to=number | noun=population; inhabitants; number of inhabitants; number of residents | count_noun=people; persons; individuals; residents; inhabitants; citizens; folks; souls | count_verb=live/prep=in; reside/prep=in; dwell/prep=in; inhabit; have | attr=1 | label=population
 rel area: from=place to=number | noun=area; surface area; land area | attr=1 | label=area
 rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency; legal tender; official currency; national currency; local currency; money | support=use; adopt; have; call; pay with; pay in; spend; trade in; transact in; price in | as=recognize; accept; designate; name; treat; issue; introduce; declare; list; record; identify; describe; cite; register; present; show; recognise | label=currency
-rel official_language: from=country to=language | noun=official language; national language | label=official language
+rel official_language: from=country to=language | noun=official language; national language; language; spoken language; main language; native language; mother tongue | support=speak; converse in; communicate in; write in; teach in | label=official language
 rel continent_of: from=country to=continent | noun=continent | verb=lie/subj=from/prep=on; lie/subj=from/prep=in; sit/subj=from/prep=on | label=continent
 rel height: from=entity to=number | noun=height; elevation; altitude | attr=1 | label=height
 rel located_in: from=place,organization,event,person to=place | noun=location | verb=locate/subj=from/prep=in; situate/subj=from/prep=in | where=located_in | label=location
@@ -66,7 +66,7 @@ rel type_of: from=entity to=concept | noun=type; kind; category; genre | label=t
 
 # ------------------------------------------------------------ abstract relations
 rel successor: from=entity to=entity | noun=successor | verb=succeed/subj=to; replace/subj=to | label=successor
-rel predecessor: from=entity to=entity | noun=predecessor | label=predecessor
+rel predecessor: from=entity to=entity | noun=predecessor | verb=precede/subj=to | label=predecessor
 rel cause: from=concept,event to=concept,event | noun=cause; reason; origin | verb=cause/subj=to; trigger/subj=to; lead/subj=to/prep=to | label=cause
 rel requirement: from=entity to=entity | noun=requirement; prerequisite; dependency | verb=require/subj=from; need/subj=from; depend/subj=from/prep=on | label=requirement
 rel supported_by: from=claim,concept to=document | noun=evidence; support | verb=support/subj=to; confirm/subj=to; substantiate/subj=to | label=supported by

@@ -631,6 +631,140 @@ function F.which_filtered(S, out)
   end
 end
 
+---------------------------------------------------------------- superlative questions over a typed set
+--   "What is the biggest city in Canada?"   "Which is the largest country in Africa?"   "What's the tallest mountain in Peru?"
+-- The answer is the member of the type that is extreme on the superlative's dimension: a search with an ordering, not a definition.
+function F.wh_superlative(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.np and not wh.adverbial and not wh.one and (wh.wh == "what" or wh.wh == "which") then
+      local bc = C(S, wh.nxt)
+      if bc and bc.single and not bc.masked and not barrier(bc) and (cat(bc, "aux_be") or cat(bc, "clitic_s")) then
+        for _, np in ipairs(P.parse_np(S, wh.nxt + 1, { no_of = true })) do
+          if np.superlative and (np.head_kind == "typenoun" or np.head_kind == "unknown") and not np.of_arg then
+            local filters, kf = F.parse_filters(S, np.nxt, np)
+            if kf > S.last then
+              local h = newh(S, "wh_superlative:search", "question", "search", "search")
+              use_wh(h, wh); use(h, wh.nxt); use_np(h, np)
+              h.target, h.filters = np, filters
+              for _, f in ipairs(filters) do for i = f.span.first, f.span.last do h.used[i] = true end end
+              h.requires_evidence = true
+              h.ordering = { superlative = np.superlative }
+              addf(h, "superlative_target", 0.9, "'" .. tostring(np.superlative) .. "' over a typed set asks for its extreme member")
+              if #filters > 0 then addf(h, "filters_parsed", 0.15 * #filters, #filters .. " filter(s) from the clause") end
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- passive yes/no questions without an agent, and dated ones
+--   "Was Nokia acquired?"   "Has Nokia ever been acquired?"   "Was Instagram founded in 2010?"   "Was Napoleon born before 1800?"
+-- Without a qualifier the question asks whether the relation holds for the subject at all; with a date it asks about the date relation the verb links to (founded -> founding date).
+function F.yes_no_passive(S, out)
+  local k0 = S.first
+  local c0 = C(S, k0)
+  if not (c0 and c0.single and not c0.masked and (cat(c0, "aux_be") or cat(c0, "aux_have"))) then return end
+  local hint = cat(c0, "aux_be") and "be" or "have"
+  local nstart, neg_first = k0 + 1, nil
+  if P.is_neg(C(S, nstart)) and not barrier(C(S, nstart)) then neg_first = nstart; nstart = nstart + 1 end
+  for _, np1 in ipairs(P.parse_np(S, nstart)) do
+    for _, vp in ipairs(P.parse_vp(S, np1.nxt, { aux_hint = hint })) do
+      if vp.voice == "passive" then
+        for _, e in ipairs(vp.analysis.entries or {}) do
+          local rel = S.lex:get_rel(e.rel)
+          if rel and not rel.open and not e.support and not e.as_only then
+            local tc = C(S, vp.nxt)
+            local frame, vrel, np2
+            if vp.nxt > S.last then
+              frame, vrel = "yes_no:passive_any", rel
+            elseif tc and not tc.masked and tc.temporal and tc.temporal.kind ~= "marker" and tc.temporal.kind ~= "relative" then
+              local trel = rel.when and S.lex:get_rel(rel.when) or nil
+              if not trel and S.lex:compat(rel.to, "date") >= 0.9 then trel = rel end
+              if trel then
+                for _, dnp in ipairs(P.parse_np(S, vp.nxt)) do
+                  if dnp.nxt > S.last and dnp.head_kind ~= "relnoun" then np2 = dnp; frame, vrel = "yes_no:passive_dated", trel; break end
+                end
+              end
+            end
+            if frame then
+              local h = newh(S, frame, "question", "verification", "verify")
+              use(h, k0); use_np(h, np1); use_vp(h, vp)
+              if neg_first then use(h, neg_first); h.polarity = "negative" end
+              h.rel, h.rel_obj = vrel.id, vrel
+              if np2 then
+                use_np(h, np2)
+                h.roles.from, h.roles.to = np1, np2
+                h.items = { np1, np2 }
+              else
+                h.roles[other(e.subj)] = np1
+                h.items = { np1 }
+              end
+              h.verify = { rel = vrel.id, from = h.roles.from, to = h.roles.to }
+              h.requires_evidence = true
+              addf(h, "passive_verification", 0.6, np2 and "a passive verb with a date asks about the date relation of the subject" or "a passive verb without an agent asks whether the relation holds at all")
+              mark_unresolved_pron(h, np1)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- comparison verified through a relation's value
+--   "Does Apple have more employees than Google?"   "Does Tokyo have a larger population than Osaka?"   "Is Tokyo more populous than Osaka?"
+local CMP_MORE = U.set({ "more", "larger", "bigger", "greater", "higher", "longer", "taller" })
+local CMP_LESS = U.set({ "fewer", "less", "smaller", "lower", "shorter" })
+function F.verify_comparison(S, out)
+  local k0 = S.first
+  local c0 = C(S, k0)
+  if not (c0 and c0.single and not c0.masked and cat(c0, "aux_do")) then return end
+  for _, np1 in ipairs(P.parse_np(S, k0 + 1, { no_of = true })) do
+    local hc = C(S, np1.nxt)
+    if hc and hc.single and not hc.masked and not barrier(hc) and hc.unit.form == "have" then
+      local k = np1.nxt + 1
+      local dc = C(S, k)
+      if dc and dc.single and not dc.masked and cat(dc, "det") then k = k + 1 end
+      local cw = C(S, k)
+      local dir = cw and cw.single and not cw.masked and (CMP_MORE[cw.unit.form] and "gt" or CMP_LESS[cw.unit.form] and "lt") or nil
+      if dir then
+        local nc = C(S, k + 1)
+        local rel
+        for _, ee in ipairs(nc and nc.relnouns or {}) do
+          local r = S.lex:get_rel(ee.rel)
+          if r and not r.open and ee.role == "to" and S.lex:compat(r.to, "number") >= 0.9 then rel = r; break end
+        end
+        local tcnk = C(S, k + 2)
+        if rel and tcnk and tcnk.single and not tcnk.masked and tcnk.unit.form == "than" then
+          for _, np2 in ipairs(P.parse_np(S, k + 3, { no_of = true })) do
+            -- an optional trailing "have" repeats the verb: "... than Google has"
+            local endk = np2.nxt
+            local tl = C(S, endk)
+            if tl and tl.single and not tl.masked and (tl.unit.form == "have" or tl.unit.form == "has") then endk = endk + 1 end
+            if endk > S.last then
+              local h = newh(S, "compare_q:have_more", "question", "verification", "verify_comparison")
+              use(h, k0); use_np(h, np1); use(h, np1.nxt, k + 2); use_np(h, np2)
+              for i = np2.nxt, endk - 1 do h.used[i] = true end
+              h.items = { np1, np2 }
+              h.rel, h.rel_obj = rel.id, rel
+              h.dimension, h.degree, h.adj = "size", "comp", cw.unit.form
+              h.cmp = { op = dir, rel = rel.id }
+              h.requires_evidence = true
+              addf(h, "comparative_relnoun", 0.7, "'" .. cw.unit.form .. " " .. tostring(nc.unit.form) .. " than' compares the values of " .. rel.id)
+              mark_unresolved_pron(h, np1); mark_unresolved_pron(h, np2)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 ---------------------------------------------------------------- bans stated as what must (not) appear
 --   "Agencies should never appear in your answers."   "Make sure agencies never show up in your answers."   "Don't let agencies show up in your answers."
 --   "Please make sure there are no agencies in the results."   "Leave agencies out of the results."   "Take agencies off the list."
