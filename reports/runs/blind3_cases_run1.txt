@@ -1,0 +1,259 @@
+# blind cases (interp_cases_blind3) first run — engine commit e0a0bde, file sha256 0caa7070d7494b89946e09e5818e79d2aa7b40786b452e7b572f5dc87164c1e2
+full/dev: n=170  all-fields accuracy=0.612 [0.537,0.682]  serious-error rate=0.382 [0.313,0.457]  (any-error 0.388)
+  ambiguous                    n=8   pass=7   acc=0.88 [0.53,0.98] serious=1
+  basic_factual                n=20  pass=12  acc=0.60 [0.39,0.78] serious=8
+  comparative                  n=7   pass=4   acc=0.57 [0.25,0.84] serious=3
+  direction                    n=13  pass=11  acc=0.85 [0.58,0.96] serious=2
+  geographic                   n=7   pass=4   acc=0.57 [0.25,0.84] serious=3
+  instruction                  n=11  pass=3   acc=0.27 [0.10,0.57] serious=8
+  intent                       n=11  pass=8   acc=0.73 [0.43,0.90] serious=3
+  malformed                    n=4   pass=4   acc=1.00 [0.51,1.00] serious=0
+  minimal_pair                 n=14  pass=11  acc=0.79 [0.52,0.92] serious=3
+  multi_turn                   n=18  pass=12  acc=0.67 [0.44,0.84] serious=6
+  multiword                    n=6   pass=2   acc=0.33 [0.10,0.70] serious=4
+  negation                     n=16  pass=8   acc=0.50 [0.28,0.72] serious=8
+  noise                        n=5   pass=4   acc=0.80 [0.38,0.96] serious=1
+  temporal                     n=11  pass=7   acc=0.64 [0.35,0.85] serious=3
+  typo                         n=6   pass=2   acc=0.33 [0.10,0.70] serious=4
+  unusual                      n=13  pass=5   acc=0.38 [0.18,0.64] serious=8
+  failing fields: rel=36 ask=31 from=29 intent=13 to=12 atype=11 neg=7 inst=5 items=5 pos=4 pref=4 ref=3 dep=2 temporal=2 amb=1 concept=1 ctx=1 evid=1 sel=1 src=1 tc=1
+
+FAILURES:
+E002 [basic_factual] "My son has a school quiz tomorrow and needs to know the currency of Norway." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Norway]
+    intent: got [statement] want [factual_lookup]
+    rel: got [-] want [currency]
+E005 [basic_factual] "For a piece I'm filing tonight I need the name of Ravenscroft Labs' chief executive." (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    evid: got [false] want [1]
+    from: got [missing] want [Ravenscroft Labs]
+    rel: got [-] want [ceo]
+E007 [basic_factual] "In Paraguay, what language is official?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [language]
+    from: got [missing] want [Paraguay]
+    rel: got [-] want [official_language]
+E008 [basic_factual] "Customer on line two wants to know where Pellis Dynamics is headquartered, can you pull that up?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [city]
+    from: got [missing] want [Pellis Dynamics]
+    rel: got [-] want [headquarters]
+E009 [basic_factual] "when was Orrin & Vale founded" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [date]
+    from: got [missing] want [Orrin & Vale]
+    rel: got [-] want [founded_on]
+E012 [basic_factual] "Hey assistant, could you please tell me how many moons Neptune has, dear?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Neptune]
+    rel: got [-] want [moons]
+E014 [basic_factual] "Who came up with the zipper?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    from: got [missing] want [zipper]
+    rel: got [-] want [inventor]
+E015 [basic_factual] "when did marie curie die lol need it for hw" (SERIOUS)
+    from: got [text 'lol' ~= 'Marie Curie'] want [Marie Curie]
+E025 [direction] "Who put money into Quenby Robotics?" (SERIOUS)
+    ask: got [from] want [to]
+    from: got [missing] want [Quenby Robotics]
+    rel: got [headquarters] want [investor]
+E028 [direction] "Who all works for Pellis Dynamics, do you know?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [person]
+    rel: got [-] want [employer]
+    to: got [missing] want [Pellis Dynamics]
+E035 [negation] "Please identify the subsidiaries of Hartwell Holdings, excluding any registered in Delaware." (SERIOUS)
+    neg: got [topic:any registered] want [entity:delaware]
+E036 [negation] "Which Rotterdam firms are not banks?" (SERIOUS)
+    neg: got [] want [type:bank]
+    pos: got [] want [geo:Rotterdam]
+E038 [negation] "Tell me about Lisbon, but skip the history part." (SERIOUS)
+    neg: got [role:the history part] want [topic:history]
+E040 [negation] "The Tolvane 500 is not only fast but apparently cheap too, so what does it cost?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Tolvane 500]
+    rel: got [-] want [price]
+E041 [negation] "no worries at all, just tell me the population of Tuvalu" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Tuvalu]
+    neg: got [topic:worries,topic:all, just tell,reference:me,role:the population of Tuvalu] want [none]
+    rel: got [-] want [population]
+E043 [negation] "I wouldn't say no to finding out who runs Kestrel Bay Foods." (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    from: got [missing] want [Kestrel Bay Foods]
+    neg: got [entity:Kestrel Bay Foods] want [none]
+E045 [negation] "Besides France, which countries use the euro?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [country]
+    rel: got [-] want [currency]
+    to: got [missing] want [euro]
+E049 [negation] "Which African countries are not landlocked?" (SERIOUS)
+    atype: got [nil] want [country]
+    neg: got [] want [description:landlocked]
+    pos: got [] want [geo:Africa]
+E050 [temporal] "Kindly confirm who held the office of Chief Executive Officer of Pellis Dynamics as of 2018." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Pellis Dynamics]
+    rel: got [-] want [ceo]
+E052 [temporal] "Which startups were founded after 2015?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [founded_on]
+E057 [temporal] "Which city will host the 2036 Summer Olympics?"
+    temporal: got [current_unspecified] want [future]
+E058 [temporal] "Who used to be in charge of Ottoline Press?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Ottoline Press]
+    rel: got [-] want [leader]
+    temporal: got [nil] want [past]
+E068 [ambiguous] "How many people live in Washington State?" (SERIOUS)
+    amb: got [ambiguous] want [resolved]
+E069 [comparative] "Which is bigger by area, Kenya or Chad?" (SERIOUS)
+    items: got [none] want [Kenya|Chad]
+    rel: got [-] want [area]
+E071 [comparative] "Siemens vs Bosch - headcount, who is bigger?" (SERIOUS)
+    intent: got [definition] want [comparison]
+    items: got [none] want [Siemens|Bosch]
+    rel: got [-] want [employees]
+E075 [comparative] "Which has more moons, Jupiter or Saturn?" (SERIOUS)
+    intent: got [entity_description] want [comparison]
+    items: got [none] want [Jupiter|Saturn]
+    rel: got [-] want [moons]
+E077 [multiword] "Who wrote The Hitchhiker's Guide to the Galaxy?" (SERIOUS)
+    from: got [text 'The Hitchhiker's Guide' ~= 'The Hitchhiker's Guide to the Galaxy'] want [The Hitchhiker's Guide to the Galaxy]
+E078 [multiword] "who is the ceo of Procter & Gamble" (SERIOUS)
+    from: got [text 'Procter' ~= 'Procter & Gamble'] want [Procter & Gamble]
+E080 [multiword] "Which country has Sri Jayawardenepura Kotte as its legislative capital?" (SERIOUS)
+    rel: got [capital] want [legislative_capital]
+E081 [multiword] "How many people live on the Isle of Man?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Isle of Man]
+    rel: got [-] want [population]
+E082 [geographic] "Which tech companies in Bavaria hire interns?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [company]
+    pos: got [] want [geo:Bavaria]
+    rel: got [-] want [hires]
+    to: got [missing] want [intern]
+E087 [geographic] "List the provinces that make up Canada." (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [part_of]
+    to: got [missing] want [Canada]
+E088 [geographic] "Any hospitals in Ghana that are hiring nurses?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [hires]
+    to: got [missing] want [nurse]
+E090 [instruction] "Always give me distances in kilometres, never miles." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+    pref: got [0 preference(s)] want [kilometres]
+E091 [instruction] "Stop using bullet points, I really hate them." (SERIOUS)
+    inst: got [nil/-/nil/nil] want [persist=1]
+    pref: got [0 preference(s)] want [bullet points]
+E092 [instruction] "Whenever I type tldr, reply with just three sentences." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+E093 [instruction] "Don't ever bring up prices unless I ask." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+    neg: got [] want [topic:price]
+E094 [instruction] "For my literature review: per the 2019 dataset, what was the population of Tuvalu?" (SERIOUS)
+    src: got [0 source constraint(s)] want [dataset:2019]
+E095 [instruction] "From now on call me Dr. Okafor." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+E096 [instruction] "Keep it under 100 words." (SERIOUS)
+    pref: got [0 preference(s)] want [under 100 words]
+E099 [instruction] "Answer only in French from here on." (SERIOUS)
+    pref: got [0 preference(s)] want [French]
+E105 [intent] "Translate 'where is the station' into German." (SERIOUS)
+    intent: got [unknown] want [task]
+E109 [intent] "Which is better for a beginner, guitar or piano?" (SERIOUS)
+    items: got [none] want [guitar|piano]
+E110 [intent] "What causes the tides?" (SERIOUS)
+    intent: got [factual_lookup] want [causal_explanation]
+E115 [minimal_pair] "Which countries have Portuguese as an official language?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [official_language]
+    to: got [missing] want [Portuguese]
+E116 [minimal_pair] "Which countries other than Brazil have Portuguese as an official language?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [official_language]
+    to: got [missing] want [Portuguese]
+E117 [minimal_pair] "Which companies in Graz hire interns?" (SERIOUS)
+    ask: got [nil] want [from]
+    pos: got [] want [geo:Graz]
+    rel: got [-] want [hires]
+    to: got [missing] want [intern]
+E131 [multi_turn] "U: Give me three Nordic capitals. // A: Oslo, Stockholm and Helsinki. // U: Which of them is the biggest?" (SERIOUS)
+    ctx: got [] want [comparison_set]
+    intent: got [unknown] want [comparison]
+    items: got [none] want [Oslo|Stockholm|Helsinki]
+E134 [multi_turn] "U: What's the capital of Ecuador? // A: Quito. // U: And Bolivia? // A: Bolivia has two capitals, La Paz and Sucre. // U: Which country did I ask about first?" (SERIOUS)
+    sel: got [2 selected] want [+Ecuador]
+E137 [multi_turn] "U: Tell me about Kestrel Bay Foods. // A: Kestrel Bay Foods is a seafood processor. // U: Who is the CEO of Orrin & Vale? // A: Orrin & Vale is led by Priya Nandakumar. // U: And who founded the first company?" (SERIOUS)
+    dep: got [self_contained] want [earlier_context]
+    from: got [text 'the first company' ~= 'Kestrel Bay Foods'] want [Kestrel Bay Foods]
+    ref: got [the first company>(none)] want [the first company>Kestrel Bay Foods]
+E139 [multi_turn] "U: Which is taller, the Eiffel Tower or the Tokyo Tower? // A: The Tokyo Tower is taller. // U: And how tall is the other one?" (SERIOUS)
+    from: got [text 'the other one' ~= 'Eiffel Tower'] want [Eiffel Tower]
+    ref: got [the other one>(none)] want [the other one>Eiffel Tower]
+E140 [multi_turn] "U: Who is the CEO of Siemens? // A: Roland Busch is the CEO of Siemens. // U: No, I meant who founded it." (SERIOUS)
+    ask: got [nil] want [to]
+    dep: got [self_contained] want [recent_message]
+    from: got [missing] want [Siemens]
+    ref: got [it>(none)] want [it>Siemens]
+    rel: got [-] want [founder]
+E141 [multi_turn] "U: What was Brightwell Energy's revenue in 2022? // A: Brightwell Energy reported revenue of 1.2 billion dollars in 2022. // U: And in 2021?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Brightwell Energy]
+    rel: got [-] want [revenue]
+    tc: got [] want [in:2021]
+E143 [typo] "wat is teh captial of Argentnia" (SERIOUS)
+    ask: got [nil] want [to]
+E145 [typo] "popluation of Germnay pls" (SERIOUS)
+    from: got [text 'Germnay pls' ~= 'Germany'] want [Germany]
+E146 [typo] "whos the primeminister of Canda" (SERIOUS)
+    from: got [text 'Canda' ~= 'Canada'] want [Canada]
+    rel: got [open:primeminister] want [prime_minister]
+E147 [typo] "Which compnaies hire intrens in Berlin" (SERIOUS)
+    to: got [text 'intrens' ~= 'intern'] want [intern]
+E149 [noise] "ok so um, like, i was wondering, you know, what the uh capital of Peru is???" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Peru]
+    rel: got [-] want [capital]
+E156 [unusual] "Can you check whether Oslo is the capital of Norway?" (SERIOUS)
+    from: got [missing] want [Norway]
+    intent: got [entity_description] want [verification]
+    rel: got [-] want [capital]
+    to: got [missing] want [Oslo]
+E157 [unusual] "Everyone says Canberra, but is it really the capital of Australia?" (SERIOUS)
+    from: got [missing] want [Australia]
+    intent: got [statement] want [verification]
+    rel: got [-] want [capital]
+    to: got [missing] want [Canberra]
+E158 [unusual] "Quick: five countries whose official language is French" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [official_language]
+    to: got [missing] want [French]
+E159 [unusual] "Who's the big cheese at Kestrel Bay Foods?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    from: got [missing] want [Kestrel Bay Foods]
+E161 [unusual] "Zorvania's president says his country will adopt the euro, so what is its current currency?" (SERIOUS)
+    rel: got [head_of_state] want [currency]
+E162 [unusual] "capital of peru? need it for a unit test fixture" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Peru]
+    rel: got [-] want [capital]
+E164 [unusual] "What does the word 'capital' mean in 'capital city'?" (SERIOUS)
+    concept: got [missing] want [capital]
+    intent: got [factual_lookup] want [definition]
+E166 [unusual] "I'm trying to figure out who bankrolled Oaklett Biotech." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Oaklett Biotech]
+    rel: got [-] want [investor]
+work=45431 wall=0.45s

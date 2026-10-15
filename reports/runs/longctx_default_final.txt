@@ -1,0 +1,67 @@
+# long-context default sweep (built-in wordings, development) — engine commit e0a0bde; lengths 10,100,500; 3 seeds
+kind              turns pos         n success work/final   wall(s) false_mem
+backref_entity       10 begin       3    1.00       246      0.02     0.00
+backref_entity       10 middle      3    1.00       246      0.03     0.00
+backref_entity       10 end         3    1.00       246      0.03     0.00
+backref_entity      100 begin       3    1.00       246      0.22     0.00
+backref_entity      100 middle      3    1.00       246      0.18     0.00
+backref_entity      100 end         3    1.00       246      0.21     0.00
+backref_entity      500 begin       3    1.00       246      1.14     0.00
+backref_entity      500 middle      3    1.00       246      1.03     0.00
+backref_entity      500 end         3    1.00       246      1.02     0.00
+correction           10 begin       3    1.00        83      0.02     0.00
+correction           10 middle      3    1.00        83      0.02     0.00
+correction           10 end         3    1.00        83      0.02     0.00
+correction          100 begin       3    1.00        83      0.22     0.00
+correction          100 middle      3    1.00        83      0.24     0.00
+correction          100 end         3    1.00        83      0.24     0.00
+correction          500 begin       3    1.00        83      1.25     0.00
+correction          500 middle      3    1.00        83      1.12     0.00
+correction          500 end         3    1.00        83      1.06     0.00
+exclusion            10 begin       3    1.00       207      0.02     0.00
+exclusion            10 middle      3    1.00       207      0.02     0.00
+exclusion            10 end         3    1.00       207      0.03     0.00
+exclusion           100 begin       3    1.00       207      0.19     0.00
+exclusion           100 middle      3    1.00       207      0.20     0.00
+exclusion           100 end         3    1.00       207      0.24     0.00
+exclusion           500 begin       3    1.00       207      1.20     0.00
+exclusion           500 middle      3    1.00       207      1.06     0.00
+exclusion           500 end         3    1.00       207      1.10     0.00
+buried_negation      10 begin       3    1.00       207      0.02     0.00
+buried_negation      10 middle      3    1.00       207      0.02     0.00
+buried_negation      10 end         3    1.00       207      0.02     0.00
+buried_negation     100 begin       3    1.00       207      0.26     0.00
+buried_negation     100 middle      3    1.00       207      0.20     0.00
+buried_negation     100 end         3    1.00       207      0.19     0.00
+buried_negation     500 begin       3    1.00       207      1.49     0.00
+buried_negation     500 middle      3    1.00       207      1.53     0.00
+buried_negation     500 end         3    1.00       207      1.29     0.00
+similar_names        10 begin       3    1.00       255      0.02     0.00
+similar_names        10 middle      3    1.00       255      0.04     0.00
+similar_names        10 end         3    1.00       255      0.02     0.00
+similar_names       100 begin       3    1.00       255      0.28     0.00
+similar_names       100 middle      3    1.00       255      0.28     0.00
+similar_names       100 end         3    1.00       255      0.21     0.00
+similar_names       500 begin       3    1.00       255      1.53     0.00
+similar_names       500 middle      3    1.00       255      1.36     0.00
+similar_names       500 end         3    1.00       255      1.05     0.00
+decision             10 begin       3    1.00       231      0.02     0.00
+decision             10 middle      3    1.00       249      0.02     0.00
+decision             10 end         3    1.00       249      0.03     0.00
+decision            100 begin       3    1.00       249      0.20     0.00
+decision            100 middle      3    1.00       249      0.19     0.00
+decision            100 end         3    1.00       249      0.19     0.00
+decision            500 begin       3    1.00       249      1.03     0.00
+decision            500 middle      3    1.00       231      1.11     0.00
+decision            500 end         3    1.00       231      1.03     0.00
+pronoun_gap          10 begin       3    1.00       133      0.02     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap          10 middle      3    1.00       133      0.02     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap          10 end         3    1.00       133      0.02     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         100 begin       3    1.00       133      0.20     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         100 middle      3    1.00       133      0.18     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         100 end         3    1.00       133      0.19     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         500 begin       3    1.00       133      1.08     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         500 middle      3    1.00       133      1.14     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         500 end         3    1.00       133      1.24     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+
+OVERALL scenarios=189 success=1.000 [0.980,1.000]  memory recall=1.048 precision=0.815 false-memory/request=0.00

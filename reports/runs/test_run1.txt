@@ -1,0 +1,38 @@
+# frozen test split (data/eval/test.cases, sha256 bd6516cc7e2a5e043d0d5bad21cbd62683314c414c538a89376d2bae566ae4a0) first and only run — engine commit e0a0bde
+full/test: n=140  all-fields accuracy=0.964 [0.919,0.985]  serious-error rate=0.036 [0.015,0.081]  (any-error 0.036)
+  ambiguous                    n=9   pass=8   acc=0.89 [0.56,0.98] serious=1
+  basic_factual                n=20  pass=20  acc=1.00 [0.84,1.00] serious=0
+  comparative                  n=3   pass=3   acc=1.00 [0.44,1.00] serious=0
+  conditional                  n=3   pass=2   acc=0.67 [0.21,0.94] serious=1
+  direction                    n=9   pass=9   acc=1.00 [0.70,1.00] serious=0
+  discourse                    n=12  pass=12  acc=1.00 [0.76,1.00] serious=0
+  geographic                   n=4   pass=3   acc=0.75 [0.30,0.95] serious=1
+  instruction                  n=4   pass=4   acc=1.00 [0.51,1.00] serious=0
+  intent                       n=11  pass=11  acc=1.00 [0.74,1.00] serious=0
+  malformed                    n=5   pass=5   acc=1.00 [0.57,1.00] serious=0
+  minimal_pair                 n=7   pass=7   acc=1.00 [0.65,1.00] serious=0
+  multi_hop                    n=3   pass=3   acc=1.00 [0.44,1.00] serious=0
+  multi_part                   n=3   pass=3   acc=1.00 [0.44,1.00] serious=0
+  multiword                    n=10  pass=10  acc=1.00 [0.72,1.00] serious=0
+  negation                     n=9   pass=7   acc=0.78 [0.45,0.94] serious=2
+  open_set                     n=6   pass=6   acc=1.00 [0.61,1.00] serious=0
+  punctuation                  n=6   pass=6   acc=1.00 [0.61,1.00] serious=0
+  spelling                     n=6   pass=6   acc=1.00 [0.61,1.00] serious=0
+  temporal                     n=10  pass=10  acc=1.00 [0.72,1.00] serious=0
+  failing fields: amb=2 rel=2 ask=1 neg=1 to=1
+  metamorphic: equivalence 2/2  distinction 4/4
+
+FAILURES:
+T058 [ambiguous] "What is bank?" (SERIOUS)
+    amb: got [resolved] want [ambiguous]
+T083 [negation] "Which statements are not backed by the sources?" (SERIOUS)
+    rel: got [investor] want [supported_by]
+T087 [negation] "Show me retailers that are not in Germany." (SERIOUS)
+    neg: got [] want [entity:germany]
+T101 [geographic] "Which universities are in Edinburgh?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [located_in]
+    to: got [missing] want [Edinburgh]
+T210 [conditional] "If Berlin is the capital of Germany, who is its mayor?" (SERIOUS)
+    amb: got [resolved] want [ambiguous]
+work=32203 wall=0.44s

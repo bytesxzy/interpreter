@@ -1,0 +1,10 @@
+# surface-noise robustness on the frozen test split — engine commit e0a0bde (full vs no_repair vs baseline)
+noise robustness on the test split (1657 perturbed inputs, seed 5); primary reading correct, Wilson 95% CI
+operator     | full                     | no_repair                | baseline                
+none         | 0.974 [0.927,0.991] n=116  | 0.974 [0.927,0.991] n=116  | 0.276 [0.203,0.363] n=116 
+typo         | 0.857 [0.815,0.891] n=329  | 0.565 [0.511,0.618] n=329  | 0.152 [0.117,0.195] n=329 
+filler       | 0.925 [0.893,0.949] n=348  | 0.514 [0.462,0.566] n=348  | 0.270 [0.226,0.319] n=348 
+lowercase    | 0.956 [0.929,0.973] n=342  | 0.956 [0.929,0.973] n=342  | 0.263 [0.219,0.312] n=342 
+drop_punct   | 0.955 [0.928,0.973] n=336  | 0.955 [0.928,0.973] n=336  | 0.259 [0.215,0.308] n=336 
+drop_det     | 0.978 [0.946,0.992] n=186  | 0.978 [0.946,0.992] n=186  | 0.371 [0.305,0.442] n=186 
+ALL noisy    | 0.931 [0.917,0.942] n=1541 | 0.775 [0.754,0.796] n=1541 | 0.253 [0.232,0.275] n=1541

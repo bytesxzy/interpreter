@@ -3,13 +3,13 @@
 --                                                interpret-replay, selftest, tool, inject, bundle, extract, verify, report)
 -- Use it as a library:   local asi = dofile('asi_nlu.lua')   -- registers the modules lazily (package.preload) and returns the entry module
 -- No network, no external model, no dependency beyond Lua 5.4.  Deterministic.
--- files digest (sha256 over the embedded files in path order): b2a4fea9b0c31e95a594359601ff06fa67ff5226571e03dc9c2e88f0c0392046
+-- files digest (sha256 over the embedded files in path order): 48fdce061f4d646d38daa118d80bfb3463fb88e74b6cc230e6fd39856eeb7523
 -- embedded files:
---   README.md                                        7666  aa33c56df04c773975776753681a4d2141fad50a6faf7c4cca60313d309bfdc3
+--   README.md                                        8672  4a215ea3ff08f71a1240e846bc10e20cdc4872aca150545d01398c3528a46ebd
 --   data/acceptance/triples.csv                       146  0282afc0931f0a73a3b98663f5ba64976cdfe2c25772d864bd4744919bfc22f5
 --   data/acceptance/world_2019.jsonl                  217  666e5165d2022bdc2f0a9defe3b19577e8ce73f32113c25380caa1852ef192b9
 --   data/acceptance/world_2020.jsonl                 3667  71ff51376a40f4df734bd86e9bc4e5ecb7852ba92e0063aa2e54621ee619b5c8
---   data/calibration/interp_v1.json                  2118  4162c389461c2a2b0ff9b8f69b0cae1bb47f73db7035990bec5639f922676587
+--   data/calibration/interp_v1.json                  2159  4f79c32fbfa0a2df578b0738cd98ef8224c6e5667b25b0c6419221764e833f90
 --   data/eval/MANIFEST.json                           806  bb99a26153a7c4d53962aaff77514c3c0f1b3eee41dabdbaabec6559ab5db682
 --   data/eval/dev.cases                             18449  bef05c816c3521d2011192be6f218f46444b7705d16bccb053eb16cbbb87fc44
 --   data/eval/dev_constructions.cases               13986  b201d6f3dbd6c4371d4366209cf9bb2d533012864bf925b39b85533986d6bab2
@@ -40,7 +40,7 @@
 --   nlu/asi/nlu/coref.lua                           47112  654311b09944e4359bcc90d66ff70bf9ffb7850e38d72130b2c07d4ccd953dd3
 --   nlu/asi/nlu/data/lex_core.lua                   36766  9248c29e40c5ae7f134de331d3569955ec63c63badf692ecd9bd0ac3accb9be3
 --   nlu/asi/nlu/data/lex_gaz.lua                    10088  ca3e80c7c6004cd4f327403bb4ee58a1d925771ae23f0090ce840aec3febe6dc
---   nlu/asi/nlu/data/lex_rel.lua                    12824  4c27ab33ecf00745ebc48b8a0c4fb62a3f959fa048ff63db7271d0bc7f7c1ed8
+--   nlu/asi/nlu/data/lex_rel.lua                    12986  cff1dc0091e859aef06cea77af958c5d7828d18f7da4217019c150ded44f51f5
 --   nlu/asi/nlu/data/lex_sense.lua                   6101  1eb7fefd5771778cc97bcbfe9224a84ec8fa085f38d8090238f123042831418e
 --   nlu/asi/nlu/data/lex_typenoun.lua                6425  3fd5d839b2e1cc2b837aadac26173afd252046bd06c84c7230d4d8ee3fd66482
 --   nlu/asi/nlu/dataset.lua                         24417  0bff382154322eee69ae238b09955db5f29f44f261dc58f2f88c7d7a3bd63c04
@@ -49,7 +49,7 @@
 --   nlu/asi/nlu/frames.lua                          48972  f6fdafd9867f8fcb54e6f5e9c2f006a12916906855cc3e654e3f90488d66c8dc
 --   nlu/asi/nlu/frames2.lua                         87619  7bf1ce79ddd093cb83a3f19d4123200c760124ef83bb5e1d6f1f95dfb50f7123
 --   nlu/asi/nlu/frames3.lua                         55890  40a3cfe4cabaf5646799921bcc289b9c2f4580ad55848842aa243646b900102a
---   nlu/asi/nlu/frames4.lua                         44552  ecca112a5abcb69327be21ab20c6cdc5b93b11a1b574e4747f593509115f9d22
+--   nlu/asi/nlu/frames4.lua                         51903  d829aecda1d725c3a6c1ddf549de031f02f165769f5014bcdc4365343f7f6f08
 --   nlu/asi/nlu/hook.lua                             2673  1fd2c30a2cb762d1ab7da52a5cc73b0656b5fd89568e55c6cf75edc130a925fc
 --   nlu/asi/nlu/hyp.lua                             23165  31fd02d8af7de6c0a2849cf47a24968750b8aa489bfb3ba9136ec158d39a67d3
 --   nlu/asi/nlu/index.lua                            9829  cbd47a9694466a8b37ce2a1d640a56a0827a61264ce1ec70572b9ee029fd5ac5
@@ -71,7 +71,7 @@
 --   nlu/asi/nlu/record.lua                          22010  7e484ebafd3dea8aa305dc6edb5235ffa3acb777bc97b9150bf8e021a5846d00
 --   nlu/asi/nlu/repair.lua                          10500  14436d03d269338fb7a1297093d8cf3f22c2d5bca102ce809ac8f6400fd80431
 --   nlu/asi/nlu/resources.lua                         802  cb534724597215aefc87724e616136bdd513273bc60037b157183bdbe86fb7e8
---   nlu/asi/nlu/sem.lua                             42765  83cb8b8e95b1a7e91cf222ab64b0cf742a2522fe7775af1284bc622f45ea0e22
+--   nlu/asi/nlu/sem.lua                             42822  1ca756bef2eb0ead0c4c6404e91ae9ee81f9d80c7b52c88ace4794dbf3a24356
 --   nlu/asi/nlu/spell.lua                            6330  ad187dc325f7786de687fc44c23c9fb67a9737c57505c73370bc1a4fda0bb3f8
 --   nlu/asi/nlu/temporal.lua                        39911  cffd7d5265fd73ce18e7ca41db1e186b9f67662e16c9c97c38e5206f15ffba95
 --   nlu/asi/nlu/textutil.lua                         2292  66657a87c2a74d210425b7c5b539445d5c8b6a9e9664a76a9a7fea15eb134149
@@ -79,17 +79,27 @@
 --   nlu/asi/nlu/util.lua                            21159  391e67a78b13368a4be4028659bc45babecbdd7ff24aa761d00ad68dd38aaa8f
 --   nlu/asi/nlu/verify.lua                          44851  f8f0168a18f5856a71d8a5e02bbd49e3ad01a2d0fa335ea9ca9d5a42798cd237
 --   nlu/asi/nlu/vfs.lua                              6449  f802fc0bc40682db610cb55a15921b0a1bb0c7b87f5177b6b48cd228e7a89990
---   reports/00_audit.md                              4198  7bdf5eb69a812c44705974ccc3f018b54c065ec8490b2d5a02a5ef0899d8d418
---   reports/calibration.md                           4642  c53d7fbd17eb5f96c64384122325d54048a660988fd5a57894a75e1e3c499e74
+--   reports/00_audit.md                              4917  6ccc534fe0b84f7f5ee44ce6d657e6875d273140cb35850e0a4aba93262ef369
+--   reports/FINAL_REPORT.md                         14179  3ddfbee54156c304d18715272c491080dfa9781670961ef39eca04bc7bae3d17
+--   reports/calibration.md                           4642  40170052a20941004486888de1d0322d3a758b9dbb46bd2169e671d2c7311532
 --   reports/gold_changes.md                          2546  082f20f9adc3817ae29365abe9fd3aec7f8180f3a37607b49d5f522661428d85
---   reports/heldout_log.md                           1325  02d3b2b98e93b59091ad3bfe4e4746507b99e4975eec93520a07dc58d5386a83
---   reports/performance.md                           1303  b98f5187c366ef1f750f5aae4019f877978c492a2b0e5246a68807b543e912b6
+--   reports/heldout_log.md                           3466  76fd184f13bdde0a00c13596192d933ed92a3d4ffd888ced3335ea99a304d430
+--   reports/performance.md                           1302  5ba8c34b4cad64b38488dab610c676846d32f9bb861eda026a2682b41a52b667
+--   reports/runs/ablations_run1.txt                  5036  fc24f4d331c75b350d348485cffc19bedce34052702ae4d6c7719bea8fa70b6b
 --   reports/runs/blind2_cases_run1.txt              12208  452300149d2caa56dc4d0abddf6201f6848823ff597af32808be0f7dd4dec6da
+--   reports/runs/blind3_cases_run1.txt              14537  65af941b9815be0ae8e1a0924f493f6d00fd156a5aaac3f68af47015442d45c6
 --   reports/runs/blind_cases_run1.txt               14618  75f5a5d5a6ccd6353289999e127ec57d3933224f924c5a881bb92bcfc1dabc14
+--   reports/runs/calibration_shift_run1.txt          1350  0571fa2e3fb21d67b6bc06742ae18d3f78b697fc19972ca11d0cabccd14acfc6
 --   reports/runs/heldout4_run1.txt                  14918  411b7560cd8713c30c0bacada6510d22362605cfee2c30311b966bf2c7446bc4
 --   reports/runs/heldout5_run1.txt                  19814  7e252d7af63cc775dbff858f2144f7835ebb648b4a611a2c9f879dcfbfd2e177
+--   reports/runs/heldout6_run1.txt                  16293  8855505f891778c042203e171cc3d0d202ba677bfedbdedd2c49b6ec8fd32e5b
 --   reports/runs/longctx_blind2_run1.txt             3931  6b66087886b2371f5a1b36fe11a418654d6cae0af386334480725a0c5aa80cc2
 --   reports/runs/longctx_blind3_run1.txt             3936  bcccbc6faa2db52c498fb871d1c2bf8d71e97b560e6e2cf7d5d2fe920f8da7b1
+--   reports/runs/longctx_blind4_run1.txt             3936  2dc9f5367354535c0ac499f2de1ff4539a259576364056e197f20dffdd7fe5ba
+--   reports/runs/longctx_default_final.txt           5447  fff3ebe362d9f47c1535ef6ba942b41963a415c4e03afd40aaf761cae1277d53
+--   reports/runs/retrieval_ablations_run1.txt        3420  917379a38f5a6922a3d90fc282ba73cd2456414651761cbb0b70fb230221de79
+--   reports/runs/test_noise_run1.txt                 1011  5088cb668cf4059da30b55f1979d68f5809d960f16d4fbf3dbe8d4b425582110
+--   reports/runs/test_run1.txt                       2481  2cc50a97aa2288ee14bbbe1eb27d46961c05486137e04542d3ff09931ca5a12b
 --   tests/fuzz_lex.lua                               2353  8aec8ea2962149201840a64aeaa4068660ecb0729996dc8cdc230f674aa9a55d
 --   tests/run_all.lua                                1072  8aae71b7cc279ed69a03645ee0c873d004ba2edba255519ebb10368f9f83bf0c
 --   tests/t.lua                                      2496  f0b2a9978f40750fc31c6ca9c008974552b5694240279874f8661787f6bb5f82
@@ -108,6 +118,7 @@
 --   tools/build_bundle.lua                           5065  ff3607550386fdf4af0205630a7483c32a61a5ed52798c250fdc9c4a05f1e6df
 --   tools/build_single.lua                           2074  b61885d9cac59c9c6f448212d681869208b7866f07544428ace894d21e33d1a0
 --   tools/calibrate.lua                              8851  1481142e40c2406524b7ebb90bc4222703ee50df8f879c99715833c2754692ca
+--   tools/calibration_shift.lua                      2329  751405dab787de5c897232c414f2c34d89a3c524e2b4628691abc9cf1d50fc15
 --   tools/inject_bundle.lua                          8171  38cad91a7b79b4425047b0102b9ea6b3da88c7903cedb9a1b643d4f1e32c597b
 --   tools/lib_accept.lua                              976  c4dbe7a88534c4265f76abc2464bd39e30621fbb3b136fe3f346c0c8361fd26a
 --   tools/manifest.lua                               1828  84e444d1a9d4e8d4a704cd1e5825313cff8fdcb65ddf44ec3e229d7317e8441c
@@ -142,6 +153,21 @@ It is a *front end*. It does not answer questions and does not call a model. Its
 | **Verified** | covered by an automated test that passes (`lua5.4 tests/run_all.lua`) |
 | **Measured improvement** | a number against a stated baseline on a stated, disclosed data set, with a confidence interval |
 | **Unproven** | not demonstrated; see `reports/FINAL_REPORT.md` for the list |
+
+## The one-file distribution
+
+`dist/asi_nlu.lua` is the whole system in ONE Lua 5.4 file (engine, lexicon data, gold and held-out sets, calibration model, evaluation tools, unit tests, reports,
+command line). It needs nothing else: no other file, no network, no model.
+
+```
+lua5.4 asi_nlu.lua selftest                       # 18 checks from any (even empty) directory
+lua5.4 asi_nlu.lua interpret "Who put money into Quenby Robotics?" --json
+lua5.4 asi_nlu.lua report FINAL_REPORT            # what is implemented / verified / measured / unproven
+lua5.4 asi_nlu.lua extract DIR                    # write every embedded source, data, test and report file out again
+```
+
+Rebuild it from a checkout with `lua5.4 tools/build_bundle.lua && lua5.4 tools/build_single.lua`; the build refuses to write a file that does not reproduce every
+embedded file byte for byte. **Read `reports/FINAL_REPORT.md` before relying on it:** the engine reads about 60 % of independently authored, never-seen phrasings correctly.
 
 ## Layout
 
@@ -191,7 +217,7 @@ The hook has no side effects other than updating the supplied memory object. It 
 ### Bundle and non-destructive injection
 
 ```
-lua5.4 tools/build_bundle.lua                                  # -> dist/asi_nlu_bundle.lua (43 modules, manifest + checksums, smoke-tested with package.path = "")
+lua5.4 tools/build_bundle.lua                                  # -> dist/asi_nlu_bundle.lua (46 modules, manifest + checksums, smoke-tested with package.path = "")
 lua5.4 tools/inject_bundle.lua --target HOST.lua --selfcheck   # writes HOST.asi.lua; HOST.lua is untouched
 lua5.4 tools/inject_bundle.lua --target HOST.lua --in-place    # writes a verified byte-exact HOST.lua.asi-backup first
 lua5.4 tools/inject_bundle.lua --target HOST.asi.lua --remove  # cuts the region out again
@@ -263,7 +289,7 @@ Brindle Analytics,headquarters,Quillbert,0.8
 ]==],
 ["data/calibration/interp_v1.json"] = [==[
 {
-  "bias": 2.191001603678266,
+  "bias": 2.2089557422929107,
   "constraints": {
     "ambiguous": -1,
     "coverage": 1,
@@ -279,22 +305,22 @@ Brindle Analytics,headquarters,Quillbert,0.8
   },
   "fit": {
     "cross_fit_brier_calibrated": [
-      0.070699999999999999,
-      0.099699999999999997
+      0.069699999999999998,
+      0.093700000000000006
     ],
     "cross_fit_brier_raw": [
-      0.1157,
-      0.13139999999999999
+      0.124,
+      0.13370000000000001
     ],
     "cross_fit_ece_calibrated": [
-      0.064600000000000005,
-      0.0683
+      0.058200000000000002,
+      0.061600000000000002
     ],
     "cross_fit_ece_raw": [
-      0.1565,
-      0.1074
+      0.17180000000000001,
+      0.11940000000000001
     ],
-    "digest": "04ce1deae9c7691e40a6728a6b15d0b38152fcc95846273a776e90e3ce903c69",
+    "digest": "0cfcd904d996ce9fc9f200cd4fd7664e246e5e7c5cbb43a51ed0fb5f2c92c5d9",
     "n": 1195,
     "perturbations": [
       "typo",
@@ -315,11 +341,11 @@ Brindle Analytics,headquarters,Quillbert,0.8
   },
   "lambda": 1,
   "mean": [
-    0.79025364016736321,
-    0.95337573221757355,
+    0.78197832635983167,
+    0.95441171548117187,
     0,
     0,
-    0.73305439330543931,
+    0.73221757322175729,
     0.0041841004184100415,
     0,
     0,
@@ -343,11 +369,11 @@ Brindle Analytics,headquarters,Quillbert,0.8
     "no_interpretation"
   ],
   "scale": [
-    0.2060144479469822,
-    0.17748404441513585,
+    0.20870884083227126,
+    0.17606153221628495,
     1,
     1,
-    0.97063338310888347,
+    0.97083392675130542,
     0.064549157408123115,
     1,
     1,
@@ -356,17 +382,17 @@ Brindle Analytics,headquarters,Quillbert,0.8
     0.11493412360428151
   ],
   "weights": [
-    0.74559458184061655,
-    1.2687008921021143,
+    0.6346272729859882,
+    1.2654350291026424,
     0,
     0,
-    -0.19030807162823499,
-    -0.50825604889412945,
+    -0.22904053362046953,
+    -0.50722696343309581,
     0,
     0,
     0,
     0,
-    -0.05713975487977821
+    -0.077715789309989167
   ]
 }]==],
 ["data/eval/MANIFEST.json"] = [==[
@@ -9054,7 +9080,7 @@ rel prime_minister: from=country to=person | noun=prime minister; premier | role
 rel population: from=place to=number | noun=population; inhabitants; number of inhabitants; number of residents | count_noun=people; persons; individuals; residents; inhabitants; citizens; folks; souls | count_verb=live/prep=in; reside/prep=in; dwell/prep=in; inhabit; have | attr=1 | label=population
 rel area: from=place to=number | noun=area; surface area; land area | attr=1 | label=area
 rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency; legal tender; official currency; national currency; local currency; money | support=use; adopt; have; call; pay with; pay in; spend; trade in; transact in; price in | as=recognize; accept; designate; name; treat; issue; introduce; declare; list; record; identify; describe; cite; register; present; show; recognise | label=currency
-rel official_language: from=country to=language | noun=official language; national language | label=official language
+rel official_language: from=country to=language | noun=official language; national language; language; spoken language; main language; native language; mother tongue | support=speak; converse in; communicate in; write in; teach in | label=official language
 rel continent_of: from=country to=continent | noun=continent | verb=lie/subj=from/prep=on; lie/subj=from/prep=in; sit/subj=from/prep=on | label=continent
 rel height: from=entity to=number | noun=height; elevation; altitude | attr=1 | label=height
 rel located_in: from=place,organization,event,person to=place | noun=location | verb=locate/subj=from/prep=in; situate/subj=from/prep=in | where=located_in | label=location
@@ -9103,7 +9129,7 @@ rel type_of: from=entity to=concept | noun=type; kind; category; genre | label=t
 
 # ------------------------------------------------------------ abstract relations
 rel successor: from=entity to=entity | noun=successor | verb=succeed/subj=to; replace/subj=to | label=successor
-rel predecessor: from=entity to=entity | noun=predecessor | label=predecessor
+rel predecessor: from=entity to=entity | noun=predecessor | verb=precede/subj=to | label=predecessor
 rel cause: from=concept,event to=concept,event | noun=cause; reason; origin | verb=cause/subj=to; trigger/subj=to; lead/subj=to/prep=to | label=cause
 rel requirement: from=entity to=entity | noun=requirement; prerequisite; dependency | verb=require/subj=from; need/subj=from; depend/subj=from/prep=on | label=requirement
 rel supported_by: from=claim,concept to=document | noun=evidence; support | verb=support/subj=to; confirm/subj=to; substantiate/subj=to | label=supported by
@@ -14666,6 +14692,140 @@ function F.which_filtered(S, out)
         addf(h, "filtered_set_fallback", -0.6, "the question asks for the members of a set defined by filters")
         if nnp.head_kind == "unknown" then addf(h, "unknown_target_type", -0.1, "search target type is not in the lexicon") end
         out[#out + 1] = h
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- superlative questions over a typed set
+--   "What is the biggest city in Canada?"   "Which is the largest country in Africa?"   "What's the tallest mountain in Peru?"
+-- The answer is the member of the type that is extreme on the superlative's dimension: a search with an ordering, not a definition.
+function F.wh_superlative(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.np and not wh.adverbial and not wh.one and (wh.wh == "what" or wh.wh == "which") then
+      local bc = C(S, wh.nxt)
+      if bc and bc.single and not bc.masked and not barrier(bc) and (cat(bc, "aux_be") or cat(bc, "clitic_s")) then
+        for _, np in ipairs(P.parse_np(S, wh.nxt + 1, { no_of = true })) do
+          if np.superlative and (np.head_kind == "typenoun" or np.head_kind == "unknown") and not np.of_arg then
+            local filters, kf = F.parse_filters(S, np.nxt, np)
+            if kf > S.last then
+              local h = newh(S, "wh_superlative:search", "question", "search", "search")
+              use_wh(h, wh); use(h, wh.nxt); use_np(h, np)
+              h.target, h.filters = np, filters
+              for _, f in ipairs(filters) do for i = f.span.first, f.span.last do h.used[i] = true end end
+              h.requires_evidence = true
+              h.ordering = { superlative = np.superlative }
+              addf(h, "superlative_target", 0.9, "'" .. tostring(np.superlative) .. "' over a typed set asks for its extreme member")
+              if #filters > 0 then addf(h, "filters_parsed", 0.15 * #filters, #filters .. " filter(s) from the clause") end
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- passive yes/no questions without an agent, and dated ones
+--   "Was Nokia acquired?"   "Has Nokia ever been acquired?"   "Was Instagram founded in 2010?"   "Was Napoleon born before 1800?"
+-- Without a qualifier the question asks whether the relation holds for the subject at all; with a date it asks about the date relation the verb links to (founded -> founding date).
+function F.yes_no_passive(S, out)
+  local k0 = S.first
+  local c0 = C(S, k0)
+  if not (c0 and c0.single and not c0.masked and (cat(c0, "aux_be") or cat(c0, "aux_have"))) then return end
+  local hint = cat(c0, "aux_be") and "be" or "have"
+  local nstart, neg_first = k0 + 1, nil
+  if P.is_neg(C(S, nstart)) and not barrier(C(S, nstart)) then neg_first = nstart; nstart = nstart + 1 end
+  for _, np1 in ipairs(P.parse_np(S, nstart)) do
+    for _, vp in ipairs(P.parse_vp(S, np1.nxt, { aux_hint = hint })) do
+      if vp.voice == "passive" then
+        for _, e in ipairs(vp.analysis.entries or {}) do
+          local rel = S.lex:get_rel(e.rel)
+          if rel and not rel.open and not e.support and not e.as_only then
+            local tc = C(S, vp.nxt)
+            local frame, vrel, np2
+            if vp.nxt > S.last then
+              frame, vrel = "yes_no:passive_any", rel
+            elseif tc and not tc.masked and tc.temporal and tc.temporal.kind ~= "marker" and tc.temporal.kind ~= "relative" then
+              local trel = rel.when and S.lex:get_rel(rel.when) or nil
+              if not trel and S.lex:compat(rel.to, "date") >= 0.9 then trel = rel end
+              if trel then
+                for _, dnp in ipairs(P.parse_np(S, vp.nxt)) do
+                  if dnp.nxt > S.last and dnp.head_kind ~= "relnoun" then np2 = dnp; frame, vrel = "yes_no:passive_dated", trel; break end
+                end
+              end
+            end
+            if frame then
+              local h = newh(S, frame, "question", "verification", "verify")
+              use(h, k0); use_np(h, np1); use_vp(h, vp)
+              if neg_first then use(h, neg_first); h.polarity = "negative" end
+              h.rel, h.rel_obj = vrel.id, vrel
+              if np2 then
+                use_np(h, np2)
+                h.roles.from, h.roles.to = np1, np2
+                h.items = { np1, np2 }
+              else
+                h.roles[other(e.subj)] = np1
+                h.items = { np1 }
+              end
+              h.verify = { rel = vrel.id, from = h.roles.from, to = h.roles.to }
+              h.requires_evidence = true
+              addf(h, "passive_verification", 0.6, np2 and "a passive verb with a date asks about the date relation of the subject" or "a passive verb without an agent asks whether the relation holds at all")
+              mark_unresolved_pron(h, np1)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- comparison verified through a relation's value
+--   "Does Apple have more employees than Google?"   "Does Tokyo have a larger population than Osaka?"   "Is Tokyo more populous than Osaka?"
+local CMP_MORE = U.set({ "more", "larger", "bigger", "greater", "higher", "longer", "taller" })
+local CMP_LESS = U.set({ "fewer", "less", "smaller", "lower", "shorter" })
+function F.verify_comparison(S, out)
+  local k0 = S.first
+  local c0 = C(S, k0)
+  if not (c0 and c0.single and not c0.masked and cat(c0, "aux_do")) then return end
+  for _, np1 in ipairs(P.parse_np(S, k0 + 1, { no_of = true })) do
+    local hc = C(S, np1.nxt)
+    if hc and hc.single and not hc.masked and not barrier(hc) and hc.unit.form == "have" then
+      local k = np1.nxt + 1
+      local dc = C(S, k)
+      if dc and dc.single and not dc.masked and cat(dc, "det") then k = k + 1 end
+      local cw = C(S, k)
+      local dir = cw and cw.single and not cw.masked and (CMP_MORE[cw.unit.form] and "gt" or CMP_LESS[cw.unit.form] and "lt") or nil
+      if dir then
+        local nc = C(S, k + 1)
+        local rel
+        for _, ee in ipairs(nc and nc.relnouns or {}) do
+          local r = S.lex:get_rel(ee.rel)
+          if r and not r.open and ee.role == "to" and S.lex:compat(r.to, "number") >= 0.9 then rel = r; break end
+        end
+        local tcnk = C(S, k + 2)
+        if rel and tcnk and tcnk.single and not tcnk.masked and tcnk.unit.form == "than" then
+          for _, np2 in ipairs(P.parse_np(S, k + 3, { no_of = true })) do
+            -- an optional trailing "have" repeats the verb: "... than Google has"
+            local endk = np2.nxt
+            local tl = C(S, endk)
+            if tl and tl.single and not tl.masked and (tl.unit.form == "have" or tl.unit.form == "has") then endk = endk + 1 end
+            if endk > S.last then
+              local h = newh(S, "compare_q:have_more", "question", "verification", "verify_comparison")
+              use(h, k0); use_np(h, np1); use(h, np1.nxt, k + 2); use_np(h, np2)
+              for i = np2.nxt, endk - 1 do h.used[i] = true end
+              h.items = { np1, np2 }
+              h.rel, h.rel_obj = rel.id, rel
+              h.dimension, h.degree, h.adj = "size", "comp", cw.unit.form
+              h.cmp = { op = dir, rel = rel.id }
+              h.requires_evidence = true
+              addf(h, "comparative_relnoun", 0.7, "'" .. cw.unit.form .. " " .. tostring(nc.unit.form) .. " than' compares the values of " .. rel.id)
+              mark_unresolved_pron(h, np1); mark_unresolved_pron(h, np2)
+              out[#out + 1] = h
+            end
+          end
+        end
       end
     end
   end
@@ -23946,7 +24106,7 @@ function Sem.gibberish(S)
 end
 
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_place_stranded_in", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "compare_dimension", "wh_impersonal", "wh_origin", "recall_turn", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "which_filtered", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
+  "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "wh_superlative", "yes_no_passive", "verify_comparison", "which_filtered", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -27481,6 +27641,160 @@ Answers that come from the *directive's own description* are marked **(stated, u
 - Regression of VM / cyber / reasoning / sketch behaviour is **Unproven** until you run your own test command on the
   injected file; `tools/inject_bundle.lua --selfcheck` only proves the injected file still parses (`load`) and that the
   original remainder is unchanged.
+
+## A.5 Addendum at the end of the work (what changed since the audit)
+
+* The host file is **still not available**; everything in A.1 and A.4 stands. Nothing in this repository was run against the real VM / cyber / reasoning / sketch code.
+* The baseline in A.3 is still only my naive router; its numbers are in `reports/FINAL_REPORT.md` (blind3 0.094 vs 0.612, frozen test 0.200 vs 0.964).
+* The interpretation path has no network, process, clock or randomness use and no language-model dependency (checked by search; see the final report).
+* Final numbers, failure report and the list of unproven claims: `reports/FINAL_REPORT.md`; every first run of an independent set: `reports/heldout_log.md` and `reports/runs/`.
+]==],
+["reports/FINAL_REPORT.md"] = [==[
+# Final report — asi-nlu, an LM-independent interpretation engine
+
+Engine commit frozen for all numbers below: `e0a0bde` (branch `claude/clever-dijkstra-jdauf0`). One-file distribution: `dist/asi_nlu.lua`.
+Status words (never interchangeable): **Implemented** = code exists and runs · **Verified** = an automated test passes · **Measured improvement** = a number
+against a stated baseline on a stated data set with a confidence interval · **Unproven** = not demonstrated.
+
+**No language model, no embedding, no network, no external API, no clock and no randomness is used by the interpretation path.** Checked by search:
+the engine (`nlu/`) contains no socket / HTTP / `io.popen` / `os.execute` in `interpret`; `os.clock` appears only in the evaluation timers and the self-test; nothing
+mentions an LLM provider or an API key.
+
+## 1. The honest headline
+
+| question | answer |
+|---|---|
+| Does it work? | Yes, on what it covers: **18/18 self-test checks from an empty directory, 121/121 unit tests, 38/38 mandatory regression cases A–J**, bit-for-bit deterministic records. |
+| How well does it read **fresh wording written by someone else**? | **About 60 %.** First run of three independently authored 170-case sets: 58.2 % → 64.1 % → **61.2 %** (95 % CI ≈ ±7 points). The naive keyword baseline gets 9.4 % on the last one. |
+| Is "NO MORE SEMANTIC MISROUTING" achieved? | **No.** It is not general language understanding. Where it does not understand it usually says so (low confidence, unresolved parts, abstention), but 38 % of independent cases still contain a *serious* error (wrong relation / direction / intent). See §5. |
+| What is the strongest evidence? | Failures are *detectable*: the calibrated confidence ranks right above wrong with AUROC 0.85 on the independent set, and the retrieval layer gave a wrong answer in at most 1.7 % of questions on fresh phrasings while a keyword retriever was contaminated in 100 %. |
+
+## 2. Implemented (what exists)
+
+| phase | modules (`nlu/asi/nlu/`) |
+|---|---|
+| A audit / baseline | `reports/00_audit.md`; naive baseline in `eval.lua`/`baseline.lua` (a strawman I wrote, documented as such) |
+| B lexical front end | `util` (meter, JSON, SHA-256), `unicode`, `lex` (strict UTF-8, numbers, dates, hostile input), `morph`, `spell` (symmetric-delete typo candidates, orthotactic non-word test), `temporal` |
+| C/D semantics | `lexicon` + `data/lex_*.lua` (DSL: relations, senses, cues, entities), `lattice` (alternative segmentations, name guesses), `parse` (NP / VP / wh, normalisers), `constraints` (negation / preference / restriction scope), `frames`, `frames2`, `frames3`, `frames4` (construction hypotheses), `hyp` (type fit, binding, named-factor scoring, ambiguity), `sem` (analysis + render), `repair` |
+| E memory / coreference | `memory` (layered, supersession, revocation, namespaces, structural-link selection), `coref` (pronouns, back-references, ordinals, speaker facts), `interp` (orchestration) |
+| F/G data and evidence | `dataset` (JSONL / CSV / TSV / text parsed as data, never executed), `index`, `assertions`, `assertions2`, `knowledge`, `verify`, `plan`, `record` (versioned Interpretation Record + LM Input Package), `calibration`, `perturb` |
+| H evaluation / delivery | `eval`, `rbench`, `longctx`, `bundler`, `package`, `injector`, `vfs`, `cli`, `main`, `engine`, `hook`; `tools/*.lua` |
+
+Commands: `interpret`, `interpret-eval`, `interpret-report`, `interpret-trace`, `interpret-memory`, `interpret-replay` (plus `selftest`, `verify`, `bundle`, `extract` in the single file).
+Controlled non-destructive injection into a host file (`tools/inject_bundle.lua`) with BEGIN/END markers, backup, idempotence and a reversible removal proven by SHA-256.
+
+New in this last round (all with tests / dev cases): gibberish veto (orthotactics, not a word list), spoken fillers, typed bindings kept across roles,
+standing-slot inheritance for bare corrections ("Sorry, I meant 2023."), comma-separated comparison lists, ellipsis after comparisons and "And of X?",
+locative pro-form "there", speaker facts ("I work at X" → "my employer"), recall of earlier statements by shared content words, seeking wrappers
+("Find me …", "I'm looking for …"), **numeric restrictions** ("more than 500 employees", "between 100 and 200"), wh-questions over filtered sets,
+superlative questions, passive yes/no questions with and without dates, "does X have more N than Y".
+
+## 3. Verified (automated, `lua5.4 tests/run_all.lua` and `lua5.4 dist/asi_nlu.lua selftest`)
+
+* 121 unit tests in 11 suites (acceptance 13, dataset 12, injection 5, lex 26, memory 17, regression A–J 2, robustness 6, single-file 10, temporal 15, unicode 7, util 8) — all pass.
+* Self-test of the single file from an empty directory with `package.path = ""`: **18 checks, 0 failed** (determinism across independent engines, injector round-trip, library region runs alone with no global).
+* Regression examples A–J (`data/eval/regression_AJ.cases`, 38 cases): 100 %.
+* Safety properties with tests: no answer without selected evidence; injected / contaminated text never promoted to a verified answer or an instruction (0/24 leaks); revoked, superseded and cross-namespace memory excluded with the exclusion recorded; budget exhaustion reported as `limited`; every hostile input yields a valid record.
+
+## 4. Measured (all numbers re-runnable; raw outputs in `reports/runs/`)
+
+### 4.1 Independent first runs (honest generalisation) — each set run once, before any tuning on it
+
+| set | author | engine | n | all-fields accuracy | serious-error rate | naive baseline |
+|---|---|---|---|---|---|---|
+| blind1 | independent agent | e700f7d | 170 | 0.582 [0.507, 0.654] | 0.400 | — |
+| blind2 | independent agent | 4c2704b | 170 | 0.641 [0.567, 0.709] | 0.347 | — |
+| **blind3** | independent agent | **e0a0bde** | 170 | **0.612 [0.537, 0.682]** (0.611 [0.535, 0.681] without the 3 cases seen in the contamination notice) | 0.382 | **0.094 [0.059, 0.147]** (serious 0.876) |
+
+Ablations on blind3 (same inputs): no hypothesis competition 0.447 · no memory 0.518 · no coreference 0.547 · no type constraints 0.594 · no suffix readings 0.594 ·
+lexical-only 0.094. (Typo repair does not change gold-case accuracy but is worth +15.6 points on noisy input, below.) `reports/runs/ablations_run1.txt`.
+
+### 4.2 Author-written sets (optimistic by construction — the engine was developed around this kind of sentence)
+
+| set | n | accuracy |
+|---|---|---|
+| frozen `test` split (frozen by SHA-256 before the engine saw it; run once) | 140 | **0.964 [0.919, 0.985]**, baseline 0.200 |
+| dev / val (tuned on) | 135 / 100 | 1.000 / 1.000 |
+| dev constructions 1 / 2 / 3 (tuned on) | 113 / 34 / 34 | 0.982 / 1.000 / 1.000 |
+| blind1 / blind2 **after** tuning (burned: development numbers, not held-out) | 170 / 170 | 0.894 / 0.988 |
+
+Noise robustness on the test split (typo, filler, lower-case, dropped punctuation / determiner; 1541 perturbed inputs): **0.931** with repair, 0.775 without, 0.253 for the baseline.
+
+### 4.3 Retrieval / evidence (fresh phrasings of facts and questions, held-out vocabulary)
+
+| templates (first run) | fact-sentence coverage | question coverage | correct | wrong answer | abstained | serious error | keyword baseline serious error |
+|---|---|---|---|---|---|---|---|
+| heldout4 (e700f7d) | 0.342 | 0.608 | 0.192 | 0.008 | 0.800 | 0.006 | 1.000 |
+| heldout5 (4c2704b) | 0.187 | 0.680 | 0.167 | 0.008 | 0.825 | 0.006 | 1.000 |
+| **heldout6 (e0a0bde)** | **0.353** | **0.773** | **0.242** | **0.017** | 0.742 | **0.013 [0.003, 0.045]** | 1.000 |
+
+So on unseen wordings the system answers about a quarter of the questions, abstains on most of the rest, and is rarely wrong; free-text *fact extraction* (a third of fresh fact sentences) is the weakest link.
+On the development templates it answers 100 % correctly (0 wrong); `v_no_typed` collapses to 86 % serious error; the other retrieval ablations show no effect on this benchmark.
+
+### 4.4 Long conversations (needed information at the beginning / middle / end of N distractor turns)
+
+First runs on never-seen wordings: 24.6 % (heldout2) → 54.8 % (heldout3) → **75.4 % [0.672, 0.821]** (heldout4, 10 and 100 turns), memory recall 0.98, false-memory per request 1.64.
+Built-in development sweep (10 / 100 / 500 turns, 189 scenarios): 100 %, false memory 0.00 (tuned on).
+
+### 4.5 Confidence
+
+Calibrated with a sign-constrained ridge logistic over interpretation features, cross-fitted dev↔val (never the test split): ECE 0.058, AUROC 0.825 (raw score ECE 0.172, AUROC 0.595).
+Under distribution shift (`tools/calibration_shift.lua`): blind3 **ECE 0.074, AUROC 0.846** (raw 0.197 / 0.617); test ECE 0.072. The low-confidence bins really are the wrong readings
+(0–27 % correct); the top bins are over-confident (stated 0.97, observed 0.80–0.93 on blind3). The record labels the calibration "valid for noisy variants of the dev/val distribution only".
+
+### 4.6 Performance (`reports/performance.md`, deterministic work counter plus wall time on one machine)
+
+Work per sentence is constant (230 units) from 1 to 384 sentences; the final request after 1000 turns costs the same work as after 10 (246); question work is flat in dataset size (≈ 220 units, 7–17 ms);
+ingestion is linear (80 s for 19 233 records, ≈ 4 ms/record).
+
+## 5. Failure report (blind3 first run — 66 of 170 cases; classification is mine)
+
+| root cause | cases (examples) | n |
+|---|---|---|
+| **Carrier phrases hide the question**: the request sits after a long lead-in or before a trailing remark; the clause-suffix mechanism does not fire because a "good-looking" empty statement reading blocks it | E002 "…needs to know the currency of Norway", E005, E008, E012, E040, E041, E043, E050, E149, E156, E157, E162 | 12 |
+| **Missing lexicalisations of relation words / idioms** | E014 "came up with" (inventor), E025 "put money into" (investor), E028 "who all works for", E087 "make up", E159 "big cheese", E115/E116/E158 "have Portuguese as an official language / whose official language is French", E007, E045 "besides", E080, E161 | 13 |
+| **Standing style / format instructions** are not turned into persistent preferences ("Always give me distances in kilometres", "Keep it under 100 words", "From now on call me …") | E090–E096, E099 | 9 |
+| Comparison / choice forms | E069, E071, E075, E109, E131 | 5 |
+| Multi-turn references | E134 "which country did I ask about first", E137 "the first company", E139 "the other one", E140, E141 | 5 |
+| Negation / complement over typed sets | E035, E036, E038, E049 | 4 |
+| Typos inside names and relation words | E143, E145, E146, E147 | 4 |
+| "which N [in P] verb object" filters | E082, E088, E117 | 3 |
+| Temporal forms ("as of", "used to be", "will host", "founded after") | E052, E057, E058 | 3 |
+| Multi-word names with `&` / "to the" / lower-case input | E009, E015, E077, E078, E081 | 5 |
+| Intent labels (translate, causes), ambiguity flag | E105, E110, E068 | 3 |
+
+What this says: the architecture (competing hypotheses, typed roles, explicit memory) holds; the *coverage of surface constructions* is the limit. Each class above is a bounded
+piece of work (cues, lexicalisations, a suffix trigger that ignores empty statement readings, a persistent-preference frame); none needs a model. I did not tune on blind3 after seeing its failures.
+
+## 6. Unproven / not done
+
+* **Host regression is Unproven.** `exec_eval_1(2).lua` (≈ 49 k lines: VM, cyber, reasoning, sketch) was never available in the container. Injection was proven non-destructive on synthetic hosts only; run your own test command on an injected copy (`tools/inject_bundle.lua --target HOST.lua --selfcheck`, which writes `HOST.asi.lua` and leaves `HOST.lua` untouched).
+* **General language understanding** is not shown — see §1 and §5. English only; no multilingual claim.
+* "Independent" sets were written by sub-agents of the same model family, not by people; independence is limited.
+* Retrieval ablations other than `typed` and `reliability` show no effect here (redundant mechanisms or an insensitive benchmark) — their individual contributions are unproven.
+* Long-context results at 500 turns exist only for the built-in (tuned) wordings; blind wordings were run at 10 and 100 turns.
+* Wall-clock figures come from one machine; only the work counter is machine-independent.
+
+## 7. Protocol notes
+
+* Gold edits after seeing engine output are logged in `reports/gold_changes.md` (D093, V066: `neg=none` removed). Harness changes: `dep=earlier_context` accepted as an alias of `earlier_project_context`; new `pos=numeric:` key; fuzzy-resolved mentions judged by entity name; parent-relation acceptance in the long-context scorer.
+* `reports/heldout_log.md` records every first run and one contamination notice: three blind3 gold lines (E129, E133, E140) were displayed before its first run; the engine was not edited for them and blind3 is reported with and without them.
+* The frozen test split's SHA-256 is verified by `lua5.4 tools/manifest.lua check`.
+
+## 8. Using the single file
+
+```
+lua5.4 asi_nlu.lua selftest                                   # 18 checks, from any directory
+lua5.4 asi_nlu.lua interpret "Which cities in Germany have more than a million inhabitants?" --json
+lua5.4 asi_nlu.lua interpret-trace "Who put money into Quenby Robotics?"
+lua5.4 asi_nlu.lua interpret-eval --split test                # the gold sets are embedded
+lua5.4 asi_nlu.lua tool run_eval --file some.cases            # every evaluation tool is embedded (run_eval, run_noise, run_longctx, run_perf, ...)
+lua5.4 asi_nlu.lua report FINAL_REPORT                        # this report
+lua5.4 asi_nlu.lua bundle --out asi_nlu_bundle.lua            # the package.preload library text (host injection)
+lua5.4 asi_nlu.lua inject --target HOST.lua --selfcheck       # writes HOST.asi.lua, leaves HOST.lua untouched
+lua5.4 asi_nlu.lua extract DIR                                # write every embedded source / data / test / report file into DIR
+lua5.4 asi_nlu.lua verify                                     # SHA-256 integrity of every embedded file
+```
 ]==],
 ["reports/calibration.md"] = [==[
 # Confidence calibration (interpretation correctness)
@@ -27495,92 +27809,92 @@ variants are what give the calibration data its errors. The calibration is valid
 
 | scoring | n | accuracy | ECE | Brier | log-loss | AUROC |
 |---|---|---|---|---|---|---|
-| raw (uncalibrated) | 558 | 0.894 | 0.1565 | 0.1157 | 0.6513 | 0.609 |
-| temperature/Platt | 558 | 0.894 | 0.1039 | 0.0959 | 0.3607 | 0.609 |
-| isotonic on semantic_raw | 558 | 0.894 | 0.1140 | 0.0891 | 0.3183 | 0.609 |
-| logistic over interpretation features | 558 | 0.894 | 0.0646 | 0.0707 | 0.2713 | 0.818 |
+| raw (uncalibrated) | 558 | 0.892 | 0.1718 | 0.1240 | 0.6740 | 0.595 |
+| temperature/Platt | 558 | 0.892 | 0.1145 | 0.0961 | 0.3603 | 0.595 |
+| isotonic on semantic_raw | 558 | 0.892 | 0.1296 | 0.0887 | 0.3192 | 0.595 |
+| logistic over interpretation features | 558 | 0.892 | 0.0582 | 0.0697 | 0.2677 | 0.825 |
 
-Logistic weights (standardised features): semantic_raw=+0.72, coverage=+1.48, repaired=+0.00, n_repairs=+0.00, unknown_lowercase=-0.16, open_relation=-0.50, ambiguous=-0.21, fuzzy_entity=+0.00, min_entity=+0.00, unresolved_ref=+0.00, no_interpretation=-0.01, bias=+1.90
+Logistic weights (standardised features): semantic_raw=+0.61, coverage=+1.47, repaired=+0.00, n_repairs=+0.00, unknown_lowercase=-0.18, open_relation=-0.50, ambiguous=-0.16, fuzzy_entity=+0.00, min_entity=+0.00, unresolved_ref=+0.00, no_interpretation=-0.01, bias=+1.95
 
 Reliability of the RAW score on the evaluation set:
 
 | bin | n | mean confidence | accuracy | range |
 |---|---|---|---|---|
-| 1 | 55 | 0.357 | 0.654 | 0.000-0.502 |
-| 2 | 56 | 0.551 | 0.875 | 0.503-0.615 |
-| 3 | 56 | 0.666 | 0.929 | 0.615-0.701 |
-| 4 | 56 | 0.759 | 0.911 | 0.702-0.807 |
-| 5 | 56 | 0.834 | 0.946 | 0.807-0.858 |
-| 6 | 55 | 0.874 | 0.964 | 0.858-0.893 |
-| 7 | 56 | 0.911 | 0.982 | 0.893-0.934 |
-| 8 | 56 | 0.948 | 0.946 | 0.934-0.964 |
-| 9 | 56 | 0.990 | 0.893 | 0.969-1.000 |
-| 10 | 56 | 1.000 | 0.839 | 1.000-1.000 |
+| 1 | 55 | 0.351 | 0.654 | 0.000-0.502 |
+| 2 | 56 | 0.537 | 0.893 | 0.502-0.577 |
+| 3 | 56 | 0.633 | 0.929 | 0.579-0.678 |
+| 4 | 56 | 0.712 | 0.911 | 0.678-0.770 |
+| 5 | 56 | 0.813 | 0.946 | 0.771-0.845 |
+| 6 | 55 | 0.865 | 0.946 | 0.846-0.883 |
+| 7 | 56 | 0.905 | 0.982 | 0.885-0.923 |
+| 8 | 56 | 0.943 | 0.946 | 0.924-0.959 |
+| 9 | 56 | 0.985 | 0.964 | 0.959-0.999 |
+| 10 | 56 | 1.000 | 0.750 | 1.000-1.000 |
 
 Reliability after logistic calibration (evaluation set, not used for fitting):
 
 | bin | n | mean confidence | accuracy | range |
 |---|---|---|---|---|
-| 1 | 55 | 0.215 | 0.400 | 0.000-0.565 |
-| 2 | 56 | 0.696 | 0.839 | 0.569-0.766 |
-| 3 | 56 | 0.833 | 0.946 | 0.792-0.867 |
-| 4 | 56 | 0.885 | 0.982 | 0.868-0.901 |
-| 5 | 56 | 0.915 | 0.946 | 0.903-0.926 |
-| 6 | 55 | 0.933 | 0.982 | 0.926-0.939 |
-| 7 | 56 | 0.944 | 0.946 | 0.939-0.948 |
-| 8 | 56 | 0.950 | 0.964 | 0.948-0.955 |
-| 9 | 56 | 0.956 | 0.964 | 0.955-0.956 |
-| 10 | 56 | 0.961 | 0.964 | 0.956-0.963 |
+| 1 | 55 | 0.243 | 0.382 | 0.000-0.658 |
+| 2 | 56 | 0.742 | 0.821 | 0.659-0.792 |
+| 3 | 56 | 0.833 | 0.946 | 0.792-0.865 |
+| 4 | 56 | 0.882 | 1.000 | 0.866-0.896 |
+| 5 | 56 | 0.907 | 0.929 | 0.896-0.921 |
+| 6 | 55 | 0.929 | 1.000 | 0.921-0.936 |
+| 7 | 56 | 0.940 | 0.946 | 0.936-0.942 |
+| 8 | 56 | 0.947 | 0.964 | 0.942-0.951 |
+| 9 | 56 | 0.952 | 0.964 | 0.951-0.954 |
+| 10 | 56 | 0.958 | 0.964 | 0.954-0.960 |
 
 ## Fit on val variants, evaluate on dev variants
 
 | scoring | n | accuracy | ECE | Brier | log-loss | AUROC |
 |---|---|---|---|---|---|---|
-| raw (uncalibrated) | 637 | 0.830 | 0.1074 | 0.1314 | 0.6334 | 0.686 |
-| temperature/Platt | 637 | 0.830 | 0.1038 | 0.1424 | 0.4633 | 0.686 |
-| isotonic on semantic_raw | 637 | 0.830 | 0.1648 | 0.1265 | 0.4398 | 0.686 |
-| logistic over interpretation features | 637 | 0.830 | 0.0683 | 0.0997 | 0.3422 | 0.829 |
+| raw (uncalibrated) | 637 | 0.841 | 0.1194 | 0.1337 | 0.6253 | 0.658 |
+| temperature/Platt | 637 | 0.841 | 0.0965 | 0.1345 | 0.4424 | 0.658 |
+| isotonic on semantic_raw | 637 | 0.841 | 0.1569 | 0.1221 | 0.4108 | 0.658 |
+| logistic over interpretation features | 637 | 0.841 | 0.0616 | 0.0937 | 0.3269 | 0.816 |
 
-Logistic weights (standardised features): semantic_raw=+0.50, coverage=+1.10, repaired=+0.00, n_repairs=+0.00, unknown_lowercase=-0.35, open_relation=-0.42, ambiguous=+0.00, fuzzy_entity=+0.00, min_entity=+0.00, unresolved_ref=+0.00, no_interpretation=-0.13, bias=+2.59
+Logistic weights (standardised features): semantic_raw=+0.46, coverage=+1.11, repaired=+0.00, n_repairs=+0.00, unknown_lowercase=-0.38, open_relation=-0.42, ambiguous=+0.00, fuzzy_entity=+0.00, min_entity=+0.00, unresolved_ref=+0.00, no_interpretation=-0.14, bias=+2.55
 
 Reliability of the RAW score on the evaluation set:
 
 | bin | n | mean confidence | accuracy | range |
 |---|---|---|---|---|
-| 1 | 63 | 0.347 | 0.476 | 0.000-0.507 |
-| 2 | 64 | 0.560 | 0.672 | 0.509-0.611 |
-| 3 | 64 | 0.660 | 0.891 | 0.611-0.700 |
-| 4 | 63 | 0.754 | 0.857 | 0.701-0.812 |
-| 5 | 64 | 0.842 | 0.906 | 0.814-0.860 |
-| 6 | 64 | 0.879 | 0.953 | 0.860-0.898 |
-| 7 | 63 | 0.911 | 0.936 | 0.899-0.921 |
-| 8 | 64 | 0.949 | 0.812 | 0.922-0.982 |
-| 9 | 64 | 0.997 | 0.797 | 0.983-1.000 |
+| 1 | 63 | 0.339 | 0.556 | 0.000-0.504 |
+| 2 | 64 | 0.559 | 0.688 | 0.505-0.611 |
+| 3 | 64 | 0.658 | 0.906 | 0.611-0.693 |
+| 4 | 63 | 0.748 | 0.857 | 0.700-0.809 |
+| 5 | 64 | 0.843 | 0.922 | 0.811-0.862 |
+| 6 | 64 | 0.881 | 0.938 | 0.863-0.897 |
+| 7 | 63 | 0.910 | 0.936 | 0.898-0.920 |
+| 8 | 64 | 0.944 | 0.844 | 0.920-0.971 |
+| 9 | 64 | 0.994 | 0.766 | 0.971-1.000 |
 | 10 | 64 | 1.000 | 1.000 | 1.000-1.000 |
 
 Reliability after logistic calibration (evaluation set, not used for fitting):
 
 | bin | n | mean confidence | accuracy | range |
 |---|---|---|---|---|
-| 1 | 63 | 0.438 | 0.206 | 0.002-0.825 |
-| 2 | 64 | 0.877 | 0.672 | 0.825-0.902 |
-| 3 | 64 | 0.918 | 0.875 | 0.902-0.931 |
-| 4 | 63 | 0.938 | 0.873 | 0.932-0.945 |
-| 5 | 64 | 0.952 | 0.906 | 0.946-0.956 |
-| 6 | 64 | 0.962 | 0.969 | 0.956-0.966 |
-| 7 | 63 | 0.967 | 0.952 | 0.966-0.967 |
-| 8 | 64 | 0.969 | 0.969 | 0.967-0.971 |
-| 9 | 64 | 0.973 | 0.938 | 0.971-0.976 |
-| 10 | 64 | 0.976 | 0.938 | 0.976-0.976 |
+| 1 | 63 | 0.454 | 0.238 | 0.002-0.824 |
+| 2 | 64 | 0.880 | 0.781 | 0.832-0.906 |
+| 3 | 64 | 0.922 | 0.844 | 0.907-0.931 |
+| 4 | 63 | 0.939 | 0.857 | 0.931-0.945 |
+| 5 | 64 | 0.951 | 0.938 | 0.945-0.956 |
+| 6 | 64 | 0.961 | 0.922 | 0.956-0.965 |
+| 7 | 63 | 0.966 | 0.984 | 0.965-0.968 |
+| 8 | 64 | 0.969 | 0.969 | 0.968-0.971 |
+| 9 | 64 | 0.972 | 0.953 | 0.971-0.975 |
+| 10 | 64 | 0.975 | 0.922 | 0.975-0.976 |
 
 ## Original vs perturbed accuracy
 
 | split | original | perturbed |
 |---|---|---|
-| dev | 95/95 = 1.000 | 434/542 = 0.801 |
-| val | 82/82 = 1.000 | 417/476 = 0.876 |
+| dev | 95/95 = 1.000 | 441/542 = 0.814 |
+| val | 82/82 = 1.000 | 416/476 = 0.874 |
 
-Saved model: `data/calibration/interp_v1.json` (logistic over 11 features, 1195 samples, digest 04ce1deae9c7691e).
+Saved model: `data/calibration/interp_v1.json` (logistic over 11 features, 1195 samples, digest 0cfcd904d996ce9f).
 ]==],
 ["reports/gold_changes.md"] = [==[
 # Gold changes after seeing engine output (dev split only)
@@ -27613,6 +27927,12 @@ The `test` split (data/eval/test.cases) was authored before the engine was ever 
 |---|---|---|
 | authored | test | written before any evaluation run on it; categories chosen to mirror the directive's list (not the dev templates); includes entities and relation words absent from the dev set and out-of-lexicon constructions |
 | contamination notice | blind3 (`interp_cases_blind3.cases`) | While surveying correction-fragment wordings with a repository-wide `grep` for "I meant" (intended for the dev / blind1 / blind2 files), three gold lines of the UNRUN round-3 set were echoed to the session: E129 ("Sorry, I meant Austria."), E133 ("Sorry, I meant the 2025 one." after a dataset instruction) and E140 ("No, I meant who founded it."). The engine was not edited for these wordings (the correction-fragment generalisation below was motivated by the burned blind2 case C127 and the dev set); nevertheless blind3 is no longer fully blind for those three cases. Rule adopted: the blind3 result is reported for all cases AND with E129/E133/E140 excluded; no other blind3 line is read before its run. |
+| first run | blind1 `interp_cases_blind1.cases` (170 cases, sha256 05de53d9…) | engine e700f7d: 99/170 = 0.582 [0.507,0.654] (reports/runs/blind_cases_run1.txt). Burned afterwards: later tuning used its failures; later numbers on it are development numbers. |
+| first run | blind2 `interp_cases_blind2.cases` (170 cases, sha256 86987622…) | engine 4c2704b: 109/170 = 0.641 [0.567,0.709] (reports/runs/blind2_cases_run1.txt). Burned afterwards (tuned on). |
+| first run | blind3 `interp_cases_blind3.cases` (170 cases, sha256 0caa7070…, committed in 8bc2bff before any run) | engine e0a0bde (frozen in a commit before the run): 104/170 = 0.612 [0.537,0.682]; without the three cases seen in the contamination notice (E129, E133 pass; E140 fails): 102/167 = 0.611 [0.535,0.681] (reports/runs/blind3_cases_run1.txt). Run once. Burned now: no further engine change was made after seeing its failures before this log entry; any later engine change must report blind3 as a development set. |
+| first run | long-context wordings `longctx_wordings_heldout2/3/4.json` | heldout2 first run (engine e700f7d): 24.6%; heldout3 first run (engine 4c2704b): 54.8%; heldout4 (committed 8bc2bff before the run): 95/126 = 0.754 [0.672,0.821], false-memory/request 1.64 (reports/runs/longctx_blind4_run1.txt). |
+| first run | retrieval templates `retrieval_templates_heldout3/4/5/6.json` | heldout6 (committed 3f0c17d before the run): fact templates 159/450 = 0.353, question templates 348/450 = 0.773, system correct 0.242, wrong answer 0.017, abstained 0.742, serious error 0.013 [0.003,0.045] vs baseline 1.000 (reports/runs/heldout6_run1.txt). |
+| first and only run | test `test.cases` (140 cases, sha256 bd6516cc…, frozen since commit 46710fd) | engine e0a0bde: 135/140 = 0.964 [0.919,0.985], serious errors 5/140; noise robustness 0.931 (no repair 0.775, baseline 0.253) over 1541 perturbed inputs (reports/runs/test_run1.txt, test_noise_run1.txt). The split was authored by the engine's author (not independent), so it is an optimistic estimate; the independent blind sets above are the honest ones. `lua5.4 tools/manifest.lua check` passes. |
 ]==],
 ["reports/performance.md"] = [==[
 # Performance and scaling
@@ -27624,30 +27944,81 @@ the machine that produced this file and show growth only.
 
 | sentences | bytes | work | work/sentence | wall (s) |
 |---|---|---|---|---|
-| 1 | 30 | 205 | 205 | 0.004 |
-| 6 | 255 | 1309 | 218 | 0.044 |
-| 24 | 1023 | 5239 | 218 | 0.045 |
-| 96 | 4095 | 20959 | 218 | 0.262 |
-| 384 | 16383 | 83839 | 218 | 1.077 |
+| 1 | 30 | 217 | 217 | 0.004 |
+| 6 | 255 | 1381 | 230 | 0.017 |
+| 24 | 1023 | 5527 | 230 | 0.078 |
+| 96 | 4095 | 22111 | 230 | 0.263 |
+| 384 | 16383 | 88447 | 230 | 1.219 |
 
 ## Conversation memory: cost of the final request vs conversation length
 
 | turns | memory items | work (final request) | wall total (s) | heap (KB) |
 |---|---|---|---|---|
-| 10 | 12 | 234 | 0.02 | 35 |
-| 100 | 104 | 234 | 0.26 | 173 |
-| 500 | 520 | 234 | 1.22 | 671 |
-| 1000 | 1045 | 234 | 2.55 | 1310 |
+| 10 | 12 | 246 | 0.03 | 35 |
+| 100 | 104 | 246 | 0.26 | 173 |
+| 500 | 520 | 246 | 1.22 | 671 |
+| 1000 | 1045 | 246 | 2.20 | 1310 |
 
 ## Dataset ingestion and question answering vs dataset size
 
 | records | ingest wall (s) | heap (KB) | assertions | question work (median) | question wall (ms, median) | correct / answerable |
 |---|---|---|---|---|---|---|
-| 192 | 0.52 | 2162 | 104 | 206 | 9.6 | 40 / 40 |
-| 961 | 3.45 | 11483 | 586 | 207 | 9.8 | 50 / 50 |
-| 4808 | 18.19 | 49747 | 2600 | 210 | 13.2 | 46 / 46 |
-| 19233 | 80.05 | 188809 | 10400 | 210 | 21.3 | 46 / 46 |
+| 192 | 0.50 | 2162 | 104 | 218 | 7.4 | 40 / 40 |
+| 961 | 3.05 | 11483 | 586 | 219 | 9.5 | 50 / 50 |
+| 4808 | 16.72 | 49747 | 2600 | 222 | 9.3 | 46 / 46 |
+| 19233 | 80.11 | 188809 | 10400 | 222 | 16.6 | 46 / 46 |
 
+]==],
+["reports/runs/ablations_run1.txt"] = [==[
+# component ablations — engine commit e0a0bde. Each mode switches ONE component off (or replaces the engine by a naive baseline); same inputs for every mode.
+
+## test
+full           n=140  all-fields accuracy=0.964 [0.919,0.985]  serious-error rate=0.036 [0.015,0.081]  (any-error 0.036)
+baseline       n=140  all-fields accuracy=0.200 [0.142,0.274]  serious-error rate=0.729 [0.650,0.795]  (any-error 0.800)
+lexical_only   n=140  all-fields accuracy=0.279 [0.211,0.358]  serious-error rate=0.664 [0.583,0.737]  (any-error 0.721)
+no_types       n=140  all-fields accuracy=0.950 [0.900,0.976]  serious-error rate=0.050 [0.024,0.100]  (any-error 0.050)
+no_domain      n=140  all-fields accuracy=0.950 [0.900,0.976]  serious-error rate=0.050 [0.024,0.100]  (any-error 0.050)
+no_hypotheses  n=140  all-fields accuracy=0.671 [0.590,0.744]  serious-error rate=0.329 [0.256,0.410]  (any-error 0.329)
+no_coref       n=140  all-fields accuracy=0.914 [0.856,0.950]  serious-error rate=0.086 [0.050,0.144]  (any-error 0.086)
+no_memory      n=140  all-fields accuracy=0.886 [0.822,0.928]  serious-error rate=0.114 [0.072,0.178]  (any-error 0.114)
+no_repair      n=140  all-fields accuracy=0.964 [0.919,0.985]  serious-error rate=0.036 [0.015,0.081]  (any-error 0.036)
+no_suffix      n=140  all-fields accuracy=0.964 [0.919,0.985]  serious-error rate=0.036 [0.015,0.081]  (any-error 0.036)
+
+## blind3
+full           n=170  all-fields accuracy=0.612 [0.537,0.682]  serious-error rate=0.382 [0.313,0.457]  (any-error 0.388)
+baseline       n=170  all-fields accuracy=0.094 [0.059,0.147]  serious-error rate=0.876 [0.819,0.918]  (any-error 0.906)
+lexical_only   n=170  all-fields accuracy=0.094 [0.059,0.147]  serious-error rate=0.876 [0.819,0.918]  (any-error 0.906)
+no_types       n=170  all-fields accuracy=0.594 [0.519,0.665]  serious-error rate=0.400 [0.329,0.475]  (any-error 0.406)
+no_domain      n=170  all-fields accuracy=0.612 [0.537,0.682]  serious-error rate=0.382 [0.313,0.457]  (any-error 0.388)
+no_hypotheses  n=170  all-fields accuracy=0.447 [0.374,0.522]  serious-error rate=0.541 [0.466,0.614]  (any-error 0.553)
+no_coref       n=170  all-fields accuracy=0.547 [0.472,0.620]  serious-error rate=0.447 [0.374,0.522]  (any-error 0.453)
+no_memory      n=170  all-fields accuracy=0.518 [0.443,0.592]  serious-error rate=0.476 [0.403,0.551]  (any-error 0.482)
+no_repair      n=170  all-fields accuracy=0.612 [0.537,0.682]  serious-error rate=0.382 [0.313,0.457]  (any-error 0.388)
+no_suffix      n=170  all-fields accuracy=0.594 [0.519,0.665]  serious-error rate=0.400 [0.329,0.475]  (any-error 0.406)
+
+## dev
+full           n=135  all-fields accuracy=1.000 [0.972,1.000]  serious-error rate=0.000 [0.000,0.028]  (any-error 0.000)
+baseline       n=135  all-fields accuracy=0.126 [0.080,0.192]  serious-error rate=0.807 [0.733,0.865]  (any-error 0.874)
+lexical_only   n=135  all-fields accuracy=0.237 [0.173,0.315]  serious-error rate=0.704 [0.622,0.774]  (any-error 0.763)
+no_types       n=135  all-fields accuracy=0.963 [0.916,0.984]  serious-error rate=0.037 [0.016,0.084]  (any-error 0.037)
+no_domain      n=135  all-fields accuracy=0.963 [0.916,0.984]  serious-error rate=0.037 [0.016,0.084]  (any-error 0.037)
+no_hypotheses  n=135  all-fields accuracy=0.733 [0.653,0.801]  serious-error rate=0.267 [0.199,0.347]  (any-error 0.267)
+no_coref       n=135  all-fields accuracy=0.926 [0.869,0.959]  serious-error rate=0.074 [0.041,0.131]  (any-error 0.074)
+no_memory      n=135  all-fields accuracy=0.904 [0.842,0.943]  serious-error rate=0.096 [0.057,0.158]  (any-error 0.096)
+no_repair      n=135  all-fields accuracy=1.000 [0.972,1.000]  serious-error rate=0.000 [0.000,0.028]  (any-error 0.000)
+no_suffix      n=135  all-fields accuracy=1.000 [0.972,1.000]  serious-error rate=0.000 [0.000,0.028]  (any-error 0.000)
+
+## val
+full           n=100  all-fields accuracy=1.000 [0.963,1.000]  serious-error rate=0.000 [0.000,0.037]  (any-error 0.000)
+baseline       n=100  all-fields accuracy=0.200 [0.133,0.289]  serious-error rate=0.730 [0.636,0.807]  (any-error 0.800)
+lexical_only   n=100  all-fields accuracy=0.250 [0.175,0.343]  serious-error rate=0.700 [0.604,0.781]  (any-error 0.750)
+no_types       n=100  all-fields accuracy=1.000 [0.963,1.000]  serious-error rate=0.000 [0.000,0.037]  (any-error 0.000)
+no_domain      n=100  all-fields accuracy=0.980 [0.930,0.994]  serious-error rate=0.020 [0.006,0.070]  (any-error 0.020)
+no_hypotheses  n=100  all-fields accuracy=0.720 [0.625,0.799]  serious-error rate=0.280 [0.201,0.375]  (any-error 0.280)
+no_coref       n=100  all-fields accuracy=0.930 [0.863,0.966]  serious-error rate=0.070 [0.034,0.137]  (any-error 0.070)
+no_memory      n=100  all-fields accuracy=0.900 [0.826,0.945]  serious-error rate=0.100 [0.055,0.174]  (any-error 0.100)
+no_repair      n=100  all-fields accuracy=1.000 [0.963,1.000]  serious-error rate=0.000 [0.000,0.037]  (any-error 0.000)
+no_suffix      n=100  all-fields accuracy=1.000 [0.963,1.000]  serious-error rate=0.000 [0.000,0.037]  (any-error 0.000)
 ]==],
 ["reports/runs/blind2_cases_run1.txt"] = [==[
 # blind cases (interp_cases_blind2) first run — engine commit 4c2704b, file sha256 86987622ad6ddf9a6ad009efb4f31cec72b699f2cd31c038ee821ca8229f7685
@@ -27857,6 +28228,267 @@ C166 [unusual] "Who wrote the novel It?" (SERIOUS)
 C168 [malformed] "xkq vlorp wzzt jnn"
     status: got [ok] want [no_interpretation]
 work=33943 wall=0.34s
+]==],
+["reports/runs/blind3_cases_run1.txt"] = [==[
+# blind cases (interp_cases_blind3) first run — engine commit e0a0bde, file sha256 0caa7070d7494b89946e09e5818e79d2aa7b40786b452e7b572f5dc87164c1e2
+full/dev: n=170  all-fields accuracy=0.612 [0.537,0.682]  serious-error rate=0.382 [0.313,0.457]  (any-error 0.388)
+  ambiguous                    n=8   pass=7   acc=0.88 [0.53,0.98] serious=1
+  basic_factual                n=20  pass=12  acc=0.60 [0.39,0.78] serious=8
+  comparative                  n=7   pass=4   acc=0.57 [0.25,0.84] serious=3
+  direction                    n=13  pass=11  acc=0.85 [0.58,0.96] serious=2
+  geographic                   n=7   pass=4   acc=0.57 [0.25,0.84] serious=3
+  instruction                  n=11  pass=3   acc=0.27 [0.10,0.57] serious=8
+  intent                       n=11  pass=8   acc=0.73 [0.43,0.90] serious=3
+  malformed                    n=4   pass=4   acc=1.00 [0.51,1.00] serious=0
+  minimal_pair                 n=14  pass=11  acc=0.79 [0.52,0.92] serious=3
+  multi_turn                   n=18  pass=12  acc=0.67 [0.44,0.84] serious=6
+  multiword                    n=6   pass=2   acc=0.33 [0.10,0.70] serious=4
+  negation                     n=16  pass=8   acc=0.50 [0.28,0.72] serious=8
+  noise                        n=5   pass=4   acc=0.80 [0.38,0.96] serious=1
+  temporal                     n=11  pass=7   acc=0.64 [0.35,0.85] serious=3
+  typo                         n=6   pass=2   acc=0.33 [0.10,0.70] serious=4
+  unusual                      n=13  pass=5   acc=0.38 [0.18,0.64] serious=8
+  failing fields: rel=36 ask=31 from=29 intent=13 to=12 atype=11 neg=7 inst=5 items=5 pos=4 pref=4 ref=3 dep=2 temporal=2 amb=1 concept=1 ctx=1 evid=1 sel=1 src=1 tc=1
+
+FAILURES:
+E002 [basic_factual] "My son has a school quiz tomorrow and needs to know the currency of Norway." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Norway]
+    intent: got [statement] want [factual_lookup]
+    rel: got [-] want [currency]
+E005 [basic_factual] "For a piece I'm filing tonight I need the name of Ravenscroft Labs' chief executive." (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    evid: got [false] want [1]
+    from: got [missing] want [Ravenscroft Labs]
+    rel: got [-] want [ceo]
+E007 [basic_factual] "In Paraguay, what language is official?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [language]
+    from: got [missing] want [Paraguay]
+    rel: got [-] want [official_language]
+E008 [basic_factual] "Customer on line two wants to know where Pellis Dynamics is headquartered, can you pull that up?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [city]
+    from: got [missing] want [Pellis Dynamics]
+    rel: got [-] want [headquarters]
+E009 [basic_factual] "when was Orrin & Vale founded" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [date]
+    from: got [missing] want [Orrin & Vale]
+    rel: got [-] want [founded_on]
+E012 [basic_factual] "Hey assistant, could you please tell me how many moons Neptune has, dear?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Neptune]
+    rel: got [-] want [moons]
+E014 [basic_factual] "Who came up with the zipper?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    from: got [missing] want [zipper]
+    rel: got [-] want [inventor]
+E015 [basic_factual] "when did marie curie die lol need it for hw" (SERIOUS)
+    from: got [text 'lol' ~= 'Marie Curie'] want [Marie Curie]
+E025 [direction] "Who put money into Quenby Robotics?" (SERIOUS)
+    ask: got [from] want [to]
+    from: got [missing] want [Quenby Robotics]
+    rel: got [headquarters] want [investor]
+E028 [direction] "Who all works for Pellis Dynamics, do you know?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [person]
+    rel: got [-] want [employer]
+    to: got [missing] want [Pellis Dynamics]
+E035 [negation] "Please identify the subsidiaries of Hartwell Holdings, excluding any registered in Delaware." (SERIOUS)
+    neg: got [topic:any registered] want [entity:delaware]
+E036 [negation] "Which Rotterdam firms are not banks?" (SERIOUS)
+    neg: got [] want [type:bank]
+    pos: got [] want [geo:Rotterdam]
+E038 [negation] "Tell me about Lisbon, but skip the history part." (SERIOUS)
+    neg: got [role:the history part] want [topic:history]
+E040 [negation] "The Tolvane 500 is not only fast but apparently cheap too, so what does it cost?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Tolvane 500]
+    rel: got [-] want [price]
+E041 [negation] "no worries at all, just tell me the population of Tuvalu" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Tuvalu]
+    neg: got [topic:worries,topic:all, just tell,reference:me,role:the population of Tuvalu] want [none]
+    rel: got [-] want [population]
+E043 [negation] "I wouldn't say no to finding out who runs Kestrel Bay Foods." (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    from: got [missing] want [Kestrel Bay Foods]
+    neg: got [entity:Kestrel Bay Foods] want [none]
+E045 [negation] "Besides France, which countries use the euro?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [country]
+    rel: got [-] want [currency]
+    to: got [missing] want [euro]
+E049 [negation] "Which African countries are not landlocked?" (SERIOUS)
+    atype: got [nil] want [country]
+    neg: got [] want [description:landlocked]
+    pos: got [] want [geo:Africa]
+E050 [temporal] "Kindly confirm who held the office of Chief Executive Officer of Pellis Dynamics as of 2018." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Pellis Dynamics]
+    rel: got [-] want [ceo]
+E052 [temporal] "Which startups were founded after 2015?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [founded_on]
+E057 [temporal] "Which city will host the 2036 Summer Olympics?"
+    temporal: got [current_unspecified] want [future]
+E058 [temporal] "Who used to be in charge of Ottoline Press?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Ottoline Press]
+    rel: got [-] want [leader]
+    temporal: got [nil] want [past]
+E068 [ambiguous] "How many people live in Washington State?" (SERIOUS)
+    amb: got [ambiguous] want [resolved]
+E069 [comparative] "Which is bigger by area, Kenya or Chad?" (SERIOUS)
+    items: got [none] want [Kenya|Chad]
+    rel: got [-] want [area]
+E071 [comparative] "Siemens vs Bosch - headcount, who is bigger?" (SERIOUS)
+    intent: got [definition] want [comparison]
+    items: got [none] want [Siemens|Bosch]
+    rel: got [-] want [employees]
+E075 [comparative] "Which has more moons, Jupiter or Saturn?" (SERIOUS)
+    intent: got [entity_description] want [comparison]
+    items: got [none] want [Jupiter|Saturn]
+    rel: got [-] want [moons]
+E077 [multiword] "Who wrote The Hitchhiker's Guide to the Galaxy?" (SERIOUS)
+    from: got [text 'The Hitchhiker's Guide' ~= 'The Hitchhiker's Guide to the Galaxy'] want [The Hitchhiker's Guide to the Galaxy]
+E078 [multiword] "who is the ceo of Procter & Gamble" (SERIOUS)
+    from: got [text 'Procter' ~= 'Procter & Gamble'] want [Procter & Gamble]
+E080 [multiword] "Which country has Sri Jayawardenepura Kotte as its legislative capital?" (SERIOUS)
+    rel: got [capital] want [legislative_capital]
+E081 [multiword] "How many people live on the Isle of Man?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Isle of Man]
+    rel: got [-] want [population]
+E082 [geographic] "Which tech companies in Bavaria hire interns?" (SERIOUS)
+    ask: got [nil] want [from]
+    atype: got [nil] want [company]
+    pos: got [] want [geo:Bavaria]
+    rel: got [-] want [hires]
+    to: got [missing] want [intern]
+E087 [geographic] "List the provinces that make up Canada." (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [part_of]
+    to: got [missing] want [Canada]
+E088 [geographic] "Any hospitals in Ghana that are hiring nurses?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [hires]
+    to: got [missing] want [nurse]
+E090 [instruction] "Always give me distances in kilometres, never miles." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+    pref: got [0 preference(s)] want [kilometres]
+E091 [instruction] "Stop using bullet points, I really hate them." (SERIOUS)
+    inst: got [nil/-/nil/nil] want [persist=1]
+    pref: got [0 preference(s)] want [bullet points]
+E092 [instruction] "Whenever I type tldr, reply with just three sentences." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+E093 [instruction] "Don't ever bring up prices unless I ask." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+    neg: got [] want [topic:price]
+E094 [instruction] "For my literature review: per the 2019 dataset, what was the population of Tuvalu?" (SERIOUS)
+    src: got [0 source constraint(s)] want [dataset:2019]
+E095 [instruction] "From now on call me Dr. Okafor." (SERIOUS)
+    inst: got [] want [persist=1]
+    intent: got [unknown] want [instruction_update]
+E096 [instruction] "Keep it under 100 words." (SERIOUS)
+    pref: got [0 preference(s)] want [under 100 words]
+E099 [instruction] "Answer only in French from here on." (SERIOUS)
+    pref: got [0 preference(s)] want [French]
+E105 [intent] "Translate 'where is the station' into German." (SERIOUS)
+    intent: got [unknown] want [task]
+E109 [intent] "Which is better for a beginner, guitar or piano?" (SERIOUS)
+    items: got [none] want [guitar|piano]
+E110 [intent] "What causes the tides?" (SERIOUS)
+    intent: got [factual_lookup] want [causal_explanation]
+E115 [minimal_pair] "Which countries have Portuguese as an official language?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [official_language]
+    to: got [missing] want [Portuguese]
+E116 [minimal_pair] "Which countries other than Brazil have Portuguese as an official language?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [official_language]
+    to: got [missing] want [Portuguese]
+E117 [minimal_pair] "Which companies in Graz hire interns?" (SERIOUS)
+    ask: got [nil] want [from]
+    pos: got [] want [geo:Graz]
+    rel: got [-] want [hires]
+    to: got [missing] want [intern]
+E131 [multi_turn] "U: Give me three Nordic capitals. // A: Oslo, Stockholm and Helsinki. // U: Which of them is the biggest?" (SERIOUS)
+    ctx: got [] want [comparison_set]
+    intent: got [unknown] want [comparison]
+    items: got [none] want [Oslo|Stockholm|Helsinki]
+E134 [multi_turn] "U: What's the capital of Ecuador? // A: Quito. // U: And Bolivia? // A: Bolivia has two capitals, La Paz and Sucre. // U: Which country did I ask about first?" (SERIOUS)
+    sel: got [2 selected] want [+Ecuador]
+E137 [multi_turn] "U: Tell me about Kestrel Bay Foods. // A: Kestrel Bay Foods is a seafood processor. // U: Who is the CEO of Orrin & Vale? // A: Orrin & Vale is led by Priya Nandakumar. // U: And who founded the first company?" (SERIOUS)
+    dep: got [self_contained] want [earlier_context]
+    from: got [text 'the first company' ~= 'Kestrel Bay Foods'] want [Kestrel Bay Foods]
+    ref: got [the first company>(none)] want [the first company>Kestrel Bay Foods]
+E139 [multi_turn] "U: Which is taller, the Eiffel Tower or the Tokyo Tower? // A: The Tokyo Tower is taller. // U: And how tall is the other one?" (SERIOUS)
+    from: got [text 'the other one' ~= 'Eiffel Tower'] want [Eiffel Tower]
+    ref: got [the other one>(none)] want [the other one>Eiffel Tower]
+E140 [multi_turn] "U: Who is the CEO of Siemens? // A: Roland Busch is the CEO of Siemens. // U: No, I meant who founded it." (SERIOUS)
+    ask: got [nil] want [to]
+    dep: got [self_contained] want [recent_message]
+    from: got [missing] want [Siemens]
+    ref: got [it>(none)] want [it>Siemens]
+    rel: got [-] want [founder]
+E141 [multi_turn] "U: What was Brightwell Energy's revenue in 2022? // A: Brightwell Energy reported revenue of 1.2 billion dollars in 2022. // U: And in 2021?" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Brightwell Energy]
+    rel: got [-] want [revenue]
+    tc: got [] want [in:2021]
+E143 [typo] "wat is teh captial of Argentnia" (SERIOUS)
+    ask: got [nil] want [to]
+E145 [typo] "popluation of Germnay pls" (SERIOUS)
+    from: got [text 'Germnay pls' ~= 'Germany'] want [Germany]
+E146 [typo] "whos the primeminister of Canda" (SERIOUS)
+    from: got [text 'Canda' ~= 'Canada'] want [Canada]
+    rel: got [open:primeminister] want [prime_minister]
+E147 [typo] "Which compnaies hire intrens in Berlin" (SERIOUS)
+    to: got [text 'intrens' ~= 'intern'] want [intern]
+E149 [noise] "ok so um, like, i was wondering, you know, what the uh capital of Peru is???" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Peru]
+    rel: got [-] want [capital]
+E156 [unusual] "Can you check whether Oslo is the capital of Norway?" (SERIOUS)
+    from: got [missing] want [Norway]
+    intent: got [entity_description] want [verification]
+    rel: got [-] want [capital]
+    to: got [missing] want [Oslo]
+E157 [unusual] "Everyone says Canberra, but is it really the capital of Australia?" (SERIOUS)
+    from: got [missing] want [Australia]
+    intent: got [statement] want [verification]
+    rel: got [-] want [capital]
+    to: got [missing] want [Canberra]
+E158 [unusual] "Quick: five countries whose official language is French" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [official_language]
+    to: got [missing] want [French]
+E159 [unusual] "Who's the big cheese at Kestrel Bay Foods?" (SERIOUS)
+    ask: got [nil] want [to]
+    atype: got [nil] want [person]
+    from: got [missing] want [Kestrel Bay Foods]
+E161 [unusual] "Zorvania's president says his country will adopt the euro, so what is its current currency?" (SERIOUS)
+    rel: got [head_of_state] want [currency]
+E162 [unusual] "capital of peru? need it for a unit test fixture" (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Peru]
+    rel: got [-] want [capital]
+E164 [unusual] "What does the word 'capital' mean in 'capital city'?" (SERIOUS)
+    concept: got [missing] want [capital]
+    intent: got [factual_lookup] want [definition]
+E166 [unusual] "I'm trying to figure out who bankrolled Oaklett Biotech." (SERIOUS)
+    ask: got [nil] want [to]
+    from: got [missing] want [Oaklett Biotech]
+    rel: got [-] want [investor]
+work=45431 wall=0.45s
 ]==],
 ["reports/runs/blind_cases_run1.txt"] = [==[
 # blind cases (interp_cases_blind1) first run — engine commit e700f7d, file sha256 05de53d954332bdae9b9ce1505f44a6fcd0972fa509929623b2a750772090357
@@ -28121,6 +28753,37 @@ B166 [unusual] "What I need to know is where Mirabeau Robotics has its head offi
     from: got [missing] want [Mirabeau Robotics]
     rel: got [-] want [headquarters]
 work=23619 wall=0.34s
+]==],
+["reports/runs/calibration_shift_run1.txt"] = [==[
+# calibration under distribution shift — saved model data/calibration/interp_v1.json (fitted on dev+val variants), engine commit e0a0bde
+== data/eval/heldout/interp_cases_blind3.cases  (single-turn cases: n=148, primary-reading accuracy 0.601)
+   raw semantic score      : ECE 0.197  Brier 0.237  AUROC 0.617
+   calibrated (saved model): ECE 0.074  Brier 0.144  AUROC 0.846
+   reliability of the calibrated confidence:  bin  n  mean-confidence  accuracy
+       1   14   0.001   0.000
+       2   15   0.029   0.067
+       3   15   0.231   0.267
+       4   15   0.713   0.667
+       5   15   0.865   0.733
+       6   14   0.919   0.786
+       7   15   0.941   0.867
+       8   15   0.953   0.933
+       9   15   0.959   0.867
+      10   15   0.967   0.800
+== data/eval/test.cases  (single-turn cases: n=116, primary-reading accuracy 0.974)
+   raw semantic score      : ECE 0.168  Brier 0.067  AUROC 0.917
+   calibrated (saved model): ECE 0.072  Brier 0.055  AUROC 0.850
+   reliability of the calibrated confidence:  bin  n  mean-confidence  accuracy
+       1   11   0.544   0.909
+       2   12   0.873   0.917
+       3   11   0.909   0.909
+       4   12   0.932   1.000
+       5   12   0.945   1.000
+       6   11   0.952   1.000
+       7   12   0.955   1.000
+       8   11   0.959   1.000
+       9   12   0.963   1.000
+      10   12   0.967   1.000
 ]==],
 ["reports/runs/heldout4_run1.txt"] = [==[
 # heldout4 first run — engine commit e700f7d, templates sha256 dccda396d7f7b1c4147d3a98d2aa535fb20d36877de0757154433096fcd81e7b
@@ -28442,6 +29105,149 @@ templates sha256: c27b1231c9ffb5a84ee0437f55c39a45401696424d4a9ae8db24f2c70705b6
 baseline                   n=159   serious-error=1.000 [0.976,1.000]  top1-wrong-topic=0.167  contaminated@3=1.000  gold-in-top3=1.000  (never abstains)
 system                     n=159   serious-error=0.006 [0.001,0.035]  correct=0.167 wrong-answer=0.008 contaminated=0.000 abstained=0.825 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=1/18 retained=5 | answerable-with-unparsable-template=0 (abstained 0)
 ]==],
+["reports/runs/heldout6_run1.txt"] = [==[
+# heldout6 first run — engine commit e0a0bde, templates sha256 8b3bdff834242aa68dfc7833fcaac7544ac55586f987b80065d13c3e57cfe0e2
+
+## template-level coverage (diagnostic)
+FACTS      159/450 = 0.353 [0.311,0.399]
+   [capital] 0/3  After three days on the road we finally rolled into %C, which happens to be the capital of %K, and honestly it was worth the wait. no assertion
+   [capital] 0/3  As is well known, the city %C fulfils the function of capital for the state %K. no assertion
+   [capital] 0/3  Every country has a capital city, and for %K it is %C.               no assertion
+   [capital] 0/3  Fact file - country: %K, capital city: %C.                           no assertion
+   [capital] 0/3  Far away lies the land of %K, and its capital is a cheerful town called %C. got instance_of
+   [capital] 0/3  Fun fact before we dive in, folks: %K calls %C its capital.          got capital(mention:lunragal -> sense:capital.finance)
+   [capital] 0/3  If an exam asks you for the capital of %K, the correct answer is %C. no assertion
+   [capital] 0/3  In %K, the title of national capital belongs to %C.                  no assertion
+   [capital] 0/3  Strike halts trains across %K (capital: %C) for a second day         no assertion
+   [capital] 0/3  WHEREAS %C is recognised as the capital of %K, the parties have agreed that any dispute shall be heard in that city. no assertion
+   [capital] 0/3  We keep a small liaison office in %C because it is the capital of %K and home to the ministries we deal with. no assertion
+   [capital] 0/3  With %C as its capital, %K has long balanced two competing traditions. got capital(mention:eripigate -> mention:quipimark)
+   [ceo] 0/3  %P is a business executive who serves as chief executive officer of %O. no assertion
+   [ceo] 0/3  All hands tomorrow: %P, who heads %O as CEO, will take questions from staff. got leader
+   [ceo] 0/3  At %O there is a chief executive, which is a very important job, and the person doing that job is %P. no assertion
+   [ceo] 0/3  CEO %P hails record year at %O                                       no assertion
+   [ceo] 0/3  Chief executive %P of %O said on Tuesday that quarterly orders had risen sharply. no assertion
+   [ceo] 0/3  Company: %O | CEO: %P                                                no assertion
+   [ceo] 0/3  Excited to share that I have joined %O, where %P is chief executive. no assertion
+   [ceo] 0/3  Having risen through the ranks, %P now serves as chief executive of %O. no assertion
+   [ceo] 0/3  Join %O, a growing company under the leadership of CEO %P.           no assertion
+   [ceo] 0/3  Key people at %O: %P (CEO).                                          no assertion
+   [ceo] 0/3  Local firm %O, headed by CEO %P, has won a regional export award.    got leader
+   [ceo] 0/3  Old news, folks: the CEO of %O has been %P for years.                no assertion
+   [ceo] 0/3  On the factory tour we met the chief executive of %O, who happens to be %P, and stayed for coffee. no assertion
+   [ceo] 0/3  The Minister was received by %P, who serves as chief executive of %O, and by members of its board. got open:receiv
+   [ceo] 0/3  The chief executive of %O reports to the board, and that role is currently held by %P. no assertion
+   [ceo] 0/3  The declaration for this shipment was signed by %P in the capacity of CEO of %O. no assertion
+   [ceo] 0/3  The post of chief executive officer in the enterprise %O is occupied by the person %P. no assertion
+   [ceo] 0/3  Tonight's hospitality suite belongs to %O, the company whose CEO is %P. no assertion
+   [ceo] 0/3  WHEREAS %P holds the office of chief executive officer of %O and is authorised to sign on its behalf, the parties agree as follows. no assertion
+   [ceo] 0/3  You will be welcomed by the friendly team at %O, whose chief executive %P greets every guest in person. no assertion
+   [currency] 0/3  %X (noun): the basic monetary unit of %K.                            no assertion
+   [currency] 0/3  All sums payable under this agreement shall be paid in the %X, being the lawful currency of %K. no assertion
+   [currency] 0/3  Amounts declared on entry to %K must be stated in the %X, which is the national currency. no assertion
+   [currency] 0/3  As a currency, the %X is utilised by the state %K for all payments within its territory. no assertion
+   [currency] 0/3  Bonds denominated in the %X, which %K issues as its national currency, yield more than most peers. no assertion
+   [currency] 0/3  Browse the sunny markets of %K and pay as the locals do, with the %X, the national currency. no assertion
+   [currency] 0/3  Central bank of %K (currency: the %X) unveils new banknote design    no assertion
+   [currency] 0/3  Country: %K | Currency: %X                                           no assertion
+   [currency] 0/3  In the land of %K, everyone buys sweets with money called the %X.    no assertion
+   [currency] 0/3  It is the %X that people in %K use to pay for everything from bread to bus tickets. no assertion
+   [currency] 0/3  Legal tender in %K, the %X is accepted by shops, banks and taxi drivers alike. no assertion
+   [currency] 0/3  Living in %K means earning, spending and saving in the %X.           no assertion
+   [currency] 0/3  Official tender in %K: the %X.                                       no assertion
+   [currency] 0/3  Our subsidiary in %K keeps its books in the %X, the national currency, and reports to the Group quarterly. no assertion
+   [currency] 0/3  The %X is divided into one hundred smaller units and is the currency of %K. no assertion
+   [currency] 0/3  The %X, used as legal tender across %K, slipped for a third straight day on thin trading. no assertion
+   [currency] 0/3  The Ministry of Finance of %K hereby notifies all missions that the %X remains the sole legal tender of the country. no assertion
+   [currency] 0/3  The notes in this case are early issues of the %X, which remains the currency of %K to this day. no assertion
+   [currency] 0/3  The winner's bonus in %K is paid in the %X, naturally, since it is the national currency. no assertion
+   [currency] 0/3  Tip for fellow travellers: the local currency in %K goes by the name of the %X. no assertion
+   [currency] 0/3  What passes for money in %K is the %X.                               no assertion
+   [currency] 0/3  With the %X as its currency, %K keeps full control of its monetary policy. no assertion
+   [currency] 0/3  Write this in your notebooks, class: %K uses the %X as its currency. no assertion
+   [founder] 0/3  %O exists because %P set it up to serve the local community.         no assertion
+   [founder] 0/3  %O is an organisation established by %P.                             got instance_of
+   [founder] 0/3  %P is an entrepreneur best known for founding %O.                    got instance_of
+   [founder] 0/3  %P, who founded %O, wins lifetime achievement award                  no assertion
+   [founder] 0/3  A former teacher, %P founded %O to bring neighbours together.        no assertion
+   [founder] 0/3  As for %O, it was started by %P back when the whole operation fitted in one small office. no assertion
+   [founder] 0/3  By %P was the organisation %O established, as the historical records plainly state. no assertion
+   [founder] 0/3  Dataset row - organisation: %O, founder: %P.                         no assertion
+   [founder] 0/3  Founded by %P with a single room and a big dream, %O today welcomes visitors from all over the world. no assertion
+   [founder] 0/3  Having founded %O in a converted barn, %P spent the next decade hiring slowly and carefully. no assertion
+   [founder] 0/3  Long ago, %P brought %O into being with a dream and a pair of sturdy boots. got open:bring
+   [founder] 0/3  Our warmest thanks go to %P for setting up %O.                       no assertion
+   [founder] 0/3  Since %P founded %O, it has grown steadily in every financial year.  no assertion
+   [founder] 0/3  TIL %P started %O with just a borrowed desk and a lot of nerve.      got founder(mention:hixpigate industries -> mention:til imran grigoryan)
+   [founder] 0/3  Tonight's match is sponsored by %O, which %P started in a garage and built into a household name. no assertion
+   [founder] 0/3  WHEREAS %O was established by %P for the purposes described below, the parties agree as follows. no assertion
+   [founder] 0/3  When %P founded %O, the idea was simple: serve one town well.        no assertion
+   [headquarters] 0/3  %O is a company headquartered in %C.                                 got instance_of
+   [headquarters] 0/3  %O today opened a new wing at its headquarters in %C.                no assertion
+   [headquarters] 0/3  %O, which has its headquarters in %C, said on Thursday that quarterly profit had risen. no assertion
+   [headquarters] 0/3  Board meetings of %O take place at its headquarters in %C.           no assertion
+   [headquarters] 0/3  Come and work at %O, a company whose headquarters sit in the heart of %C. no assertion
+   [headquarters] 0/3  Company: %O | Headquarters: %C                                       no assertion
+   [headquarters] 0/3  Fun fact, folks: %O keeps its head office in %C.                     no assertion
+   [headquarters] 0/3  Global though its name may be, %O has its headquarters in %C.        no assertion
+   [headquarters] 0/3  HQ of %O in %C to get green makeover                                 no assertion
+   [headquarters] 0/3  Here at %O, we have our headquarters in %C and welcome visitors by appointment. no assertion
+   [headquarters] 0/3  In %C you will find the headquarters of %O, easily recognised by its copper roof. no assertion
+   [headquarters] 0/3  In the busy town of %C there is a tall glass building where %O has its headquarters. no assertion
+   [headquarters] 0/3  On behalf of the Embassy, I thank the leadership of %O for hosting us at its headquarters in %C. no assertion
+   [headquarters] 0/3  Our city, %C, hosts the corporate headquarters of %O, one of its biggest employers. no assertion
+   [headquarters] 0/3  Please note that %O operates out of headquarters in %C and files all its declarations from that office. no assertion
+   [headquarters] 0/3  Run from headquarters in %C, %O has kept costs low even as revenue grew. no assertion
+   [headquarters] 0/3  Since relocating a decade ago, %O has had its headquarters in %C.    no assertion
+   [headquarters] 0/3  Stroll through %C, home to the headquarters of %O and some of the friendliest cafes in the region. no assertion
+   [headquarters] 0/3  TIL %C is where %O is headquartered, which explains all those job ads. got headquarters(mention:ivoragate networks -> mention:til quipimere)
+   [headquarters] 0/3  The Directors report that %O continues to have its headquarters in %C. no assertion
+   [headquarters] 0/3  The tower is leased to %O, which uses it as its headquarters in %C.  no assertion
+   [headquarters] 0/3  Thrilled to join %O, where the whole leadership team works together at headquarters in %C. no assertion
+   [headquarters] 0/3  Tonight's sponsor is %O, with its headquarters right here in %C, so expect plenty of local support. got open:sponsor
+   [headquarters] 0/3  WHEREAS %O maintains its headquarters in %C, the parties submit to the jurisdiction of the courts there. no assertion
+   [headquarters] 0/3  You will spot the glass tower in %C that serves as the headquarters of %O from anywhere in town. no assertion
+QUESTIONS  348/450 = 0.773 [0.732,0.810]
+   [capital] 0/3  %K: what is its capital city?                                        got rel=capital known=from ask=to holder=its
+   [capital] 0/3  By what name is the capital of %K known?                             intent=unknown status=no_interpretation
+   [capital] 0/3  I'd like to find out what the capital of %K is.                      intent=unknown status=no_interpretation
+   [capital] 0/3  Is anyone able to say which city is the capital of %K?               intent=unknown status=no_interpretation
+   [capital] 0/3  Of all the cities in %K, which one is the capital?                   intent=definition status=ok
+   [capital] 0/3  Question 5: give the capital of %K.                                  intent=statement status=ok
+   [capital] 0/3  Travelling to %K soon - which city is its capital?                   got rel=capital known=from ask=to holder=its
+   [capital] 0/3  What is the name of the city that is the capital of %K?              intent=definition status=ok
+   [ceo] 0/3  Please state the name of the chief executive officer of %O.          intent=definition status=ok
+   [ceo] 0/3  Say who the CEO of %O is, please.                                    intent=unknown status=no_interpretation
+   [currency] 0/3  Anyone know the currency over in %K?                                 intent=definition status=ok
+   [currency] 0/3  By what name is the money of %K known?                               intent=unknown status=no_interpretation
+   [currency] 0/3  Can you tell me which currency %K issues?                            got rel=open:issues known=to ask=from holder=Cavkogal
+   [currency] 0/3  Could you tell me what currency I will need in %K?                   got rel=requirement known=from ask=to holder=I
+   [currency] 0/3  Hey assistant, what's the local currency over in %K?                 intent=definition status=ok
+   [currency] 0/3  I'm travelling to %K next week - which currency should I exchange my cash into? intent=entity_description status=ok
+   [currency] 0/3  In which currency are prices quoted in %K?                           intent=definition status=ok
+   [currency] 0/3  Looking for the currency name for %K.                                intent=statement status=ok
+   [currency] 0/3  Remind me, what currency does %K have again?                         intent=unknown status=no_interpretation
+   [currency] 0/3  What currency would I need to carry to pay in shops in %K?           intent=unknown status=no_interpretation
+   [currency] 0/3  What is the unit of money in %K called?                              intent=definition status=ok
+   [currency] 0/3  Which currency is in use across %K?                                  intent=unknown status=no_interpretation
+   [founder] 0/3  Say who founded %O, please.                                          intent=unknown status=no_interpretation
+   [founder] 0/3  What is the name of the person who founded %O?                       intent=definition status=ok
+   [founder] 0/3  Who is credited as the founder of %O?                                intent=definition status=ok
+   [founder] 0/3  Who set %O up?                                                       intent=unknown status=no_interpretation
+   [founder] 0/3  person who founded %O                                                intent=definition status=ok
+   [headquarters] 0/3  %O is headquartered where?                                           intent=statement status=ok
+   [headquarters] 0/3  Can you tell me the city in which %O maintains its headquarters?     intent=definition status=ok
+   [headquarters] 0/3  Hey assistant, where is %O based?                                    intent=definition status=ok
+   [headquarters] 0/3  I was wondering in which city %O has its head office.                intent=unknown status=no_interpretation
+   [headquarters] 0/3  In what location are the corporate headquarters of %O situated?      got rel=located_in known=from ask=to holder=the corporate headquarters of Hixpimere Holdings
+   [headquarters] 0/3  Is anyone able to say which city hosts the head office of %O?        intent=unknown status=no_interpretation
+   [headquarters] 0/3  Where in the world is %O headquartered?                              intent=unknown status=no_interpretation
+
+## retrieval benchmark (3 seeds x 40 facts)
+templates sha256: 8b3bdff834242aa68dfc7833fcaac7544ac55586f987b80065d13c3e57cfe0e2
+baseline                   n=159   serious-error=1.000 [0.976,1.000]  top1-wrong-topic=0.267  contaminated@3=1.000  gold-in-top3=1.000  (never abstains)
+system                     n=159   serious-error=0.013 [0.003,0.045]  correct=0.242 wrong-answer=0.017 contaminated=0.000 abstained=0.742 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=1/18 retained=5 | answerable-with-unparsable-template=0 (abstained 0)
+]==],
 ["reports/runs/longctx_blind2_run1.txt"] = [==[
 # long-context blind wordings (longctx_wordings_heldout2) first run — engine commit e700f7d, file sha256 b1893a29d981a63d97c01ecb3a9fa1e5655e56443a2ce70abfa9b4efee6224ae
 external templates: data/eval/heldout/longctx_wordings_heldout2.json  sha256=b1893a29d981a63d97c01ecb3a9fa1e5655e56443a2ce70abfa9b4efee6224ae
@@ -28539,6 +29345,193 @@ pronoun_gap         100 middle      3    1.00       159      0.37     2.67  pron
 pronoun_gap         100 end         3    1.00       168      0.30     3.33  pronoun: right=1 honest-unresolved=2 WRONG=0
 
 OVERALL scenarios=126 success=0.548 [0.461,0.632]  memory recall=0.532 precision=0.310 false-memory/request=0.93
+]==],
+["reports/runs/longctx_blind4_run1.txt"] = [==[
+# long-context blind wordings (longctx_wordings_heldout4) first run — engine commit e0a0bde, templates sha256 df849c4fb39e0509051a6aca48e7bbc2eca6d4cb3c0cc5cbf456358dc20891b5
+external templates: data/eval/heldout/longctx_wordings_heldout4.json  sha256=df849c4fb39e0509051a6aca48e7bbc2eca6d4cb3c0cc5cbf456358dc20891b5
+kind              turns pos         n success work/final   wall(s) false_mem
+backref_entity       10 begin       3    1.00       298      0.04     0.67
+backref_entity       10 middle      3    1.00       349      0.04     0.67
+backref_entity       10 end         3    0.67       302      0.04     1.00
+backref_entity      100 begin       3    0.33       284      0.31     2.33
+backref_entity      100 middle      3    0.33       344      0.39     3.67
+backref_entity      100 end         3    1.00       321      0.35     2.33
+correction           10 begin       3    0.67       189      0.04     0.67
+correction           10 middle      3    0.67       214      0.04     0.00
+correction           10 end         3    1.00       200      0.04     0.33
+correction          100 begin       3    0.33       248      0.46     3.00
+correction          100 middle      3    0.00       219      0.39     2.33
+correction          100 end         3    1.00       239      0.44     3.00
+exclusion            10 begin       3    0.33       285      0.04     0.67
+exclusion            10 middle      3    0.33       288      0.04     0.00
+exclusion            10 end         3    1.00       290      0.04     0.00
+exclusion           100 begin       3    0.67       308      0.35     2.33
+exclusion           100 middle      3    0.67       289      0.36     2.67
+exclusion           100 end         3    1.00       239      0.36     1.33
+buried_negation      10 begin       3    0.67       281      0.04     0.00
+buried_negation      10 middle      3    1.00       227      0.03     0.00
+buried_negation      10 end         3    0.67       287      0.05     0.00
+buried_negation     100 begin       3    1.00       282      0.54     0.00
+buried_negation     100 middle      3    0.67       277      0.55     0.00
+buried_negation     100 end         3    0.67       274      0.49     0.00
+similar_names        10 begin       3    1.00       278      0.06     0.67
+similar_names        10 middle      3    0.67       296      0.04     0.00
+similar_names        10 end         3    1.00       346      0.05     1.33
+similar_names       100 begin       3    0.67       327      0.37     3.33
+similar_names       100 middle      3    1.00       346      0.36     2.67
+similar_names       100 end         3    0.67       310      0.38     4.67
+decision             10 begin       3    1.00       255      0.03     0.67
+decision             10 middle      3    0.67       299      0.04     0.33
+decision             10 end         3    0.67       287      0.05     0.00
+decision            100 begin       3    1.00       299      0.34     3.00
+decision            100 middle      3    0.67       273      0.36     4.00
+decision            100 end         3    0.33       283      0.37     4.00
+pronoun_gap          10 begin       3    1.00       219      0.05     1.33  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap          10 middle      3    1.00       257      0.05     1.33  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap          10 end         3    1.00       246      0.06     1.33  pronoun: right=2 honest-unresolved=1 WRONG=0
+pronoun_gap         100 begin       3    0.67       270      0.45     5.00  pronoun: right=2 honest-unresolved=0 WRONG=1
+pronoun_gap         100 middle      3    1.00       179      0.42     5.33  pronoun: right=2 honest-unresolved=1 WRONG=0
+pronoun_gap         100 end         3    1.00       187      0.47     3.00  pronoun: right=2 honest-unresolved=1 WRONG=0
+
+OVERALL scenarios=126 success=0.754 [0.672,0.821]  memory recall=0.976 precision=0.355 false-memory/request=1.64
+]==],
+["reports/runs/longctx_default_final.txt"] = [==[
+# long-context default sweep (built-in wordings, development) — engine commit e0a0bde; lengths 10,100,500; 3 seeds
+kind              turns pos         n success work/final   wall(s) false_mem
+backref_entity       10 begin       3    1.00       246      0.02     0.00
+backref_entity       10 middle      3    1.00       246      0.03     0.00
+backref_entity       10 end         3    1.00       246      0.03     0.00
+backref_entity      100 begin       3    1.00       246      0.22     0.00
+backref_entity      100 middle      3    1.00       246      0.18     0.00
+backref_entity      100 end         3    1.00       246      0.21     0.00
+backref_entity      500 begin       3    1.00       246      1.14     0.00
+backref_entity      500 middle      3    1.00       246      1.03     0.00
+backref_entity      500 end         3    1.00       246      1.02     0.00
+correction           10 begin       3    1.00        83      0.02     0.00
+correction           10 middle      3    1.00        83      0.02     0.00
+correction           10 end         3    1.00        83      0.02     0.00
+correction          100 begin       3    1.00        83      0.22     0.00
+correction          100 middle      3    1.00        83      0.24     0.00
+correction          100 end         3    1.00        83      0.24     0.00
+correction          500 begin       3    1.00        83      1.25     0.00
+correction          500 middle      3    1.00        83      1.12     0.00
+correction          500 end         3    1.00        83      1.06     0.00
+exclusion            10 begin       3    1.00       207      0.02     0.00
+exclusion            10 middle      3    1.00       207      0.02     0.00
+exclusion            10 end         3    1.00       207      0.03     0.00
+exclusion           100 begin       3    1.00       207      0.19     0.00
+exclusion           100 middle      3    1.00       207      0.20     0.00
+exclusion           100 end         3    1.00       207      0.24     0.00
+exclusion           500 begin       3    1.00       207      1.20     0.00
+exclusion           500 middle      3    1.00       207      1.06     0.00
+exclusion           500 end         3    1.00       207      1.10     0.00
+buried_negation      10 begin       3    1.00       207      0.02     0.00
+buried_negation      10 middle      3    1.00       207      0.02     0.00
+buried_negation      10 end         3    1.00       207      0.02     0.00
+buried_negation     100 begin       3    1.00       207      0.26     0.00
+buried_negation     100 middle      3    1.00       207      0.20     0.00
+buried_negation     100 end         3    1.00       207      0.19     0.00
+buried_negation     500 begin       3    1.00       207      1.49     0.00
+buried_negation     500 middle      3    1.00       207      1.53     0.00
+buried_negation     500 end         3    1.00       207      1.29     0.00
+similar_names        10 begin       3    1.00       255      0.02     0.00
+similar_names        10 middle      3    1.00       255      0.04     0.00
+similar_names        10 end         3    1.00       255      0.02     0.00
+similar_names       100 begin       3    1.00       255      0.28     0.00
+similar_names       100 middle      3    1.00       255      0.28     0.00
+similar_names       100 end         3    1.00       255      0.21     0.00
+similar_names       500 begin       3    1.00       255      1.53     0.00
+similar_names       500 middle      3    1.00       255      1.36     0.00
+similar_names       500 end         3    1.00       255      1.05     0.00
+decision             10 begin       3    1.00       231      0.02     0.00
+decision             10 middle      3    1.00       249      0.02     0.00
+decision             10 end         3    1.00       249      0.03     0.00
+decision            100 begin       3    1.00       249      0.20     0.00
+decision            100 middle      3    1.00       249      0.19     0.00
+decision            100 end         3    1.00       249      0.19     0.00
+decision            500 begin       3    1.00       249      1.03     0.00
+decision            500 middle      3    1.00       231      1.11     0.00
+decision            500 end         3    1.00       231      1.03     0.00
+pronoun_gap          10 begin       3    1.00       133      0.02     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap          10 middle      3    1.00       133      0.02     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap          10 end         3    1.00       133      0.02     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         100 begin       3    1.00       133      0.20     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         100 middle      3    1.00       133      0.18     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         100 end         3    1.00       133      0.19     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         500 begin       3    1.00       133      1.08     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         500 middle      3    1.00       133      1.14     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+pronoun_gap         500 end         3    1.00       133      1.24     0.00  pronoun: right=3 honest-unresolved=0 WRONG=0
+
+OVERALL scenarios=189 success=1.000 [0.980,1.000]  memory recall=1.048 precision=0.815 false-memory/request=0.00
+]==],
+["reports/runs/retrieval_ablations_run1.txt"] = [==[
+# retrieval / evidence ablations — engine commit e0a0bde (dev vocabulary, development templates; 3 seeds x 40 facts)
+system                     n=159   serious-error=0.000 [0.000,0.024]  correct=1.000 wrong-answer=0.000 contaminated=0.000 abstained=0.000 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=18 | answerable-with-unparsable-template=8 (abstained 0)
+baseline                   n=159   serious-error=1.000 [0.976,1.000]  top1-wrong-topic=0.000  contaminated@3=1.000  gold-in-top3=1.000  (never abstains)
+v_no_time                  n=159   serious-error=0.000 [0.000,0.024]  correct=1.000 wrong-answer=0.000 contaminated=0.000 abstained=0.000 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=18 | answerable-with-unparsable-template=8 (abstained 0)
+v_no_type                  n=159   serious-error=0.000 [0.000,0.024]  correct=1.000 wrong-answer=0.000 contaminated=0.000 abstained=0.000 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=18 | answerable-with-unparsable-template=8 (abstained 0)
+v_no_source                n=159   serious-error=0.000 [0.000,0.024]  correct=1.000 wrong-answer=0.000 contaminated=0.000 abstained=0.000 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=18 | answerable-with-unparsable-template=8 (abstained 0)
+v_no_polarity              n=159   serious-error=0.000 [0.000,0.024]  correct=1.000 wrong-answer=0.000 contaminated=0.000 abstained=0.000 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=18 | answerable-with-unparsable-template=8 (abstained 0)
+v_no_duplicates            n=159   serious-error=0.000 [0.000,0.024]  correct=1.000 wrong-answer=0.000 contaminated=0.000 abstained=0.000 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=18 | answerable-with-unparsable-template=8 (abstained 0)
+v_no_reliability           n=159   serious-error=0.000 [0.000,0.024]  correct=0.850 wrong-answer=0.000 contaminated=0.000 abstained=0.150 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=18 | answerable-with-unparsable-template=8 (abstained 1)
+v_no_typed                 n=159   serious-error=0.862 [0.799,0.907]  correct=0.000 wrong-answer=1.000 contaminated=1.000 abstained=0.000 | unsupported ok=0.917 insufficient ok=0.000 | injection leak=19/24 conflict wrong=18/18 retained=0 | answerable-with-unparsable-template=8 (abstained 0)
+v_no_specialization        n=159   serious-error=0.000 [0.000,0.024]  correct=1.000 wrong-answer=0.000 contaminated=0.000 abstained=0.000 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=18 | answerable-with-unparsable-template=8 (abstained 0)
+
+# retrieval, held-out vocabulary and held-out templates (heldout4) for comparison
+system                     n=159   serious-error=0.000 [0.000,0.024]  correct=0.967 wrong-answer=0.000 contaminated=0.000 abstained=0.033 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=0/18 retained=16 | answerable-with-unparsable-template=44 (abstained 4)
+baseline                   n=159   serious-error=1.000 [0.976,1.000]  top1-wrong-topic=0.167  contaminated@3=1.000  gold-in-top3=1.000  (never abstains)
+]==],
+["reports/runs/test_noise_run1.txt"] = [==[
+# surface-noise robustness on the frozen test split — engine commit e0a0bde (full vs no_repair vs baseline)
+noise robustness on the test split (1657 perturbed inputs, seed 5); primary reading correct, Wilson 95% CI
+operator     | full                     | no_repair                | baseline                
+none         | 0.974 [0.927,0.991] n=116  | 0.974 [0.927,0.991] n=116  | 0.276 [0.203,0.363] n=116 
+typo         | 0.857 [0.815,0.891] n=329  | 0.565 [0.511,0.618] n=329  | 0.152 [0.117,0.195] n=329 
+filler       | 0.925 [0.893,0.949] n=348  | 0.514 [0.462,0.566] n=348  | 0.270 [0.226,0.319] n=348 
+lowercase    | 0.956 [0.929,0.973] n=342  | 0.956 [0.929,0.973] n=342  | 0.263 [0.219,0.312] n=342 
+drop_punct   | 0.955 [0.928,0.973] n=336  | 0.955 [0.928,0.973] n=336  | 0.259 [0.215,0.308] n=336 
+drop_det     | 0.978 [0.946,0.992] n=186  | 0.978 [0.946,0.992] n=186  | 0.371 [0.305,0.442] n=186 
+ALL noisy    | 0.931 [0.917,0.942] n=1541 | 0.775 [0.754,0.796] n=1541 | 0.253 [0.232,0.275] n=1541
+]==],
+["reports/runs/test_run1.txt"] = [==[
+# frozen test split (data/eval/test.cases, sha256 bd6516cc7e2a5e043d0d5bad21cbd62683314c414c538a89376d2bae566ae4a0) first and only run — engine commit e0a0bde
+full/test: n=140  all-fields accuracy=0.964 [0.919,0.985]  serious-error rate=0.036 [0.015,0.081]  (any-error 0.036)
+  ambiguous                    n=9   pass=8   acc=0.89 [0.56,0.98] serious=1
+  basic_factual                n=20  pass=20  acc=1.00 [0.84,1.00] serious=0
+  comparative                  n=3   pass=3   acc=1.00 [0.44,1.00] serious=0
+  conditional                  n=3   pass=2   acc=0.67 [0.21,0.94] serious=1
+  direction                    n=9   pass=9   acc=1.00 [0.70,1.00] serious=0
+  discourse                    n=12  pass=12  acc=1.00 [0.76,1.00] serious=0
+  geographic                   n=4   pass=3   acc=0.75 [0.30,0.95] serious=1
+  instruction                  n=4   pass=4   acc=1.00 [0.51,1.00] serious=0
+  intent                       n=11  pass=11  acc=1.00 [0.74,1.00] serious=0
+  malformed                    n=5   pass=5   acc=1.00 [0.57,1.00] serious=0
+  minimal_pair                 n=7   pass=7   acc=1.00 [0.65,1.00] serious=0
+  multi_hop                    n=3   pass=3   acc=1.00 [0.44,1.00] serious=0
+  multi_part                   n=3   pass=3   acc=1.00 [0.44,1.00] serious=0
+  multiword                    n=10  pass=10  acc=1.00 [0.72,1.00] serious=0
+  negation                     n=9   pass=7   acc=0.78 [0.45,0.94] serious=2
+  open_set                     n=6   pass=6   acc=1.00 [0.61,1.00] serious=0
+  punctuation                  n=6   pass=6   acc=1.00 [0.61,1.00] serious=0
+  spelling                     n=6   pass=6   acc=1.00 [0.61,1.00] serious=0
+  temporal                     n=10  pass=10  acc=1.00 [0.72,1.00] serious=0
+  failing fields: amb=2 rel=2 ask=1 neg=1 to=1
+  metamorphic: equivalence 2/2  distinction 4/4
+
+FAILURES:
+T058 [ambiguous] "What is bank?" (SERIOUS)
+    amb: got [resolved] want [ambiguous]
+T083 [negation] "Which statements are not backed by the sources?" (SERIOUS)
+    rel: got [investor] want [supported_by]
+T087 [negation] "Show me retailers that are not in Germany." (SERIOUS)
+    neg: got [] want [entity:germany]
+T101 [geographic] "Which universities are in Edinburgh?" (SERIOUS)
+    ask: got [nil] want [from]
+    rel: got [-] want [located_in]
+    to: got [missing] want [Edinburgh]
+T210 [conditional] "If Berlin is the capital of Germany, who is its mayor?" (SERIOUS)
+    amb: got [resolved] want [ambiguous]
+work=32203 wall=0.44s
 ]==],
 ["tests/fuzz_lex.lua"] = [==[
 -- Large randomized robustness campaign for the lexical layer (not part of the fast suite).
@@ -30574,6 +31567,44 @@ rf:write(table.concat(out, "\n") .. "\n")
 rf:close()
 print(table.concat(out, "\n"))
 ]==],
+["tools/calibration_shift.lua"] = [==[
+-- usage: lua5.4 tools/calibration_shift.lua FILE.cases [FILE.cases ...]
+-- Evaluates the SAVED calibration model (data/calibration/interp_v1.json) on gold files it was not fitted on: how well does the stated confidence
+-- predict that the primary reading is correct (every gold field except the ambiguity flags)?  Single-turn cases only.  Reports ECE, Brier, AUROC,
+-- accuracy and the reliability table for the raw score and for the calibrated score, so a distribution shift shows up as a number, not as a claim.
+package.path = (arg[0]:match("^(.*)/tools/[^/]*$") or ".") .. "/nlu/?.lua;" .. package.path
+local root = arg[0]:match("^(.*)/tools/[^/]*$") or "."
+local E = require("asi.nlu.eval")
+local R = require("asi.nlu.resources")
+local Cal = require("asi.nlu.calibration")
+
+local model = assert(Cal.load_file(root .. "/data/calibration/interp_v1.json"))
+local lex = R.core()
+local runner = E.make_runner("full", lex)
+for _, path in ipairs(arg) do
+  local cases, errs = E.parse_cases(assert(E.read_file(path)), path)
+  assert(#errs == 0, table.concat(errs, "\n"))
+  local raw, cal = {}, {}
+  for _, cs in ipairs(cases) do
+    if not cs.turns and cs.gold.status == nil and not cs.gold.mm then
+      local rep = E.run({ cs }, runner, lex)
+      local r = rep.results[1]
+      local m = r.interp
+      local ok = true
+      for k, f in pairs(r.fields) do if not f.ok and k ~= "amb" and k ~= "alts" then ok = false end end
+      local f = m and Cal.features(m) or { no_interpretation = 1 }
+      raw[#raw + 1] = { x = f.semantic_raw or 0, y = ok and 1 or 0 }
+      cal[#cal + 1] = { x = Cal.apply_features(model, f), y = ok and 1 or 0 }
+    end
+  end
+  local ev_raw, ev_cal = Cal.evaluate(raw, nil), Cal.evaluate(cal, nil)
+  print(string.format("== %s  (single-turn cases: n=%d, primary-reading accuracy %.3f)", path, #raw, ev_raw.accuracy))
+  print(string.format("   raw semantic score      : ECE %.3f  Brier %.3f  AUROC %.3f", ev_raw.ece, ev_raw.brier, Cal.auroc(raw)))
+  print(string.format("   calibrated (saved model): ECE %.3f  Brier %.3f  AUROC %.3f", ev_cal.ece, ev_cal.brier, Cal.auroc(cal)))
+  print("   reliability of the calibrated confidence:  bin  n  mean-confidence  accuracy")
+  for i, b in ipairs(ev_cal.bins) do print(string.format("      %2d %4d   %.3f   %.3f", i, b.n, b.mean_confidence, b.accuracy)) end
+end
+]==],
 ["tools/inject_bundle.lua"] = [==[
 -- usage: lua5.4 tools/inject_bundle.lua --target HOST.lua [--module dist/asi_nlu_bundle.lua] [--out OUT.lua | --in-place] [--at start|before:TEXT] [--remove] [--selfcheck]
 -- Controlled, non-destructive injection of the asi-nlu modules into a package.preload-style host bundle.
@@ -31235,11 +32266,11 @@ if opts.json then local f = io.open(opts.json, "w"); f:write(U.json_encode({ fac
 ]==],
 }
 local SHA = {
-["README.md"] = "aa33c56df04c773975776753681a4d2141fad50a6faf7c4cca60313d309bfdc3",
+["README.md"] = "4a215ea3ff08f71a1240e846bc10e20cdc4872aca150545d01398c3528a46ebd",
 ["data/acceptance/triples.csv"] = "0282afc0931f0a73a3b98663f5ba64976cdfe2c25772d864bd4744919bfc22f5",
 ["data/acceptance/world_2019.jsonl"] = "666e5165d2022bdc2f0a9defe3b19577e8ce73f32113c25380caa1852ef192b9",
 ["data/acceptance/world_2020.jsonl"] = "71ff51376a40f4df734bd86e9bc4e5ecb7852ba92e0063aa2e54621ee619b5c8",
-["data/calibration/interp_v1.json"] = "4162c389461c2a2b0ff9b8f69b0cae1bb47f73db7035990bec5639f922676587",
+["data/calibration/interp_v1.json"] = "4f79c32fbfa0a2df578b0738cd98ef8224c6e5667b25b0c6419221764e833f90",
 ["data/eval/MANIFEST.json"] = "bb99a26153a7c4d53962aaff77514c3c0f1b3eee41dabdbaabec6559ab5db682",
 ["data/eval/dev.cases"] = "bef05c816c3521d2011192be6f218f46444b7705d16bccb053eb16cbbb87fc44",
 ["data/eval/dev_constructions.cases"] = "b201d6f3dbd6c4371d4366209cf9bb2d533012864bf925b39b85533986d6bab2",
@@ -31270,7 +32301,7 @@ local SHA = {
 ["nlu/asi/nlu/coref.lua"] = "654311b09944e4359bcc90d66ff70bf9ffb7850e38d72130b2c07d4ccd953dd3",
 ["nlu/asi/nlu/data/lex_core.lua"] = "9248c29e40c5ae7f134de331d3569955ec63c63badf692ecd9bd0ac3accb9be3",
 ["nlu/asi/nlu/data/lex_gaz.lua"] = "ca3e80c7c6004cd4f327403bb4ee58a1d925771ae23f0090ce840aec3febe6dc",
-["nlu/asi/nlu/data/lex_rel.lua"] = "4c27ab33ecf00745ebc48b8a0c4fb62a3f959fa048ff63db7271d0bc7f7c1ed8",
+["nlu/asi/nlu/data/lex_rel.lua"] = "cff1dc0091e859aef06cea77af958c5d7828d18f7da4217019c150ded44f51f5",
 ["nlu/asi/nlu/data/lex_sense.lua"] = "1eb7fefd5771778cc97bcbfe9224a84ec8fa085f38d8090238f123042831418e",
 ["nlu/asi/nlu/data/lex_typenoun.lua"] = "3fd5d839b2e1cc2b837aadac26173afd252046bd06c84c7230d4d8ee3fd66482",
 ["nlu/asi/nlu/dataset.lua"] = "0bff382154322eee69ae238b09955db5f29f44f261dc58f2f88c7d7a3bd63c04",
@@ -31279,7 +32310,7 @@ local SHA = {
 ["nlu/asi/nlu/frames.lua"] = "f6fdafd9867f8fcb54e6f5e9c2f006a12916906855cc3e654e3f90488d66c8dc",
 ["nlu/asi/nlu/frames2.lua"] = "7bf1ce79ddd093cb83a3f19d4123200c760124ef83bb5e1d6f1f95dfb50f7123",
 ["nlu/asi/nlu/frames3.lua"] = "40a3cfe4cabaf5646799921bcc289b9c2f4580ad55848842aa243646b900102a",
-["nlu/asi/nlu/frames4.lua"] = "ecca112a5abcb69327be21ab20c6cdc5b93b11a1b574e4747f593509115f9d22",
+["nlu/asi/nlu/frames4.lua"] = "d829aecda1d725c3a6c1ddf549de031f02f165769f5014bcdc4365343f7f6f08",
 ["nlu/asi/nlu/hook.lua"] = "1fd2c30a2cb762d1ab7da52a5cc73b0656b5fd89568e55c6cf75edc130a925fc",
 ["nlu/asi/nlu/hyp.lua"] = "31fd02d8af7de6c0a2849cf47a24968750b8aa489bfb3ba9136ec158d39a67d3",
 ["nlu/asi/nlu/index.lua"] = "cbd47a9694466a8b37ce2a1d640a56a0827a61264ce1ec70572b9ee029fd5ac5",
@@ -31301,7 +32332,7 @@ local SHA = {
 ["nlu/asi/nlu/record.lua"] = "7e484ebafd3dea8aa305dc6edb5235ffa3acb777bc97b9150bf8e021a5846d00",
 ["nlu/asi/nlu/repair.lua"] = "14436d03d269338fb7a1297093d8cf3f22c2d5bca102ce809ac8f6400fd80431",
 ["nlu/asi/nlu/resources.lua"] = "cb534724597215aefc87724e616136bdd513273bc60037b157183bdbe86fb7e8",
-["nlu/asi/nlu/sem.lua"] = "83cb8b8e95b1a7e91cf222ab64b0cf742a2522fe7775af1284bc622f45ea0e22",
+["nlu/asi/nlu/sem.lua"] = "1ca756bef2eb0ead0c4c6404e91ae9ee81f9d80c7b52c88ace4794dbf3a24356",
 ["nlu/asi/nlu/spell.lua"] = "ad187dc325f7786de687fc44c23c9fb67a9737c57505c73370bc1a4fda0bb3f8",
 ["nlu/asi/nlu/temporal.lua"] = "cffd7d5265fd73ce18e7ca41db1e186b9f67662e16c9c97c38e5206f15ffba95",
 ["nlu/asi/nlu/textutil.lua"] = "66657a87c2a74d210425b7c5b539445d5c8b6a9e9664a76a9a7fea15eb134149",
@@ -31309,17 +32340,27 @@ local SHA = {
 ["nlu/asi/nlu/util.lua"] = "391e67a78b13368a4be4028659bc45babecbdd7ff24aa761d00ad68dd38aaa8f",
 ["nlu/asi/nlu/verify.lua"] = "f8f0168a18f5856a71d8a5e02bbd49e3ad01a2d0fa335ea9ca9d5a42798cd237",
 ["nlu/asi/nlu/vfs.lua"] = "f802fc0bc40682db610cb55a15921b0a1bb0c7b87f5177b6b48cd228e7a89990",
-["reports/00_audit.md"] = "7bdf5eb69a812c44705974ccc3f018b54c065ec8490b2d5a02a5ef0899d8d418",
-["reports/calibration.md"] = "c53d7fbd17eb5f96c64384122325d54048a660988fd5a57894a75e1e3c499e74",
+["reports/00_audit.md"] = "6ccc534fe0b84f7f5ee44ce6d657e6875d273140cb35850e0a4aba93262ef369",
+["reports/FINAL_REPORT.md"] = "3ddfbee54156c304d18715272c491080dfa9781670961ef39eca04bc7bae3d17",
+["reports/calibration.md"] = "40170052a20941004486888de1d0322d3a758b9dbb46bd2169e671d2c7311532",
 ["reports/gold_changes.md"] = "082f20f9adc3817ae29365abe9fd3aec7f8180f3a37607b49d5f522661428d85",
-["reports/heldout_log.md"] = "02d3b2b98e93b59091ad3bfe4e4746507b99e4975eec93520a07dc58d5386a83",
-["reports/performance.md"] = "b98f5187c366ef1f750f5aae4019f877978c492a2b0e5246a68807b543e912b6",
+["reports/heldout_log.md"] = "76fd184f13bdde0a00c13596192d933ed92a3d4ffd888ced3335ea99a304d430",
+["reports/performance.md"] = "5ba8c34b4cad64b38488dab610c676846d32f9bb861eda026a2682b41a52b667",
+["reports/runs/ablations_run1.txt"] = "fc24f4d331c75b350d348485cffc19bedce34052702ae4d6c7719bea8fa70b6b",
 ["reports/runs/blind2_cases_run1.txt"] = "452300149d2caa56dc4d0abddf6201f6848823ff597af32808be0f7dd4dec6da",
+["reports/runs/blind3_cases_run1.txt"] = "65af941b9815be0ae8e1a0924f493f6d00fd156a5aaac3f68af47015442d45c6",
 ["reports/runs/blind_cases_run1.txt"] = "75f5a5d5a6ccd6353289999e127ec57d3933224f924c5a881bb92bcfc1dabc14",
+["reports/runs/calibration_shift_run1.txt"] = "0571fa2e3fb21d67b6bc06742ae18d3f78b697fc19972ca11d0cabccd14acfc6",
 ["reports/runs/heldout4_run1.txt"] = "411b7560cd8713c30c0bacada6510d22362605cfee2c30311b966bf2c7446bc4",
 ["reports/runs/heldout5_run1.txt"] = "7e252d7af63cc775dbff858f2144f7835ebb648b4a611a2c9f879dcfbfd2e177",
+["reports/runs/heldout6_run1.txt"] = "8855505f891778c042203e171cc3d0d202ba677bfedbdedd2c49b6ec8fd32e5b",
 ["reports/runs/longctx_blind2_run1.txt"] = "6b66087886b2371f5a1b36fe11a418654d6cae0af386334480725a0c5aa80cc2",
 ["reports/runs/longctx_blind3_run1.txt"] = "bcccbc6faa2db52c498fb871d1c2bf8d71e97b560e6e2cf7d5d2fe920f8da7b1",
+["reports/runs/longctx_blind4_run1.txt"] = "2dc9f5367354535c0ac499f2de1ff4539a259576364056e197f20dffdd7fe5ba",
+["reports/runs/longctx_default_final.txt"] = "fff3ebe362d9f47c1535ef6ba942b41963a415c4e03afd40aaf761cae1277d53",
+["reports/runs/retrieval_ablations_run1.txt"] = "917379a38f5a6922a3d90fc282ba73cd2456414651761cbb0b70fb230221de79",
+["reports/runs/test_noise_run1.txt"] = "5088cb668cf4059da30b55f1979d68f5809d960f16d4fbf3dbe8d4b425582110",
+["reports/runs/test_run1.txt"] = "2cc50a97aa2288ee14bbbe1eb27d46961c05486137e04542d3ff09931ca5a12b",
 ["tests/fuzz_lex.lua"] = "8aec8ea2962149201840a64aeaa4068660ecb0729996dc8cdc230f674aa9a55d",
 ["tests/run_all.lua"] = "8aae71b7cc279ed69a03645ee0c873d004ba2edba255519ebb10368f9f83bf0c",
 ["tests/t.lua"] = "f0b2a9978f40750fc31c6ca9c008974552b5694240279874f8661787f6bb5f82",
@@ -31338,6 +32379,7 @@ local SHA = {
 ["tools/build_bundle.lua"] = "ff3607550386fdf4af0205630a7483c32a61a5ed52798c250fdc9c4a05f1e6df",
 ["tools/build_single.lua"] = "b61885d9cac59c9c6f448212d681869208b7866f07544428ace894d21e33d1a0",
 ["tools/calibrate.lua"] = "1481142e40c2406524b7ebb90bc4222703ee50df8f879c99715833c2754692ca",
+["tools/calibration_shift.lua"] = "751405dab787de5c897232c414f2c34d89a3c524e2b4628691abc9cf1d50fc15",
 ["tools/inject_bundle.lua"] = "38cad91a7b79b4425047b0102b9ea6b3da88c7903cedb9a1b643d4f1e32c597b",
 ["tools/lib_accept.lua"] = "c4dbe7a88534c4265f76abc2464bd39e30621fbb3b136fe3f346c0c8361fd26a",
 ["tools/manifest.lua"] = "84e444d1a9d4e8d4a704cd1e5825313cff8fdcb65ddf44ec3e229d7317e8441c",
@@ -31348,7 +32390,7 @@ local SHA = {
 ["tools/run_retrieval_bench.lua"] = "559fe3f291c8aea5ad2eb4c79505cb6913507d3fc416abfe0f5763ad017948a4",
 ["tools/template_coverage.lua"] = "731b028d5591b460702e63959596b9992c1ed0f35d41198d4123423eb16a2652",
 }
-local E = { version = "0.9.0", digest = "b2a4fea9b0c31e95a594359601ff06fa67ff5226571e03dc9c2e88f0c0392046", sha256 = SHA, files = FILES }
+local E = { version = "0.9.0", digest = "48fdce061f4d646d38daa118d80bfb3463fb88e74b6cc230e6fd39856eeb7523", sha256 = SHA, files = FILES }
 for path, src in pairs(E.files) do
   local mod = path:match("^nlu/(asi/.+)%.lua$")
   if mod then

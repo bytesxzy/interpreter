@@ -1,0 +1,141 @@
+# heldout6 first run — engine commit e0a0bde, templates sha256 8b3bdff834242aa68dfc7833fcaac7544ac55586f987b80065d13c3e57cfe0e2
+
+## template-level coverage (diagnostic)
+FACTS      159/450 = 0.353 [0.311,0.399]
+   [capital] 0/3  After three days on the road we finally rolled into %C, which happens to be the capital of %K, and honestly it was worth the wait. no assertion
+   [capital] 0/3  As is well known, the city %C fulfils the function of capital for the state %K. no assertion
+   [capital] 0/3  Every country has a capital city, and for %K it is %C.               no assertion
+   [capital] 0/3  Fact file - country: %K, capital city: %C.                           no assertion
+   [capital] 0/3  Far away lies the land of %K, and its capital is a cheerful town called %C. got instance_of
+   [capital] 0/3  Fun fact before we dive in, folks: %K calls %C its capital.          got capital(mention:lunragal -> sense:capital.finance)
+   [capital] 0/3  If an exam asks you for the capital of %K, the correct answer is %C. no assertion
+   [capital] 0/3  In %K, the title of national capital belongs to %C.                  no assertion
+   [capital] 0/3  Strike halts trains across %K (capital: %C) for a second day         no assertion
+   [capital] 0/3  WHEREAS %C is recognised as the capital of %K, the parties have agreed that any dispute shall be heard in that city. no assertion
+   [capital] 0/3  We keep a small liaison office in %C because it is the capital of %K and home to the ministries we deal with. no assertion
+   [capital] 0/3  With %C as its capital, %K has long balanced two competing traditions. got capital(mention:eripigate -> mention:quipimark)
+   [ceo] 0/3  %P is a business executive who serves as chief executive officer of %O. no assertion
+   [ceo] 0/3  All hands tomorrow: %P, who heads %O as CEO, will take questions from staff. got leader
+   [ceo] 0/3  At %O there is a chief executive, which is a very important job, and the person doing that job is %P. no assertion
+   [ceo] 0/3  CEO %P hails record year at %O                                       no assertion
+   [ceo] 0/3  Chief executive %P of %O said on Tuesday that quarterly orders had risen sharply. no assertion
+   [ceo] 0/3  Company: %O | CEO: %P                                                no assertion
+   [ceo] 0/3  Excited to share that I have joined %O, where %P is chief executive. no assertion
+   [ceo] 0/3  Having risen through the ranks, %P now serves as chief executive of %O. no assertion
+   [ceo] 0/3  Join %O, a growing company under the leadership of CEO %P.           no assertion
+   [ceo] 0/3  Key people at %O: %P (CEO).                                          no assertion
+   [ceo] 0/3  Local firm %O, headed by CEO %P, has won a regional export award.    got leader
+   [ceo] 0/3  Old news, folks: the CEO of %O has been %P for years.                no assertion
+   [ceo] 0/3  On the factory tour we met the chief executive of %O, who happens to be %P, and stayed for coffee. no assertion
+   [ceo] 0/3  The Minister was received by %P, who serves as chief executive of %O, and by members of its board. got open:receiv
+   [ceo] 0/3  The chief executive of %O reports to the board, and that role is currently held by %P. no assertion
+   [ceo] 0/3  The declaration for this shipment was signed by %P in the capacity of CEO of %O. no assertion
+   [ceo] 0/3  The post of chief executive officer in the enterprise %O is occupied by the person %P. no assertion
+   [ceo] 0/3  Tonight's hospitality suite belongs to %O, the company whose CEO is %P. no assertion
+   [ceo] 0/3  WHEREAS %P holds the office of chief executive officer of %O and is authorised to sign on its behalf, the parties agree as follows. no assertion
+   [ceo] 0/3  You will be welcomed by the friendly team at %O, whose chief executive %P greets every guest in person. no assertion
+   [currency] 0/3  %X (noun): the basic monetary unit of %K.                            no assertion
+   [currency] 0/3  All sums payable under this agreement shall be paid in the %X, being the lawful currency of %K. no assertion
+   [currency] 0/3  Amounts declared on entry to %K must be stated in the %X, which is the national currency. no assertion
+   [currency] 0/3  As a currency, the %X is utilised by the state %K for all payments within its territory. no assertion
+   [currency] 0/3  Bonds denominated in the %X, which %K issues as its national currency, yield more than most peers. no assertion
+   [currency] 0/3  Browse the sunny markets of %K and pay as the locals do, with the %X, the national currency. no assertion
+   [currency] 0/3  Central bank of %K (currency: the %X) unveils new banknote design    no assertion
+   [currency] 0/3  Country: %K | Currency: %X                                           no assertion
+   [currency] 0/3  In the land of %K, everyone buys sweets with money called the %X.    no assertion
+   [currency] 0/3  It is the %X that people in %K use to pay for everything from bread to bus tickets. no assertion
+   [currency] 0/3  Legal tender in %K, the %X is accepted by shops, banks and taxi drivers alike. no assertion
+   [currency] 0/3  Living in %K means earning, spending and saving in the %X.           no assertion
+   [currency] 0/3  Official tender in %K: the %X.                                       no assertion
+   [currency] 0/3  Our subsidiary in %K keeps its books in the %X, the national currency, and reports to the Group quarterly. no assertion
+   [currency] 0/3  The %X is divided into one hundred smaller units and is the currency of %K. no assertion
+   [currency] 0/3  The %X, used as legal tender across %K, slipped for a third straight day on thin trading. no assertion
+   [currency] 0/3  The Ministry of Finance of %K hereby notifies all missions that the %X remains the sole legal tender of the country. no assertion
+   [currency] 0/3  The notes in this case are early issues of the %X, which remains the currency of %K to this day. no assertion
+   [currency] 0/3  The winner's bonus in %K is paid in the %X, naturally, since it is the national currency. no assertion
+   [currency] 0/3  Tip for fellow travellers: the local currency in %K goes by the name of the %X. no assertion
+   [currency] 0/3  What passes for money in %K is the %X.                               no assertion
+   [currency] 0/3  With the %X as its currency, %K keeps full control of its monetary policy. no assertion
+   [currency] 0/3  Write this in your notebooks, class: %K uses the %X as its currency. no assertion
+   [founder] 0/3  %O exists because %P set it up to serve the local community.         no assertion
+   [founder] 0/3  %O is an organisation established by %P.                             got instance_of
+   [founder] 0/3  %P is an entrepreneur best known for founding %O.                    got instance_of
+   [founder] 0/3  %P, who founded %O, wins lifetime achievement award                  no assertion
+   [founder] 0/3  A former teacher, %P founded %O to bring neighbours together.        no assertion
+   [founder] 0/3  As for %O, it was started by %P back when the whole operation fitted in one small office. no assertion
+   [founder] 0/3  By %P was the organisation %O established, as the historical records plainly state. no assertion
+   [founder] 0/3  Dataset row - organisation: %O, founder: %P.                         no assertion
+   [founder] 0/3  Founded by %P with a single room and a big dream, %O today welcomes visitors from all over the world. no assertion
+   [founder] 0/3  Having founded %O in a converted barn, %P spent the next decade hiring slowly and carefully. no assertion
+   [founder] 0/3  Long ago, %P brought %O into being with a dream and a pair of sturdy boots. got open:bring
+   [founder] 0/3  Our warmest thanks go to %P for setting up %O.                       no assertion
+   [founder] 0/3  Since %P founded %O, it has grown steadily in every financial year.  no assertion
+   [founder] 0/3  TIL %P started %O with just a borrowed desk and a lot of nerve.      got founder(mention:hixpigate industries -> mention:til imran grigoryan)
+   [founder] 0/3  Tonight's match is sponsored by %O, which %P started in a garage and built into a household name. no assertion
+   [founder] 0/3  WHEREAS %O was established by %P for the purposes described below, the parties agree as follows. no assertion
+   [founder] 0/3  When %P founded %O, the idea was simple: serve one town well.        no assertion
+   [headquarters] 0/3  %O is a company headquartered in %C.                                 got instance_of
+   [headquarters] 0/3  %O today opened a new wing at its headquarters in %C.                no assertion
+   [headquarters] 0/3  %O, which has its headquarters in %C, said on Thursday that quarterly profit had risen. no assertion
+   [headquarters] 0/3  Board meetings of %O take place at its headquarters in %C.           no assertion
+   [headquarters] 0/3  Come and work at %O, a company whose headquarters sit in the heart of %C. no assertion
+   [headquarters] 0/3  Company: %O | Headquarters: %C                                       no assertion
+   [headquarters] 0/3  Fun fact, folks: %O keeps its head office in %C.                     no assertion
+   [headquarters] 0/3  Global though its name may be, %O has its headquarters in %C.        no assertion
+   [headquarters] 0/3  HQ of %O in %C to get green makeover                                 no assertion
+   [headquarters] 0/3  Here at %O, we have our headquarters in %C and welcome visitors by appointment. no assertion
+   [headquarters] 0/3  In %C you will find the headquarters of %O, easily recognised by its copper roof. no assertion
+   [headquarters] 0/3  In the busy town of %C there is a tall glass building where %O has its headquarters. no assertion
+   [headquarters] 0/3  On behalf of the Embassy, I thank the leadership of %O for hosting us at its headquarters in %C. no assertion
+   [headquarters] 0/3  Our city, %C, hosts the corporate headquarters of %O, one of its biggest employers. no assertion
+   [headquarters] 0/3  Please note that %O operates out of headquarters in %C and files all its declarations from that office. no assertion
+   [headquarters] 0/3  Run from headquarters in %C, %O has kept costs low even as revenue grew. no assertion
+   [headquarters] 0/3  Since relocating a decade ago, %O has had its headquarters in %C.    no assertion
+   [headquarters] 0/3  Stroll through %C, home to the headquarters of %O and some of the friendliest cafes in the region. no assertion
+   [headquarters] 0/3  TIL %C is where %O is headquartered, which explains all those job ads. got headquarters(mention:ivoragate networks -> mention:til quipimere)
+   [headquarters] 0/3  The Directors report that %O continues to have its headquarters in %C. no assertion
+   [headquarters] 0/3  The tower is leased to %O, which uses it as its headquarters in %C.  no assertion
+   [headquarters] 0/3  Thrilled to join %O, where the whole leadership team works together at headquarters in %C. no assertion
+   [headquarters] 0/3  Tonight's sponsor is %O, with its headquarters right here in %C, so expect plenty of local support. got open:sponsor
+   [headquarters] 0/3  WHEREAS %O maintains its headquarters in %C, the parties submit to the jurisdiction of the courts there. no assertion
+   [headquarters] 0/3  You will spot the glass tower in %C that serves as the headquarters of %O from anywhere in town. no assertion
+QUESTIONS  348/450 = 0.773 [0.732,0.810]
+   [capital] 0/3  %K: what is its capital city?                                        got rel=capital known=from ask=to holder=its
+   [capital] 0/3  By what name is the capital of %K known?                             intent=unknown status=no_interpretation
+   [capital] 0/3  I'd like to find out what the capital of %K is.                      intent=unknown status=no_interpretation
+   [capital] 0/3  Is anyone able to say which city is the capital of %K?               intent=unknown status=no_interpretation
+   [capital] 0/3  Of all the cities in %K, which one is the capital?                   intent=definition status=ok
+   [capital] 0/3  Question 5: give the capital of %K.                                  intent=statement status=ok
+   [capital] 0/3  Travelling to %K soon - which city is its capital?                   got rel=capital known=from ask=to holder=its
+   [capital] 0/3  What is the name of the city that is the capital of %K?              intent=definition status=ok
+   [ceo] 0/3  Please state the name of the chief executive officer of %O.          intent=definition status=ok
+   [ceo] 0/3  Say who the CEO of %O is, please.                                    intent=unknown status=no_interpretation
+   [currency] 0/3  Anyone know the currency over in %K?                                 intent=definition status=ok
+   [currency] 0/3  By what name is the money of %K known?                               intent=unknown status=no_interpretation
+   [currency] 0/3  Can you tell me which currency %K issues?                            got rel=open:issues known=to ask=from holder=Cavkogal
+   [currency] 0/3  Could you tell me what currency I will need in %K?                   got rel=requirement known=from ask=to holder=I
+   [currency] 0/3  Hey assistant, what's the local currency over in %K?                 intent=definition status=ok
+   [currency] 0/3  I'm travelling to %K next week - which currency should I exchange my cash into? intent=entity_description status=ok
+   [currency] 0/3  In which currency are prices quoted in %K?                           intent=definition status=ok
+   [currency] 0/3  Looking for the currency name for %K.                                intent=statement status=ok
+   [currency] 0/3  Remind me, what currency does %K have again?                         intent=unknown status=no_interpretation
+   [currency] 0/3  What currency would I need to carry to pay in shops in %K?           intent=unknown status=no_interpretation
+   [currency] 0/3  What is the unit of money in %K called?                              intent=definition status=ok
+   [currency] 0/3  Which currency is in use across %K?                                  intent=unknown status=no_interpretation
+   [founder] 0/3  Say who founded %O, please.                                          intent=unknown status=no_interpretation
+   [founder] 0/3  What is the name of the person who founded %O?                       intent=definition status=ok
+   [founder] 0/3  Who is credited as the founder of %O?                                intent=definition status=ok
+   [founder] 0/3  Who set %O up?                                                       intent=unknown status=no_interpretation
+   [founder] 0/3  person who founded %O                                                intent=definition status=ok
+   [headquarters] 0/3  %O is headquartered where?                                           intent=statement status=ok
+   [headquarters] 0/3  Can you tell me the city in which %O maintains its headquarters?     intent=definition status=ok
+   [headquarters] 0/3  Hey assistant, where is %O based?                                    intent=definition status=ok
+   [headquarters] 0/3  I was wondering in which city %O has its head office.                intent=unknown status=no_interpretation
+   [headquarters] 0/3  In what location are the corporate headquarters of %O situated?      got rel=located_in known=from ask=to holder=the corporate headquarters of Hixpimere Holdings
+   [headquarters] 0/3  Is anyone able to say which city hosts the head office of %O?        intent=unknown status=no_interpretation
+   [headquarters] 0/3  Where in the world is %O headquartered?                              intent=unknown status=no_interpretation
+
+## retrieval benchmark (3 seeds x 40 facts)
+templates sha256: 8b3bdff834242aa68dfc7833fcaac7544ac55586f987b80065d13c3e57cfe0e2
+baseline                   n=159   serious-error=1.000 [0.976,1.000]  top1-wrong-topic=0.267  contaminated@3=1.000  gold-in-top3=1.000  (never abstains)
+system                     n=159   serious-error=0.013 [0.003,0.045]  correct=0.242 wrong-answer=0.017 contaminated=0.000 abstained=0.742 | unsupported ok=1.000 insufficient ok=1.000 | injection leak=0/24 conflict wrong=1/18 retained=5 | answerable-with-unparsable-template=0 (abstained 0)

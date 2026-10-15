@@ -1,5 +1,5 @@
 -- asi-nlu bundle 0.9.0 : LM-independent natural-language interpretation engine (package.preload modules, no external dependencies).
--- body sha256 (all module blocks, excluding this header): cf149f7aa9d87b9e58f8ddc920f038b9015ce086e215a5e68b400c5afe6b1e7f
+-- body sha256 (all module blocks, excluding this header): a604926552a66133113a254f22dd4f172c1dea44c582c7739d9c1d87221b4079
 -- modules:
 --   asi.nlu.assertions                   56597  95ed32a7f75644554c302f3b953d597833a2639c1c885a09ff159bb468e653a1
 --   asi.nlu.assertions2                  45375  c3935eb4996c1d3434b2ea952744c5b56bf7a060c8581e973f27564eff070846
@@ -14,7 +14,7 @@
 --   asi.nlu.frames                       48972  f6fdafd9867f8fcb54e6f5e9c2f006a12916906855cc3e654e3f90488d66c8dc
 --   asi.nlu.frames2                      87619  7bf1ce79ddd093cb83a3f19d4123200c760124ef83bb5e1d6f1f95dfb50f7123
 --   asi.nlu.frames3                      55890  40a3cfe4cabaf5646799921bcc289b9c2f4580ad55848842aa243646b900102a
---   asi.nlu.frames4                      44552  ecca112a5abcb69327be21ab20c6cdc5b93b11a1b574e4747f593509115f9d22
+--   asi.nlu.frames4                      51903  d829aecda1d725c3a6c1ddf549de031f02f165769f5014bcdc4365343f7f6f08
 --   asi.nlu.hook                          2673  1fd2c30a2cb762d1ab7da52a5cc73b0656b5fd89568e55c6cf75edc130a925fc
 --   asi.nlu.hyp                          23165  31fd02d8af7de6c0a2849cf47a24968750b8aa489bfb3ba9136ec158d39a67d3
 --   asi.nlu.index                         9829  cbd47a9694466a8b37ce2a1d640a56a0827a61264ce1ec70572b9ee029fd5ac5
@@ -34,7 +34,7 @@
 --   asi.nlu.record                       22010  7e484ebafd3dea8aa305dc6edb5235ffa3acb777bc97b9150bf8e021a5846d00
 --   asi.nlu.repair                       10500  14436d03d269338fb7a1297093d8cf3f22c2d5bca102ce809ac8f6400fd80431
 --   asi.nlu.resources                      802  cb534724597215aefc87724e616136bdd513273bc60037b157183bdbe86fb7e8
---   asi.nlu.sem                          42765  83cb8b8e95b1a7e91cf222ab64b0cf742a2522fe7775af1284bc622f45ea0e22
+--   asi.nlu.sem                          42822  1ca756bef2eb0ead0c4c6404e91ae9ee81f9d80c7b52c88ace4794dbf3a24356
 --   asi.nlu.spell                         6330  ad187dc325f7786de687fc44c23c9fb67a9737c57505c73370bc1a4fda0bb3f8
 --   asi.nlu.temporal                     39911  cffd7d5265fd73ce18e7ca41db1e186b9f67662e16c9c97c38e5206f15ffba95
 --   asi.nlu.textutil                      2292  66657a87c2a74d210425b7c5b539445d5c8b6a9e9664a76a9a7fea15eb134149
@@ -43,10 +43,10 @@
 --   asi.nlu.verify                       44851  f8f0168a18f5856a71d8a5e02bbd49e3ad01a2d0fa335ea9ca9d5a42798cd237
 --   asi.nlu.data.lex_core                36766  9248c29e40c5ae7f134de331d3569955ec63c63badf692ecd9bd0ac3accb9be3
 --   asi.nlu.data.lex_gaz                 10088  ca3e80c7c6004cd4f327403bb4ee58a1d925771ae23f0090ce840aec3febe6dc
---   asi.nlu.data.lex_rel                 12824  4c27ab33ecf00745ebc48b8a0c4fb62a3f959fa048ff63db7271d0bc7f7c1ed8
+--   asi.nlu.data.lex_rel                 12986  cff1dc0091e859aef06cea77af958c5d7828d18f7da4217019c150ded44f51f5
 --   asi.nlu.data.lex_sense                6101  1eb7fefd5771778cc97bcbfe9224a84ec8fa085f38d8090238f123042831418e
 --   asi.nlu.data.lex_typenoun             6425  3fd5d839b2e1cc2b837aadac26173afd252046bd06c84c7230d4d8ee3fd66482
---   asi.nlu.data.cal_interp_v1            2130  49956d4fc43dd8cc5456509ef1a11c8ed0e1ebafa2c9ba84a090b9b9eca57dd1
+--   asi.nlu.data.cal_interp_v1            2171  e166028d7769b203f3582286108b1915263e0a5b1e9f3c7e2f44f05a70018df7
 
 package.preload["asi.nlu.assertions"] = function(...)
 -- asi.nlu.assertions: record text -> typed assertions.
@@ -9503,6 +9503,140 @@ function F.which_filtered(S, out)
   end
 end
 
+---------------------------------------------------------------- superlative questions over a typed set
+--   "What is the biggest city in Canada?"   "Which is the largest country in Africa?"   "What's the tallest mountain in Peru?"
+-- The answer is the member of the type that is extreme on the superlative's dimension: a search with an ordering, not a definition.
+function F.wh_superlative(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.np and not wh.adverbial and not wh.one and (wh.wh == "what" or wh.wh == "which") then
+      local bc = C(S, wh.nxt)
+      if bc and bc.single and not bc.masked and not barrier(bc) and (cat(bc, "aux_be") or cat(bc, "clitic_s")) then
+        for _, np in ipairs(P.parse_np(S, wh.nxt + 1, { no_of = true })) do
+          if np.superlative and (np.head_kind == "typenoun" or np.head_kind == "unknown") and not np.of_arg then
+            local filters, kf = F.parse_filters(S, np.nxt, np)
+            if kf > S.last then
+              local h = newh(S, "wh_superlative:search", "question", "search", "search")
+              use_wh(h, wh); use(h, wh.nxt); use_np(h, np)
+              h.target, h.filters = np, filters
+              for _, f in ipairs(filters) do for i = f.span.first, f.span.last do h.used[i] = true end end
+              h.requires_evidence = true
+              h.ordering = { superlative = np.superlative }
+              addf(h, "superlative_target", 0.9, "'" .. tostring(np.superlative) .. "' over a typed set asks for its extreme member")
+              if #filters > 0 then addf(h, "filters_parsed", 0.15 * #filters, #filters .. " filter(s) from the clause") end
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- passive yes/no questions without an agent, and dated ones
+--   "Was Nokia acquired?"   "Has Nokia ever been acquired?"   "Was Instagram founded in 2010?"   "Was Napoleon born before 1800?"
+-- Without a qualifier the question asks whether the relation holds for the subject at all; with a date it asks about the date relation the verb links to (founded -> founding date).
+function F.yes_no_passive(S, out)
+  local k0 = S.first
+  local c0 = C(S, k0)
+  if not (c0 and c0.single and not c0.masked and (cat(c0, "aux_be") or cat(c0, "aux_have"))) then return end
+  local hint = cat(c0, "aux_be") and "be" or "have"
+  local nstart, neg_first = k0 + 1, nil
+  if P.is_neg(C(S, nstart)) and not barrier(C(S, nstart)) then neg_first = nstart; nstart = nstart + 1 end
+  for _, np1 in ipairs(P.parse_np(S, nstart)) do
+    for _, vp in ipairs(P.parse_vp(S, np1.nxt, { aux_hint = hint })) do
+      if vp.voice == "passive" then
+        for _, e in ipairs(vp.analysis.entries or {}) do
+          local rel = S.lex:get_rel(e.rel)
+          if rel and not rel.open and not e.support and not e.as_only then
+            local tc = C(S, vp.nxt)
+            local frame, vrel, np2
+            if vp.nxt > S.last then
+              frame, vrel = "yes_no:passive_any", rel
+            elseif tc and not tc.masked and tc.temporal and tc.temporal.kind ~= "marker" and tc.temporal.kind ~= "relative" then
+              local trel = rel.when and S.lex:get_rel(rel.when) or nil
+              if not trel and S.lex:compat(rel.to, "date") >= 0.9 then trel = rel end
+              if trel then
+                for _, dnp in ipairs(P.parse_np(S, vp.nxt)) do
+                  if dnp.nxt > S.last and dnp.head_kind ~= "relnoun" then np2 = dnp; frame, vrel = "yes_no:passive_dated", trel; break end
+                end
+              end
+            end
+            if frame then
+              local h = newh(S, frame, "question", "verification", "verify")
+              use(h, k0); use_np(h, np1); use_vp(h, vp)
+              if neg_first then use(h, neg_first); h.polarity = "negative" end
+              h.rel, h.rel_obj = vrel.id, vrel
+              if np2 then
+                use_np(h, np2)
+                h.roles.from, h.roles.to = np1, np2
+                h.items = { np1, np2 }
+              else
+                h.roles[other(e.subj)] = np1
+                h.items = { np1 }
+              end
+              h.verify = { rel = vrel.id, from = h.roles.from, to = h.roles.to }
+              h.requires_evidence = true
+              addf(h, "passive_verification", 0.6, np2 and "a passive verb with a date asks about the date relation of the subject" or "a passive verb without an agent asks whether the relation holds at all")
+              mark_unresolved_pron(h, np1)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- comparison verified through a relation's value
+--   "Does Apple have more employees than Google?"   "Does Tokyo have a larger population than Osaka?"   "Is Tokyo more populous than Osaka?"
+local CMP_MORE = U.set({ "more", "larger", "bigger", "greater", "higher", "longer", "taller" })
+local CMP_LESS = U.set({ "fewer", "less", "smaller", "lower", "shorter" })
+function F.verify_comparison(S, out)
+  local k0 = S.first
+  local c0 = C(S, k0)
+  if not (c0 and c0.single and not c0.masked and cat(c0, "aux_do")) then return end
+  for _, np1 in ipairs(P.parse_np(S, k0 + 1, { no_of = true })) do
+    local hc = C(S, np1.nxt)
+    if hc and hc.single and not hc.masked and not barrier(hc) and hc.unit.form == "have" then
+      local k = np1.nxt + 1
+      local dc = C(S, k)
+      if dc and dc.single and not dc.masked and cat(dc, "det") then k = k + 1 end
+      local cw = C(S, k)
+      local dir = cw and cw.single and not cw.masked and (CMP_MORE[cw.unit.form] and "gt" or CMP_LESS[cw.unit.form] and "lt") or nil
+      if dir then
+        local nc = C(S, k + 1)
+        local rel
+        for _, ee in ipairs(nc and nc.relnouns or {}) do
+          local r = S.lex:get_rel(ee.rel)
+          if r and not r.open and ee.role == "to" and S.lex:compat(r.to, "number") >= 0.9 then rel = r; break end
+        end
+        local tcnk = C(S, k + 2)
+        if rel and tcnk and tcnk.single and not tcnk.masked and tcnk.unit.form == "than" then
+          for _, np2 in ipairs(P.parse_np(S, k + 3, { no_of = true })) do
+            -- an optional trailing "have" repeats the verb: "... than Google has"
+            local endk = np2.nxt
+            local tl = C(S, endk)
+            if tl and tl.single and not tl.masked and (tl.unit.form == "have" or tl.unit.form == "has") then endk = endk + 1 end
+            if endk > S.last then
+              local h = newh(S, "compare_q:have_more", "question", "verification", "verify_comparison")
+              use(h, k0); use_np(h, np1); use(h, np1.nxt, k + 2); use_np(h, np2)
+              for i = np2.nxt, endk - 1 do h.used[i] = true end
+              h.items = { np1, np2 }
+              h.rel, h.rel_obj = rel.id, rel
+              h.dimension, h.degree, h.adj = "size", "comp", cw.unit.form
+              h.cmp = { op = dir, rel = rel.id }
+              h.requires_evidence = true
+              addf(h, "comparative_relnoun", 0.7, "'" .. cw.unit.form .. " " .. tostring(nc.unit.form) .. " than' compares the values of " .. rel.id)
+              mark_unresolved_pron(h, np1); mark_unresolved_pron(h, np2)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 ---------------------------------------------------------------- bans stated as what must (not) appear
 --   "Agencies should never appear in your answers."   "Make sure agencies never show up in your answers."   "Don't let agencies show up in your answers."
 --   "Please make sure there are no agencies in the results."   "Leave agencies out of the results."   "Take agencies off the list."
@@ -18252,7 +18386,7 @@ function Sem.gibberish(S)
 end
 
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_place_stranded_in", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "compare_dimension", "wh_impersonal", "wh_origin", "recall_turn", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "which_filtered", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
+  "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "wh_superlative", "yes_no_passive", "verify_comparison", "which_filtered", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -22213,7 +22347,7 @@ rel prime_minister: from=country to=person | noun=prime minister; premier | role
 rel population: from=place to=number | noun=population; inhabitants; number of inhabitants; number of residents | count_noun=people; persons; individuals; residents; inhabitants; citizens; folks; souls | count_verb=live/prep=in; reside/prep=in; dwell/prep=in; inhabit; have | attr=1 | label=population
 rel area: from=place to=number | noun=area; surface area; land area | attr=1 | label=area
 rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency; legal tender; official currency; national currency; local currency; money | support=use; adopt; have; call; pay with; pay in; spend; trade in; transact in; price in | as=recognize; accept; designate; name; treat; issue; introduce; declare; list; record; identify; describe; cite; register; present; show; recognise | label=currency
-rel official_language: from=country to=language | noun=official language; national language | label=official language
+rel official_language: from=country to=language | noun=official language; national language; language; spoken language; main language; native language; mother tongue | support=speak; converse in; communicate in; write in; teach in | label=official language
 rel continent_of: from=country to=continent | noun=continent | verb=lie/subj=from/prep=on; lie/subj=from/prep=in; sit/subj=from/prep=on | label=continent
 rel height: from=entity to=number | noun=height; elevation; altitude | attr=1 | label=height
 rel located_in: from=place,organization,event,person to=place | noun=location | verb=locate/subj=from/prep=in; situate/subj=from/prep=in | where=located_in | label=location
@@ -22262,7 +22396,7 @@ rel type_of: from=entity to=concept | noun=type; kind; category; genre | label=t
 
 # ------------------------------------------------------------ abstract relations
 rel successor: from=entity to=entity | noun=successor | verb=succeed/subj=to; replace/subj=to | label=successor
-rel predecessor: from=entity to=entity | noun=predecessor | label=predecessor
+rel predecessor: from=entity to=entity | noun=predecessor | verb=precede/subj=to | label=predecessor
 rel cause: from=concept,event to=concept,event | noun=cause; reason; origin | verb=cause/subj=to; trigger/subj=to; lead/subj=to/prep=to | label=cause
 rel requirement: from=entity to=entity | noun=requirement; prerequisite; dependency | verb=require/subj=from; need/subj=from; depend/subj=from/prep=on | label=requirement
 rel supported_by: from=claim,concept to=document | noun=evidence; support | verb=support/subj=to; confirm/subj=to; substantiate/subj=to | label=supported by
@@ -22464,7 +22598,7 @@ end
 package.preload["asi.nlu.data.cal_interp_v1"] = function(...)
 return [[
 {
-  "bias": 2.191001603678266,
+  "bias": 2.2089557422929107,
   "constraints": {
     "ambiguous": -1,
     "coverage": 1,
@@ -22480,22 +22614,22 @@ return [[
   },
   "fit": {
     "cross_fit_brier_calibrated": [
-      0.070699999999999999,
-      0.099699999999999997
+      0.069699999999999998,
+      0.093700000000000006
     ],
     "cross_fit_brier_raw": [
-      0.1157,
-      0.13139999999999999
+      0.124,
+      0.13370000000000001
     ],
     "cross_fit_ece_calibrated": [
-      0.064600000000000005,
-      0.0683
+      0.058200000000000002,
+      0.061600000000000002
     ],
     "cross_fit_ece_raw": [
-      0.1565,
-      0.1074
+      0.17180000000000001,
+      0.11940000000000001
     ],
-    "digest": "04ce1deae9c7691e40a6728a6b15d0b38152fcc95846273a776e90e3ce903c69",
+    "digest": "0cfcd904d996ce9fc9f200cd4fd7664e246e5e7c5cbb43a51ed0fb5f2c92c5d9",
     "n": 1195,
     "perturbations": [
       "typo",
@@ -22516,11 +22650,11 @@ return [[
   },
   "lambda": 1,
   "mean": [
-    0.79025364016736321,
-    0.95337573221757355,
+    0.78197832635983167,
+    0.95441171548117187,
     0,
     0,
-    0.73305439330543931,
+    0.73221757322175729,
     0.0041841004184100415,
     0,
     0,
@@ -22544,11 +22678,11 @@ return [[
     "no_interpretation"
   ],
   "scale": [
-    0.2060144479469822,
-    0.17748404441513585,
+    0.20870884083227126,
+    0.17606153221628495,
     1,
     1,
-    0.97063338310888347,
+    0.97083392675130542,
     0.064549157408123115,
     1,
     1,
@@ -22557,23 +22691,23 @@ return [[
     0.11493412360428151
   ],
   "weights": [
-    0.74559458184061655,
-    1.2687008921021143,
+    0.6346272729859882,
+    1.2654350291026424,
     0,
     0,
-    -0.19030807162823499,
-    -0.50825604889412945,
+    -0.22904053362046953,
+    -0.50722696343309581,
     0,
     0,
     0,
     0,
-    -0.05713975487977821
+    -0.077715789309989167
   ]
 }]]
 end
 
 package.preload["asi.nlu.manifest"] = function(...)
-return { version = "0.9.0", body_sha256 = "cf149f7aa9d87b9e58f8ddc920f038b9015ce086e215a5e68b400c5afe6b1e7f", modules = {
+return { version = "0.9.0", body_sha256 = "a604926552a66133113a254f22dd4f172c1dea44c582c7739d9c1d87221b4079", modules = {
   { name = "asi.nlu.assertions", bytes = 56597, sha256 = "95ed32a7f75644554c302f3b953d597833a2639c1c885a09ff159bb468e653a1" },
   { name = "asi.nlu.assertions2", bytes = 45375, sha256 = "c3935eb4996c1d3434b2ea952744c5b56bf7a060c8581e973f27564eff070846" },
   { name = "asi.nlu.baseline", bytes = 9356, sha256 = "1f232ddce211e0b3d79ce16b403224a68762cc29fc62f3cb2f4922482878baf5" },
@@ -22587,7 +22721,7 @@ return { version = "0.9.0", body_sha256 = "cf149f7aa9d87b9e58f8ddc920f038b9015ce
   { name = "asi.nlu.frames", bytes = 48972, sha256 = "f6fdafd9867f8fcb54e6f5e9c2f006a12916906855cc3e654e3f90488d66c8dc" },
   { name = "asi.nlu.frames2", bytes = 87619, sha256 = "7bf1ce79ddd093cb83a3f19d4123200c760124ef83bb5e1d6f1f95dfb50f7123" },
   { name = "asi.nlu.frames3", bytes = 55890, sha256 = "40a3cfe4cabaf5646799921bcc289b9c2f4580ad55848842aa243646b900102a" },
-  { name = "asi.nlu.frames4", bytes = 44552, sha256 = "ecca112a5abcb69327be21ab20c6cdc5b93b11a1b574e4747f593509115f9d22" },
+  { name = "asi.nlu.frames4", bytes = 51903, sha256 = "d829aecda1d725c3a6c1ddf549de031f02f165769f5014bcdc4365343f7f6f08" },
   { name = "asi.nlu.hook", bytes = 2673, sha256 = "1fd2c30a2cb762d1ab7da52a5cc73b0656b5fd89568e55c6cf75edc130a925fc" },
   { name = "asi.nlu.hyp", bytes = 23165, sha256 = "31fd02d8af7de6c0a2849cf47a24968750b8aa489bfb3ba9136ec158d39a67d3" },
   { name = "asi.nlu.index", bytes = 9829, sha256 = "cbd47a9694466a8b37ce2a1d640a56a0827a61264ce1ec70572b9ee029fd5ac5" },
@@ -22607,7 +22741,7 @@ return { version = "0.9.0", body_sha256 = "cf149f7aa9d87b9e58f8ddc920f038b9015ce
   { name = "asi.nlu.record", bytes = 22010, sha256 = "7e484ebafd3dea8aa305dc6edb5235ffa3acb777bc97b9150bf8e021a5846d00" },
   { name = "asi.nlu.repair", bytes = 10500, sha256 = "14436d03d269338fb7a1297093d8cf3f22c2d5bca102ce809ac8f6400fd80431" },
   { name = "asi.nlu.resources", bytes = 802, sha256 = "cb534724597215aefc87724e616136bdd513273bc60037b157183bdbe86fb7e8" },
-  { name = "asi.nlu.sem", bytes = 42765, sha256 = "83cb8b8e95b1a7e91cf222ab64b0cf742a2522fe7775af1284bc622f45ea0e22" },
+  { name = "asi.nlu.sem", bytes = 42822, sha256 = "1ca756bef2eb0ead0c4c6404e91ae9ee81f9d80c7b52c88ace4794dbf3a24356" },
   { name = "asi.nlu.spell", bytes = 6330, sha256 = "ad187dc325f7786de687fc44c23c9fb67a9737c57505c73370bc1a4fda0bb3f8" },
   { name = "asi.nlu.temporal", bytes = 39911, sha256 = "cffd7d5265fd73ce18e7ca41db1e186b9f67662e16c9c97c38e5206f15ffba95" },
   { name = "asi.nlu.textutil", bytes = 2292, sha256 = "66657a87c2a74d210425b7c5b539445d5c8b6a9e9664a76a9a7fea15eb134149" },
@@ -22616,9 +22750,9 @@ return { version = "0.9.0", body_sha256 = "cf149f7aa9d87b9e58f8ddc920f038b9015ce
   { name = "asi.nlu.verify", bytes = 44851, sha256 = "f8f0168a18f5856a71d8a5e02bbd49e3ad01a2d0fa335ea9ca9d5a42798cd237" },
   { name = "asi.nlu.data.lex_core", bytes = 36766, sha256 = "9248c29e40c5ae7f134de331d3569955ec63c63badf692ecd9bd0ac3accb9be3" },
   { name = "asi.nlu.data.lex_gaz", bytes = 10088, sha256 = "ca3e80c7c6004cd4f327403bb4ee58a1d925771ae23f0090ce840aec3febe6dc" },
-  { name = "asi.nlu.data.lex_rel", bytes = 12824, sha256 = "4c27ab33ecf00745ebc48b8a0c4fb62a3f959fa048ff63db7271d0bc7f7c1ed8" },
+  { name = "asi.nlu.data.lex_rel", bytes = 12986, sha256 = "cff1dc0091e859aef06cea77af958c5d7828d18f7da4217019c150ded44f51f5" },
   { name = "asi.nlu.data.lex_sense", bytes = 6101, sha256 = "1eb7fefd5771778cc97bcbfe9224a84ec8fa085f38d8090238f123042831418e" },
   { name = "asi.nlu.data.lex_typenoun", bytes = 6425, sha256 = "3fd5d839b2e1cc2b837aadac26173afd252046bd06c84c7230d4d8ee3fd66482" },
-  { name = "asi.nlu.data.cal_interp_v1", bytes = 2130, sha256 = "49956d4fc43dd8cc5456509ef1a11c8ed0e1ebafa2c9ba84a090b9b9eca57dd1" },
+  { name = "asi.nlu.data.cal_interp_v1", bytes = 2171, sha256 = "e166028d7769b203f3582286108b1915263e0a5b1e9f3c7e2f44f05a70018df7" },
 } }
 end

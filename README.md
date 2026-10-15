@@ -21,6 +21,21 @@ It is a *front end*. It does not answer questions and does not call a model. Its
 | **Measured improvement** | a number against a stated baseline on a stated, disclosed data set, with a confidence interval |
 | **Unproven** | not demonstrated; see `reports/FINAL_REPORT.md` for the list |
 
+## The one-file distribution
+
+`dist/asi_nlu.lua` is the whole system in ONE Lua 5.4 file (engine, lexicon data, gold and held-out sets, calibration model, evaluation tools, unit tests, reports,
+command line). It needs nothing else: no other file, no network, no model.
+
+```
+lua5.4 asi_nlu.lua selftest                       # 18 checks from any (even empty) directory
+lua5.4 asi_nlu.lua interpret "Who put money into Quenby Robotics?" --json
+lua5.4 asi_nlu.lua report FINAL_REPORT            # what is implemented / verified / measured / unproven
+lua5.4 asi_nlu.lua extract DIR                    # write every embedded source, data, test and report file out again
+```
+
+Rebuild it from a checkout with `lua5.4 tools/build_bundle.lua && lua5.4 tools/build_single.lua`; the build refuses to write a file that does not reproduce every
+embedded file byte for byte. **Read `reports/FINAL_REPORT.md` before relying on it:** the engine reads about 60 % of independently authored, never-seen phrasings correctly.
+
 ## Layout
 
 ```
@@ -69,7 +84,7 @@ The hook has no side effects other than updating the supplied memory object. It 
 ### Bundle and non-destructive injection
 
 ```
-lua5.4 tools/build_bundle.lua                                  # -> dist/asi_nlu_bundle.lua (43 modules, manifest + checksums, smoke-tested with package.path = "")
+lua5.4 tools/build_bundle.lua                                  # -> dist/asi_nlu_bundle.lua (46 modules, manifest + checksums, smoke-tested with package.path = "")
 lua5.4 tools/inject_bundle.lua --target HOST.lua --selfcheck   # writes HOST.asi.lua; HOST.lua is untouched
 lua5.4 tools/inject_bundle.lua --target HOST.lua --in-place    # writes a verified byte-exact HOST.lua.asi-backup first
 lua5.4 tools/inject_bundle.lua --target HOST.asi.lua --remove  # cuts the region out again

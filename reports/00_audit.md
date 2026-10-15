@@ -41,3 +41,10 @@ Answers that come from the *directive's own description* are marked **(stated, u
 - Regression of VM / cyber / reasoning / sketch behaviour is **Unproven** until you run your own test command on the
   injected file; `tools/inject_bundle.lua --selfcheck` only proves the injected file still parses (`load`) and that the
   original remainder is unchanged.
+
+## A.5 Addendum at the end of the work (what changed since the audit)
+
+* The host file is **still not available**; everything in A.1 and A.4 stands. Nothing in this repository was run against the real VM / cyber / reasoning / sketch code.
+* The baseline in A.3 is still only my naive router; its numbers are in `reports/FINAL_REPORT.md` (blind3 0.094 vs 0.612, frozen test 0.200 vs 0.964).
+* The interpretation path has no network, process, clock or randomness use and no language-model dependency (checked by search; see the final report).
+* Final numbers, failure report and the list of unproven claims: `reports/FINAL_REPORT.md`; every first run of an independent set: `reports/heldout_log.md` and `reports/runs/`.
