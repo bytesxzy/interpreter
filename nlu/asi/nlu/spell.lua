@@ -33,6 +33,32 @@ local function max_edit_for(n)
   if n < 4 then return 0 elseif n <= 7 then return 1 else return 2 end
 end
 
+-- Orthotactic plausibility of a lowercase ASCII token (English phonotactics, no word list): a word needs a vowel letter and must begin with a legal
+-- onset.  Used only to recognise sentences that are not made of words at all; a token that fails is "non-word-like", never "corrected".
+local ONSET2 = {}
+for _, o in ipairs({ "pl", "bl", "cl", "fl", "gl", "sl", "br", "cr", "dr", "fr", "gr", "pr", "tr", "wr", "sc", "sk", "sm", "sn", "sp", "st", "sw", "tw", "dw",
+  "kn", "gn", "ps", "pn", "pt", "mn", "ch", "sh", "th", "ph", "wh", "rh", "gh", "kh", "ts", "sv", "sf", "zh", "cz", "kl", "sch", "spl", "spr", "str", "scr",
+  "squ", "shr", "thr", "sph", "chr", "phr", "phl", "thw", "qu", "ks" }) do ONSET2[o] = true end
+
+local KEY_ROWS = { "qwertyuiop", "asdfghjkl", "zxcvbnm" }
+local function key_mash(form)
+  for _, row in ipairs(KEY_ROWS) do
+    for _, r in ipairs({ row, row:reverse() }) do
+      for i = 1, #form - 3 do if r:find(form:sub(i, i + 3), 1, true) then return true end end
+    end
+  end
+  return false
+end
+
+function Spell.nonword(form)
+  if type(form) ~= "string" or #form < 3 or form:find("[^a-z]") then return false end
+  if not form:find("[aeiouy]") or key_mash(form) then return true end
+  local onset = form:match("^([^aeiouy]+)")
+  if onset and #onset >= 2 and not ONSET2[onset] then return true end
+  if form:find("[^aeiouy][^aeiouy][^aeiouy][^aeiouy][^aeiouy][^aeiouy]") then return true end
+  return false
+end
+
 function Spell.new(opts)
   opts = opts or {}
   return setmetatable({ words = {}, index = {}, n = 0, kinds = {} }, Spell)

@@ -507,6 +507,8 @@ local function item_list(S, k, limit)
   return items, cur
 end
 
+F.item_list = item_list
+
 local COMPARE_VERBS = U.set({ "compare", "contrast", "benchmark", "weigh" })
 local RANK_VERBS = U.set({ "rank", "sort", "order", "arrange", "list" })
 function F.compare_dimension(S, out)
@@ -522,10 +524,14 @@ function F.compare_dimension(S, out)
       if rel and np.of_arg and not ranking then
         local items, endk = { np.of_arg }, np.nxt
         local jc = C(S, endk)
-        if jc and jc.single and ITEM_JOINERS[jc.unit.form] then
-          local rest, e2 = item_list(S, endk + 1)
-          for _, it in ipairs(rest) do items[#items + 1] = it end
-          endk = e2
+        if jc and not jc.masked then
+          -- "of A and B" / "of A, B and C": a joiner or a comma follows the first item
+          local joiner = jc.single and ITEM_JOINERS[jc.unit.form]
+          if joiner or (jc.pre and jc.pre:find("comma")) then
+            local rest, e2 = item_list(S, joiner and endk + 1 or endk)
+            for _, it in ipairs(rest) do items[#items + 1] = it end
+            endk = e2
+          end
         end
         if #items >= 2 then
           local h = newh(S, "compare_dimension:noun", "request", "comparison", "compare")
@@ -586,6 +592,40 @@ function F.compare_dimension(S, out)
             end
           end
         end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- wh-questions whose answer is the set defined by filters
+--   "Which cities in Germany have more than a million inhabitants?"   "Which cities are in Germany?"   "Which companies have more than 500 employees?"
+--   "What companies were founded after 1990?"
+-- The wh-noun is the target set; the rest of the sentence is the same chain of filters a "Find ..." request would carry.
+function F.which_filtered(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    local nnp = wh.np
+    if nnp and not wh.adverbial and not wh.relnoun and (wh.wh == "which" or wh.wh == "what") and nnp.plural and not nnp.of_arg
+      and (nnp.head_kind == "typenoun" or nnp.head_kind == "unknown") then
+      local k = wh.nxt
+      local cop = C(S, k)
+      local used_cop
+      -- "Which cities ARE in Germany?": the copula joins the target to its filters
+      if cop and cop.single and not cop.masked and not barrier(cop) and (cat(cop, "aux_be") or cat(cop, "aux_have") and false) then used_cop = k; k = k + 1 end
+      local filters, kf = F.parse_filters(S, k, nnp)
+      if #filters > 0 and kf > S.last then
+        local h = newh(S, "wh_which:filtered", "question", "search", "search")
+        use_wh(h, wh); use_np(h, nnp)
+        if used_cop then use(h, used_cop) end
+        h.target, h.filters = nnp, filters
+        for _, f in ipairs(filters) do for i = f.span.first, f.span.last do h.used[i] = true end end
+        h.requires_evidence = true
+        h.wh = wh
+        addf(h, "search_target", 0.5, "typed target set")
+        addf(h, "filters_parsed", 0.15 * #filters, #filters .. " filter(s) from the clause")
+        -- a lookup of a known relation reads the same words more exactly; the set reading is the fallback for questions no relation covers
+        addf(h, "filtered_set_fallback", -0.6, "the question asks for the members of a set defined by filters")
+        if nnp.head_kind == "unknown" then addf(h, "unknown_target_type", -0.1, "search target type is not in the lexicon") end
+        out[#out + 1] = h
       end
     end
   end
@@ -794,6 +834,27 @@ function F.statement_relational(S, out)
                   mark_unresolved_pron(h, np2)
                   out[#out + 1] = h
                 end
+              end
+            end
+          end
+        end
+      end
+    elseif bc and not bc.masked and not (S.wrapper and #S.wrapper.kinds > 0) then
+      -- active voice with a prepositional relation verb: "I work at Ithari Foundry.", "Acme operates in Germany."
+      -- (not after a request wrapper: "I need solar installers based in X" is a request whose object carries a participial clause)
+      for _, vp in ipairs(P.parse_vp(S, bk)) do
+        if vp.voice ~= "passive" and not vp.neg then
+          for _, e in ipairs(vp.analysis.entries or {}) do
+            local rel = S.lex:get_rel(e.rel)
+            if rel and not rel.open and not e.support and not e.as_only and e.prep and is_prep_chunk(C(S, vp.nxt), e.prep) then
+              for _, np2 in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                local h = newh(S, "statement:active_prep", "statement", "statement", "assert")
+                use_np(h, np1); use_vp(h, vp); use(h, vp.nxt); use_np(h, np2)
+                h.rel, h.rel_obj = rel.id, rel
+                h.roles[e.subj] = np1; h.roles[other(e.subj)] = np2
+                addf(h, "relation_statement", 0.5, "statement over a relation verb with a preposition (active)")
+                mark_unresolved_pron(h, np1); mark_unresolved_pron(h, np2)
+                out[#out + 1] = h
               end
             end
           end

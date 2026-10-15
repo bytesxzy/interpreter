@@ -42,6 +42,102 @@ end
 ---------------------------------------------------------------- filters on a target set  (shared with constraints.lua)
 -- parse modifiers that follow a target NP:  [that|which|who] [adv] V NP  |  V-ing NP  |  V-ed <temporal|by NP>  |  in/based in PLACE  |  with N X
 -- returns list of filters and the next chunk index.  Every filter records exactly the chunks it consumed.
+---------------------------------------------------------------- numeric restrictions on a relation's value
+--   "with more than 500 employees"   "that have a population over one million"   "having at least 10 offices"   "with revenue of exactly 5 billion"
+--   "between 100 and 200 employees"
+-- The relation is named by a relational noun whose `to` role is a number (employees, population/inhabitants, revenue ...).
+local CMP_CUES = { { "cmp_gt", "gt" }, { "cmp_ge", "ge" }, { "cmp_lt", "lt" }, { "cmp_le", "le" }, { "cmp_eq", "eq" }, { "cmp_approx", "approx" } }
+local function cmp_at(S, k)
+  local c = C(S, k)
+  if not c or c.masked or not c.u1 then return nil end
+  for _, ce in ipairs(CMP_CUES) do
+    local n = S.lex:cue_at(ce[1], S.units, c.u1)
+    if n then
+      local consumed, kk = 0, k
+      while C(S, kk) and consumed < n do consumed = consumed + (C(S, kk).u2 - C(S, kk).u1 + 1); kk = kk + 1 end
+      if consumed == n then return ce[2], kk end
+    end
+  end
+end
+local function number_at(S, k)
+  local c = C(S, k)
+  if not c or c.masked or (c.pre and k > 1 and false) then return nil end
+  if c.number and c.number.value then return c.number.value, k + 1 end
+  if c.single and c.unit and c.unit.kind == "number" and c.unit.numval ~= nil and not c.temporal then return c.unit.numval, k + 1 end
+end
+local function numeric_noun_rel(S, c)
+  if not c or c.masked then return nil end
+  for _, e in ipairs(c.relnouns or {}) do
+    local rel = S.lex:get_rel(e.rel)
+    if rel and not rel.open and e.role == "to" and S.lex:compat(rel.to, "number") >= 0.9 then return rel end
+  end
+  -- a counted noun ("residents", "workers") counts the value of the relation that lists it
+  if c.single and c.unit and c.unit.kind == "word" then
+    local form = c.unit.form
+    for _, rel in ipairs(S.lex:all_rels()) do
+      if not rel.open then for _, n in ipairs(rel.count_nouns or {}) do if n == form then return rel end end end
+    end
+  end
+end
+local HAVE_WORDS = U.set({ "with", "having", "have", "has", "had" })
+
+function F.numeric_filter(S, k)
+  local start = k
+  local lead = false
+  local c = C(S, k)
+  if c and c.single and not c.masked and HAVE_WORDS[c.unit.form] then lead = true; k = k + 1 end
+  local function done(rel, op, v1, v2, nk)
+    local first, last = C(S, start), C(S, nk - 1)
+    local text = S.an.original:sub(S.units[first.u1].s, S.units[last.u2].e)
+    return { kind = "numeric", rel = rel.id, op = op, value = v1, value2 = v2, text = text, chunks = { start }, span = { first = start, last = nk - 1 } }, nk
+  end
+  -- Form A:  [CMP] NUMBER NOUN      "more than 500 employees", "between 100 and 200 employees", (after with/have) "500 employees"
+  do
+    local op, k2 = cmp_at(S, k)
+    local bc = C(S, k)
+    if not op and bc and bc.single and not bc.masked and bc.unit.form == "between" then
+      local v1, k3 = number_at(S, k + 1)
+      local ac = v1 and C(S, k3)
+      if ac and ac.single and not ac.masked and (ac.unit.form == "and" or ac.unit.form == "to") then
+        local v2, k4 = number_at(S, k3 + 1)
+        local rel = v2 and numeric_noun_rel(S, C(S, k4))
+        if rel then return done(rel, "between", v1, v2, k4 + 1) end
+      end
+    end
+    local v, k3 = number_at(S, k2 or k)
+    if v and (op or lead) then
+      local rel = numeric_noun_rel(S, C(S, k3))
+      if rel then return done(rel, op or "eq", v, nil, k3 + 1) end
+    end
+  end
+  -- Form B:  [DET] NOUN [of] [CMP] NUMBER       "a population over one million", "revenue of at least 5 billion", "a headcount of 200"
+  do
+    local nk = k
+    local dc = C(S, nk)
+    if dc and dc.single and not dc.masked and (cat(dc, "det") or cat(dc, "poss_det")) then nk = nk + 1 end
+    local rel = numeric_noun_rel(S, C(S, nk))
+    if rel then
+      local pk, of = nk + 1, false
+      local oc = C(S, pk)
+      if oc and oc.single and not oc.masked and (oc.unit.form == "of" or oc.unit.form == "at" or oc.unit.form == "is" or oc.unit.form == "above" and false) then of = oc.unit.form == "of"; pk = pk + 1 end
+      local op, k2 = cmp_at(S, pk)
+      local v, k3 = number_at(S, k2 or pk)
+      if v and (op or of) then return done(rel, op or "eq", v, nil, k3) end
+      -- "between 1 and 2 million"
+      local bc = C(S, pk)
+      if bc and bc.single and not bc.masked and bc.unit.form == "between" then
+        local v1, k4 = number_at(S, pk + 1)
+        local ac = v1 and C(S, k4)
+        if ac and ac.single and not ac.masked and ac.unit.form == "and" then
+          local v2, k5 = number_at(S, k4 + 1)
+          if v2 then return done(rel, "between", v1, v2, k5) end
+        end
+      end
+    end
+  end
+  return nil
+end
+
 function F.parse_filters(S, k, target_np, limit_idx)
   local filters = {}
   local lex = S.lex
@@ -115,6 +211,16 @@ function F.parse_filters(S, k, target_np, limit_idx)
     -- relativiser
     local rel_marker
     if c.single and (c.unit.form == "that" or c.unit.form == "which" or c.unit.form == "who") then rel_marker = true; k = k + 1 end
+    -- numeric restriction: "with more than 500 employees", "that have a population over one million"
+    do
+      local nf, nk2 = F.numeric_filter(S, k)
+      if nf and nk2 - 1 <= limit_idx then
+        nf.span.first = start
+        filters[#filters + 1] = nf
+        k = nk2; progressed = true
+        goto continue_filters
+      end
+    end
     -- copular relative clause: "the city that IS / FUNCTIONS AS the capital of K"
     if rel_marker and C(S, k) and C(S, k).single and cat(C(S, k), "aux_be") and not C(S, k).masked then
       local done
@@ -523,10 +629,13 @@ function F.request(S, out)
           local items, endk = { np1 }, np1.nxt
           while true do
             local jc = C(S, endk)
-            if jc and jc.single and (jc.unit.form == "and" or jc.unit.form == "with" or jc.unit.form == "to" or jc.unit.form == "versus" or jc.unit.form == "vs"
-              or (jc.pre and jc.pre:find("comma") and false)) then
+            if jc and jc.single and (jc.unit.form == "and" or jc.unit.form == "with" or jc.unit.form == "to" or jc.unit.form == "versus" or jc.unit.form == "vs") then
               local nps = P.parse_np(S, endk + 1)
               if nps[1] then items[#items + 1] = nps[1]; endk = nps[1].nxt else break end
+            elseif jc and not jc.masked and jc.pre and jc.pre:find("comma") and #items >= 1 then
+              -- "Compare A, B and C": the next item follows the comma directly
+              local nps = P.parse_np(S, endk)
+              if nps[1] and nps[1].nxt > endk then items[#items + 1] = nps[1]; endk = nps[1].nxt else break end
             else break end
           end
           if #items >= 2 then
@@ -550,7 +659,7 @@ function F.request(S, out)
     local prefix = fill_used
     if c0 and c0.single and not c0.masked and (c0.unit.form == "about" or c0.unit.form == "regarding") then prefix = { nk }; nk = nk + 1 end
     for _, np in ipairs(P.parse_np(S, nk)) do
-      from_object_np(S, out, np, { act = "inform", lemma = w.verb }, "request", prefix)
+      from_object_np(S, out, np, { act = w.seek and "retrieve" or "inform", lemma = w.verb }, "request", prefix)
     end
   end
 end
@@ -1166,11 +1275,30 @@ function F.instruction(S, out)
   -- bare correction followed by a plain fragment: "Actually, the 2025 one."  handled as statement with correction flag
   if correction and #out == 0 then
     local nk = k
+    local mem = S.ctx and S.ctx.discourse and S.ctx.discourse.mem
     for _, np in ipairs(P.parse_np(S, nk)) do
       local h = newh(S, "instruction:correction_fragment", "correction", "correction", "instruct")
       for _, s in ipairs(skipped) do h.used[s] = true end
       use_np(h, np)
-      h.instruction = { verb = nil, np = np, slot = resource_slot(S, np), correction = true, persist = persist }
+      local slot, value = resource_slot(S, np), nil
+      -- a bare value with no resource noun ("Sorry, I meant 2023.", "No, the 2025 one."): it replaces the value of the standing instruction it corrects
+      if not slot and np.nxt > S.last and mem and mem.recent_slot then
+        local tm = np.temporal_mod or (np.head and np.head.temporal and np.head.temporal.kind == "year" and np.head.temporal) or nil
+        if tm and tm.year then value = { year = tm.year, label = tm.text or (np.head and np.head.text), expr = tm }
+        else
+          value = F.literal_value(S, np)
+          -- a bare four-digit number is a year
+          local y = value and value.word and value.word:match("^(%d%d%d%d)$")
+          if y and tonumber(y) >= 1000 and tonumber(y) <= 2999 then value = { year = tonumber(y), label = value.label } end
+        end
+        local rs = value and mem:recent_slot(value.year and "year" or "word")
+        if rs then
+          slot = rs
+          h.speech_act, h.intent = "instruction", "instruction_update"
+          addf(h, "slot_from_memory", 0.6, "a bare corrected value replaces the value of the standing '" .. rs .. "' instruction")
+        else value = nil end
+      end
+      h.instruction = { verb = nil, np = np, slot = slot, value = value, correction = true, persist = persist }
       h.correction = true
       F.mark_pron(h, np)
       out[#out + 1] = h

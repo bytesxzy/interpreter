@@ -11,8 +11,31 @@ require("asi.nlu.frames4")   -- attribution idioms, locus hosts, "where can I fi
 
 local Sem = {}
 
+-- A sentence that is not made of words: no alphabetic token is known to the lexicon (as a form or a name), none is capitalised, and most tokens are
+-- orthotactically impossible in English (no vowel, illegal onset).  Every reading of such a sentence is vetoed: the honest result is "no interpretation".
+function Sem.gibberish(S)
+  local Spell = require("asi.nlu.spell")
+  local lex, words, bad = S.lex, 0, 0
+  for k = S.first, S.last do
+    local c = S.chunks[k]
+    if c then
+      for i = c.u1, c.u2 do
+        local u = S.units[i]
+        if u and u.kind == "word" then
+          if u.cap or u.allcaps or u.script ~= "latin" then return false end
+          local f = u.lower or u.form
+          if lex:cats(f) or #lex:readings(f) > 0 or #lex:match_at(S.units, i) > 0 then return false end
+          words = words + 1
+          if Spell.nonword(f) then bad = bad + 1 end
+        elseif u and u.kind ~= "punct" and u.kind ~= "emoji" then return false end
+      end
+    end
+  end
+  return words >= 2 and bad >= 2 and bad * 2 >= words
+end
+
 local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_place_stranded_in", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "compare_dimension", "wh_impersonal", "wh_origin", "recall_turn", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
+  "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "which_filtered", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -90,6 +113,9 @@ local function ref(S, np, depth)
   if np.backref then r.backref = true; r.needs_context = true; r.backref_who = np.backref_who end
   if np.head_kind == "ordinal_ref" then r.ordinal_ref = true; r.needs_context = true end
   if np.det then r.det = np.det end
+  if np.poss_det then r.poss_det = np.poss_det end
+  -- "my employer": the relational noun and the role it names, so that a possessive reference can be resolved from what the speaker said about themselves
+  if np.head_kind == "relnoun" and np.relnouns and np.relnouns[1] and not np.relnouns[1].open then r.relnoun = { rel = np.relnouns[1].rel, role = np.relnouns[1].role } end
   if np.plural then r.plural = true end
   if np.superlative then r.superlative = np.superlative end
   if np.ordinal then r.ordinal = np.ordinal end
@@ -295,8 +321,10 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
         end
       end
     end
+    local gib = Sem.gibberish(S)
     for _, h in ipairs(hyps) do
       h.cover_index = ci
+      if gib then h.veto = h.veto or "the sentence is not made of words: no token is in the lexicon and most are orthotactically impossible in English" end
       if cover.repair then
         local cost = 0
         for _, r in ipairs(cover.repairs) do
@@ -425,6 +453,8 @@ local function filter_to_constraint(S, f)
     return { kind = "geographic", prep = f.prep, value = ref(S, f.value), polarity = "positive" }
   elseif f.kind == "has" then
     return { kind = "has", value = ref(S, f.value), polarity = "positive" }
+  elseif f.kind == "numeric" then
+    return { kind = "numeric", relation = f.rel, op = f.op, value = f.value, value2 = f.value2, text = f.text, polarity = "positive" }
   end
   return { kind = f.kind }
 end
@@ -502,6 +532,11 @@ function Sem.render(res, ctx)
     if top.qualifier then interp.query.qualifier = { relation = top.qualifier.rel, role = top.qualifier.role, arg = ref(S, top.qualifier.np) } end
     if top.verify then interp.query.verify = { from = ref(S, top.verify.from), to = ref(S, top.verify.to) } end
   end
+  -- a search for a typed set ("Find cities in Germany ...", "Which companies ...") asks for members of that type
+  if top.intent == "search" and top.target and not interp.query then
+    local ty = top.target.senses and top.target.senses[1] and top.target.senses[1].type or (top.target.bound and top.target.bound.type)
+    if ty then interp.query = { answer_type = ty, answer_form = "set" } end
+  end
   if top.basis then interp.basis = ref(S, top.basis.np); interp.basis_cue = top.basis.cue end
   if top.recall then
     interp.recall = { verb = top.recall.verb, wh = top.recall.wh, participant = top.recall.participant, topic = ref(S, top.recall.topic) }
@@ -544,6 +579,14 @@ function Sem.render(res, ctx)
       end
     else
       cons.positive[#cons.positive + 1] = filter_to_constraint(S, f)
+      -- "firms based in Eldermoor": a place-valued (locus) relation filter with a named place is a geographic restriction as well
+      if f.kind == "relation" and f.value and f.polarity ~= "negative" and (f.value.head_kind == "entity" or (f.value.head_kind == "unknown" and f.value.head and f.value.head.cap)) then
+        local frel = S.lex:get_rel(f.rel)
+        if frel and frel.locus and f.target_role == "from" then
+          local vr = ref(S, f.value)
+          cons.geographic[#cons.geographic + 1] = { prep = "relation:" .. frel.id, value = vr, text = vr.text, via_relation = frel.id }
+        end
+      end
     end
   end
   for _, t in ipairs(top.constraints.temporal or {}) do cons.temporal[#cons.temporal + 1] = t end

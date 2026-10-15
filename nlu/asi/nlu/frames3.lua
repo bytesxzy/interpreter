@@ -293,6 +293,11 @@ function F.quantity_q(S, out)
                   local pk = vk + 1
                   if is_prep(C(S, pk), ce.prep) then
                     for _, np in ipairs(P.parse_np(S, pk + 1)) do emit("quantity:count_verb", np, nil, function(h) mark(h); use(h, pk) end) end
+                  else
+                    -- "How many people live THERE?": the locative pro-form carries the preposition and the place
+                    for _, np in ipairs(P.parse_np(S, pk)) do
+                      if np.head_kind == "pronoun" and np.pron and np.pron.cats and np.pron.cats.pron_loc then emit("quantity:count_verb", np, nil, mark) end
+                    end
                   end
                 elseif ce.lemma ~= "have" then
                   for _, np in ipairs(P.parse_np(S, vk + 1)) do emit("quantity:count_verb", np, nil, mark) end
@@ -401,24 +406,47 @@ end
 function F.ellipsis(S, out)
   local view = S.ctx and S.ctx.discourse
   local mem = view and view.mem
-  local lq = mem and mem.last_query
-  if not lq or lq.turn >= (mem.turn or 0) then return end
+  if not mem then return end
+  local lq, cmp = mem.last_query, mem.comparison
+  if lq and lq.turn >= (mem.turn or 0) then lq = nil end
+  if cmp and cmp.turn >= (mem.turn or 0) then cmp = nil end
+  if not lq and not cmp then return end
+  -- the more recent of the two earlier requests is the one that is continued ("And what about Tanzania?" after a comparison adds an item to it)
+  local continue_cmp = cmp ~= nil and (lq == nil or cmp.turn > lq.turn)
   local c0 = C(S, S.first)
   local n = c0 and not c0.masked and S.lex:cue_at("ellipsis_open", S.units, c0.u1)
-  if not n then return end
+  if not n then
+    -- "And Bosch?", "Also of Bosch?": the sentence-initial conjunction was stripped as a lead-in; it is the whole cue
+    local lc = S.wrapper and S.wrapper.lead_in and S.first > 1 and C(S, S.first - 1)
+    if lc and lc.single and (lc.unit.form == "and" or lc.unit.form == "also") then n = 0 else return end
+  end
   local k, consumed = S.first, 0
   while k <= S.last and consumed < n do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); k = k + 1 end
   if consumed ~= n or k > S.last then return end
-  local rel = S.lex:get_rel(lq.rel)
-  if not rel then return end
+  -- "And of Bosch?": the preposition that introduces the new argument of a relational noun belongs to the cue
+  local pc = C(S, k)
+  if pc and pc.single and not pc.masked and not barrier(pc) and pc.unit.form == "of" and k < S.last then k = k + 1 end
+  local rel = S.lex:get_rel(continue_cmp and cmp.rel or (lq and lq.rel))
+  if not rel and not continue_cmp then return end
   for _, np in ipairs(P.parse_np(S, k)) do
     -- the whole remainder is the new argument (a name, an unknown noun phrase or a pronoun)
     if np.nxt > S.last and (np.head_kind == "entity" or np.head_kind == "unknown" or np.head_kind == "typenoun" or np.head_kind == "pronoun") and not np.of_arg then
-      local h = newh(S, "ellipsis:requery", "question")
-      set_lookup(h, rel, lq.known_role, np, lq.ask, nil)
-      h.ellipsis = { turn = lq.turn, text = lq.text }
+      local h
+      if continue_cmp then
+        h = newh(S, "ellipsis:comparison", "question", "comparison", "compare")
+        h.items = { np }
+        if rel then h.rel, h.rel_obj = rel.id, rel end
+        h.dimension = cmp.dimension
+        h.requires_evidence = true
+        h.ellipsis = { turn = cmp.turn, text = "" }
+        addf(h, "elliptical_comparison", 0.9, "adds an item to the comparison of the previous request (turn " .. tostring(cmp.turn) .. ")")
+      else
+        h = newh(S, "ellipsis:requery", "question")
+        set_lookup(h, rel, lq.known_role, np, lq.ask, nil)
+        h.ellipsis = { turn = lq.turn, text = lq.text }
+        addf(h, "elliptical_requery", 0.9, "re-asks the previous question (" .. rel.id .. ", turn " .. tostring(lq.turn) .. ") about a new argument")
+      end
       use(h, S.first, k - 1); use_np(h, np)
-      addf(h, "elliptical_requery", 0.9, "re-asks the previous question (" .. rel.id .. ", turn " .. tostring(lq.turn) .. ") about a new argument")
       mark_unresolved_pron(h, np)
       out[#out + 1] = h
     end

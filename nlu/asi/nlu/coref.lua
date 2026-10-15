@@ -9,7 +9,7 @@ local U = require("asi.nlu.util")
 local C = {}
 C.W = {
   salience = 1.0, recency = 0.45, focus = 0.8, topical = 0.2, user_intro = 0.1, type_fit = 0.6, unknown_animacy = -0.3,
-  plural_mismatch = -0.6, none_personal = 0.15, none_demonstrative = 2.0, temperature = 0.35, resolve_p = 0.60, resolve_margin = 0.30,
+  plural_mismatch = -0.6, none_personal = 0.15, none_locative = -0.3, none_demonstrative = 2.0, temperature = 0.35, resolve_p = 0.60, resolve_margin = 0.30,
 }
 
 local TOPICAL = U.set({ "focus", "subject", "stmt_subject", "clause_subject", "arg:from", "item", "chain_arg" })
@@ -202,6 +202,13 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
       rejected[#rejected + 1] = { id = key, type = e.type, reasons = { "co-argument of the same predicate: a non-reflexive pronoun cannot corefer with it" } }
     else
       local ok, pen, why = agreement(lex, feats, e, form)
+      -- "there" / "here" denote a place: the candidate must be a place by type or have been introduced after a locative preposition
+      local loc_pron = np.pron.cats and np.pron.cats.pron_loc
+      if ok and loc_pron then
+        local et0 = effective_type(lex, e)
+        if not ((et0 and lex:compat(et0, "place") >= 0.9) or e.loc) then ok, why = false, "the locative pro-form '" .. form .. "' denotes a place and nothing says this is one" end
+      end
+      if ok and loc_pron and e.loc then pen = 0 end   -- introduced after a locative preposition: a place, hence inanimate
       if not ok then rejected[#rejected + 1] = { id = key, type = e.type, reasons = { why } }
       else
         local et = effective_type(lex, e)
@@ -239,7 +246,7 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
       reasons = { "most recent comparison set", string.format("decay %.2f", sal) }, turn = mem.comparison.turn, group = mem.comparison.keys }
   end
   local demo = (np.pron.cats and (np.pron.cats.pron_dem == true)) or form == "this" or form == "that"
-  local none = demo and W.none_demonstrative or W.none_personal
+  local none = demo and W.none_demonstrative or ((np.pron.cats and np.pron.cats.pron_loc) and W.none_locative or W.none_personal)
   table.sort(live, function(a, c) if a.score ~= c.score then return a.score > c.score end return a.id < c.id end)
   b.rejected = rejected
   b.expected = expected
@@ -271,6 +278,26 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
     b.none_reason = "several antecedents remain plausible"
   end
   return b
+end
+
+---------------------------------------------------------------- the speaker's own facts ("my employer")
+-- The value an earlier statement of the speaker gave for relation `rel` when the speaker is its other argument ("I work at X" -> employer of the speaker is X).
+-- `role` is the role the relational noun names ("employer" names the `to` role of employer(from=person, to=organization)).
+function View:profile_fact(rel, role)
+  local mem = self.mem
+  local known = role == "to" and "from" or "to"
+  local me = "speaker:" .. (mem.speaker or "user")
+  for i = #mem.order, 1, -1 do
+    local it = mem.items[mem.order[i]]
+    if it and it.kind == "fact" and it.rel == rel and it.status ~= "superseded" and it.status ~= "revoked" and it.polarity ~= "negative"
+      and it.speaker == (mem.speaker or "user") and it[known] == me and it[role] then
+      local e = mem.entities[it[role]]
+      local name = e and e.names and next(e.names) and select(2, next(e.names)) or it[role]
+      if e and e.mentions and #e.mentions > 0 and e.mentions[#e.mentions].text then name = e.mentions[#e.mentions].text end
+      return { key = it[role], text = name, type = e and e.type, turn = it.turn, via = "profile_fact", p = 1.0, item = it.id }
+    end
+  end
+  return nil
 end
 
 ---------------------------------------------------------------- non-pronoun references
@@ -458,6 +485,13 @@ end
 -- classifying descriptors attached to entity mentions by apposition ("X, a small robotics business") or copula ("X is a robotics company")
 -- items = { {key=, c1=, c2=}, ... } chunk ranges of entity mentions in state S
 -- the entity/name spans of a sentence state, as {key, type, name, weak, c1, c2} (one key per span; ambiguous spans are skipped)
+-- a name right after a locative preposition ("born in Cusco", "based at Orly") is evidence that it denotes a place; the locative pro-forms "there" / "here" need it
+local LOC_PREP = U.set({ "in", "at", "near", "around", "outside", "inside", "within", "across", "throughout", "toward", "towards", "nearby" })
+function C.locative_before(units, i)
+  local u = units[i - 1]
+  return u ~= nil and u.kind == "word" and LOC_PREP[u.form] == true
+end
+
 function C.mentions_from_state(S, text_of)
   local out = {}
   for k, c in ipairs(S.chunks) do
@@ -468,10 +502,10 @@ function C.mentions_from_state(S, text_of)
     local text = S.an.original:sub(S.units[c.u1].s, S.units[c.u2].e)
     if n == 1 then
       local id, ty = next(ids)
-      out[#out + 1] = { key = id, type = ty, name = text, c1 = k, c2 = k }
+      out[#out + 1] = { key = id, type = ty, name = text, c1 = k, c2 = k, loc = C.locative_before(S.units, c.u1) or nil }
     elseif n == 0 and name_r and not (c.single and #c.relnouns > 0) then
       out[#out + 1] = { key = "mention:" .. text:lower(), type = name_r.type_guess, name = text, weak = name_r.weak, c1 = k, c2 = k,
-        pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil }
+        pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil, loc = C.locative_before(S.units, c.u1) or nil }
     end
   end
   return out
@@ -751,6 +785,19 @@ function C.resolve_references(view, interp)
       else
         rec.status = "unresolved"
         rec.requirement = "no " .. (next(artifact_classes)) .. " matching '" .. r.text .. "' exists in the conversation"
+      end
+    elseif r.relnoun and r.kind == "relnoun" and (r.poss_det == "my" or r.poss_det == "our") and not r.of and not r.possessor and not r.pronoun then
+      -- "Where is my employer based?": the speaker's own relational noun is answered by what the speaker said about themselves earlier
+      local f = view:profile_fact(r.relnoun.rel, r.relnoun.role)
+      rec = { kind = "profile_reference", mention = r.text, role = role }
+      if f then
+        rec.status, rec.antecedent = "resolved", f
+        rec.distance_turns = mem.turn - (f.turn or mem.turn)
+        r.status, r.antecedent, r.resolved_id = "resolved", f, f.key
+        if f.type and not r.type then r.type = f.type end
+      else
+        rec.status = "unresolved"
+        rec.requirement = "the speaker has not said who or what their " .. tostring(r.head) .. " is (none is invented)"
       end
     elseif r.backref then
       local cands, rejected = view:resolve_entity_backref(r, expected, exclude)

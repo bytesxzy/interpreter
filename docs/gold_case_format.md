@@ -21,13 +21,13 @@ The gold applies to the LAST turn and may use the context keys (`ref`, `ctx`, `a
 | `temporal` | `current_unspecified`, `present`, `past`, `future` |
 | `tc` | temporal constraints, comma separated: `as_of:2020` (state as of a year), `in:2015`, `before:2010`, `after:2010`, `since:2010`, `until:2010`, `between:2010-2015`, `label:2020` (a dataset label), `derived:2020` |
 | `neg` | negative constraints, comma separated; `scope:key`, e.g. `type:university` (exclude universities), `topic:employment`, `entity:germany`, `description:city`; `type:company+hires:intern` = companies filtered by a relation; `none` = the request contains no negation |
-| `pos` | positive constraints: `geo:Germany`, `relation:offers`, `temporal:founded_on`, `has:remote work` |
+| `pos` | positive constraints: `geo:Germany`, `relation:offers`, `temporal:founded_on`, `has:remote work`, `numeric:population>1000000` (a numeric restriction on a relation's value: relation id, optional operator `>` `>=` `<` `<=` `=` `~` and bound) |
 | `pref` | stated preferences (substring of the preference text) |
 | `src` | a source/resource restriction: `dataset:2020` |
 | `amb` | `resolved` (one clear reading) or `ambiguous` (several readings the text does not decide between) |
 | `alts` | for ambiguous mentions: the candidate entity ids separated by `|` |
 | `ctx` | context dependencies of the request: `pronoun`, `ordinal_reference`, `comparison_set`, `backref`, or `none` |
-| `dep` | primary dependency of the request on the conversation: `self_contained`, `recent_message`, `ambiguous_missing_context`, `earlier_context` |
+| `dep` | primary dependency of the request on the conversation: `self_contained`, `recent_message`, `ambiguous_missing_context`, `earlier_context` (the engine's class `earlier_project_context`, accepted as an alias), `user_correction` |
 | `items` | the enumerated items of a comparison / list request, in order, separated by `|` |
 | `inst` | an instruction to the system: `slot=dataset,value=2025,corr=1,persist=1` (`corr=1` it corrects an earlier instruction, `persist=1` it keeps applying, `verb=use`) |
 | `ref` | reference resolution in the last turn: `mention>antecedent text`, or `mention>unresolved`, `mention>ambiguous`, `mention>resolved` |

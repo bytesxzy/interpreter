@@ -1,0 +1,39 @@
+# DEV (construction coverage, part 3). Written by the engine's author after the second independent round, for the constructions it showed missing:
+# numeric restrictions on a relation's value, wh-questions over filtered sets, seeking wrappers ("Find me ...", "I'm looking for ..."), comma-separated
+# comparison lists, elliptical follow-ups after a comparison / with "of", bare corrected values, locative pro-forms ("live there"), first-person facts
+# ("I work at X" / "my employer"), recall by content words, spoken fillers, and sentences that are not made of words. TUNED ON: it measures coverage, not generalisation.
+# Format: ID | category | text | gold
+F001 | numeric | Find firms with more than 800 employees. | intent=search; pos=numeric:employees>800
+F002 | numeric | List towns in Peru with fewer than 50,000 inhabitants. | intent=search; pos=numeric:population<50000; pos=geo:Peru
+F003 | numeric | Find companies with at least 1,000 employees in Germany. | intent=search; pos=numeric:employees>=1000; pos=geo:Germany
+F004 | numeric | Show me cities that have a population of over two million. | intent=search; pos=numeric:population>2000000
+F005 | numeric | Find companies with between 100 and 300 employees. | intent=search; pos=numeric:employees
+F006 | numeric | Which countries have more than 100 million inhabitants? | intent=search; pos=numeric:population>100000000; atype=country
+F007 | numeric | Which companies have fewer than 20 employees? | intent=search; pos=numeric:employees<20; atype=company
+F008 | wh_filtered | Which cities are in Japan? | intent=search; pos=geo:Japan; atype=city
+F009 | wh_filtered | Which towns in Chile have over 10,000 residents? | intent=search; pos=geo:Chile; pos=numeric:population>10000; atype=city
+F010 | seek | Find me a bakery near the harbour in Lisbon. | intent=search; act=request
+F011 | seek | I'm looking for a studio in Bergen, preferably close to the station. | intent=search; pos=geo:Bergen
+F012 | seek | Find me cafes in Vienna with outdoor seating. | intent=search; pos=geo:Vienna
+F013 | seek | I need a plumber in Cork. | intent=search; pos=geo:Cork
+F014 | seek_neg | I need the capital of Chile. | intent=factual_lookup; rel=capital; from=Chile
+F015 | compare_list | Compare Chile, Peru and Bolivia. | intent=comparison; items=Chile|Peru|Bolivia
+F016 | compare_list | Compare the populations of Chile, Peru and Bolivia. | intent=comparison; rel=population; items=Chile|Peru|Bolivia
+F017 | compare_list | Compare Chile and Peru, please. | intent=comparison; items=Chile|Peru
+F018 | ellipsis | U: Compare the populations of Chile and Peru. // A: Peru is the larger. // U: And what about Bolivia? | rel=population; ctx=comparison_set
+F019 | ellipsis | U: Who is the CEO of Zorvex Ltd? // A: Dana Whitcombe. // U: And of Northwind Freight? | rel=ceo; from=Northwind Freight; ask=to
+F020 | ellipsis | U: Who is the CEO of Zorvex Ltd? // A: Dana Whitcombe. // U: And Northwind Freight? | rel=ceo; from=Northwind Freight; ask=to
+F021 | correction | U: Use the 2019 dataset. // A: Using the 2019 dataset. // U: No, I meant 2021. | intent=instruction_update; inst=slot=dataset,value=2021,corr=1; active=dataset:2021; inactive=dataset:2019
+F022 | correction | U: Please use the 2018 figures. // A: Understood. // U: Sorry, 2022. | intent=instruction_update; inst=slot=figures,value=2022,corr=1
+F023 | there | U: Where was Lena Hartmann born? // A: She was born in Bergen. // U: How many people live there? | rel=population; from=Bergen; ref=there>Bergen; ctx=pronoun
+F024 | there | U: Is there a train to Oslo? | ctx=none; unres=0
+F025 | profile | U: I work at Northwind Freight. // A: Noted. // U: Where is my employer headquartered? | ref=my employer>Northwind Freight; from=Northwind Freight; rel=headquarters
+F026 | profile | U: Where is my employer headquartered? | ref=my employer>unresolved; dep=ambiguous_missing_context
+F027 | profile | U: I work for Zorvex Ltd. // A: Great. // U: Who is the CEO of my employer? | rel=ceo; ref=my employer>Zorvex Ltd; from=Zorvex Ltd
+F028 | recall | U: My cat is called Pepper and I live in Bergen. // A: Nice. // U: What did I say my cat was called? | intent=conversation_recall; sel=+Pepper
+F029 | recall | U: We chose Postgres for billing storage. // A: Noted. // U: Remind me what I said about the billing storage. | intent=conversation_recall; sel=+Postgres
+F030 | filler | so umm how many people live in Bergen lol | rel=population; from=Bergen; ask=to
+F031 | filler | what is the capital of Peru btw | rel=capital; from=Peru
+F032 | gibberish | qzx brthl vwk | status=no_interpretation
+F033 | gibberish | asdf jkl; | status=no_interpretation
+F034 | gibberish_neg | What is a quokka? | intent=definition

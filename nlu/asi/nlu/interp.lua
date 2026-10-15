@@ -165,13 +165,13 @@ function I:interpret(text, call)
         for id in pairs(ids) do n = n + 1; only = id end
         local ustart, uend = an.units[sp.i].s, an.units[sp.j].e
         if n == 1 then
-          mem:mention(only, { type = ids[only], name = text, w = 0.2, role = "mention", speaker = speaker })
+          mem:mention(only, { type = ids[only], name = text, w = 0.2, role = "mention", speaker = speaker, loc = Coref.locative_before(an.units, sp.i) or nil })
           found[#found + 1] = { key = only, c1 = si, c2 = si }
           turn_items[#turn_items + 1] = { key = only, text = text, type = ids[only], s = ustart, e = uend }
         elseif n == 0 and name_r then
           local key = "mention:" .. text:lower()
           mem:mention(key, { type = name_r.type_guess, name = text, w = 0.2, role = "mention", speaker = speaker, weak = name_r.weak,
-            pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil })
+            pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil, loc = Coref.locative_before(an.units, sp.i) or nil })
           found[#found + 1] = { key = key, c1 = si, c2 = si }
           turn_items[#turn_items + 1] = { key = key, text = text, type = name_r.type_guess, s = ustart, e = uend }
         end
@@ -270,7 +270,7 @@ function I:interpret(text, call)
           for key in pairs(mem.entities) do have[key] = true end
           local extra = {}
           for _, m in ipairs(Coref.mentions_from_state(res.S)) do
-            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak, pname = m.pname, exact = cues.exact })
+            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak, pname = m.pname, exact = cues.exact, loc = m.loc })
             extra[#extra + 1] = { key = m.key, c1 = m.c1, c2 = m.c2 }
           end
           if #extra > 0 then Coref.describe_entities(view, res.S, extra, speaker) end

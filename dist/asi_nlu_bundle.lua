@@ -1,49 +1,52 @@
 -- asi-nlu bundle 0.9.0 : LM-independent natural-language interpretation engine (package.preload modules, no external dependencies).
--- body sha256 (all module blocks, excluding this header): 9b2edc1f18fada24b0e13b3178cdc95bc96c35567575de079ce475f8989292f6
+-- body sha256 (all module blocks, excluding this header): cf149f7aa9d87b9e58f8ddc920f038b9015ce086e215a5e68b400c5afe6b1e7f
 -- modules:
---   asi.nlu.assertions                   50488  41bc69e0099909f6d5f261eb25ed8ff6180663f69d721ea9f26d6a609935df09
+--   asi.nlu.assertions                   56597  95ed32a7f75644554c302f3b953d597833a2639c1c885a09ff159bb468e653a1
+--   asi.nlu.assertions2                  45375  c3935eb4996c1d3434b2ea952744c5b56bf7a060c8581e973f27564eff070846
 --   asi.nlu.baseline                      9356  1f232ddce211e0b3d79ce16b403224a68762cc29fc62f3cb2f4922482878baf5
 --   asi.nlu.calibration                  13794  08663074ffe0225c6488f4c09cf2337f997789c4ffebbbd336b31d7f95a4b6b6
 --   asi.nlu.cli                          17535  3b6583d0f8f53ddc7e1709bd53e13b9120d02c0b4bbc0a5c4e723f28565767fc
---   asi.nlu.constraints                  16052  fdaa74a3884fe9d741aaf74b94de9cd2f9c771dc7fc29aa68c18234facb1fe99
---   asi.nlu.coref                        43246  6e28b52d738b852bf03ed7186f3481cacd0977543f909c23a205ca7794a69f18
+--   asi.nlu.constraints                  20647  d8d52f156c534079a17b3837a54201a983d88995b6c0a2fe546fea0007800764
+--   asi.nlu.coref                        47112  654311b09944e4359bcc90d66ff70bf9ffb7850e38d72130b2c07d4ccd953dd3
 --   asi.nlu.dataset                      24417  0bff382154322eee69ae238b09955db5f29f44f261dc58f2f88c7d7a3bd63c04
 --   asi.nlu.engine                        5994  204e3bf4f80cf9b046fd41844449be33a23cf9d801abff90b27827c5815a1d04
---   asi.nlu.eval                         25759  0770d8f7c35b34313815f95d09a0d85e384e7569fdb64ab5780a2991b15dc324
---   asi.nlu.frames                       47191  96275e3b5c444f42d8c8340d1c1d05143e3f9da6114535d5ee1452b79a07e8a2
---   asi.nlu.frames2                      75509  6e50f22b8164b9ec3c5049211112d6b69df17c86bf0f7805df9100fce900439d
+--   asi.nlu.eval                         26830  52487ed32207cedc36d4a5ab49c765fd14f4456126807b0c23da71352b49e620
+--   asi.nlu.frames                       48972  f6fdafd9867f8fcb54e6f5e9c2f006a12916906855cc3e654e3f90488d66c8dc
+--   asi.nlu.frames2                      87619  7bf1ce79ddd093cb83a3f19d4123200c760124ef83bb5e1d6f1f95dfb50f7123
+--   asi.nlu.frames3                      55890  40a3cfe4cabaf5646799921bcc289b9c2f4580ad55848842aa243646b900102a
+--   asi.nlu.frames4                      44552  ecca112a5abcb69327be21ab20c6cdc5b93b11a1b574e4747f593509115f9d22
 --   asi.nlu.hook                          2673  1fd2c30a2cb762d1ab7da52a5cc73b0656b5fd89568e55c6cf75edc130a925fc
---   asi.nlu.hyp                          22021  253c3d721ccfabe0a0cb2ac362c8a14efcb120dd047704a4782a6ae545f94597
+--   asi.nlu.hyp                          23165  31fd02d8af7de6c0a2849cf47a24968750b8aa489bfb3ba9136ec158d39a67d3
 --   asi.nlu.index                         9829  cbd47a9694466a8b37ce2a1d640a56a0827a61264ce1ec70572b9ee029fd5ac5
---   asi.nlu.interp                       14297  e7e9a0d3daa04159ba3fd50efb9ca97e325eb61b3821b51adf6e9e35771a74c5
+--   asi.nlu.interp                       17038  0b746dd5fbe17f552ade908d75a6d704422777f0f6e4d8899b75e56eec1ef5bb
 --   asi.nlu.knowledge                    13777  b9bf6138bf9f13fca68b5eaabaabd7db6af1bf713d4104672fb8924988669708
---   asi.nlu.lattice                      16607  a12380b0145230ca1711eba630651c0f7b2a4d321b87ab69d99a67cc273fec40
+--   asi.nlu.lattice                      21265  0d38c0c29c023ffbba084de11738b742b6001659c62d461f424ec6e220f6c0ef
 --   asi.nlu.lex                          47300  9a9c5e32df8d1ede465126fad5a04ef51a72fcf237b3d4a78452a9227b746705
---   asi.nlu.lexicon                      33767  583015afd1a8774b4c8221951dc37fb5b06d0791c4856380150f2e917041cad5
---   asi.nlu.longctx                      17637  202dbb865282de997dfc1c34142fb5c9fc7ee87350a66902410d05448fb072ea
---   asi.nlu.memory                       39825  1816bc7db398fccac6362792f96c266a16520a6631b5620b9e25a61cb7f1712f
---   asi.nlu.morph                        10763  bd042680d45e8c03c51f9b612143e2a4b5298e1431f2e89f0148ed791e508767
+--   asi.nlu.lexicon                      34989  dff3eb97be9ff02d9f308af40baa8900dd2f5910187bf7ab4c3a673e0b9cf05a
+--   asi.nlu.longctx                      18616  11ba9f6294a918f9756232c6f6c56b0efd87a91a45d30014ff03278f2d898831
+--   asi.nlu.memory                       46796  6448827e08baff45b7bd06bf978a75b7fb71d873a93038a5236763e7dec7ce81
+--   asi.nlu.morph                        11500  2aa4fef51598f666276ef5dc2ddce5bf51fba058444f1d6e45c9040742b3b2d1
 --   asi.nlu.package                      19442  7c14a1d2b7e769ff1479a0716ce754e1962c7464a90b4e3742aac52370f8bafa
---   asi.nlu.parse                        79800  b12098ef56e9c998a39aa0c3846db04a45c16a65b321aea0ca6bac4878572bcc
+--   asi.nlu.parse                       100929  3ac2f0874a32aea06b7d90311e38a3e3d303ae7b9d7f04661bea76cb25c44d40
 --   asi.nlu.perturb                       5264  77af06b03ccd50e0dccf3857278d682196d86f7c08edb977c39653099b15e4ca
 --   asi.nlu.plan                          8073  f0d06bc680534813a7e6c65ae92a753177d5895a2e17a542dfc474a14b13aaa0
 --   asi.nlu.rbench                       22681  8d7dd43783e912b5d0b294029920ce3019435bfa62283c0e02c5efa5cbd5b3ce
 --   asi.nlu.record                       22010  7e484ebafd3dea8aa305dc6edb5235ffa3acb777bc97b9150bf8e021a5846d00
 --   asi.nlu.repair                       10500  14436d03d269338fb7a1297093d8cf3f22c2d5bca102ce809ac8f6400fd80431
 --   asi.nlu.resources                      802  cb534724597215aefc87724e616136bdd513273bc60037b157183bdbe86fb7e8
---   asi.nlu.sem                          28199  290b3120b6a26bc8381053085e79c3402b02e0ee1ed75fdc5118528c2550af80
---   asi.nlu.spell                         4898  009ddb7d5ce0b674a4165652cb408a3b4e3e445ade89c3783ed08aa23e2dd3b5
---   asi.nlu.temporal                     39036  0af52f3a9fd922f36ef86b0a21f0b1c27520e58930d265b46057c2ae7233af8a
+--   asi.nlu.sem                          42765  83cb8b8e95b1a7e91cf222ab64b0cf742a2522fe7775af1284bc622f45ea0e22
+--   asi.nlu.spell                         6330  ad187dc325f7786de687fc44c23c9fb67a9737c57505c73370bc1a4fda0bb3f8
+--   asi.nlu.temporal                     39911  cffd7d5265fd73ce18e7ca41db1e186b9f67662e16c9c97c38e5206f15ffba95
 --   asi.nlu.textutil                      2292  66657a87c2a74d210425b7c5b539445d5c8b6a9e9664a76a9a7fea15eb134149
 --   asi.nlu.unicode                      17174  a59dc884903d9e05f1be47d193a879e3c25d5b6c381bd203b7358c7a48b20b0b
 --   asi.nlu.util                         21159  391e67a78b13368a4be4028659bc45babecbdd7ff24aa761d00ad68dd38aaa8f
 --   asi.nlu.verify                       44851  f8f0168a18f5856a71d8a5e02bbd49e3ad01a2d0fa335ea9ca9d5a42798cd237
---   asi.nlu.data.lex_core                29414  7911efbbfe0c5dd1229b62ef747ab7a37bd4845786b1465dc93c55142f64ff05
---   asi.nlu.data.lex_gaz                  8003  04acc94f338a48b42e9479db93329e7f684a7c6dfbdfee0b641b935fd4186ee4
---   asi.nlu.data.lex_rel                 10397  e059cf369f976ce6a649033f4259aa7266b8a395f5f29576da3f98a15ba65b3c
+--   asi.nlu.data.lex_core                36766  9248c29e40c5ae7f134de331d3569955ec63c63badf692ecd9bd0ac3accb9be3
+--   asi.nlu.data.lex_gaz                 10088  ca3e80c7c6004cd4f327403bb4ee58a1d925771ae23f0090ce840aec3febe6dc
+--   asi.nlu.data.lex_rel                 12824  4c27ab33ecf00745ebc48b8a0c4fb62a3f959fa048ff63db7271d0bc7f7c1ed8
 --   asi.nlu.data.lex_sense                6101  1eb7fefd5771778cc97bcbfe9224a84ec8fa085f38d8090238f123042831418e
 --   asi.nlu.data.lex_typenoun             6425  3fd5d839b2e1cc2b837aadac26173afd252046bd06c84c7230d4d8ee3fd66482
---   asi.nlu.data.cal_interp_v1            2237  ac91a6ed8ad13204920ccd91e24cc4b93581fdbcfe7fcdf2c01db95cdfed2095
+--   asi.nlu.data.cal_interp_v1            2130  49956d4fc43dd8cc5456509ef1a11c8ed0e1ebafa2c9ba84a090b9b9eca57dd1
 
 package.preload["asi.nlu.assertions"] = function(...)
 -- asi.nlu.assertions: record text -> typed assertions.
@@ -142,19 +145,22 @@ A.describe_np = describe_np
 ---------------------------------------------------------------- qualifiers
 local function qualifier_range(S, a)
   -- chunks that qualify THIS assertion: a fronted adverbial before the subject, and what follows the object up to the next comma-delimited clause
+  -- (a fact mined from a sub-clause is qualified by that clause only: "Not many people know that P founded O" is not a negated founding)
   local keep = {}
+  local lo, hi = S.first, S.last
+  if a.span then lo, hi = a.span[1], a.span[2] end
   local first_used = a.used_np[1].c1
   for _, np in ipairs(a.used_np) do if np.c1 < first_used then first_used = np.c1 end end
-  for k = S.first, first_used - 1 do keep[k] = true end
-  local start = a.end_chunk or (S.last + 1)
-  for k = start, S.last do
+  for k = lo, first_used - 1 do keep[k] = true end
+  local start = a.end_chunk or (hi + 1)
+  for k = start, hi do
     local c = C(S, k)
     if c and c.pre and c.pre:find("comma") and not c.temporal then break end
     keep[k] = true
   end
-  for k = S.lead_first or S.first, S.first - 1 do keep[k] = true end
+  if not a.span then for k = S.lead_first or S.first, S.first - 1 do keep[k] = true end end
   -- the predicate (copula / verb / negation) sits between the NPs
-  for k = S.first, S.last do
+  for k = lo, hi do
     if a.copula and a.copula.used[k] then keep[k] = true end
     if a.vp and k >= a.vp.c1 and k <= a.vp.c2 then keep[k] = true end
   end
@@ -219,6 +225,20 @@ end
 
 ---------------------------------------------------------------- patterns
 local COPULA = U.set({ "is", "are", "was", "were", "be", "been", "being" })
+local NAMED_VALUE = U.set({ "person", "agent", "organization", "company", "city", "country", "place", "political_territory", "institution", "location" })
+local DEGREE_WORD = U.set({ "best", "better", "most", "mostly", "largely", "chiefly", "mainly", "principally", "primarily", "particularly", "especially" })
+-- sentence adverbs that open a clause and say how the writer stands to it; the hedging ones mark the assertion as reported, not certain
+local HEDGE_LEAD = U.set({ "reportedly", "allegedly", "supposedly", "apparently", "purportedly", "presumably", "seemingly", "ostensibly", "reputedly", "rumoredly", "rumouredly" })
+local LEAD_ADVERB = U.set({ "reportedly", "allegedly", "supposedly", "apparently", "purportedly", "presumably", "seemingly", "ostensibly", "reputedly", "officially", "publicly", "notably",
+  "famously", "importantly", "interestingly", "indeed", "actually", "naturally", "obviously", "clearly", "certainly", "undoubtedly", "surely", "admittedly", "incidentally",
+  "historically", "traditionally", "nowadays", "currently", "meanwhile", "however", "still", "also", "besides", "furthermore", "moreover", "additionally", "firstly", "secondly",
+  "finally", "lastly", "overall", "essentially", "basically", "ultimately", "evidently", "frankly", "honestly", "briefly", "simply", "technically", "strictly", "formally", "legally",
+  "constitutionally", "unsurprisingly", "fortunately", "unfortunately", "sadly", "thankfully", "remarkably", "strangely", "curiously", "tellingly", "crucially", "significantly",
+  "today", "originally", "initially", "eventually", "subsequently", "recently", "later", "earlier", "yet", "again", "then", "thus", "therefore", "hence", "so", "well", "now", "anyway" })
+local DIRECT_PARTICIPLE = U.set({ "designated", "named", "declared", "appointed", "chosen", "elected", "deemed", "termed", "titled", "called", "considered", "crowned", "proclaimed", "voted",
+  "installed", "confirmed", "made" })
+local AS_PARTICIPLE = U.set({ "known", "regarded", "recognised", "recognized", "listed", "described", "identified", "credited", "named", "cited", "presented", "introduced", "acknowledged",
+  "celebrated", "remembered", "hailed", "billed", "designated", "registered", "recorded", "characterised", "characterized", "portrayed", "depicted", "seen", "viewed", "considered", "treated" })
 local function copula_at(S, k)
   local c = C(S, k)
   if not (c and c.single and not c.masked) then return nil end
@@ -242,11 +262,22 @@ local function copula_at(S, k)
   elseif not (cat(c, "aux_be") or cat(c, "clitic_s")) then return nil end
   local skipped, former = {}, false
   while C(S, j) and C(S, j).single and not barrier(C(S, j)) and (P.is_neg(C(S, j)) or cat(C(S, j), "adv") or (C(S, j).temporal and C(S, j).temporal.kind == "marker")
-    or (C(S, j).unit.form == "no" and C(S, j + 1) and C(S, j + 1).unit.form == "longer")) do
+    or (C(S, j).unit.form == "no" and C(S, j + 1) and C(S, j + 1).unit.form == "longer")
+    or (DEGREE_WORD[C(S, j).unit.form] and C(S, j + 1) and C(S, j + 1).single and AS_PARTICIPLE[C(S, j + 1).unit.form])) do
     if C(S, j).unit.form == "no" then former = true; used[j] = true; used[j + 1] = true; j = j + 1
     elseif P.is_neg(C(S, j)) then neg = true; used[j] = true
     elseif C(S, j).temporal then skipped[#skipped + 1] = j
     else used[j] = true end
+    j = j + 1
+  end
+  -- "is best known as", "was listed as", "is widely regarded as": a passive participle + "as" is a copula that introduces a role or identity
+  local pc, ac = C(S, j), C(S, j + 1)
+  if pc and ac and pc.single and ac.single and not pc.masked and not ac.masked and not barrier(pc) and not barrier(ac) and AS_PARTICIPLE[pc.unit.form] and ac.unit.form == "as" then
+    used[j], used[j + 1] = true, true
+    j = j + 2
+  -- "has been designated the capital", "was named the CEO": a participle that takes its complement directly
+  elseif pc and ac and pc.single and not pc.masked and not barrier(pc) and not barrier(ac) and DIRECT_PARTICIPLE[pc.unit.form] and not ac.masked and not cat(ac, "prep") and not P.is_neg(ac) then
+    used[j] = true
     j = j + 1
   end
   return { nxt = j, neg = neg, past = past, used = used, form = f, skipped = skipped, former = former, hedged = c.hedged or hedged_modal, future = future_modal, onset = c.onset }
@@ -291,7 +322,10 @@ local function copular_relational(self, S, ctx, out)
       if snp.head_kind == "relnoun" then
         for _, o in ipairs(F.relnp_options(S, snp)) do
           if o.arg and o.rel then
-            for _, vnp in ipairs(P.parse_np(S, cp.nxt)) do
+            -- "is held by P" is a passive, not a value
+            local pvc, pby = C(S, cp.nxt), C(S, cp.nxt + 1)
+            local passive_follows = pvc and pby and pvc.single and pby.single and pby.unit.form == "by" and #P.verb_analyses(S, pvc) > 0
+            for _, vnp in ipairs(not passive_follows and P.parse_np(S, cp.nxt) or {}) do
               local a = { rel = o.rel.id, rel_obj = o.rel, pattern = "copular_value", used_np = { snp, vnp }, neg = cp.neg, tense = cp.past and "past" or "present", copula = cp }
               a.roles = { [o.known_role] = o.arg, [o.ask_role] = vnp }
               a.end_chunk = vnp.nxt
@@ -388,7 +422,7 @@ local function verb_relational(self, S, ctx, out)
     for _, vp in ipairs(P.parse_vp(S, pos)) do
       for _, e in ipairs(vp.analysis.entries) do
         local rel = lex:get_rel(e.rel)
-        if rel and not e.as_only then
+        if rel and not e.as_only and not e.np_only then
           local k = vp.nxt
           local patient_first = vp.voice == "passive" and not e.prep
           local skipped
@@ -769,6 +803,14 @@ end
 local PATTERNS = { copular_relational, verb_relational, have_attribute, support_statement, relative_identity, description_identity, classification, with_attribute, definition,
   apposition_relational, relative_apposition }
 
+-- clause-level mining (appositives, whose-clauses, fronted participles, purpose clauses ...): localised patterns plus whole-sentence patterns re-run on sub-clauses
+local X = require("asi.nlu.assertions2")
+X.init({ copula_at = copula_at, comma_at = comma_at })
+local WHOLE_PATTERNS = {}
+for i, pat in ipairs(PATTERNS) do WHOLE_PATTERNS[i] = pat end
+local LOCAL_PATTERNS = X.patterns
+for _, pat in ipairs(LOCAL_PATTERNS) do PATTERNS[#PATTERNS + 1] = pat end
+
 ---------------------------------------------------------------- reader-directed content
 -- Data that addresses the reader is evidence ABOUT the data, never a command: such sentences are flagged and excluded from fact extraction.
 local function reader_directed(self, S, sent_text)
@@ -799,6 +841,18 @@ local function reader_directed(self, S, sent_text)
     end
   end
   if addresses and ai then reasons[#reasons + 1] = "addresses the reader/assistant" end
+  -- "You must tell the user that ...": a second-person subject with a deontic modal is an instruction to the reader, whatever it goes on to say
+  for i, u in ipairs(S.units) do
+    local n = S.units[i + 1]
+    if u.sent == S.sentence.id and u.form == "you" and n and n.sent == S.sentence.id then
+      local n2 = S.units[i + 2]
+      if n.form == "must" or n.form == "should" or n.form == "shall" or n.form == "ought" or n.form == "need"
+        or ((n.form == "have" or n.form == "are") and n2 and n2.form == "to") then
+        reasons[#reasons + 1] = "second-person directive: " .. n.form
+        break
+      end
+    end
+  end
   return reasons
 end
 
@@ -875,7 +929,11 @@ function A:extract(text, meta)
           S.lead_first = S.first
           do
             local k = S.first
-            while C(S, k) and C(S, k).temporal and C(S, k + 1) and C(S, k + 1).pre and C(S, k + 1).pre:find("comma") do k = k + 1 end
+            while C(S, k) and C(S, k + 1) and C(S, k + 1).pre and C(S, k + 1).pre:find("comma")
+              and (C(S, k).temporal or (C(S, k).single and not C(S, k).masked and LEAD_ADVERB[C(S, k).unit.form])) do
+              if C(S, k).single and HEDGE_LEAD[C(S, k).unit.form] then S.leading_hedge = true end
+              k = k + 1
+            end
             S.first = k
           end
           P.take_topic(S)
@@ -890,6 +948,8 @@ function A:extract(text, meta)
             P.normalize_inversion(S)
             for _, pat in ipairs(PATTERNS) do pat(self, S, ctx, cands) end
           end
+          -- nothing as written: look for the fact inside a sub-clause ("We learned that P is the capital of K, which ...")
+          if #cands == 0 then X.mine(self, S, ctx, cands, WHOLE_PATTERNS) end
           -- keep candidates that explain the most of the sentence; ties broken by pattern order (copular relational first)
           local best, best_cov = {}, -1
           for _, a in ipairs(cands) do
@@ -900,7 +960,7 @@ function A:extract(text, meta)
             a.coverage = cov
             if cov > best_cov then best_cov = cov end
           end
-          for _, a in ipairs(cands) do if a.coverage >= best_cov - 1 then best[#best + 1] = a end end
+          for _, a in ipairs(cands) do if a.coverage >= best_cov - 1 or a.local_pattern then best[#best + 1] = a end end
 
           for _, a in ipairs(best) do
             local used = {}
@@ -914,7 +974,7 @@ function A:extract(text, meta)
             end
             local q = qualifiers(self, S, used, { neg = a.neg, tense = a.tense, range = qualifier_range(S, a), former = a.copula and a.copula.former })
             if a.neg then q.polarity = "negative" end
-            if a.copula and a.copula.hedged then q.modality = "hedged" end          -- "is said to be", "is believed to be"
+            if (a.copula and a.copula.hedged) or S.leading_hedge then q.modality = "hedged" end          -- "is said to be", "is believed to be", "Reportedly, ...".
             if a.copula and a.copula.future then q.modality = "hypothetical" end    -- "will be": a prediction, not a present fact
             if S.attribution then q.attribution = S.attribution.text end
             local rel_obj = a.rel_obj
@@ -961,6 +1021,18 @@ function A:extract(text, meta)
             end
             res._seen = res._seen or {}
             local valid = rec.from and rec.from.status ~= "pronoun" and (rec.is_class or (rec.to and rec.to.status ~= "pronoun")) and not clash
+            -- a bare common-noun term ("a familiar name", "frequently") can be the value of a relation whose values are kinds of things (currency, language, role ...),
+            -- never of one whose values are named things (a person, a city, a company)
+            if valid and not rec.is_class and rel_obj and not rel_obj.open then
+              local function bad_term(d, role)
+                if not (d and d.status == "term") then return false end
+                local ty = rel_obj[role]
+                if type(ty) ~= "string" then return false end
+                for alt in ty:gmatch("[%w_]+") do if not NAMED_VALUE[alt] then return false end end
+                return true
+              end
+              if bad_term(rec.from, "from") or bad_term(rec.to, "to") then valid = false end
+            end
             -- a bare role word ("chief executive", "president") is a description of a participant, not a participant
             if valid and not rec.is_class and ((rec.to and rec.to.head_kind == "relnoun" and not rec.to.key) or (rec.from and rec.from.head_kind == "relnoun" and not rec.from.key)) then valid = false end
             -- one reading of the sentence per (relation, subject): among VALID candidates the one explaining most of the sentence wins over
@@ -996,6 +1068,920 @@ function A:extract(text, meta)
 end
 
 return A
+
+end
+
+package.preload["asi.nlu.assertions2"] = function(...)
+-- asi.nlu.assertions2: clause-level fact mining for the assertion extractor (extends asi.nlu.assertions).
+-- Real text rarely states a fact as a sentence of its own: it appears in an appositive ("Officials in P, the capital of K, said ..."), a relative clause
+-- ("K, whose capital is P, ..."), a fronted participle ("Founded by X, Y has grown ..."), a purpose clause ("X returned home to found Y"), after a reporting frame
+-- ("we learned that P is the capital of K"), after a fronted adverbial ... The patterns here find such localised constructions anywhere in a sentence, and
+-- `mine` re-runs the whole-sentence patterns on sub-clauses when the sentence as written yields nothing.  Every pattern builds the same candidate records
+-- as asi.nlu.assertions (rel, roles, used noun phrases); roles come from the relation lexicon's direction and type compatibility, never from word proximity.
+local U = require("asi.nlu.util")
+local P = require("asi.nlu.parse")
+local F = require("asi.nlu.frames2")
+require("asi.nlu.frames4")   -- the question frames share their phrase helpers (credit cues, locus options) on the same table
+
+local X = {}
+local cat = P.cat
+local function C(S, k) return S.chunks[k] end
+local function other(role) return role == "to" and "from" or "to" end
+local H = {}   -- helpers injected by asi.nlu.assertions (copula_at ...)
+function X.init(h) for k, v in pairs(h) do H[k] = v end end
+
+local function name_np(np)
+  return (np.head_kind == "entity" or (np.head_kind == "unknown" and np.head and np.head.cap)) and not np.poss_det and not np.det
+end
+local function has_pre(c, tag) return c ~= nil and c.pre ~= nil and c.pre:find(tag) ~= nil end
+local function opens(c) return has_pre(c, "comma") or has_pre(c, "paren_open") or has_pre(c, "dash") end
+local function closed_after(S, nxt)
+  local nc = C(S, nxt)
+  return nxt > S.last or (nc ~= nil and nc.pre ~= nil and (nc.pre:find("comma") or nc.pre:find("dash") or nc.pre:find("paren_close") or nc.pre:find("semi") or nc.pre:find("colon")))
+end
+
+local function cand(rel, pattern, used_np, roles, end_chunk, extra)
+  local a = { rel = rel.id, rel_obj = rel, pattern = pattern, used_np = used_np, neg = false, tense = "present", roles = roles, end_chunk = end_chunk, local_pattern = true }
+  for k, v in pairs(extra or {}) do a[k] = v end
+  return a
+end
+
+-- a value that is a common noun rather than a name (the currency "tolar", the language "Zorish") is allowed for these relation value types
+local COMMON_VALUE = U.set({ "currency", "language", "topic", "service", "role", "concept" })
+local function value_ok(rel, ask_role, np)
+  if name_np(np) then return true end
+  return np.head_kind == "unknown" and COMMON_VALUE[rel[ask_role] or ""] == true and not np.plural
+end
+
+---------------------------------------------------------------- appositives:  NAME , RELNP-of-X ,     RELNP-of-X [adjuncts] , NAME
+local function apposition_anywhere(self, S, ctx, out)
+  for k = S.first, S.last do
+    local ck = C(S, k)
+    if ck and not ck.masked then
+      for _, np1 in ipairs(P.parse_np(S, k)) do
+        -- (a) NAME , the capital of X ,    /    NAME (the capital of X)
+        if np1.nxt <= S.last and opens(C(S, np1.nxt)) then
+          for _, np2 in ipairs(P.parse_np(S, np1.nxt)) do
+            if np2.head_kind == "relnoun" and np2.of_arg and closed_after(S, np2.nxt) then
+              for _, o in ipairs(F.relnp_options(S, np2)) do
+                if o.arg and o.rel and not o.rel.open and value_ok(o.rel, o.ask_role, np1) and not (np1.head_kind == "relnoun") then
+                  out[#out + 1] = cand(o.rel, "apposition_local", { np1, np2 }, { [o.known_role] = o.arg, [o.ask_role] = np1 }, np2.nxt)
+                end
+              end
+            end
+          end
+        end
+        -- (b) the founder of X [for years|since 1990] , NAME
+        if np1.head_kind == "relnoun" and np1.of_arg then
+          local j = np1.nxt
+          local cj = C(S, j)
+          -- one adjunct before the comma: a temporal expression, or "for|since|in NP"
+          if cj and not opens(cj) and j <= S.last then
+            if cj.temporal and cj.temporal.kind ~= "marker" then j = j + 1
+            elseif cj.single and cat(cj, "prep") and not cj.masked then
+              for _, pnp in ipairs(P.parse_np(S, j + 1)) do j = pnp.nxt; break end
+            end
+            cj = C(S, j)
+          end
+          if cj and j <= S.last and opens(cj) and not has_pre(cj, "paren_open") then
+            for _, np2 in ipairs(P.parse_np(S, j)) do
+              if name_np(np2) then
+                for _, o in ipairs(F.relnp_options(S, np1)) do
+                  if o.arg and o.rel and not o.rel.open and value_ok(o.rel, o.ask_role, np2) then
+                    out[#out + 1] = cand(o.rel, "apposition_local", { np1, np2 }, { [o.known_role] = o.arg, [o.ask_role] = np2 }, np2.nxt)
+                  end
+                end
+              end
+            end
+          end
+        end
+        -- (c) Chief executive NAME of ORG        (a title in front of a name, then "of" and the organisation)
+        if name_np(np1) or (np1.head_kind == "entity" and #(np1.mods or {}) > 0) then
+          local titles = {}
+          for _, m in ipairs(np1.mods or {}) do
+            if m.chunk then for _, ne in ipairs(m.chunk.relnouns or {}) do titles[#titles + 1] = ne end end
+          end
+          local oc = C(S, np1.nxt)
+          if #titles > 0 and oc and oc.single and not oc.masked and oc.unit.form == "of" and not opens(oc) then
+            for _, org in ipairs(P.parse_np(S, np1.nxt + 1)) do
+              if name_np(org) then
+                for _, ne in ipairs(titles) do
+                  local rel = S.lex:get_rel(ne.rel)
+                  if rel and not rel.open and ne.role == "to" then
+                    out[#out + 1] = cand(rel, "title_of", { np1, org }, { from = org, to = np1 }, org.nxt)
+                  end
+                end
+                break
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- NAME , whose RELNOUN is VALUE
+local function whose_clause(self, S, ctx, out)
+  for k = S.first, S.last do
+    for _, snp in ipairs(P.parse_np(S, k)) do
+      local wc = C(S, snp.nxt)
+      if name_np(snp) and wc and wc.single and not wc.masked and wc.unit.form == "whose" and has_pre(wc, "comma") then
+        for _, rnp in ipairs(P.parse_np(S, snp.nxt + 1)) do
+          if rnp.head_kind == "relnoun" and not rnp.of_arg and not rnp.possessor and H.copula_at then
+            local cp = H.copula_at(S, rnp.nxt)
+            if cp then
+              local vk = cp.nxt
+              local pc = C(S, vk)
+              if pc and pc.single and not pc.masked and cat(pc, "prep") and (pc.unit.form == "in" or pc.unit.form == "at") then vk = vk + 1 end
+              for _, vnp in ipairs(P.parse_np(S, vk)) do
+                if closed_after(S, vnp.nxt) then
+                  for _, e in ipairs(rnp.relnouns) do
+                    local rel = S.lex:get_rel(e.rel)
+                    if rel and not rel.open and value_ok(rel, e.role, vnp) then
+                      out[#out + 1] = cand(rel, "whose_clause", { snp, rnp, vnp }, { [other(e.role)] = snp, [e.role] = vnp }, vnp.nxt, { copula = cp })
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "its founder, NAME"   /   "NAME, its chief executive"
+-- the possessive pronoun stands for the nearest earlier entity of a type the relation allows
+local function possessive_apposition(self, S, ctx, out)
+  local lex = S.lex
+  local function holder_before(pos, avoid, rel, holder_role)
+    for k = pos - 1, S.first, -1 do
+      for _, np in ipairs(P.parse_np(S, k)) do
+        if np.nxt <= pos and np ~= avoid and name_np(np) and np.c2 == (C(S, k) and np.c2) then
+          local ty
+          for _, cd in ipairs(np.cands or {}) do ty = ty or cd.type end
+          if np.head and np.head.names and np.head.names[1] then ty = ty or np.head.names[1].type_guess end
+          if lex:compat(ty, rel[holder_role]) > -1.0 then return np end
+        end
+      end
+    end
+  end
+  for k = S.first, S.last do
+    local ck = C(S, k)
+    if ck and ck.single and not ck.masked and cat(ck, "poss_det") and (ck.unit.form == "its" or ck.unit.form == "his" or ck.unit.form == "her" or ck.unit.form == "their") then
+      for _, rnp in ipairs(P.parse_np(S, k)) do
+        if rnp.head_kind == "relnoun" and not rnp.of_arg then
+          -- (a) its founder , NAME      (b) NAME , its chief executive
+          local nc = C(S, rnp.nxt)
+          local value, holder_pos
+          if nc and has_pre(nc, "comma") then
+            for _, np2 in ipairs(P.parse_np(S, rnp.nxt)) do if name_np(np2) then value = np2; holder_pos = k; break end end
+          end
+          local bc = C(S, k)
+          if not value and bc and k > S.first and has_pre(bc, "comma") then
+            for k2 = k - 1, S.first, -1 do
+              for _, np0 in ipairs(P.parse_np(S, k2)) do
+                if np0.nxt == k and name_np(np0) then value = np0; holder_pos = k2; break end
+              end
+              if value then break end
+            end
+          end
+          if value then
+            for _, e in ipairs(rnp.relnouns) do
+              local rel = lex:get_rel(e.rel)
+              if rel and not rel.open and value_ok(rel, e.role, value) then
+                local holder = holder_before(math.min(holder_pos, value.c1 or holder_pos), value, rel, other(e.role))
+                if holder then
+                  out[#out + 1] = cand(rel, "possessive_apposition", { holder, rnp, value }, { [other(e.role)] = holder, [e.role] = value }, math.max(rnp.nxt, value.nxt))
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- participial and purpose constructions
+-- "Founded by X, Y has grown ..."
+local function fronted_passive_by(self, S, ctx, out)
+  for _, vp in ipairs(P.parse_vp(S, S.first, { participle_ok = true })) do
+    if vp.voice == "passive" then
+      local bc = C(S, vp.nxt)
+      if bc and bc.single and not bc.masked and bc.unit.form == "by" then
+        for _, np1 in ipairs(P.parse_np(S, vp.nxt + 1)) do
+          local j = np1.nxt
+          local cj = C(S, j)
+          -- an adjunct between the by-phrase and the comma ("in 1999")
+          if cj and cj.temporal and not has_pre(cj, "comma") then j = j + 1; cj = C(S, j) end
+          if cj and has_pre(cj, "comma") and name_np(np1) then
+            for _, np2 in ipairs(P.parse_np(S, j)) do
+              if name_np(np2) then
+                for _, e in ipairs(vp.analysis.entries or {}) do
+                  local rel = S.lex:get_rel(e.rel)
+                  if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+                    out[#out + 1] = cand(rel, "fronted_passive", { np1, np2 }, { [other(e.subj)] = np2, [e.subj] = np1 }, np2.nxt, { vp = vp, neg = vp.neg })
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- "Having founded O, P spent the next decade ..."
+local function having_clause(self, S, ctx, out)
+  local c0 = C(S, S.first)
+  if not (c0 and c0.single and c0.unit.form == "having") then return end
+  for _, vp in ipairs(P.parse_vp(S, S.first)) do
+    if vp.voice == "active" and vp.perfect then
+      for _, e in ipairs(vp.analysis.entries or {}) do
+        local rel = S.lex:get_rel(e.rel)
+        if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+          for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+            local cj = C(S, onp.nxt)
+            if cj and has_pre(cj, "comma") and name_np(onp) then
+              for _, snp in ipairs(P.parse_np(S, onp.nxt)) do
+                if name_np(snp) then
+                  out[#out + 1] = cand(rel, "having_clause", { snp, onp }, { [e.subj] = snp, [other(e.subj)] = onp }, onp.nxt, { vp = vp, neg = vp.neg, tense = "past" })
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- "P returned home to found O."  /  "that is how P came to found O."
+local TO_VERBS = U.set({ "came", "come", "returned", "went", "moved", "managed", "proceeded", "went" })
+local function purpose_infinitive(self, S, ctx, out)
+  for k = S.first, S.last do
+    for _, snp in ipairs(P.parse_np(S, k)) do
+      if name_np(snp) and snp.nxt < S.last then
+        local verb_seen = false
+        for j = snp.nxt, math.min(S.last - 1, snp.nxt + 6) do
+          local cj = C(S, j)
+          if not cj or cj.masked or (j > snp.nxt and has_pre(cj, "comma")) then break end
+          if cj.single and TO_VERBS[cj.unit.form] then verb_seen = true end
+          if cj.single and (P.is_neg(cj) or cj.unit.form == "failed" or cj.unit.form == "unable") then break end
+          local tc = C(S, j + 1)
+          if verb_seen and cj.single and cj.unit.form == "to" and tc and tc.single and not tc.masked then
+            for _, a in ipairs(P.verb_analyses(S, tc)) do
+              if a.form == "base" then
+                for _, e in ipairs(a.entries or {}) do
+                  local rel = S.lex:get_rel(e.rel)
+                  if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+                    for _, onp in ipairs(P.parse_np(S, j + 2)) do
+                      if name_np(onp) then
+                        out[#out + 1] = cand(rel, "purpose_infinitive", { snp, onp }, { [e.subj] = snp, [other(e.subj)] = onp }, onp.nxt, { tense = "past" })
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- "Credit for founding O goes to P."   "We have P to thank for founding O."
+local function credit_pattern(self, S, ctx, out)
+  local lex = S.lex
+  for k = S.first, S.last - 3 do
+    local c = C(S, k)
+    local function verb_obj(vk)
+      -- VERB-ing NP  at chunk vk
+      local vc = C(S, vk)
+      local res = {}
+      if vc and vc.single and not vc.masked then
+        for _, a in ipairs(P.verb_analyses(S, vc)) do
+          if a.form == "ing" then
+            for _, e in ipairs(a.entries or {}) do
+              local rel = lex:get_rel(e.rel)
+              if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+                for _, onp in ipairs(P.parse_np(S, vk + 1)) do res[#res + 1] = { e = e, rel = rel, onp = onp } end
+              end
+            end
+          end
+        end
+      end
+      return res
+    end
+    if c and c.single and (c.unit.form == "credit" or c.unit.form == "thanks") then
+      local fc = C(S, k + 1)
+      if fc and fc.single and fc.unit.form == "for" then
+        for _, vo in ipairs(verb_obj(k + 2)) do
+          local gc = C(S, vo.onp.nxt)
+          local tc = C(S, vo.onp.nxt + 1)
+          if gc and gc.single and (gc.unit.form == "goes" or gc.unit.form == "belongs" or gc.unit.form == "goes") and tc and tc.single and tc.unit.form == "to" then
+            for _, snp in ipairs(P.parse_np(S, vo.onp.nxt + 2)) do
+              if name_np(snp) and name_np(vo.onp) then
+                out[#out + 1] = cand(vo.rel, "credit_goes_to", { snp, vo.onp }, { [vo.e.subj] = snp, [other(vo.e.subj)] = vo.onp }, snp.nxt, { tense = "past" })
+              end
+            end
+          end
+        end
+      end
+    end
+    -- we have P to thank for founding O
+    if c and c.single and (c.unit.form == "have" or c.unit.form == "has") then
+      for _, snp in ipairs(P.parse_np(S, k + 1)) do
+        local t1, t2, t3 = C(S, snp.nxt), C(S, snp.nxt + 1), C(S, snp.nxt + 2)
+        if name_np(snp) and t1 and t2 and t3 and t1.single and t2.single and t3.single and t1.unit.form == "to" and t2.unit.form == "thank" and t3.unit.form == "for" then
+          for _, vo in ipairs(verb_obj(snp.nxt + 3)) do
+            if name_np(vo.onp) then
+              out[#out + 1] = cand(vo.rel, "thank_for", { snp, vo.onp }, { [vo.e.subj] = snp, [other(vo.e.subj)] = vo.onp }, vo.onp.nxt, { tense = "past" })
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- appositive relative with an object gap, parenthetical passive
+-- "O, the group that P established, voted ..."     "O (established by P) opened its doors"     "O, founded by P, ..."
+local function appositive_clauses(self, S, ctx, out)
+  for k = S.first, S.last do
+    for _, snp in ipairs(P.parse_np(S, k)) do
+      local oc = C(S, snp.nxt)
+      if name_np(snp) and snp.nxt <= S.last and oc and opens(oc) then
+        -- (a) passive participle with a by-agent
+        for _, vp in ipairs(P.parse_vp(S, snp.nxt, { participle_ok = true })) do
+          if vp.voice == "passive" then
+            local bc = C(S, vp.nxt)
+            if bc and bc.single and not bc.masked and bc.unit.form == "by" then
+              for _, ag in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                if name_np(ag) and closed_after(S, ag.nxt) then
+                  for _, e in ipairs(vp.analysis.entries or {}) do
+                    local rel = S.lex:get_rel(e.rel)
+                    if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+                      out[#out + 1] = cand(rel, "appositive_passive", { snp, ag }, { [other(e.subj)] = snp, [e.subj] = ag }, ag.nxt, { vp = vp, neg = vp.neg })
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+        -- (b) the group that P established  (object relative clause)
+        for _, dnp in ipairs(P.parse_np(S, snp.nxt)) do
+          local rc = C(S, dnp.nxt)
+          if (dnp.head_kind == "typenoun" or dnp.head_kind == "unknown") and rc and rc.single and not rc.masked and (rc.unit.form == "that" or rc.unit.form == "which") then
+            for _, sub in ipairs(P.parse_np(S, dnp.nxt + 1)) do
+              if name_np(sub) then
+                for _, vp in ipairs(P.parse_vp(S, sub.nxt)) do
+                  if vp.voice == "active" and closed_after(S, vp.nxt) then
+                    for _, e in ipairs(vp.analysis.entries or {}) do
+                      local rel = S.lex:get_rel(e.rel)
+                      if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+                        out[#out + 1] = cand(rel, "appositive_relative_gap", { snp, sub }, { [other(e.subj)] = snp, [e.subj] = sub }, vp.nxt, { vp = vp, neg = vp.neg, tense = "past" })
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- fronted locative holder:  "In K the currency is the X."   "In K, the capital is C."
+local function fronted_holder(self, S, ctx, out)
+  local c0 = C(S, S.first)
+  if not (c0 and c0.single and not c0.masked and cat(c0, "prep") and (c0.unit.form == "in" or c0.unit.form == "across" or c0.unit.form == "throughout")) then return end
+  for _, hnp in ipairs(P.parse_np(S, S.first + 1)) do
+    if name_np(hnp) then
+      for _, rnp in ipairs(P.parse_np(S, hnp.nxt)) do
+        if rnp.head_kind == "relnoun" and not rnp.of_arg and not rnp.possessor and H.copula_at then
+          local cp = H.copula_at(S, rnp.nxt)
+          if cp then
+            for _, vnp in ipairs(P.parse_np(S, cp.nxt)) do
+              for _, e in ipairs(rnp.relnouns) do
+                local rel = S.lex:get_rel(e.rel)
+                if rel and not rel.open and value_ok(rel, e.role, vnp) and S.lex:compat(hnp.cands and hnp.cands[1] and hnp.cands[1].type, rel[other(e.role)]) > -1.0 then
+                  out[#out + 1] = cand(rel, "fronted_holder", { hnp, rnp, vnp }, { [other(e.role)] = hnp, [e.role] = vnp }, vnp.nxt, { copula = cp })
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "K has its own currency, the X."
+local function have_appositive(self, S, ctx, out)
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if name_np(snp) then
+      for _, vp in ipairs(P.parse_vp(S, snp.nxt)) do
+        if vp.lemma == "have" and vp.voice == "active" then
+          local k = vp.nxt
+          local pc = C(S, k)
+          if pc and pc.single and cat(pc, "poss_det") then
+            local oc = C(S, k + 1)
+            local nk = k
+            if oc and oc.single and (oc.unit.form == "own") then nk = k end
+            for _, onp in ipairs(P.parse_np(S, nk)) do
+              if onp.head_kind == "relnoun" and not onp.of_arg and has_pre(C(S, onp.nxt), "comma") then
+                for _, vnp in ipairs(P.parse_np(S, onp.nxt)) do
+                  if closed_after(S, vnp.nxt) then
+                    for _, o in ipairs(F.relnp_options(S, onp)) do
+                      if o.rel and not o.rel.open and o.rel.support_have and o.ask_role == "to" and value_ok(o.rel, "to", vnp) then
+                        out[#out + 1] = cand(o.rel, "have_appositive", { snp, onp, vnp }, { from = snp, to = vnp }, vnp.nxt, { vp = vp })
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- attribution idioms in statements
+-- "P is credited with founding O."  "P is credited with having established O."  "P is the person behind the founding of O."  "P deserves the credit for starting O."
+local function credit_statement(self, S, ctx, out)
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if name_np(snp) then
+      for _, cue in ipairs(F.credit_cues(S, snp.nxt)) do
+        for _, tg in ipairs(F.credit_targets(S, cue.nxt)) do
+          if name_np(tg.obj) then
+            out[#out + 1] = cand(tg.rel, "credit_statement", { snp, tg.obj }, { [tg.agent] = snp, [other(tg.agent)] = tg.obj }, tg.obj.nxt, { tense = "past" })
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "Official filings list P as the person who established O."
+local AS_LISTERS = U.set({ "list", "lists", "listed", "name", "names", "named", "identify", "identifies", "identified", "describe", "describes", "described", "cite", "cites", "cited",
+  "present", "presents", "presented", "introduce", "introduces", "introduced", "record", "records", "recorded", "register", "registers", "registered", "show", "shows", "shown",
+  "credit", "credits", "credited", "recognise", "recognize", "recognises", "recognizes", "recognised", "recognized", "regard", "regards", "regarded", "consider", "considers",
+  "considered", "treat", "treats", "treated", "know", "knows", "known", "call", "calls", "called", "mention", "mentions", "mentioned", "acknowledge", "acknowledges", "acknowledged" })
+local function as_relative(self, S, ctx, out)
+  for k = S.first, S.last do
+    local vc = C(S, k)
+    if vc and vc.single and not vc.masked and AS_LISTERS[vc.unit.form] then
+      for _, pnp in ipairs(P.parse_np(S, k + 1)) do
+        local ac = C(S, pnp.nxt)
+        if name_np(pnp) and ac and ac.single and not ac.masked and ac.unit.form == "as" then
+          for _, tnp in ipairs(P.parse_np(S, pnp.nxt + 1, { no_of = true })) do
+            local rc = C(S, tnp.nxt)
+            if not name_np(tnp) and rc and rc.single and not rc.masked and (rc.unit.form == "who" or rc.unit.form == "that" or rc.unit.form == "which") then
+              for _, vp in ipairs(P.parse_vp(S, tnp.nxt + 1)) do
+                if vp.voice == "active" then
+                  for _, e in ipairs(vp.analysis.entries or {}) do
+                    local rel = S.lex:get_rel(e.rel)
+                    if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+                      for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+                        if name_np(onp) then
+                          out[#out + 1] = cand(rel, "as_relative", { pnp, onp }, { [e.subj] = pnp, [other(e.subj)] = onp }, onp.nxt,
+                            { vp = vp, neg = vp.neg, tense = (vp.vform == "past" or vp.perfect) and "past" or "present" })
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "O is the organisation that P founded."
+local function copular_object_relative(self, S, ctx, out)
+  if not H.copula_at then return end
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if name_np(snp) then
+      local cp = H.copula_at(S, snp.nxt)
+      if cp then
+        for _, dnp in ipairs(P.parse_np(S, cp.nxt, { no_of = true })) do
+          local rc = C(S, dnp.nxt)
+          if not name_np(dnp) and (dnp.head_kind == "typenoun" or dnp.head_kind == "unknown" or dnp.head_kind == "concept") and rc and rc.single and not rc.masked
+            and (rc.unit.form == "that" or rc.unit.form == "which") then
+            for _, sub in ipairs(P.parse_np(S, dnp.nxt + 1)) do
+              if name_np(sub) then
+                for _, vp in ipairs(P.parse_vp(S, sub.nxt)) do
+                  if vp.voice == "active" and closed_after(S, vp.nxt) then
+                    for _, e in ipairs(vp.analysis.entries or {}) do
+                      local rel = S.lex:get_rel(e.rel)
+                      if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+                        out[#out + 1] = cand(rel, "copular_object_relative", { snp, sub }, { [other(e.subj)] = snp, [e.subj] = sub }, vp.nxt,
+                          { copula = cp, vp = vp, neg = cp.neg or vp.neg, tense = (vp.vform == "past" or vp.perfect) and "past" or "present" })
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- placement statements about locus relations (headquarters)
+--   "C is home to the headquarters of O."  "C hosts the headquarters of O."  "C is where O is headquartered."
+--   "Industry sources place the headquarters of O in C."  "O lists C as the site of its headquarters."  "Based in C, O ..."
+local PLACE_FORMS = U.set({ "place", "places", "placed", "put", "puts", "locate", "locates", "located", "situate", "situates", "situated", "site", "sites", "sited", "base", "bases", "based",
+  "position", "positions", "positioned", "establish", "establishes", "established", "set", "sets" })
+local SITE_NOUNS = U.set({ "site", "seat", "home", "location", "base", "address", "place", "centre", "center", "venue" })
+local function locus_statement(self, S, ctx, out)
+  local lex = S.lex
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if name_np(snp) then
+      -- (a) C is home to the headquarters of O.
+      local cp = H.copula_at and H.copula_at(S, snp.nxt)
+      if cp then
+        local n = F.first_phrase(S, cp.nxt, F.HOME_PHRASES)
+        if n then
+          for _, onp in ipairs(P.parse_np(S, n)) do
+            if onp.head_kind == "relnoun" then
+              for _, o in ipairs(F.locus_options(S, onp)) do
+                out[#out + 1] = cand(o.rel, "locus_home", { snp, onp }, { [o.known_role] = o.arg, [o.ask_role] = snp }, onp.nxt, { copula = cp })
+              end
+            end
+          end
+        end
+        -- (c) C is where O is headquartered.
+        local wc = C(S, cp.nxt)
+        if wc and wc.single and not wc.masked and wc.unit.form == "where" then
+          for _, onp in ipairs(P.parse_np(S, cp.nxt + 1)) do
+            if name_np(onp) then
+              for _, vp in ipairs(P.parse_vp(S, onp.nxt, { participle_ok = true })) do
+                for _, e in ipairs(vp.analysis.entries or {}) do
+                  local rel = lex:get_rel(e.rel)
+                  if rel and not rel.open and e.prep and not e.support then
+                    out[#out + 1] = cand(rel, "locus_where", { snp, onp }, { [e.subj] = onp, [other(e.subj)] = snp }, vp.nxt, { vp = vp, copula = cp, neg = vp.neg })
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      -- (b) C hosts the headquarters of O.
+      for _, vp in ipairs(P.parse_vp(S, snp.nxt)) do
+        if vp.voice == "active" and F.HOST_LEMMAS[vp.lemma] then
+          for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+            if onp.head_kind == "relnoun" then
+              for _, o in ipairs(F.locus_options(S, onp)) do
+                out[#out + 1] = cand(o.rel, "locus_host", { snp, onp }, { [o.known_role] = o.arg, [o.ask_role] = snp }, onp.nxt, { vp = vp, neg = vp.neg })
+              end
+            end
+          end
+        end
+      end
+      -- (e) O lists C as the site of its headquarters.
+      for _, vp in ipairs(P.parse_vp(S, snp.nxt)) do
+        if vp.voice == "active" and AS_LISTERS[vp.lemma] or (vp.voice == "active" and AS_LISTERS[C(S, vp.c1).unit and C(S, vp.c1).unit.form or ""]) then
+          for _, pnp in ipairs(P.parse_np(S, vp.nxt)) do
+            local ac = C(S, pnp.nxt)
+            if name_np(pnp) and ac and ac.single and ac.unit.form == "as" then
+              local m = pnp.nxt + 1
+              local dc = C(S, m)
+              if dc and dc.single and cat(dc, "det") then m = m + 1 end
+              local sc, oc = C(S, m), C(S, m + 1)
+              if sc and oc and sc.single and oc.single and SITE_NOUNS[sc.unit.form] and oc.unit.form == "of" then
+                for _, onp in ipairs(P.parse_np(S, m + 2)) do
+                  if onp.head_kind == "relnoun" and onp.poss_det and not onp.of_arg then
+                    for _, e in ipairs(onp.relnouns) do
+                      local rel = lex:get_rel(e.rel)
+                      if rel and not rel.open and rel.locus and e.role == "to" then
+                        out[#out + 1] = cand(rel, "locus_listed", { snp, pnp, onp }, { from = snp, to = pnp }, onp.nxt, { vp = vp, neg = vp.neg })
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  -- (d) Industry sources place the headquarters of O in C.
+  for k = S.first, S.last - 3 do
+    local vc = C(S, k)
+    if vc and vc.single and not vc.masked and PLACE_FORMS[vc.unit.form] then
+      for _, onp in ipairs(P.parse_np(S, k + 1)) do
+        if onp.head_kind == "relnoun" then
+          local pc = C(S, onp.nxt)
+          if pc and pc.single and not pc.masked and (pc.unit.form == "in" or pc.unit.form == "at") then
+            for _, vnp in ipairs(P.parse_np(S, onp.nxt + 1)) do
+              if name_np(vnp) then
+                for _, o in ipairs(F.locus_options(S, onp)) do
+                  out[#out + 1] = cand(o.rel, "locus_placed", { onp, vnp }, { [o.known_role] = o.arg, [o.ask_role] = vnp }, vnp.nxt)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- "Based in C, O is a regular name in the business pages."  "Headquartered in C, O operates ..."  (a fronted participle with a locative complement)
+local function fronted_locative_participle(self, S, ctx, out)
+  for _, vp in ipairs(P.parse_vp(S, S.first, { participle_ok = true })) do
+    local pc = C(S, vp.nxt)
+    if pc and pc.single and not pc.masked and cat(pc, "prep") then
+      for _, np1 in ipairs(P.parse_np(S, vp.nxt + 1)) do
+        local cj = C(S, np1.nxt)
+        if cj and has_pre(cj, "comma") and name_np(np1) then
+          for _, np2 in ipairs(P.parse_np(S, np1.nxt)) do
+            if name_np(np2) then
+              for _, e in ipairs(vp.analysis.entries or {}) do
+                local rel = S.lex:get_rel(e.rel)
+                if rel and not rel.open and e.prep == pc.unit.form and not e.support and not e.as_only then
+                  out[#out + 1] = cand(rel, "fronted_locative", { np1, np2 }, { [e.subj] = np2, [other(e.subj)] = np1 }, np2.nxt, { vp = vp, neg = vp.neg })
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- posts:  "The post of chief executive at O is held by P."  "P holds the post of chief executive at O."
+local HELD = U.set({ "held", "occupied", "filled", "taken", "assumed", "exercised", "retained", "kept" })
+local ROLE_HOLD = U.set({ "hold", "occupy", "fill", "assume", "take", "have", "retain" })
+local BELONG = U.set({ "belongs", "goes", "falls", "passes", "lies", "rests" })
+local BELONG_PREP = U.set({ "to", "with" })
+local function post_holder(self, S, ctx, out)
+  -- subject = the post noun phrase
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if snp.head_kind == "relnoun" and (snp.of_arg or snp.possessor) then
+      for _, o in ipairs(F.relnp_options(S, snp)) do
+        if o.entry and o.entry.rolesuffix and o.arg and o.ask_role == "to" then
+          local cp = H.copula_at and H.copula_at(S, snp.nxt)
+          if cp then
+            local hc, bc = C(S, cp.nxt), C(S, cp.nxt + 1)
+            if hc and bc and hc.single and bc.single and not hc.masked and HELD[hc.unit.form] and bc.unit.form == "by" then
+              for _, vnp in ipairs(P.parse_np(S, cp.nxt + 2)) do
+                if name_np(vnp) then out[#out + 1] = cand(o.rel, "post_held_by", { snp, vnp }, { from = o.arg, to = vnp }, vnp.nxt, { copula = cp, neg = cp.neg }) end
+              end
+            end
+          end
+          local bc, pc = C(S, snp.nxt), C(S, snp.nxt + 1)
+          if bc and pc and bc.single and pc.single and not bc.masked and BELONG[bc.unit.form] and BELONG_PREP[pc.unit.form] then
+            for _, vnp in ipairs(P.parse_np(S, snp.nxt + 2)) do
+              if name_np(vnp) then out[#out + 1] = cand(o.rel, "post_belongs_to", { snp, vnp }, { from = o.arg, to = vnp }, vnp.nxt) end
+            end
+          end
+        end
+      end
+    end
+  end
+  -- subject = the holder
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if name_np(snp) then
+      for _, vp in ipairs(P.parse_vp(S, snp.nxt)) do
+        if vp.voice == "active" and ROLE_HOLD[vp.lemma] then
+          for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+            if onp.head_kind == "relnoun" and (onp.of_arg or onp.possessor) then
+              for _, o in ipairs(F.relnp_options(S, onp)) do
+                if o.entry and o.entry.rolesuffix and o.arg and o.ask_role == "to" then
+                  out[#out + 1] = cand(o.rel, "holds_post", { snp, onp }, { from = o.arg, to = snp }, onp.nxt, { vp = vp, neg = vp.neg, tense = (vp.vform == "past" or vp.perfect) and "past" or "present" })
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "The capital city of K goes by the name of C."
+local function goes_by(self, S, ctx, out)
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if snp.head_kind == "relnoun" and (snp.of_arg or snp.possessor) then
+      local gc, bc = C(S, snp.nxt), C(S, snp.nxt + 1)
+      if gc and bc and gc.single and bc.single and not gc.masked and (gc.unit.form == "goes" or gc.unit.form == "went") and bc.unit.form == "by" then
+        local k = snp.nxt + 2
+        k = F.phrase_at(S, k, "the name of") or F.phrase_at(S, k, "the name") or k
+        for _, vnp in ipairs(P.parse_np(S, k)) do
+          if name_np(vnp) then
+            for _, o in ipairs(F.relnp_options(S, snp)) do
+              if o.arg and o.rel and not o.rel.open and value_ok(o.rel, o.ask_role, vnp) then
+                out[#out + 1] = cand(o.rel, "goes_by", { snp, vnp }, { [o.known_role] = o.arg, [o.ask_role] = vnp }, vnp.nxt)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- event nouns:  "The founding of O by P ..."  "The creation of O is attributed to P."  "O is the creation of P."
+local ATTRIB_PHRASES = { "attributed to", "credited to", "due to", "down to", "owed to", "the work of", "the doing of", "the achievement of", "the brainchild of", "the handiwork of",
+  "the responsibility of", "the accomplishment of" }
+local function nominal_agent(self, S, ctx, out)
+  local idx = F.deverbal_index(S.lex)
+  for k = S.first, S.last do
+    for _, np in ipairs(P.parse_np(S, k)) do
+      local hf = np.head and np.head.single and np.head.unit.form
+      if hf and idx[hf] and np.of_arg and name_np(np.of_arg) then
+        local c1 = C(S, np.nxt)
+        if c1 and c1.single and not c1.masked and c1.unit.form == "by" then
+          for _, vnp in ipairs(P.parse_np(S, np.nxt + 1)) do
+            if name_np(vnp) then
+              for _, d in ipairs(idx[hf]) do
+                out[#out + 1] = cand(d.rel, "nominal_by", { np, vnp }, { [d.agent] = vnp, [other(d.agent)] = np.of_arg }, vnp.nxt, { tense = "past" })
+              end
+            end
+          end
+        end
+        local cp = H.copula_at and H.copula_at(S, np.nxt)
+        if cp then
+          local n = F.first_phrase(S, cp.nxt, ATTRIB_PHRASES)
+          if n then
+            for _, vnp in ipairs(P.parse_np(S, n)) do
+              if name_np(vnp) then
+                for _, d in ipairs(idx[hf]) do
+                  out[#out + 1] = cand(d.rel, "nominal_attributed", { np, vnp }, { [d.agent] = vnp, [other(d.agent)] = np.of_arg }, vnp.nxt, { copula = cp, neg = cp.neg, tense = "past" })
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  -- "O is the creation of P."
+  for _, snp in ipairs(P.parse_np(S, S.first)) do
+    if name_np(snp) then
+      local cp = H.copula_at and H.copula_at(S, snp.nxt)
+      if cp then
+        for _, np in ipairs(P.parse_np(S, cp.nxt)) do
+          local hf = np.head and np.head.single and np.head.unit.form
+          if hf and idx[hf] and np.of_arg and name_np(np.of_arg) and (hf == "creation" or hf == "invention" or hf == "discovery" or hf == "brainchild") then
+            for _, d in ipairs(idx[hf]) do
+              out[#out + 1] = cand(d.rel, "creation_of", { snp, np }, { [d.agent] = np.of_arg, [other(d.agent)] = snp }, np.nxt, { copula = cp, neg = cp.neg, tense = "past" })
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+X.patterns = { apposition_anywhere, whose_clause, possessive_apposition, fronted_passive_by, having_clause, purpose_infinitive, credit_pattern, appositive_clauses,
+  fronted_holder, have_appositive, credit_statement, as_relative, copular_object_relative, locus_statement, fronted_locative_participle, post_holder, goes_by, nominal_agent }
+
+---------------------------------------------------------------- clause mining
+local HEDGE = U.set({ "not", "no", "never", "nor", "n't", "deny", "denied", "denies", "rumor", "rumour", "rumoured", "rumored", "allegedly", "reportedly", "supposedly", "possibly",
+  "perhaps", "maybe", "might", "could", "would", "may", "if", "whether", "doubt", "doubts", "myth", "false", "untrue", "wrong", "fake", "hoax", "pretend", "imagine", "suppose",
+  "wish", "hope", "hoped", "wonder", "wonders", "unlikely", "probably", "claim", "claims", "claimed", "alleged", "former", "formerly", "ex", "once", "used", "previously" })
+local SUBORD = U.set({ "that", "because", "since", "while", "whereas", "although", "though", "when", "where", "after", "before", "once", "so", "and", "but", "yet", "then", "which", "who", "as" })
+
+local function span_clean(S, from, to)
+  for i = from, to do
+    local c = C(S, i)
+    if c and c.single and c.unit and HEDGE[c.unit.form] then return false end
+  end
+  return true
+end
+
+-- verbs whose "that"-clause is presupposed true even when the matrix clause is negated ("Not many people know that P founded O")
+local FACTIVE = U.set({ "know", "knows", "knew", "known", "realize", "realise", "realizes", "realises", "realized", "realised", "notice", "notices", "noticed", "remember", "remembers",
+  "remembered", "learn", "learns", "learned", "learnt", "see", "sees", "saw", "seen", "show", "shows", "showed", "shown", "prove", "proves", "proved", "proven", "confirm", "confirms",
+  "confirmed", "reveal", "reveals", "revealed", "acknowledge", "acknowledges", "acknowledged", "admit", "admits", "admitted", "mention", "mentions", "mentioned", "note", "notes",
+  "noted", "recall", "recalls", "recalled", "understand", "understands", "understood", "discover", "discovers", "discovered", "remind", "reminds", "reminded", "aware", "evident", "clear", "find", "finds", "found", "finding" })
+local FIRST_PERSON = U.set({ "i", "we", "me", "my", "our" })
+
+-- the words before the clause are harmless when they only frame a presupposed fact: negation is tolerated, but not by a first person ("I don't know that ...")
+local function factive_prefix(S, from, to)
+  local verb = C(S, to - 1)
+  local neg, first_person, factive = false, false, false
+  for i = from, to - 1 do
+    local c = C(S, i)
+    if c and c.single and c.unit then
+      local f = c.unit.form
+      if f == "not" or f == "no" or f == "never" or f == "n't" or f == "nobody" or f == "few" then neg = true end
+      if FIRST_PERSON[f] then first_person = true end
+      if HEDGE[f] and not (f == "not" or f == "no" or f == "never" or f == "n't") then return false end
+    end
+  end
+  if verb and verb.single and verb.unit and FACTIVE[verb.unit.form] then factive = true end
+  return factive and not (neg and first_person)
+end
+
+-- candidate clause starts (chunk indices) after the first chunk; `that` after a factive verb keeps the whole matrix clause out of the hedge check
+local function clause_starts(S)
+  local out = {}
+  for k = S.first + 1, S.last do
+    local c = C(S, k)
+    if c and not c.masked then
+      if has_pre(c, "comma") or has_pre(c, "colon") or has_pre(c, "dash") then
+        if c.single and SUBORD[c.unit.form] and k < S.last then out[#out + 1] = k + 1 else out[#out + 1] = k end
+      elseif c.single and SUBORD[c.unit.form] and k < S.last and (c.unit.form == "that" or c.unit.form == "because" or c.unit.form == "since" or c.unit.form == "when" or c.unit.form == "after" or c.unit.form == "once") then
+        out[#out + 1] = k + 1
+        if c.unit.form == "that" and factive_prefix(S, S.first, k) then S.factive_start = S.factive_start or {}; S.factive_start[k + 1] = true end
+      end
+    end
+  end
+  return out
+end
+
+local function clause_ends(S, s, last0)
+  local out = { last0 }
+  for b = s + 2, last0 do
+    local c = C(S, b)
+    if c and not c.masked and (has_pre(c, "comma") or (c.single and (c.unit.form == "and" or c.unit.form == "but" or c.unit.form == "while" or c.unit.form == "which" or c.unit.form == "because" or c.unit.form == "so" or c.unit.form == "although"))) then
+      out[#out + 1] = b - 1
+    end
+  end
+  return out
+end
+
+-- the one name the words before a sub-clause mention: a possessive inside the sub-clause ("... that ITS currency is the X") refers to it
+local function prefix_topic(S, upto)
+  local found, count, seen = nil, 0, {}
+  for k = S.first, upto do
+    local c = C(S, k)
+    if c and not c.masked then
+      for _, np in ipairs(P.parse_np(S, k)) do
+        if name_np(np) and np.c1 == k then
+          local key = np.head and np.head.form or tostring(k)
+          if not seen[key] then seen[key] = true; count = count + 1; found = np end
+          break
+        end
+      end
+    end
+  end
+  if count == 1 then return found end
+end
+
+-- patterns: the assertion extractor's own whole-sentence patterns (re-run on sub-clauses)
+function X.mine(self, S, ctx, cands, patterns)
+  local first0, last0 = S.first, S.last
+  local tried = 0
+  local function try_span(s, e)
+    if e - s < 2 then return false end
+    local prefix_ok = (S.factive_start and S.factive_start[s]) or span_clean(S, first0, s - 1)
+    if not prefix_ok or not span_clean(S, e + 1, last0) then return false end
+    local topic = (not S.topic) and prefix_topic(S, s - 1) or nil
+    S.first, S.last = s, e
+    if topic then S.topic = topic; S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {} end
+    local before = #cands
+    for _, pat in ipairs(patterns) do pat(self, S, ctx, cands) end
+    for i = before + 1, #cands do cands[i].span = { s, e } end
+    if topic then S.topic = nil; S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {} end
+    return #cands > before
+  end
+  for _, s in ipairs(clause_starts(S)) do
+    for _, e in ipairs(clause_ends(S, s, last0)) do
+      tried = tried + 1
+      if tried > 16 then S.first, S.last = first0, last0; return end
+      if try_span(s, e) then
+        for _, a in ipairs(cands) do a.mined = true end
+        S.first, S.last = first0, last0
+        return
+      end
+    end
+  end
+  -- the leading clause alone, when text follows it after a comma / conjunction
+  for _, e in ipairs(clause_ends(S, first0, last0)) do
+    if e < last0 then
+      tried = tried + 1
+      if tried > 20 then break end
+      if try_span(first0, e) then for _, a in ipairs(cands) do a.mined = true end; break end
+    end
+  end
+  S.first, S.last = first0, last0
+end
+
+return X
 
 end
 
@@ -1892,6 +2878,7 @@ local function negated_inclusion(S, k)
   return nil
 end
 
+local STYLE_PREV = U.set({ "answer", "answers", "respond", "responds", "reply", "replies", "speak", "speaks", "write", "writes", "talk", "talks", "format", "express", "phrase", "explain", "summarize", "summarise" })
 local function seg_start(S, k)
   local c = C(S, k)
   if not c or c.masked then return nil end
@@ -1917,6 +2904,9 @@ local function seg_start(S, k)
   end
   -- restriction: "only using", "only from", "based only on", "limited to", "restricted to"
   local rn = lex:cue_at("restriction", units, c.u1)
+  -- "Answer ONLY IN French": after a verb of communication the restriction is a manner (a style instruction), not a restriction on the evidence
+  local pv = C(S, k - 1)
+  if rn and pv and pv.single and not pv.masked and not pv.pre and STYLE_PREV[pv.unit.form] then rn = nil end
   if rn then
     local nxt = C(S, k + 1)
     if nxt and nxt.single and (nxt.unit.form == "using" or nxt.unit.form == "from" or nxt.unit.form == "in" or nxt.unit.form == "on" or nxt.unit.form == "with") then
@@ -1984,6 +2974,70 @@ local function seg_end(S, body_first)
   return e
 end
 
+-- cues whose body is a noun phrase (or a coordinated list of them) and nothing more: "countries OTHER THAN Switzerland use the franc" ends the body at "Switzerland"
+local NP_SCOPED = U.set({ "other than", "besides", "apart from", "aside from", "except", "excepting", "except for", "save for", "excluding", "barring", "not including", "outside", "outside of", "bar" })
+local RELATIVIZERS = U.set({ "that", "who", "which", "whose", "whom" })
+local function np_chain_end(S, k)
+  local nps = P.parse_np(S, k)
+  if #nps == 0 then return nil end
+  -- a verb inside the noun phrase ("Pellucid Freight SERVE Hamburg") means the phrase has run into the clause that follows it
+  local function verbish(np)
+    local function bad(c)
+      return c and (c.copula_like or (c.cats and (c.cats.copula_like or c.cats.aux_be or c.cats.aux_do or c.cats.aux_have or c.cats.modal))
+        or (c.verbs and #c.verbs > 0 and #c.senses == 0 and #c.entities == 0 and #c.relnouns == 0)) or false
+    end
+    for _, m in ipairs(np.mods or {}) do if bad(m.chunk) then return true end end
+    return np.head and np.head.single and bad(np.head) or false
+  end
+  local best
+  for _, np in ipairs(nps) do
+    if not verbish(np) and (not best or np.score > best.score) then best = np end
+  end
+  if not best then return nil end
+  local e = best.c2
+  for _ = 1, 8 do
+    local nx = C(S, e + 1)
+    if not nx or nx.masked then break end
+    if nx.single and cat(nx, "conj") and (nx.unit.form == "and" or nx.unit.form == "or" or nx.unit.form == "nor") then
+      local n2 = P.parse_np(S, e + 2)
+      if #n2 > 0 then e = n2[1].c2 else break end
+    elseif nx.pre and nx.pre:find("comma") then
+      local n2 = P.parse_np(S, e + 1)
+      if #n2 > 0 and not (n2[1].head_kind == "pronoun") then
+        local after = C(S, n2[1].c2 + 1)
+        if after and ((after.single and cat(after, "conj") and (after.unit.form == "and" or after.unit.form == "or")) or (after.pre and after.pre:find("comma"))) then e = n2[1].c2 else break end
+      else break end
+    else break end
+  end
+  local after = C(S, e + 1)
+  if after and after.single and RELATIVIZERS[after.unit.form] then return nil end    -- "excluding those that hire interns": the relative clause belongs to the body
+  return e
+end
+
+-- "Which countries OTHER THAN SWITZERLAND use the franc?": a noun-phrase-internal exclusion sits between the wh-phrase and its verb.  Its chunks move to the end of
+-- the sentence (unit offsets untouched), so the clause around it reads as if the exclusion were absent.
+local function relocate_inner_segments(S, segs)
+  for si = #segs, 1, -1 do
+    local sg = segs[si]
+    local nx = C(S, sg.b + 1)
+    if sg.kind == "exclusion" and sg.cue and NP_SCOPED[sg.cue:lower()] and nx and not nx.pre and not (nx.single and cat(nx, "conj")) and sg.b < S.last and sg.a > S.first then
+      local len = sg.b - sg.a + 1
+      local new = {}
+      for i = 1, sg.a - 1 do new[#new + 1] = S.chunks[i] end
+      for i = sg.b + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+      for i = sg.a, sg.b do new[#new + 1] = S.chunks[i] end
+      for i, ch in ipairs(new) do ch.idx = i end
+      S.chunks = new
+      for sj, o in ipairs(segs) do
+        if sj ~= si and o.a > sg.b then o.a, o.b, o.body_first, o.body_last = o.a - len, o.b - len, o.body_first - len, o.body_last - len end
+      end
+      local total = #new
+      sg.a, sg.b, sg.body_first, sg.body_last = total - len + 1, total, sg.body_first + (total - len + 1 - sg.a), sg.body_last + (total - len + 1 - sg.a)
+      S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+    end
+  end
+end
+
 function Cons.find_segments(S)
   local segs = {}
   local k = S.first
@@ -1992,12 +3046,17 @@ function Cons.find_segments(S)
     if kind then
       local body_first = k + ncue
       local e = seg_end(S, body_first)
+      if kind == "exclusion" and cue and NP_SCOPED[cue:lower()] and e >= body_first then
+        local ne = np_chain_end(S, body_first)
+        if ne and ne < e then e = ne end
+      end
       if e >= body_first then
         segs[#segs + 1] = { kind = kind, cue = cue, a = k, b = e, body_first = body_first, body_last = e }
         k = e + 1
       else k = k + 1 end
     else k = k + 1 end
   end
+  relocate_inner_segments(S, segs)
   return segs
 end
 
@@ -2063,6 +3122,8 @@ local function parse_items(S, first, last)
   end
   return items, unparsed
 end
+
+Cons.describe_target = describe_target
 
 function Cons.parse_segments(S, segs)
   local out = { negative = {}, preferences = {}, restrictions = {}, ordering = {}, unparsed = {} }
@@ -2130,6 +3191,8 @@ function Cons.attach(S, h)
           if canon then
             local src = { kind = "source", resource = canon, text = P.span_text(S, np), quals = {}, cue = c.text }
             if np.temporal_mod then src.label = np.temporal_mod.text; src.label_year = np.temporal_mod.year end
+            -- "IN THE 2021 dataset": the year sits inside the cue chunk itself
+            if not src.label and c.temporal and c.temporal.year then src.label = c.temporal.year and tostring(c.temporal.year) or c.temporal.text; src.label_year = c.temporal.year end
             for _, m in ipairs(np.mods) do if m.kind == "mod" or m.kind == "ordinal" or m.kind == "superlative" or m.kind == "temporal_adj" then src.quals[#src.quals + 1] = m.form end end
             cons.source[#cons.source + 1] = src
             for i = k, np.c2 do used[i] = true end
@@ -2209,7 +3272,7 @@ local U = require("asi.nlu.util")
 local C = {}
 C.W = {
   salience = 1.0, recency = 0.45, focus = 0.8, topical = 0.2, user_intro = 0.1, type_fit = 0.6, unknown_animacy = -0.3,
-  plural_mismatch = -0.6, none_personal = 0.15, none_demonstrative = 2.0, temperature = 0.35, resolve_p = 0.60, resolve_margin = 0.30,
+  plural_mismatch = -0.6, none_personal = 0.15, none_locative = -0.3, none_demonstrative = 2.0, temperature = 0.35, resolve_p = 0.60, resolve_margin = 0.30,
 }
 
 local TOPICAL = U.set({ "focus", "subject", "stmt_subject", "clause_subject", "arg:from", "item", "chain_arg" })
@@ -2402,6 +3465,13 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
       rejected[#rejected + 1] = { id = key, type = e.type, reasons = { "co-argument of the same predicate: a non-reflexive pronoun cannot corefer with it" } }
     else
       local ok, pen, why = agreement(lex, feats, e, form)
+      -- "there" / "here" denote a place: the candidate must be a place by type or have been introduced after a locative preposition
+      local loc_pron = np.pron.cats and np.pron.cats.pron_loc
+      if ok and loc_pron then
+        local et0 = effective_type(lex, e)
+        if not ((et0 and lex:compat(et0, "place") >= 0.9) or e.loc) then ok, why = false, "the locative pro-form '" .. form .. "' denotes a place and nothing says this is one" end
+      end
+      if ok and loc_pron and e.loc then pen = 0 end   -- introduced after a locative preposition: a place, hence inanimate
       if not ok then rejected[#rejected + 1] = { id = key, type = e.type, reasons = { why } }
       else
         local et = effective_type(lex, e)
@@ -2439,7 +3509,7 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
       reasons = { "most recent comparison set", string.format("decay %.2f", sal) }, turn = mem.comparison.turn, group = mem.comparison.keys }
   end
   local demo = (np.pron.cats and (np.pron.cats.pron_dem == true)) or form == "this" or form == "that"
-  local none = demo and W.none_demonstrative or W.none_personal
+  local none = demo and W.none_demonstrative or ((np.pron.cats and np.pron.cats.pron_loc) and W.none_locative or W.none_personal)
   table.sort(live, function(a, c) if a.score ~= c.score then return a.score > c.score end return a.id < c.id end)
   b.rejected = rejected
   b.expected = expected
@@ -2471,6 +3541,26 @@ function View:pronoun_binding(S, ctx, np, expected, h, role, b)
     b.none_reason = "several antecedents remain plausible"
   end
   return b
+end
+
+---------------------------------------------------------------- the speaker's own facts ("my employer")
+-- The value an earlier statement of the speaker gave for relation `rel` when the speaker is its other argument ("I work at X" -> employer of the speaker is X).
+-- `role` is the role the relational noun names ("employer" names the `to` role of employer(from=person, to=organization)).
+function View:profile_fact(rel, role)
+  local mem = self.mem
+  local known = role == "to" and "from" or "to"
+  local me = "speaker:" .. (mem.speaker or "user")
+  for i = #mem.order, 1, -1 do
+    local it = mem.items[mem.order[i]]
+    if it and it.kind == "fact" and it.rel == rel and it.status ~= "superseded" and it.status ~= "revoked" and it.polarity ~= "negative"
+      and it.speaker == (mem.speaker or "user") and it[known] == me and it[role] then
+      local e = mem.entities[it[role]]
+      local name = e and e.names and next(e.names) and select(2, next(e.names)) or it[role]
+      if e and e.mentions and #e.mentions > 0 and e.mentions[#e.mentions].text then name = e.mentions[#e.mentions].text end
+      return { key = it[role], text = name, type = e and e.type, turn = it.turn, via = "profile_fact", p = 1.0, item = it.id }
+    end
+  end
+  return nil
 end
 
 ---------------------------------------------------------------- non-pronoun references
@@ -2628,6 +3718,7 @@ function View:resolve_entity_backref(r, expected, exclude)
             if not type_ok and best == 0 then s = s - 1.0; reasons[#reasons + 1] = "no evidence that it is a " .. r.head end
           end
         end
+        if e.exact then s = s + 1.0; reasons[#reasons + 1] = "the speaker stressed this exact name (no lookalikes)" end
         if e.weak then s = s - 0.8; reasons[#reasons + 1] = "weak name evidence (sentence-initial capital only)" end
         cands[#cands + 1] = { id = e.key, type = e.type, name = e.names and next(e.names) and select(2, next(e.names)) or e.key, score = s, reasons = reasons, turn = e.last_turn }
       end
@@ -2657,6 +3748,13 @@ end
 -- classifying descriptors attached to entity mentions by apposition ("X, a small robotics business") or copula ("X is a robotics company")
 -- items = { {key=, c1=, c2=}, ... } chunk ranges of entity mentions in state S
 -- the entity/name spans of a sentence state, as {key, type, name, weak, c1, c2} (one key per span; ambiguous spans are skipped)
+-- a name right after a locative preposition ("born in Cusco", "based at Orly") is evidence that it denotes a place; the locative pro-forms "there" / "here" need it
+local LOC_PREP = U.set({ "in", "at", "near", "around", "outside", "inside", "within", "across", "throughout", "toward", "towards", "nearby" })
+function C.locative_before(units, i)
+  local u = units[i - 1]
+  return u ~= nil and u.kind == "word" and LOC_PREP[u.form] == true
+end
+
 function C.mentions_from_state(S, text_of)
   local out = {}
   for k, c in ipairs(S.chunks) do
@@ -2667,10 +3765,10 @@ function C.mentions_from_state(S, text_of)
     local text = S.an.original:sub(S.units[c.u1].s, S.units[c.u2].e)
     if n == 1 then
       local id, ty = next(ids)
-      out[#out + 1] = { key = id, type = ty, name = text, c1 = k, c2 = k }
+      out[#out + 1] = { key = id, type = ty, name = text, c1 = k, c2 = k, loc = C.locative_before(S.units, c.u1) or nil }
     elseif n == 0 and name_r and not (c.single and #c.relnouns > 0) then
       out[#out + 1] = { key = "mention:" .. text:lower(), type = name_r.type_guess, name = text, weak = name_r.weak, c1 = k, c2 = k,
-        pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil }
+        pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil, loc = C.locative_before(S.units, c.u1) or nil }
     end
   end
   return out
@@ -2894,7 +3992,11 @@ function C.resolve_references(view, interp)
       if c == "correction" then corr = true else artifact_classes[c] = true end
     end
     local rec
-    if r.pronoun then
+    if r.ordinal_ref then
+      rec = { kind = "ordinal_entity", mention = r.text, role = role, ordinal = r.ordinal, status = (r.status == "resolved") and "resolved" or "unresolved", antecedent = r.antecedent }
+      if rec.status == "resolved" then rec.distance_turns = mem.turn - (r.antecedent.turn or mem.turn)
+      else rec.requirement = "the conversation holds no list with a member number " .. tostring(r.ordinal) end
+    elseif r.pronoun then
       if r.deictic or r.non_anaphoric then return end
       local st = r.status
       rec = { kind = "pronoun", mention = r.text, role = role, status = (st == "resolved") and "resolved" or (st == "ambiguous" and "ambiguous" or "unresolved"),
@@ -2946,6 +4048,19 @@ function C.resolve_references(view, interp)
       else
         rec.status = "unresolved"
         rec.requirement = "no " .. (next(artifact_classes)) .. " matching '" .. r.text .. "' exists in the conversation"
+      end
+    elseif r.relnoun and r.kind == "relnoun" and (r.poss_det == "my" or r.poss_det == "our") and not r.of and not r.possessor and not r.pronoun then
+      -- "Where is my employer based?": the speaker's own relational noun is answered by what the speaker said about themselves earlier
+      local f = view:profile_fact(r.relnoun.rel, r.relnoun.role)
+      rec = { kind = "profile_reference", mention = r.text, role = role }
+      if f then
+        rec.status, rec.antecedent = "resolved", f
+        rec.distance_turns = mem.turn - (f.turn or mem.turn)
+        r.status, r.antecedent, r.resolved_id = "resolved", f, f.key
+        if f.type and not r.type then r.type = f.type end
+      else
+        rec.status = "unresolved"
+        rec.requirement = "the speaker has not said who or what their " .. tostring(r.head) .. " is (none is invented)"
       end
     elseif r.backref then
       local cands, rejected = view:resolve_entity_backref(r, expected, exclude)
@@ -3744,7 +4859,16 @@ local function ref_ok(lex, pred, gold)
   local text, ty, id = gold:match("^([^:]*):?([^:]*):?(.*)$")
   -- a resolved pronoun / back-reference is judged by what it was resolved TO
   local ptext = (pred.antecedent and pred.antecedent.text) or pred.text
-  if text ~= "*" and text ~= "" and norm_text(ptext) ~= norm_text(text) then return false, "text '" .. tostring(ptext) .. "' ~= '" .. text .. "'" end
+  if text ~= "*" and text ~= "" and norm_text(ptext) ~= norm_text(text) then
+    -- a mention matched through a spelling variant ("Gemany") is judged by the entity it was resolved to
+    local by_name = false
+    if pred.resolved_id then
+      for _, c in ipairs(pred.candidates or {}) do
+        if c.id == pred.resolved_id and c.name and norm_text(c.name) == norm_text(text) then by_name = true end
+      end
+    end
+    if not by_name then return false, "text '" .. tostring(ptext) .. "' ~= '" .. text .. "'" end
+  end
   if ty ~= "" and ty ~= "*" then
     local pt = type_of(pred)
     if not pt then
@@ -3899,6 +5023,13 @@ function E.compare(lex, m, gold)
         for _, p in ipairs(c.positive) do if p.kind == "geographic" and p.value and (p.value.text or ""):lower():find(key:lower(), 1, true) then found = true end end
       elseif kind == "has" then
         for _, p in ipairs(c.positive) do if p.kind == "has" and p.value and (p.value.text or ""):lower():find(key:lower(), 1, true) then found = true end end
+      elseif kind == "numeric" then
+        -- numeric:relation or numeric:relation>1000000 (op symbols > >= < <= = ~ and a bound)
+        local rel, sym, bound = key:match("^([%w_]+)([<>=~]*)([%d%.]*)$")
+        local OPS = { [">"] = "gt", [">="] = "ge", ["<"] = "lt", ["<="] = "le", ["="] = "eq", ["~"] = "approx" }
+        for _, p in ipairs(c.positive) do
+          if p.kind == "numeric" and p.relation == rel and (sym == "" or OPS[sym] == p.op) and (bound == "" or tonumber(bound) == p.value) then found = true end
+        end
       end
       if not found then ok = false end
     end
@@ -3975,7 +5106,8 @@ function E.compare(lex, m, gold)
   local cx = m.context or {}
   if gold.dep then
     local got = cx.dependency and cx.dependency.primary or "-"
-    chk("dep", got == gold.dep, got)
+    -- the format document calls the engine class `earlier_project_context` "earlier_context"
+    chk("dep", got == gold.dep or (gold.dep == "earlier_context" and got == "earlier_project_context"), got)
   end
   if gold.ref then
     -- ref=<mention>><antecedent text | resolved | ambiguous | unresolved>, ...
@@ -4755,6 +5887,8 @@ function F.wh_adverbial(S, out)
       if is_be(C(S, bk)) then
         for _, np in ipairs(P.parse_np(S, bk + 1)) do
           local dim = wh.dim and S.lex:dim(wh.dim)
+          -- "How large is the workforce of X?": a relational noun with its argument names the relation itself (see F.how_adj_relnoun)
+          if np.head_kind == "relnoun" and (np.of_arg or np.possessor) then dim = nil end
           for _, rid in ipairs(dim and dim.rels or {}) do
             local rel = S.lex:get_rel(rid)
             if rel then
@@ -4799,10 +5933,11 @@ function F.where_support(S, out)
     if wh.wh == "where" or wh.wh == "what" or wh.wh == "which" then
       local dk = wh.nxt
       local embedded_no_aux = S.embedded and not is_do(C(S, dk))
-      if is_do(C(S, dk)) or embedded_no_aux then
+      local gap = gap_aux(C(S, dk))      -- "Where DOES X keep ...", "Where HAS X established ..."
+      if gap or embedded_no_aux then
         local nk = embedded_no_aux and dk or dk + 1
         for _, snp in ipairs(P.parse_np(S, nk)) do
-          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do", finite_ok = embedded_no_aux })) do
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = gap or "do", finite_ok = embedded_no_aux })) do
             for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
               local dc = C(S, onp.c1)
               if onp.head_kind == "relnoun" and not onp.of_arg and dc and dc.single and (cat(dc, "poss_det") or cat(dc, "det")) and onp.c1 < onp.nxt - 1 then
@@ -4943,7 +6078,7 @@ function F.wh_role_holder(S, out)
                   local h = newh(S, "wh_role_holder", "question")
                   set_lookup(h, o.rel, "from", o.arg, "to", wh)
                   use_wh(h, wh); use_vp(h, vp); use_np(h, onp)
-                  addf(h, "role_holder_construction", 0.9, "'" .. tostring(vp.lemma) .. "' + the post noun of " .. o.rel.id)
+                  addf(h, "role_holder_construction", 1.3, "'" .. tostring(vp.lemma) .. "' + the post noun of " .. o.rel.id)
                   option_factors(h, o)
                   mark_unresolved_pron(h, o.arg)
                   out[#out + 1] = h
@@ -4956,6 +6091,9 @@ function F.wh_role_holder(S, out)
     end
   end
 end
+
+-- helpers shared with asi.nlu.frames3
+F.set_lookup, F.use_wh, F.use_vp, F.is_be, F.is_do, F.is_prep, F.gap_aux = set_lookup, use_wh, use_vp, is_be, is_do, is_prep, gap_aux
 
 -- generic clause: [aux]* [NP-subject] [aux]* [not] VERB [NP-object] -> {subj, verb, obj, neg, last}
 function F.parse_clause(S, k)
@@ -4992,18 +6130,26 @@ end
 function F.yes_no(S, out)
   local k0 = S.first
   local c0 = C(S, k0)
-  if not (c0 and c0.single and (cat(c0, "aux_be") or cat(c0, "aux_do") or cat(c0, "aux_have") or cat(c0, "modal")) and not cat(c0, "wh")) then return end
-  local akind = P.aux_kind(c0)
-  for _, np1 in ipairs(P.parse_np(S, k0 + 1)) do
+  if not (c0 and c0.single and (cat(c0, "aux_be") or cat(c0, "aux_do") or cat(c0, "aux_have") or cat(c0, "modal") or c0.be_clitic or (cat(c0, "clitic_s") and S.inverted)) and not cat(c0, "wh")) then return end
+  local akind = P.aux_kind(c0) or (cat(c0, "clitic_s") and "be") or nil
+  -- "Isn't Canberra the capital of Australia?": a negated auxiliary asks for confirmation; the claim being checked is the positive one
+  local nstart, neg_first = k0 + 1, nil
+  if P.is_neg(C(S, nstart)) and not barrier(C(S, nstart)) then neg_first = nstart; nstart = nstart + 1 end
+  for _, np1 in ipairs(P.parse_np(S, nstart)) do
+    -- "Is Sydney NOT the capital of Australia?": the negation follows the subject
+    local neg_mid
+    if akind == "be" and np1.nxt <= S.last and P.is_neg(C(S, np1.nxt)) and not barrier(C(S, np1.nxt)) then neg_mid = np1.nxt end
     local function base(frame)
       local h = newh(S, frame, "question", "verification", "verify")
       use(h, k0); use_np(h, np1)
+      if neg_first then use(h, neg_first); h.polarity = "negative"; addf(h, "confirmation_question", 0.0, "negated auxiliary: the question asks for confirmation; the claim checked is the positive one") end
+      if neg_mid then use(h, neg_mid); h.polarity = "negative"; addf(h, "confirmation_question", 0.0, "negated question: asks for confirmation; the claim checked is the positive one") end
       h.requires_evidence = true
       mark_unresolved_pron(h, np1)
       return h
     end
     if akind == "be" then
-      local nk = np1.nxt
+      local nk = neg_mid and (np1.nxt + 1) or np1.nxt
       -- "Is Paris the capital of France?"  /  "Is the capital of France Paris?"
       for _, np2 in ipairs(P.parse_np(S, nk)) do
         for _, pair in ipairs({ { np1, np2 }, { np2, np1 } }) do
@@ -5017,6 +6163,7 @@ function F.yes_no(S, out)
                 h.roles[o.known_role] = o.arg
                 h.roles[o.ask_role] = value
                 h.verify = { rel = o.rel.id, from = h.roles.from, to = h.roles.to }
+                h.items = (value.u1 or 0) < (o.arg.u1 or 0) and { value, o.arg } or { o.arg, value }
                 h.known_role, h.ask = o.known_role, nil
                 addf(h, "relnp_arg", 0.6, "verification of a relational statement")
                 mark_unresolved_pron(h, o.arg); mark_unresolved_pron(h, value)
@@ -5048,6 +6195,7 @@ function F.yes_no(S, out)
                   h.rel, h.rel_obj = rel.id, rel
                   h.roles[e.subj] = np1; h.roles[other(e.subj)] = np2
                   h.verify = { rel = rel.id, from = h.roles.from, to = h.roles.to }
+                  h.items = { np1, np2 }
                   out[#out + 1] = h
                 end
               elseif not e.prep and is_prep(C(S, vp.nxt), "by") then
@@ -5057,6 +6205,7 @@ function F.yes_no(S, out)
                   h.rel, h.rel_obj = rel.id, rel
                   h.roles[other(e.subj)] = np1; h.roles[e.subj] = np2
                   h.verify = { rel = rel.id, from = h.roles.from, to = h.roles.to }
+                  h.items = { np1, np2 }
                   if vp.neg then h.polarity = "negative" end
                   out[#out + 1] = h
                 end
@@ -5073,6 +6222,7 @@ function F.yes_no(S, out)
           h.rel, h.rel_obj = "located_in", lrel
           h.roles.from, h.roles.to = np1, np2
           h.verify = { rel = "located_in", from = np1, to = np2 }
+          h.items = { np1, np2 }
           out[#out + 1] = h
         end
       end
@@ -5092,6 +6242,7 @@ function F.yes_no(S, out)
                 h.rel, h.rel_obj = rel.id, rel
                 h.roles[e.subj] = np1; h.roles[other(e.subj)] = np2
                 h.verify = { rel = rel.id, from = h.roles.from, to = h.roles.to }
+                h.items = { np1, np2 }
                 if vp.neg then h.polarity = "negative" end
                 addf(h, "direction_explicit", 0.3, "role direction fixed by active verb")
                 mark_unresolved_pron(h, np2)
@@ -5139,9 +6290,13 @@ local function skip_fillers(S, k)
   local used = {}
   while true do
     local c = C(S, k)
+    local nx = C(S, k + 1)
     if c and c.single and not c.masked and (c.unit.form == "me" or c.unit.form == "for" or c.unit.form == "about" or c.unit.form == "up"
       or c.unit.form == "out" or c.unit.form == "regarding" or c.unit.form == "on" and false) then
       used[#used + 1] = k; k = k + 1
+    -- "tell me MORE / MORE ABOUT / A BIT MORE ABOUT / EVERYTHING ABOUT X": the quantity word asks for more of the same
+    elseif c and c.single and not c.masked and (c.unit.form == "more" or c.unit.form == "everything" or c.unit.form == "anything" or c.unit.form == "all") and nx and nx.single and nx.unit.form == "about" and not barrier(nx) then
+      used[#used + 1] = k; used[#used + 1] = k + 1; k = k + 2
     else break end
   end
   return k, used
@@ -5150,6 +6305,102 @@ end
 ---------------------------------------------------------------- filters on a target set  (shared with constraints.lua)
 -- parse modifiers that follow a target NP:  [that|which|who] [adv] V NP  |  V-ing NP  |  V-ed <temporal|by NP>  |  in/based in PLACE  |  with N X
 -- returns list of filters and the next chunk index.  Every filter records exactly the chunks it consumed.
+---------------------------------------------------------------- numeric restrictions on a relation's value
+--   "with more than 500 employees"   "that have a population over one million"   "having at least 10 offices"   "with revenue of exactly 5 billion"
+--   "between 100 and 200 employees"
+-- The relation is named by a relational noun whose `to` role is a number (employees, population/inhabitants, revenue ...).
+local CMP_CUES = { { "cmp_gt", "gt" }, { "cmp_ge", "ge" }, { "cmp_lt", "lt" }, { "cmp_le", "le" }, { "cmp_eq", "eq" }, { "cmp_approx", "approx" } }
+local function cmp_at(S, k)
+  local c = C(S, k)
+  if not c or c.masked or not c.u1 then return nil end
+  for _, ce in ipairs(CMP_CUES) do
+    local n = S.lex:cue_at(ce[1], S.units, c.u1)
+    if n then
+      local consumed, kk = 0, k
+      while C(S, kk) and consumed < n do consumed = consumed + (C(S, kk).u2 - C(S, kk).u1 + 1); kk = kk + 1 end
+      if consumed == n then return ce[2], kk end
+    end
+  end
+end
+local function number_at(S, k)
+  local c = C(S, k)
+  if not c or c.masked or (c.pre and k > 1 and false) then return nil end
+  if c.number and c.number.value then return c.number.value, k + 1 end
+  if c.single and c.unit and c.unit.kind == "number" and c.unit.numval ~= nil and not c.temporal then return c.unit.numval, k + 1 end
+end
+local function numeric_noun_rel(S, c)
+  if not c or c.masked then return nil end
+  for _, e in ipairs(c.relnouns or {}) do
+    local rel = S.lex:get_rel(e.rel)
+    if rel and not rel.open and e.role == "to" and S.lex:compat(rel.to, "number") >= 0.9 then return rel end
+  end
+  -- a counted noun ("residents", "workers") counts the value of the relation that lists it
+  if c.single and c.unit and c.unit.kind == "word" then
+    local form = c.unit.form
+    for _, rel in ipairs(S.lex:all_rels()) do
+      if not rel.open then for _, n in ipairs(rel.count_nouns or {}) do if n == form then return rel end end end
+    end
+  end
+end
+local HAVE_WORDS = U.set({ "with", "having", "have", "has", "had" })
+
+function F.numeric_filter(S, k)
+  local start = k
+  local lead = false
+  local c = C(S, k)
+  if c and c.single and not c.masked and HAVE_WORDS[c.unit.form] then lead = true; k = k + 1 end
+  local function done(rel, op, v1, v2, nk)
+    local first, last = C(S, start), C(S, nk - 1)
+    local text = S.an.original:sub(S.units[first.u1].s, S.units[last.u2].e)
+    return { kind = "numeric", rel = rel.id, op = op, value = v1, value2 = v2, text = text, chunks = { start }, span = { first = start, last = nk - 1 } }, nk
+  end
+  -- Form A:  [CMP] NUMBER NOUN      "more than 500 employees", "between 100 and 200 employees", (after with/have) "500 employees"
+  do
+    local op, k2 = cmp_at(S, k)
+    local bc = C(S, k)
+    if not op and bc and bc.single and not bc.masked and bc.unit.form == "between" then
+      local v1, k3 = number_at(S, k + 1)
+      local ac = v1 and C(S, k3)
+      if ac and ac.single and not ac.masked and (ac.unit.form == "and" or ac.unit.form == "to") then
+        local v2, k4 = number_at(S, k3 + 1)
+        local rel = v2 and numeric_noun_rel(S, C(S, k4))
+        if rel then return done(rel, "between", v1, v2, k4 + 1) end
+      end
+    end
+    local v, k3 = number_at(S, k2 or k)
+    if v and (op or lead) then
+      local rel = numeric_noun_rel(S, C(S, k3))
+      if rel then return done(rel, op or "eq", v, nil, k3 + 1) end
+    end
+  end
+  -- Form B:  [DET] NOUN [of] [CMP] NUMBER       "a population over one million", "revenue of at least 5 billion", "a headcount of 200"
+  do
+    local nk = k
+    local dc = C(S, nk)
+    if dc and dc.single and not dc.masked and (cat(dc, "det") or cat(dc, "poss_det")) then nk = nk + 1 end
+    local rel = numeric_noun_rel(S, C(S, nk))
+    if rel then
+      local pk, of = nk + 1, false
+      local oc = C(S, pk)
+      if oc and oc.single and not oc.masked and (oc.unit.form == "of" or oc.unit.form == "at" or oc.unit.form == "is" or oc.unit.form == "above" and false) then of = oc.unit.form == "of"; pk = pk + 1 end
+      local op, k2 = cmp_at(S, pk)
+      local v, k3 = number_at(S, k2 or pk)
+      if v and (op or of) then return done(rel, op or "eq", v, nil, k3) end
+      -- "between 1 and 2 million"
+      local bc = C(S, pk)
+      if bc and bc.single and not bc.masked and bc.unit.form == "between" then
+        local v1, k4 = number_at(S, pk + 1)
+        local ac = v1 and C(S, k4)
+        if ac and ac.single and not ac.masked and ac.unit.form == "and" then
+          local v2, k5 = number_at(S, k4 + 1)
+          if v2 then return done(rel, "between", v1, v2, k5) end
+        end
+      end
+    end
+  end
+  return nil
+end
+
 function F.parse_filters(S, k, target_np, limit_idx)
   local filters = {}
   local lex = S.lex
@@ -5223,6 +6474,16 @@ function F.parse_filters(S, k, target_np, limit_idx)
     -- relativiser
     local rel_marker
     if c.single and (c.unit.form == "that" or c.unit.form == "which" or c.unit.form == "who") then rel_marker = true; k = k + 1 end
+    -- numeric restriction: "with more than 500 employees", "that have a population over one million"
+    do
+      local nf, nk2 = F.numeric_filter(S, k)
+      if nf and nk2 - 1 <= limit_idx then
+        nf.span.first = start
+        filters[#filters + 1] = nf
+        k = nk2; progressed = true
+        goto continue_filters
+      end
+    end
     -- copular relative clause: "the city that IS / FUNCTIONS AS the capital of K"
     if rel_marker and C(S, k) and C(S, k).single and cat(C(S, k), "aux_be") and not C(S, k).masked then
       local done
@@ -5336,7 +6597,7 @@ function F.parse_filters(S, k, target_np, limit_idx)
       if rel_marker then pc = nil end
       if pc and pc.single and cat(pc, "prep") and not pc.masked then
         local f = pc.unit.form
-        if f == "in" or f == "near" or f == "around" or f == "within" or f == "across" then
+        if f == "in" or f == "near" or f == "around" or f == "within" or f == "across" or f == "on" or f == "at" or f == "throughout" or f == "outside" or f == "inside" then
           for _, np in ipairs(P.parse_np(S, start + 1, { no_of = false })) do
             if np.head_kind == "entity" then
               filters[#filters + 1] = { kind = "geo", prep = f, value = np, chunks = { start }, span = { first = start, last = np.nxt - 1 } }
@@ -5435,7 +6696,7 @@ function F.expand_chain(S, h)
     -- question asks for a narrower kind of place ("in which COUNTRY is ...")
     local top = steps[#steps]
     local wt = h.wh and h.wh.type
-    if h.rel == "located_in" and top and top.rel_obj.locus and top.ask_role == "to" and (not wt or wt == "place" or wt == "location") then
+    if h.rel == "located_in" and top and top.rel_obj.locus and top.ask_role == "to" and (not wt or wt == "place" or wt == "location" or S.lex:compat(top.rel_obj.to, wt) >= 0.9) then
       h.factors[#h.factors + 1] = { name = "redundant_location_hop", v = -0.9, note = "the noun's own relation already gives a location; a second located_in hop is redundant" }
     end
   end
@@ -5452,6 +6713,7 @@ local function finish_target_h(S, h, np, k_after, filters)
   end
 end
 
+local DESCRIBES = U.set({ "overview", "summary", "profile", "rundown", "background", "introduction", "snapshot", "briefing", "primer", "description", "biography", "bio" })
 -- build hypotheses from a request object NP (shared by imperatives, polite wrappers and "I want ...")
 local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fprefix)
   local act = verb_info and verb_info.act
@@ -5519,6 +6781,15 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
     end
     -- "give me a SUMMARY of the figures", "send me an overview of the results": a task noun requested through a retrieval verb is a task
     local hf = np.head and np.head.single and np.head.unit and np.head.unit.form
+    -- "give me an OVERVIEW of Corvane Plastics", "a PROFILE of X": a description noun over a named entity asks for the description of that entity
+    if hf and DESCRIBES[hf] and np.of_arg and np.of_arg.head_kind == "entity" and (act == "retrieve" or act == "inform" or act == "task") then
+      local h = base("request:entity")
+      h.op, h.intent, h.requires_evidence = "describe", "entity_description", true
+      h.subject = np.of_arg; h.roles.subject = np.of_arg
+      use_np(h, np.of_arg)
+      addf(h, "description_noun", 0.9, "'" .. hf .. "' of a named entity asks for a description of it")
+      out[#out + 1] = h
+    end
     if hf and (S.lex:cats(hf) or {}).tasknoun and (act == "retrieve" or act == "inform" or act == "task") then
       local h = base("request:task_nominal")
       h.op, h.intent = "task", "task"
@@ -5529,7 +6800,15 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
     -- plural typenoun => search for a set;  singular typenoun after find/list => search too;  concept/unknown => define/describe
     local plural = np.plural
     -- "Find/Show/List <noun>" requests items of that kind, also when the noun is not in the lexicon
-    if ((np.head_kind == "typenoun") and (plural or act == "retrieve")) or (np.head_kind == "unknown" and act == "retrieve") then
+    -- a bare plural noun phrase with a locative / relative filter and no verb ("Cinemas in Karsholm, please.") is a search as well
+    local bare_filtered = false
+    if not act and np.head_kind == "unknown" and plural then
+      local fl, kf0 = F.parse_filters(S, np.nxt, np)
+      local only_fillers = true
+      for i = kf0, S.last do local ci = C(S, i); if not (ci and ci.single and (cat(ci, "polite") or cat(ci, "discourse") or cat(ci, "ignorable"))) then only_fillers = false end end
+      bare_filtered = #fl > 0 and only_fillers
+    end
+    if ((np.head_kind == "typenoun") and (plural or act == "retrieve")) or (np.head_kind == "unknown" and act == "retrieve") or bare_filtered then
       local h = base("request:search")
       if np.head_kind == "unknown" then addf(h, "unknown_target_type", -0.1, "search target type is not in the lexicon") end
       -- a target that swallows a named entity plus a lowercase word ("the companies Google acquired") has swallowed a clause, not named a set
@@ -5555,7 +6834,7 @@ local function from_object_np(S, out, np, verb_info, speech_act, prefix_used, fp
     if np.head_kind == "unknown" then addf(h, "unknown_term", -0.15, "term not in the lexicon") end
     if np.of_arg then addf(h, "concept_of_arg", -0.4, "a non-relational concept noun with an 'of' argument is a weaker structure than a relational noun") end
     out[#out + 1] = h
-  elseif np.head_kind == "pronoun" then
+  elseif np.head_kind == "pronoun" or np.head_kind == "ordinal_ref" then
     local h = base("request:pronoun")
     h.op, h.intent = "describe", "entity_description"
     h.subject = np
@@ -5613,10 +6892,13 @@ function F.request(S, out)
           local items, endk = { np1 }, np1.nxt
           while true do
             local jc = C(S, endk)
-            if jc and jc.single and (jc.unit.form == "and" or jc.unit.form == "with" or jc.unit.form == "to" or jc.unit.form == "versus" or jc.unit.form == "vs"
-              or (jc.pre and jc.pre:find("comma") and false)) then
+            if jc and jc.single and (jc.unit.form == "and" or jc.unit.form == "with" or jc.unit.form == "to" or jc.unit.form == "versus" or jc.unit.form == "vs") then
               local nps = P.parse_np(S, endk + 1)
               if nps[1] then items[#items + 1] = nps[1]; endk = nps[1].nxt else break end
+            elseif jc and not jc.masked and jc.pre and jc.pre:find("comma") and #items >= 1 then
+              -- "Compare A, B and C": the next item follows the comma directly
+              local nps = P.parse_np(S, endk)
+              if nps[1] and nps[1].nxt > endk then items[#items + 1] = nps[1]; endk = nps[1].nxt else break end
             else break end
           end
           if #items >= 2 then
@@ -5640,10 +6922,13 @@ function F.request(S, out)
     local prefix = fill_used
     if c0 and c0.single and not c0.masked and (c0.unit.form == "about" or c0.unit.form == "regarding") then prefix = { nk }; nk = nk + 1 end
     for _, np in ipairs(P.parse_np(S, nk)) do
-      from_object_np(S, out, np, { act = "inform", lemma = w.verb }, "request", prefix)
+      from_object_np(S, out, np, { act = w.seek and "retrieve" or "inform", lemma = w.verb }, "request", prefix)
     end
   end
 end
+
+F.from_object_np = from_object_np
+F.resource_slot = resource_slot
 
 ---------------------------------------------------------------- bare NP (fragment)  "capital of France"  "france capital?"  "Mercury"
 function F.np_only(S, out)
@@ -5753,6 +7038,8 @@ function F.compare_q(S, out)
           local h = newh(S, "compare_q:wh_adj", "question", "comparison", "rank_attribute")
           use(h, wh.c1, wh.c2); use(h, bk, bk + 1)
           h.wh = wh; h.dimension = r.dim; h.degree = r.feat; h.adj = r.lemma
+          local drel = F.dim_unique_rel and F.dim_unique_rel(lex, r.dim)
+          if drel then h.rel, h.rel_obj = drel.id, drel end
           h.requires_evidence = true
           addf(h, "comparative_adjective", 0.5, r.lemma .. " (" .. r.feat .. ") on dimension " .. tostring(r.dim))
           -- candidates "A or B"
@@ -5888,6 +7175,29 @@ function F.recall(S, out)
   end
 end
 
+-- "What was my first question?"  "What was the last thing I asked?"  "What was my previous request?": a question about the user's own earlier turns
+local TURN_NOUNS = U.set({ "question", "request", "message", "query", "prompt", "instruction", "command", "remark", "comment", "statement" })
+function F.recall_turn(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and wh.wh == "what" and not wh.np then
+      local bc = C(S, wh.nxt)
+      if bc and bc.single and not bc.masked and (cat(bc, "aux_be") or cat(bc, "clitic_s")) and not barrier(bc) then
+        for _, np in ipairs(P.parse_np(S, wh.nxt + 1, { no_of = true })) do
+          local hn = np.head and np.head.single and np.head.unit.form
+          if hn and TURN_NOUNS[hn] and (np.poss_det == "my" or np.poss_det == "our" or np.det == "the") then
+            local h = newh(S, "recall:turn", "question", "conversation_recall", "recall")
+            use(h, wh.c1, wh.c2); use(h, wh.nxt); use_np(h, np)
+            h.recall = { verb = "ask", wh = "what", participant = "i", topic = nil, ordinal = np.ordinal }
+            h.requires_context = true
+            addf(h, "recall_construction", 0.9, "'what was my <ordinal> " .. hn .. "' asks about the user's own earlier turns")
+            out[#out + 1] = h
+          end
+        end
+      end
+    end
+  end
+end
+
 ---------------------------------------------------------------- basis clause
 -- "..., considering the correction I made earlier"  /  "... given the revised budget"  /  "... taking X into account"
 -- The NP is an input the request must respect; it is kept as a (possibly context-dependent) argument, never dropped.
@@ -5923,6 +7233,25 @@ local function resource_slot(S, np)
   local canon = S.lex:resource(np.head.form)
   if not canon and np.head.single then canon = S.lex:resource(np.head.unit.form) end
   return canon
+end
+
+-- "version 3.2", "the file sales_q3_final.csv", "figure 12": a number / identifier / file name inside a resource phrase is its value
+function F.literal_value(S, np)
+  if not np then return nil end
+  for ci = np.c1, np.c2 do
+    local c = C(S, ci)
+    if c and c.single and not c.masked and c ~= np.head then
+      local u = c.unit
+      if c.literal or u.kind == "ident" or (u.kind == "number" and u.numval ~= nil and not c.temporal and not u.ordinal) then return { word = c.text, label = c.text } end
+    end
+  end
+  local hc = np.head
+  if hc and hc.single then
+    local u = hc.unit
+    if hc.literal or u.kind == "ident" then return { word = hc.text, label = hc.text } end
+    if u.kind == "number" and u.numval ~= nil and not hc.temporal and not u.ordinal then return { word = hc.text, label = hc.text } end
+  end
+  return nil
 end
 
 function F.instruction(S, out)
@@ -5983,10 +7312,25 @@ function F.instruction(S, out)
     end
     local cv = C(S, kk)
     if not (cv and cv.single and not cv.masked) then return end
-    for _, a in ipairs(P.verb_analyses(S, cv)) do
-      if (a.form == "base" or (allow_ing and a.form == "ing")) and (a.act == "constraint" or a.act == "exclude" or a.act == "include") then
+    local analyses = P.verb_analyses(S, cv)
+    -- "Actually, MAKE THAT the 2020 figures": a replacement phrased with "make that / it / this"
+    local make_pron
+    if cv.unit.form == "make" or cv.unit.form == "turn" then
+      local pr = C(S, kk + 1)
+      if pr and pr.single and not pr.masked and not barrier(pr) and (pr.unit.form == "that" or pr.unit.form == "it" or pr.unit.form == "this") then
+        analyses = { { lemma = "make", form = "base", act = "constraint", entries = {} } }
+        make_pron = kk + 1
+      end
+    end
+    -- "Going forward, ONLY COUNT the audited figures": with "only", a retrieval verb restricts what is used
+    local only_pre = false
+    for _, pk in ipairs(pre) do if C(S, pk).unit.form == "only" then only_pre = true end end
+    for _, a in ipairs(analyses) do
+      local act_ok = a.act == "constraint" or a.act == "exclude" or a.act == "include" or (only_pre and (a.act == "retrieve" or a.act == "inform"))
+      if (a.form == "base" or (allow_ing and a.form == "ing")) and act_ok then
         local nk = kk + 1
         local fill = {}
+        if make_pron then fill[#fill + 1] = make_pron; nk = make_pron + 1 end
         local nc = C(S, nk)
         -- "switch to X" / "go with X" / "stick with X" / "switch over to X"
         if nc and nc.single and (nc.unit.form == "over") and C(S, nk + 1) and C(S, nk + 1).unit.form == "to" then fill[#fill + 1] = nk; nk = nk + 1; nc = C(S, nk) end
@@ -6015,6 +7359,10 @@ function F.instruction(S, out)
             end
           end
           local act_eff = a.act
+          if only_pre and (a.act == "retrieve" or a.act == "inform") then
+            act_eff = "constraint"
+            if not resource_slot(S, tr.antecedent_np or np) then goto next_try end   -- "Only list companies ..." is a request, not a restriction of a resource
+          end
           local ptc = C(S, np.nxt)
           -- "swap the earlier dataset OUT": the object is what is being removed, not the new value
           if REPLACE_VERBS[a.lemma] and ptc and ptc.single and not ptc.masked and (ptc.unit.form == "out" or ptc.unit.form == "off") then goto next_try end
@@ -6040,6 +7388,7 @@ function F.instruction(S, out)
           else
             for _, m in ipairs(vnp.mods) do if m.kind == "mod" or m.kind == "ordinal" then value = value or { word = m.form, label = m.text } end end
           end
+          value = value or F.literal_value(S, vnp)
           h.instruction = { verb = a.lemma, act = act_eff, np = vnp, slot = slot, value = value, correction = correction, persist = persist }
           if act_eff == "exclude" then h.polarity = "negative" end
           h.correction, h.persist = correction, persist
@@ -6189,11 +7538,30 @@ function F.instruction(S, out)
   -- bare correction followed by a plain fragment: "Actually, the 2025 one."  handled as statement with correction flag
   if correction and #out == 0 then
     local nk = k
+    local mem = S.ctx and S.ctx.discourse and S.ctx.discourse.mem
     for _, np in ipairs(P.parse_np(S, nk)) do
       local h = newh(S, "instruction:correction_fragment", "correction", "correction", "instruct")
       for _, s in ipairs(skipped) do h.used[s] = true end
       use_np(h, np)
-      h.instruction = { verb = nil, np = np, slot = resource_slot(S, np), correction = true, persist = persist }
+      local slot, value = resource_slot(S, np), nil
+      -- a bare value with no resource noun ("Sorry, I meant 2023.", "No, the 2025 one."): it replaces the value of the standing instruction it corrects
+      if not slot and np.nxt > S.last and mem and mem.recent_slot then
+        local tm = np.temporal_mod or (np.head and np.head.temporal and np.head.temporal.kind == "year" and np.head.temporal) or nil
+        if tm and tm.year then value = { year = tm.year, label = tm.text or (np.head and np.head.text), expr = tm }
+        else
+          value = F.literal_value(S, np)
+          -- a bare four-digit number is a year
+          local y = value and value.word and value.word:match("^(%d%d%d%d)$")
+          if y and tonumber(y) >= 1000 and tonumber(y) <= 2999 then value = { year = tonumber(y), label = value.label } end
+        end
+        local rs = value and mem:recent_slot(value.year and "year" or "word")
+        if rs then
+          slot = rs
+          h.speech_act, h.intent = "instruction", "instruction_update"
+          addf(h, "slot_from_memory", 0.6, "a bare corrected value replaces the value of the standing '" .. rs .. "' instruction")
+        else value = nil end
+      end
+      h.instruction = { verb = nil, np = np, slot = slot, value = value, correction = true, persist = persist }
       h.correction = true
       F.mark_pron(h, np)
       out[#out + 1] = h
@@ -6515,6 +7883,1863 @@ return F
 
 end
 
+package.preload["asi.nlu.frames3"] = function(...)
+-- asi.nlu.frames3: question constructions beyond the wh-first core frames (extends asi.nlu.frames / frames2; every function adds competing hypotheses).
+--   wh_relnoun_stranded  "Which continent is Kenya IN?"  "What industry does X operate in?"  "In which industry does X operate?"    the wh-noun names the relation
+--   wh_pred_stranded     "What is France a member OF?"  "Which company is Jane the CEO OF?"  "What is Normandy part OF?"            a predicate noun names the relation
+--   wh_adj_predicate     "Which language is OFFICIAL in Brazil?"                                                                 adjective + wh-noun is a relational noun phrase
+--   quantity_q           "How many people live in X?"  "How much does X cost?"  "How much is X?"  "How many people work at X?"   counted nouns / quantity verbs
+--   how_adj_relnoun      "How large is the workforce of X?"                                                                     degree adjective over a relational noun
+--   list_relative        "Name the startups X has invested in."  "List the countries that use the euro."                         imperative + noun phrase with a relative clause
+--   yes_no_support       "Does X have its headquarters in Y?"                                                                    support verb + possessed relational noun, yes/no
+-- Roles are never guessed from proximity: they come from the relation lexicon (the role a noun denotes, the subject role of a verb) and from type fit.
+local U = require("asi.nlu.util")
+local P = require("asi.nlu.parse")
+local F = require("asi.nlu.frames2")
+
+local cat = P.cat
+local newh, addf, use_np = F.newh, F.addf, F.use_np
+local set_lookup, use_wh, use_vp = F.set_lookup, F.use_wh, F.use_vp
+local is_be, is_do, is_prep = F.is_be, F.is_do, F.is_prep
+local relnp_options, wh_relnoun_agreement, mark_unresolved_pron = F.relnp_options, F.wh_relnoun_agreement, F.mark_pron
+
+local function C(S, k) return S.chunks[k] end
+local function barrier(c) return c ~= nil and c.pre ~= nil end
+local function other(role) return role == "to" and "from" or "to" end
+local function use(h, a, b) for i = a, b or a do h.used[i] = true end end
+
+-- words that may stand between the subject and a stranded preposition without adding a relation ("What sector is X ACTIVE in?", "Which industry does X OPERATE in?")
+local FILLERS = U.set({ "active", "based", "located", "situated", "found", "operating", "working", "present", "listed", "registered", "classified", "categorised",
+  "categorized", "placed", "positioned", "specialised", "specialized", "operate", "operates", "work", "works", "lie", "lies", "sit", "sits", "exist", "exists",
+  "compete", "competes", "trade", "trades", "belong", "belongs", "fall", "falls", "rank", "ranks", "reside", "resides" })
+
+-- relation noun phrases ("official language", "workforce", "chief executive officer") -> { {rel=, role=}, ... }
+local function phrase_index(lex)
+  if lex._phrase_index and lex._phrase_rev == lex.revision then return lex._phrase_index end
+  local idx = {}
+  for _, rel in ipairs(lex:all_rels()) do
+    if not rel.open then
+      for _, n in ipairs(rel.nouns_to or {}) do local k = n:lower(); idx[k] = idx[k] or {}; idx[k][#idx[k] + 1] = { rel = rel, role = "to" } end
+      for _, n in ipairs(rel.nouns_from or {}) do local k = n:lower(); idx[k] = idx[k] or {}; idx[k][#idx[k] + 1] = { rel = rel, role = "from" } end
+    end
+  end
+  lex._phrase_index, lex._phrase_rev = idx, lex.revision
+  return idx
+end
+
+local PARTICIPLES = U.set({ "spoken", "used", "recognised", "recognized", "adopted", "designated", "declared", "accepted", "established", "named" })
+
+local function wh_ok(wh)
+  return not wh.adverbial and wh.wh ~= "how_adj" and wh.wh ~= "how_many" and wh.wh ~= "how_much"
+end
+
+---------------------------------------------------------------- the wh-noun names the relation; the preposition is stranded or fronted
+function F.wh_relnoun_stranded(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh.relnoun and wh.np and wh_ok(wh) then
+      local ac = C(S, wh.nxt)
+      local mode = ac and not barrier(ac) and ((is_be(ac) and "be") or (is_do(ac) and "do")) or nil
+      if mode then
+        for _, snp in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          local pk, filler = snp.nxt, nil
+          local fc = C(S, pk)
+          if fc and fc.single and not fc.masked and not barrier(fc) and FILLERS[fc.unit.form] then filler = pk; pk = pk + 1 end
+          local pc = C(S, pk)
+          local stranded = pc and pc.single and not pc.masked and not barrier(pc) and cat(pc, "prep") and pk == S.last
+          local fronted = wh.pied and pk > S.last
+          if (stranded or fronted) and (mode == "be" or filler) then
+            for _, e in ipairs(wh.np.relnouns) do
+              local rel = S.lex:get_rel(e.rel)
+              if rel then
+                local h = newh(S, "wh_relnoun_stranded", "question")
+                set_lookup(h, rel, other(e.role), snp, e.role, wh)
+                use_wh(h, wh); use(h, wh.nxt); use_np(h, snp)
+                if filler then use(h, filler) end
+                if stranded then use(h, pk) elseif wh.pied then h.pied_consumed = true end
+                addf(h, "stranded_relnoun", 0.7, "the wh-noun '" .. tostring(wh.np.head and wh.np.head.form) .. "' names " .. rel.id .. "; the preposition is stranded or fronted")
+                wh_relnoun_agreement(h, wh, rel)
+                mark_unresolved_pron(h, snp)
+                out[#out + 1] = h
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- a predicate noun names the relation: "What is France a member of?"
+function F.wh_pred_stranded(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh_ok(wh) and not wh.relnoun then
+      local bc = C(S, wh.nxt)
+      if is_be(bc) and not barrier(bc) then
+        for _, snp in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          for _, rnp in ipairs(P.parse_np(S, snp.nxt)) do
+            if rnp.head_kind == "relnoun" and not rnp.of_arg and not rnp.possessor then
+              local pc = C(S, rnp.nxt)
+              -- the preposition is stranded ("Which country is Bamako the capital OF?") or fronted with the wh-phrase ("OF which country is Bamako the capital?")
+              local stranded = pc and pc.single and not pc.masked and not barrier(pc) and cat(pc, "prep") and rnp.nxt == S.last
+              local fronted = wh.pied and rnp.nxt > S.last
+              if stranded or fronted then
+                for _, e in ipairs(rnp.relnouns) do
+                  local rel = S.lex:get_rel(e.rel)
+                  -- the predicate noun denotes role e.role of the SUBJECT ("France is a member of ..." / "Jane is the CEO of ..."); the preposition's object is the other role
+                  local ask = other(e.role)
+                  if rel and ((not wh.type) or S.lex:compat(rel[ask], wh.type) >= 0.5) then
+                    local h = newh(S, "wh_pred_stranded", "question")
+                    set_lookup(h, rel, e.role, snp, ask, wh)
+                    use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use_np(h, rnp)
+                    if stranded then use(h, rnp.nxt) else h.pied_consumed = true end
+                    addf(h, "pred_noun_relation", 0.7, "the predicate noun '" .. tostring(rnp.head and rnp.head.form) .. "' names " .. rel.id .. " for the subject")
+                    mark_unresolved_pron(h, snp)
+                    out[#out + 1] = h
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- adjective + wh-noun is a relational noun phrase: "Which language is official in Brazil?"
+function F.wh_adj_predicate(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh_ok(wh) and wh.np and not wh.relnoun and wh.np.head and wh.np.head.single and (wh.np.head_kind == "typenoun" or wh.np.head_kind == "concept") then
+      local bc = C(S, wh.nxt)
+      local ac = C(S, wh.nxt + 1)
+      if is_be(bc) and not barrier(bc) and ac and ac.single and not ac.masked and not barrier(ac) then
+        local adj, shift = ac.unit.form, 0
+        -- "officially spoken" / "nationally recognised": the adverb stands for the adjective of the relational noun phrase
+        local vc = C(S, wh.nxt + 2)
+        if adj:match("ly$") and #adj > 4 and vc and vc.single and not vc.masked and not barrier(vc) and PARTICIPLES[vc.unit.form] then adj = adj:gsub("ly$", ""); shift = 1 end
+        local phrase = adj .. " " .. wh.np.head.unit.form
+        local pc = C(S, wh.nxt + 2 + shift)
+        if pc and pc.single and not pc.masked and not barrier(pc) and cat(pc, "prep") then
+          for _, ent in ipairs(phrase_index(S.lex)[phrase] or {}) do
+            for _, np in ipairs(P.parse_np(S, wh.nxt + 3 + shift)) do
+              local h = newh(S, "wh_adj_predicate", "question")
+              set_lookup(h, ent.rel, other(ent.role), np, ent.role, wh)
+              use_wh(h, wh); use(h, wh.nxt, wh.nxt + 2 + shift); use_np(h, np)
+              addf(h, "adjective_noun_relation", 0.7, "'" .. phrase .. "' is a relational noun phrase of " .. ent.rel.id)
+              mark_unresolved_pron(h, np)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- impersonal subject: "What currency do THEY use in Zembrova?"  "Which currency do people use in Peru?"
+local IMPERSONAL = U.set({ "they", "people", "folks", "locals", "residents", "citizens", "everyone", "you" })
+function F.wh_impersonal(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh_ok(wh) and (wh.wh == "what" or wh.wh == "which") then
+      local ac = C(S, wh.nxt)
+      if is_do(ac) and not barrier(ac) then
+        local pc = C(S, wh.nxt + 1)
+        if pc and pc.single and not pc.masked and not barrier(pc) and IMPERSONAL[pc.unit.form] then
+          for _, vp in ipairs(P.parse_vp(S, wh.nxt + 2, { aux_hint = "do" })) do
+            local lp = C(S, vp.nxt)
+            if lp and lp.single and not lp.masked and not barrier(lp) and cat(lp, "prep") and (lp.unit.form == "in" or lp.unit.form == "at" or lp.unit.form == "across" or lp.unit.form == "throughout") then
+              for _, np in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                for _, e in ipairs(vp.analysis.entries or {}) do
+                  local rel = S.lex:get_rel(e.rel)
+                  -- the place is the holder of the relation the support verb carries ("use ... in Zembrova" = Zembrova's currency)
+                  if rel and e.support and e.subj == "from" and F.support_licensed(S, e, rel, wh, "to") then
+                    local h = newh(S, "wh_impersonal", "question")
+                    set_lookup(h, rel, "from", np, "to", wh)
+                    use_wh(h, wh); use(h, wh.nxt, wh.nxt + 1); use_vp(h, vp); use(h, vp.nxt); use_np(h, np)
+                    addf(h, "impersonal_subject", 0.8, "'" .. pc.unit.form .. " " .. tostring(vp.lemma) .. " in X' is the generic 'what X uses'")
+                    wh_relnoun_agreement(h, wh, rel)
+                    mark_unresolved_pron(h, np)
+                    out[#out + 1] = h
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "Which country is Elena Vasquez from?" / "What does Ithari Foundry do?"
+function F.wh_origin(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh_ok(wh) and wh.np and not wh.relnoun and wh.type and (wh.np.head_kind == "typenoun") then
+      local bc = C(S, wh.nxt)
+      if is_be(bc) and not barrier(bc) then
+        for _, snp in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          local pc = C(S, snp.nxt)
+          if pc and pc.single and not pc.masked and not barrier(pc) and pc.unit.form == "from" and snp.nxt == S.last then
+            local rid = S.lex:isa(wh.type, "country") and "nationality" or ((S.lex:isa(wh.type, "city") or wh.type == "place") and "birth_place" or nil)
+            local rel = rid and S.lex:get_rel(rid)
+            if rel then
+              local h = newh(S, "wh_origin", "question")
+              set_lookup(h, rel, "from", snp, "to", wh)
+              use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use(h, snp.nxt)
+              addf(h, "origin_from", 0.7, "'" .. tostring(wh.np.head and wh.np.head.form) .. " ... from' asks for the origin (" .. rel.id .. ") of a person")
+              mark_unresolved_pron(h, snp)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+function F.what_does_do(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh.wh == "what" and not wh.np and not wh.adverbial then
+      local ac, k = C(S, wh.nxt), wh.nxt
+      if is_do(ac) and not barrier(ac) then
+        for _, snp in ipairs(P.parse_np(S, k + 1)) do
+          local vc = C(S, snp.nxt)
+          if vc and vc.single and not vc.masked and not barrier(vc) and vc.unit.form == "do" and snp.nxt == S.last and (snp.head_kind == "entity" or snp.head_kind == "unknown") then
+            local rel = S.lex:get_rel("industry")
+            if rel then
+              local h = newh(S, "what_does_do", "question")
+              set_lookup(h, rel, "from", snp, "to", wh)
+              use_wh(h, wh); use(h, k); use_np(h, snp); use(h, snp.nxt)
+              addf(h, "what_does_x_do", 0.6, "'What does X do?' asks for the business X is in")
+              mark_unresolved_pron(h, snp)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- quantities: counted nouns, "how much", degree adjectives over relational nouns
+local function count_rels(lex, noun)
+  local out = {}
+  for _, rel in ipairs(lex:all_rels()) do
+    for _, n in ipairs(rel.count_nouns or {}) do if n == noun then out[#out + 1] = rel end end
+  end
+  return out
+end
+
+-- the lemmas a chunk can be a form of (the lexicon's verbs, the inflection guesser, and the surface form itself as a base form)
+local Morph = require("asi.nlu.morph")
+local function lemma_set(S, c)
+  local set = {}
+  if not c or not c.single or c.masked then return set end
+  for _, a in ipairs(P.verb_analyses(S, c)) do set[a.lemma] = true end
+  for _, g in ipairs(Morph.guess(c.unit.form)) do if g.pos == "verb" then set[g.lemma] = true end end
+  set[c.unit.form] = true
+  return set
+end
+
+local function verb_entry(rel, lemma)
+  local out = {}
+  for _, cv in ipairs(rel.count_verbs or {}) do if cv.lemma == lemma then out[#out + 1] = cv end end
+  return out
+end
+
+function F.quantity_q(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    -- "How many PEOPLE live in X?" / "How many residents are there in X?" / "How many people does X employ?"
+    if wh.wh == "how_many" and wh.np and wh.np.head and wh.np.head.single and wh.np.head_kind ~= "relnoun" then
+      local noun = wh.np.head.unit.form
+      for _, rel in ipairs(count_rels(S.lex, noun)) do
+        local function emit(frame, known, vp_or_k, extra)
+          local h = newh(S, frame, "question")
+          set_lookup(h, rel, "from", known, "to", wh)
+          h.answer_form = "number"
+          use_wh(h, wh); use_np(h, known)
+          if extra then extra(h) end
+          addf(h, "counted_noun", 0.7, "'how many " .. noun .. "' counts the value of " .. rel.id)
+          mark_unresolved_pron(h, known)
+          out[#out + 1] = h
+        end
+        local nk = wh.nxt
+        local c1 = C(S, nk)
+        -- (a) subject = the counted people:  live in X / work at X / are living in X
+        do
+          local vk = nk
+          local progressive = false
+          if is_be(c1) and not barrier(c1) and not (C(S, nk + 1) and C(S, nk + 1).single and C(S, nk + 1).unit.form == "there") then vk = nk + 1; progressive = true end
+          local vc = C(S, vk)
+          if vc and vc.single and not vc.masked and not barrier(vc) then
+            for lemma in pairs(lemma_set(S, vc)) do
+              for _, ce in ipairs(verb_entry(rel, lemma)) do
+                local function mark(h) if progressive then use(h, nk) end; use(h, vk) end
+                if ce.prep then
+                  local pk = vk + 1
+                  if is_prep(C(S, pk), ce.prep) then
+                    for _, np in ipairs(P.parse_np(S, pk + 1)) do emit("quantity:count_verb", np, nil, function(h) mark(h); use(h, pk) end) end
+                  else
+                    -- "How many people live THERE?": the locative pro-form carries the preposition and the place
+                    for _, np in ipairs(P.parse_np(S, pk)) do
+                      if np.head_kind == "pronoun" and np.pron and np.pron.cats and np.pron.cats.pron_loc then emit("quantity:count_verb", np, nil, mark) end
+                    end
+                  end
+                elseif ce.lemma ~= "have" then
+                  for _, np in ipairs(P.parse_np(S, vk + 1)) do emit("quantity:count_verb", np, nil, mark) end
+                end
+              end
+            end
+          end
+        end
+        for _, vp in ipairs(P.parse_vp(S, nk)) do
+          -- passive:  "How many people are employed by X?"
+          if vp.voice == "passive" and (vp.lemma == "employ") and rel.id == "employees" then
+            local pk = vp.nxt
+            if is_prep(C(S, pk), "by") or is_prep(C(S, pk), "at") then
+              for _, np in ipairs(P.parse_np(S, pk + 1)) do emit("quantity:count_passive", np, nil, function(h) use_vp(h, vp); use(h, pk) end) end
+            end
+          end
+        end
+        -- (b) "are there in X" / "are there at X"
+        if is_be(c1) and not barrier(c1) then
+          local c2, c3 = C(S, nk + 1), C(S, nk + 2)
+          if c2 and c2.single and c2.unit.form == "there" and c3 and c3.single and cat(c3, "prep") and not barrier(c3) and (c3.unit.form == "in" or c3.unit.form == "at") then
+            for _, np in ipairs(P.parse_np(S, nk + 3)) do emit("quantity:there_are", np, nil, function(h) use(h, nk, nk + 2) end) end
+          end
+        end
+        -- (c) do-support:  "How many people does X have / employ?"
+        if is_do(c1) and not barrier(c1) then
+          for _, snp in ipairs(P.parse_np(S, nk + 1)) do
+            for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do" })) do
+              for _, ce in ipairs(verb_entry(rel, vp.lemma)) do
+                if not ce.prep then emit("quantity:do_count", snp, nil, function(h) use(h, nk); use_vp(h, vp) end) end
+              end
+            end
+          end
+        end
+      end
+    end
+    -- bare "How much does X cost?" / "How much is X?"
+    if (wh.wh == "how_much" or wh.wh == "how_many") and wh.bare then
+      local ac = C(S, wh.nxt)
+      if is_do(ac) then
+        for _, snp in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do" })) do
+            for _, e in ipairs(vp.analysis.entries or {}) do
+              local rel = S.lex:get_rel(e.rel)
+              if rel and not e.support and not e.prep and S.lex:compat(rel.to, "number") >= 0.9 then
+                local h = newh(S, "quantity:how_much_verb", "question")
+                set_lookup(h, rel, e.subj, snp, other(e.subj), wh)
+                h.answer_form = "number"
+                use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use_vp(h, vp)
+                addf(h, "quantity_verb", 0.7, "'how much' asks for the numeric value of " .. rel.id .. " (verb '" .. tostring(vp.lemma) .. "')")
+                mark_unresolved_pron(h, snp)
+                out[#out + 1] = h
+              end
+            end
+          end
+        end
+      elseif is_be(ac) and wh.wh == "how_much" then
+        for _, np in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          for _, rel in ipairs(S.lex:all_rels()) do
+            if rel.howmuch and (np.head_kind == "entity" or np.head_kind == "typenoun" or np.head_kind == "unknown") then
+              local h = newh(S, "quantity:how_much_is", "question")
+              set_lookup(h, rel, "from", np, "to", wh)
+              h.answer_form = "number"
+              use_wh(h, wh); use(h, wh.nxt); use_np(h, np)
+              addf(h, "how_much_default", 0.4, "'how much is X' asks for the " .. rel.id .. " of a product-like thing")
+              mark_unresolved_pron(h, np)
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- "How large is the workforce of X?"  "How big is the population of Chad?"  "How high is the revenue of X?"
+function F.how_adj_relnoun(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh.wh == "how_adj" then
+      local bc = C(S, wh.nxt)
+      if is_be(bc) and not barrier(bc) then
+        for _, np in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          if np.head_kind == "relnoun" and (np.of_arg or np.possessor) then
+            for _, o in ipairs(relnp_options(S, np)) do
+              if o.arg and S.lex:compat(o.rel.to, "number") >= 0.9 then
+                local h = newh(S, "how_adj_relnoun", "question")
+                set_lookup(h, o.rel, o.known_role, o.arg, o.ask_role, wh)
+                h.answer_form = "number"
+                use_wh(h, wh); use(h, wh.nxt); use_np(h, np)
+                addf(h, "relnp_arg", 0.7, "relational noun with explicit argument")
+                addf(h, "degree_over_relnoun", 0.2, "'how " .. tostring(wh.adj) .. "' over a numeric relational noun")
+                F.option_factors(h, o)
+                mark_unresolved_pron(h, o.arg)
+                out[#out + 1] = h
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- elliptical follow-ups: "What about Jupiter?"  "Same question for Sundrel Energy."  "Sorry, I meant Nokian Tyres."
+-- The previous relational question of the conversation is re-asked about the new argument (the memory keeps it as `last_query`).
+function F.ellipsis(S, out)
+  local view = S.ctx and S.ctx.discourse
+  local mem = view and view.mem
+  if not mem then return end
+  local lq, cmp = mem.last_query, mem.comparison
+  if lq and lq.turn >= (mem.turn or 0) then lq = nil end
+  if cmp and cmp.turn >= (mem.turn or 0) then cmp = nil end
+  if not lq and not cmp then return end
+  -- the more recent of the two earlier requests is the one that is continued ("And what about Tanzania?" after a comparison adds an item to it)
+  local continue_cmp = cmp ~= nil and (lq == nil or cmp.turn > lq.turn)
+  local c0 = C(S, S.first)
+  local n = c0 and not c0.masked and S.lex:cue_at("ellipsis_open", S.units, c0.u1)
+  if not n then
+    -- "And Bosch?", "Also of Bosch?": the sentence-initial conjunction was stripped as a lead-in; it is the whole cue
+    local lc = S.wrapper and S.wrapper.lead_in and S.first > 1 and C(S, S.first - 1)
+    if lc and lc.single and (lc.unit.form == "and" or lc.unit.form == "also") then n = 0 else return end
+  end
+  local k, consumed = S.first, 0
+  while k <= S.last and consumed < n do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); k = k + 1 end
+  if consumed ~= n or k > S.last then return end
+  -- "And of Bosch?": the preposition that introduces the new argument of a relational noun belongs to the cue
+  local pc = C(S, k)
+  if pc and pc.single and not pc.masked and not barrier(pc) and pc.unit.form == "of" and k < S.last then k = k + 1 end
+  local rel = S.lex:get_rel(continue_cmp and cmp.rel or (lq and lq.rel))
+  if not rel and not continue_cmp then return end
+  for _, np in ipairs(P.parse_np(S, k)) do
+    -- the whole remainder is the new argument (a name, an unknown noun phrase or a pronoun)
+    if np.nxt > S.last and (np.head_kind == "entity" or np.head_kind == "unknown" or np.head_kind == "typenoun" or np.head_kind == "pronoun") and not np.of_arg then
+      local h
+      if continue_cmp then
+        h = newh(S, "ellipsis:comparison", "question", "comparison", "compare")
+        h.items = { np }
+        if rel then h.rel, h.rel_obj = rel.id, rel end
+        h.dimension = cmp.dimension
+        h.requires_evidence = true
+        h.ellipsis = { turn = cmp.turn, text = "" }
+        addf(h, "elliptical_comparison", 0.9, "adds an item to the comparison of the previous request (turn " .. tostring(cmp.turn) .. ")")
+      else
+        h = newh(S, "ellipsis:requery", "question")
+        set_lookup(h, rel, lq.known_role, np, lq.ask, nil)
+        h.ellipsis = { turn = lq.turn, text = lq.text }
+        addf(h, "elliptical_requery", 0.9, "re-asks the previous question (" .. rel.id .. ", turn " .. tostring(lq.turn) .. ") about a new argument")
+      end
+      use(h, S.first, k - 1); use_np(h, np)
+      mark_unresolved_pron(h, np)
+      out[#out + 1] = h
+    end
+  end
+end
+
+---------------------------------------------------------------- comparisons
+local DIFF_NOUNS = U.set({ "difference", "differences", "similarity", "similarities", "contrast", "contrasts", "distinction", "distinctions", "comparison" })
+
+-- "What are the main differences between X and Y?"  "How do X and Y differ?"  "How does X compare to Y?"
+function F.compare_differences(S, out)
+  local function between(k, wh, base_used)
+    for _, np1 in ipairs(P.parse_np(S, k)) do
+      local jc = C(S, np1.nxt)
+      if jc and jc.single and not jc.masked and not barrier(jc) and jc.unit.form == "and" then
+        for _, np2 in ipairs(P.parse_np(S, np1.nxt + 1)) do
+          if np2.nxt > S.last then
+            local h = newh(S, "compare_differences", "question", "comparison", "diff")
+            use_wh(h, wh); use(h, np1.nxt); use_np(h, np1); use_np(h, np2)
+            for i = base_used, np1.c1 - 1 do h.used[i] = true end
+            h.items = { np1, np2 }
+            h.requires_evidence = true
+            mark_unresolved_pron(h, np1); mark_unresolved_pron(h, np2)
+            addf(h, "differences_between_two", 0.8, "a request for the differences between two items")
+            out[#out + 1] = h
+          end
+        end
+      end
+    end
+  end
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh.wh == "what" and not wh.adverbial and not wh.np then
+      local bc = C(S, wh.nxt)
+      if is_be(bc) and not barrier(bc) then
+        for _, dnp in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          if dnp.head and dnp.head.single and DIFF_NOUNS[dnp.head.unit.form] then
+            local pc = C(S, dnp.nxt)
+            if pc and pc.single and not pc.masked and not barrier(pc) and pc.unit.form == "between" then between(dnp.nxt + 1, wh, wh.nxt) end
+          end
+        end
+      end
+    elseif wh.wh == "how" and wh.adverbial then
+      local ac = C(S, wh.nxt)
+      if ac and ac.single and not ac.masked and not barrier(ac) and (cat(ac, "aux_do") or cat(ac, "aux_be")) then
+        -- "How do X and Y differ?" / "How are X and Y different?"
+        for _, np1 in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          local jc = C(S, np1.nxt)
+          if jc and jc.single and not jc.masked and not barrier(jc) and jc.unit.form == "and" then
+            for _, np2 in ipairs(P.parse_np(S, np1.nxt + 1)) do
+              local vc = C(S, np2.nxt)
+              if vc and vc.single and not vc.masked and not barrier(vc) and np2.nxt == S.last and (vc.unit.form == "differ" or vc.unit.form == "different" or vc.unit.form == "similar" or vc.unit.form == "compare" or vc.unit.form == "alike") then
+                local h = newh(S, "compare_differences:how_differ", "question", "comparison", "diff")
+                use_wh(h, wh); use(h, wh.nxt); use_np(h, np1); use(h, np1.nxt); use_np(h, np2); use(h, np2.nxt)
+                h.items = { np1, np2 }
+                h.requires_evidence = true
+                mark_unresolved_pron(h, np1); mark_unresolved_pron(h, np2)
+                addf(h, "differences_between_two", 0.8, "how two items differ")
+                out[#out + 1] = h
+              end
+            end
+          end
+          -- "How does X differ from Y?" / "How does X compare to Y?"
+          local vc = C(S, np1.nxt)
+          if vc and vc.single and not vc.masked and not barrier(vc) and (vc.unit.form == "differ" or vc.unit.form == "compare" or vc.unit.form == "stack") then
+            local pc = C(S, np1.nxt + 1)
+            if pc and pc.single and not pc.masked and not barrier(pc) and (pc.unit.form == "from" or pc.unit.form == "to" or pc.unit.form == "with" or pc.unit.form == "against" or pc.unit.form == "up") then
+              local qk = np1.nxt + 2
+              local q = C(S, qk)
+              if q and q.single and q.unit.form == "to" and pc.unit.form == "up" then qk = qk + 1 end
+              for _, np2 in ipairs(P.parse_np(S, qk)) do
+                if np2.nxt > S.last then
+                  local h = newh(S, "compare_differences:how_compare", "question", "comparison", "diff")
+                  use_wh(h, wh); use(h, wh.nxt); use_np(h, np1); use(h, np1.nxt, qk - 1); use_np(h, np2)
+                  h.items = { np1, np2 }
+                  h.requires_evidence = true
+                  mark_unresolved_pron(h, np1); mark_unresolved_pron(h, np2)
+                  addf(h, "differences_between_two", 0.8, "how one item differs from / compares with another")
+                  out[#out + 1] = h
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+-- "Which of the two firms, A or B, has more employees?"  "Which has more employees, A or B?"  "Which of the two has more employees?"
+local MORE_WORDS = { more = "more", greater = "more", larger = "more", bigger = "more", fewer = "fewer", less = "fewer", smaller = "fewer" }
+function F.compare_which_of_two(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if (wh.wh == "which" or wh.wh == "who") and not wh.adverbial and not wh.np then
+      local k = wh.nxt
+      local items = {}
+      local oc = C(S, k)
+      -- "of the two firms," / "of the two," / "of A and B"
+      if oc and oc.single and not oc.masked and not barrier(oc) and oc.unit.form == "of" then
+        k = k + 1
+        local dc, tc = C(S, k), C(S, k + 1)
+        if dc and tc and dc.single and tc.single and dc.unit.form == "the" and (tc.unit.form == "two" or tc.unit.form == "both") then
+          k = k + 2
+          local nn = C(S, k)
+          if nn and not barrier(nn) and not nn.pre and (nn.senses and #nn.senses > 0) then k = k + 1 end   -- "the two FIRMS"
+        elseif dc and dc.single and (dc.unit.form == "them" or dc.unit.form == "these" or dc.unit.form == "those") then k = k + 1 end
+        -- optional listed items:  ", A or B,"
+        local lc = C(S, k)
+        if lc and lc.pre and lc.pre:find("comma") then
+          for _, np1 in ipairs(P.parse_np(S, k)) do
+            local jc = C(S, np1.nxt)
+            if jc and jc.single and (jc.unit.form == "or" or jc.unit.form == "and") then
+              for _, np2 in ipairs(P.parse_np(S, np1.nxt + 1)) do
+                items = { np1, np2 }
+                k = np2.nxt
+                break
+              end
+            end
+            break
+          end
+        end
+      end
+      -- verb: has / have + more|fewer N
+      local hv = C(S, k)
+      if hv and hv.single and not hv.masked and cat(hv, "aux_have") then
+        local mw = C(S, k + 1)
+        local deg = mw and mw.single and MORE_WORDS[mw.unit.form]
+        if deg then
+          for _, np in ipairs(P.parse_np(S, k + 2)) do
+            if np.head_kind == "relnoun" and (np.nxt > S.last or true) then
+              for _, e in ipairs(np.relnouns) do
+                local rel = S.lex:get_rel(e.rel)
+                if rel and S.lex:compat(rel.to, "number") >= 0.9 then
+                  -- items may also follow:  "..., A or B"
+                  local its = items
+                  local nk = np.nxt
+                  if #its == 0 then
+                    local lc = C(S, nk)
+                    if lc and lc.pre and lc.pre:find("comma") then
+                      for _, n1 in ipairs(P.parse_np(S, nk)) do
+                        local jc = C(S, n1.nxt)
+                        if jc and jc.single and (jc.unit.form == "or" or jc.unit.form == "and") then
+                          for _, n2 in ipairs(P.parse_np(S, n1.nxt + 1)) do if n2.nxt > S.last then its = { n1, n2 } end; break end
+                        end
+                        break
+                      end
+                    end
+                  end
+                  if #its == 0 and S.vs_items then its = S.vs_items end      -- "Siemens vs Bosch: who has more employees?"
+                  local h = newh(S, "compare_which_of_two", "question", "comparison", "rank_attribute")
+                  h.wh = wh
+                  h.rel, h.rel_obj = rel.id, rel
+                  use_wh(h, wh); use(h, wh.nxt, k + 1); use_np(h, np)
+                  for _, it in ipairs(its) do use_np(h, it) end
+                  if #its == 2 then h.items = its; use(h, its[1].nxt) end
+                  h.degree = deg == "more" and "comp_more" or "comp_less"
+                  h.dimension = "size"
+                  h.requires_evidence = true
+                  addf(h, "comparison_over_attribute", 0.9, "'" .. tostring(mw.unit.form) .. " " .. tostring(np.head and np.head.form) .. "' ranks two items on " .. rel.id)
+                  out[#out + 1] = h
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- imperative + noun phrase with a relative clause
+local LIST_VERBS = U.set({ "name", "list", "enumerate", "give", "show", "tell", "find", "get", "provide", "identify", "mention", "state", "fetch", "retrieve", "display", "cite" })
+
+function F.list_relative(S, out)
+  local k = S.first
+  local vc = C(S, k)
+  local head
+  if vc and vc.single and not vc.masked and LIST_VERBS[vc.unit.form] and not barrier(vc) then
+    head = k
+    k = k + 1
+    local mc = C(S, k)
+    if mc and mc.single and not mc.masked and (mc.unit.form == "me" or mc.unit.form == "us") and not barrier(mc) then k = k + 1 end
+  else
+    -- "Give me the firms ...": the request wrapper already took the verb and "me"
+    local w = S.wrapper
+    local wk = w and w.chunks and w.chunks[1]
+    local wc = wk and C(S, wk)
+    if not (wc and wc.single and LIST_VERBS[wc.unit.form]) then return end
+    head = wk
+  end
+  for _, nnp in ipairs(P.parse_np(S, k, { no_of = true })) do
+    local t = nnp.senses and nnp.senses[1] and nnp.senses[1].type
+    if (nnp.head_kind == "typenoun" or nnp.head_kind == "unknown") and nnp.head and not nnp.of_arg then
+      local rk = nnp.nxt
+      local rc = C(S, rk)
+      local relativizer = rc and rc.single and not rc.masked and not barrier(rc) and (rc.unit.form == "that" or rc.unit.form == "which" or rc.unit.form == "who")
+      if relativizer then rk = rk + 1 end
+      local wh = { wh = "which", type = t, np = nnp, nxt = rk, c1 = nnp.c1, c2 = nnp.c2, u1 = nnp.u1, u2 = nnp.u2, plural = true, synthetic = true }
+      -- the known side of a LOOKUP is a named thing ("Sequoia Capital", "the euro"); a descriptive phrase ("Series A funding") makes the clause a FILTER of a search
+      local function named(np)
+        return np.head_kind == "entity" or (np.head_kind == "unknown" and np.head and np.head.cap)
+          or ((np.head_kind == "typenoun" or np.head_kind == "unknown") and not np.plural and np.det == "the")   -- "the euro": one definite thing
+      end
+      local function finish(h, rel, known_role, known_np, ask_role, vp, prep_k)
+        if not named(known_np) then return end
+        set_lookup(h, rel, known_role, known_np, ask_role, wh)
+        use(h, head, k - 1); use_np(h, nnp); use_np(h, known_np); use_vp(h, vp)
+        if relativizer then use(h, nnp.nxt) end
+        if prep_k then use(h, prep_k) end
+        mark_unresolved_pron(h, known_np)
+        out[#out + 1] = h
+      end
+      -- (a) object gap:  the startups [that] SEQUOIA CAPITAL HAS INVESTED IN        subject NP, then a verb group, a stranded preposition is allowed
+      for _, snp in ipairs(P.parse_np(S, rk)) do
+        for _, vp in ipairs(P.parse_vp(S, snp.nxt)) do
+          for _, e in ipairs(vp.analysis.entries or {}) do
+            local rel = S.lex:get_rel(e.rel)
+            if rel and vp.voice == "active" and F.support_licensed(S, e, rel, wh, other(e.subj)) then
+              local pk = vp.nxt
+              local prep_ok = (not e.prep and pk > S.last) or (e.prep and is_prep(C(S, pk), e.prep) and pk == S.last)
+              if prep_ok then
+                local h = newh(S, "list_relative:object_gap", "request")
+                finish(h, rel, e.subj, snp, other(e.subj), vp, e.prep and pk or nil)
+                addf(h, "direction_explicit", 0.35, "role direction fixed by the relative clause's object gap (subject=" .. e.subj .. ")")
+                addf(h, "list_request", 0.3, "imperative + noun phrase + relative clause")
+              end
+            end
+          end
+        end
+      end
+      -- (c) agent phrase:  all books BY Imelda Strand
+      do
+        local bc = C(S, nnp.nxt)
+        if bc and bc.single and not bc.masked and not barrier(bc) and bc.unit.form == "by" and t then
+          for _, anp in ipairs(P.parse_np(S, nnp.nxt + 1)) do
+            if anp.nxt > S.last then
+              for _, rel in ipairs(S.lex:all_rels()) do
+                if not rel.open and (rel.id == "author" or rel.id == "creator" or rel.id == "developer") and S.lex:compat(t, rel.from) >= 0.9 then
+                  local h = newh(S, "list_relative:by_agent", "request")
+                  set_lookup(h, rel, "to", anp, "from", wh)
+                  use(h, head, k - 1); use_np(h, nnp); use(h, nnp.nxt); use_np(h, anp)
+                  addf(h, "by_agent", 0.6, "'" .. tostring(nnp.head and nnp.head.form) .. " by X' lists works whose " .. rel.id .. " is X")
+                  if rel.id == "author" and S.lex:isa(t, "publication") then addf(h, "literary_work", 0.15, "a book/article has an author") end
+                  mark_unresolved_pron(h, anp)
+                  out[#out + 1] = h
+                end
+              end
+            end
+          end
+        end
+      end
+      -- (b) subject gap:  the countries [that] USE THE EURO
+      if relativizer or true then
+        for _, vp in ipairs(P.parse_vp(S, rk)) do
+          if vp.voice == "active" then
+            for _, e in ipairs(vp.analysis.entries or {}) do
+              local rel = S.lex:get_rel(e.rel)
+              if rel and F.support_licensed(S, e, rel, wh, e.subj) then
+                local pk = vp.nxt
+                local ok_prep = (not e.prep) or is_prep(C(S, pk), e.prep)
+                if ok_prep then
+                  local ok = pk + (e.prep and 1 or 0)
+                  for _, onp in ipairs(P.parse_np(S, ok)) do
+                    if onp.nxt > S.last then
+                      local h = newh(S, "list_relative:subject_gap", "request")
+                      finish(h, rel, other(e.subj), onp, e.subj, vp, e.prep and pk or nil)
+                      addf(h, "direction_explicit", 0.35, "role direction fixed by voice/lexicon (subject gap, subj=" .. e.subj .. ")")
+                      addf(h, "list_request", 0.3, "imperative + noun phrase + relative clause")
+                      if not relativizer then addf(h, "no_relativizer", -0.25, "a reduced relative clause without 'that'") end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- a resource named with a value in a directive sentence: "the analysis should now run on dataset 2025 rather than the one I mentioned before"
+-- "Scrap the earlier dataset, I want dataset 2026 used from here on."  "Whenever you run the analysis, pull from the 2020 dataset and nothing else."
+-- Any sentence that frames a resource phrase WITH A VALUE (the 2021 dataset, dataset 2019, the dataset named 2026, version 3.2, the file a.csv) as what to use is an instruction
+-- about that resource's slot -- whatever the verb ("lean on", "run on", "pull from", "built on", "carried out on", "go with").  Questions and reported speech are not.
+local DIR_WORDS = U.set({ "use", "using", "run", "running", "pull", "pulling", "build", "built", "base", "based", "carry", "carried", "lean", "rely", "relying", "work", "working",
+  "analyse", "analyze", "analysed", "analyzed", "go", "going", "switch", "switching", "stick", "sticking", "draw", "drawing", "take", "taking", "apply", "applied", "operate",
+  "compute", "computed", "calculate", "calculated", "process", "load", "read", "query", "select", "choose", "pick", "prefer", "adopt", "default", "point", "restrict", "limit",
+  "stay", "remain", "keep", "set", "need", "want", "wish", "should", "must", "ensure", "replace", "replaces", "swap", "change", "update", "upgrade", "move", "refer", "consult", "feed", "fall" })
+local REPORT_MARKERS = U.set({ "she", "he", "they", "someone", "somebody", "friend", "colleague", "teacher", "professor", "boss", "manager", "said", "says", "told", "tells", "asked", "asks",
+  "suggested", "suggests", "recommended", "recommends", "mentioned", "claimed", "thinks", "thought", "reckons", "reckoned", "heard", "read" })
+local FIRST_PERSON_DIRECTIVE = U.set({ "i", "we", "let's", "lets", "please", "kindly" })
+local NAMING = U.set({ "named", "called", "titled", "labelled", "labeled", "dubbed", "number", "no", "id", "version" })
+local REPLACE_VERBS = U.set({ "use", "switch", "go", "pick", "choose", "take", "try", "prefer", "adopt", "select", "rely", "stick", "move" })
+function F.resource_directive(S, out)
+  if S.sentence and S.sentence.question_mark then return end
+  if #P.parse_wh(S, S.first) > 0 then return end
+  local lex = S.lex
+  local has_dir, reported, first_person = false, false, false
+  for i = S.first, S.last do
+    local c = C(S, i)
+    local f = c and not c.masked and ((c.single and c.unit.form) or (c.form and c.form:match("^(%S+)")))   -- a multiword verb ("set up") counts by its first word
+    if f then
+      if DIR_WORDS[f] then has_dir = true end
+      -- "On second thought, ...": the idiom is not a report of someone's thinking
+      local prevc = C(S, i - 1)
+      local idiom = f == "thought" and prevc and prevc.single and (prevc.unit.form == "second" or prevc.unit.form == "first" or prevc.unit.form == "after")
+      if REPORT_MARKERS[f] and not idiom then reported = true end
+      if FIRST_PERSON_DIRECTIVE[f] then first_person = true end
+      if f == "let" then
+        local nx = C(S, i + 1)
+        if nx and nx.single and (nx.unit.form == "us" or nx.unit.form == "'s" or cat(nx, "clitic_s")) then first_person = true end
+      end
+    end
+  end
+  if not has_dir then return end
+  -- "My friend said to use the 2021 dataset in her statistics class.": reported, no directive of the speaker's own
+  if reported and not first_person then return end
+  local function emit(c, slot, value)
+    -- a retraction or replacement marker anywhere makes it a correction; a standing marker makes it persist
+    local correction, persist = false, false
+    for k = S.first, S.last do
+      local ck = C(S, k)
+      if ck and not ck.masked then
+        if lex:cue_at("correction", S.units, ck.u1) or lex:cue_at("revoke", S.units, ck.u1) then correction = true end
+        if ck.temporal and (ck.temporal.kind == "persist" or ck.temporal.persist) then persist = true end
+        if ck.single and (ck.unit.form == "instead" or ck.unit.form == "replace" or ck.unit.form == "replaces" or ck.unit.form == "scrap" or ck.unit.form == "disregard") then correction = true end
+        if ck.single and (ck.unit.form == "whenever" or ck.unit.form == "always" or ck.unit.form == "everytime") then persist = true end
+      end
+    end
+    local h = newh(S, "instruction:resource_directive", "instruction", "instruction_update", "instruct")
+    for k = S.first, S.last do if C(S, k) and not C(S, k).masked then h.used[k] = true end end
+    h.instruction = { verb = "use", act = "constraint", np = { head = c, head_kind = "concept", mods = {}, u1 = c.u1, u2 = c.u2, c1 = c.idx, c2 = c.idx, nxt = c.idx + 1, notes = {}, score = 0 },
+      slot = slot, value = value, correction = correction, persist = persist }
+    h.correction, h.persist = correction, persist
+    addf(h, "resource_slot", 0.5, "the sentence names a '" .. slot .. "' with a value as what to use")
+    addf(h, "directive_framing", 0.4, "directive wording around the resource phrase")
+    if correction then addf(h, "correction_cue", 0.4, "explicit correction / replacement marker") end
+    if persist then addf(h, "persist_cue", 0.3, "applies to every later request") end
+    out[#out + 1] = h
+  end
+  local retracted    -- { chunk, slot } of a resource phrase that an exclusion verb retracts ("Forget the 2022 dataset ...")
+  -- a value written at chunk k: a year, a number or an identifier ("2021", "v3.2", "a.csv"); "the ONE" is a pronoun, not the number one
+  local function value_at(k)
+    local vc = C(S, k)
+    if not vc or vc.masked or barrier(vc) and false then return nil end
+    if vc.temporal and vc.temporal.year then return { year = vc.temporal.year, label = vc.text, expr = vc.temporal } end
+    if vc.single and (vc.literal or vc.unit.kind == "ident" or (vc.unit.kind == "number" and vc.unit.numval and not vc.unit.ordinal)) then
+      local prev = C(S, k - 1)
+      if vc.unit.form == "one" and prev and prev.single and (cat(prev, "det") or prev.unit.form == "which") then return nil end
+      return { word = vc.text, label = vc.text }
+    end
+  end
+  local COPULA_FORMS = U.set({ "is", "was", "are", "be", "'s", "will", "should", "must" })
+  -- words that may stand between a resource noun and its value: "dataset WITH THE ONE FROM 2026", "dataset FOR THE YEAR 2020", "dataset NAMED 2021"
+  local VALUE_FILL = U.set({ "one", "ones", "year", "version", "number", "no", "id", "named", "called", "titled", "labelled", "labeled", "dubbed", "edition", "release", "from", "for", "of",
+    "with", "to", "by", "using", "as", "in", "at", "covering", "dated", "marked", "tagged" })
+  for i = S.first, S.last do
+    local c = C(S, i)
+    local slot = c and not c.masked and lex:resource(c.single and c.unit.form or c.form)
+    if slot and not (slot == "solution") then
+      local value
+      local pc = C(S, i - 1)
+      if pc and not pc.masked and not barrier(c) then value = value_at(i - 1) end
+      if value and pc.single and pc.unit.kind == "number" and pc.unit.form == "one" then value = nil end
+      if not value then
+        -- a value after the noun, over at most six function words
+        local k = i + 1
+        for _ = 1, 6 do
+          local cn = C(S, k)
+          if not cn or cn.masked or (barrier(cn) and k > i + 1) then break end
+          value = value_at(k)
+          if value then break end
+          if cn.single and (cat(cn, "det") or cat(cn, "prep") or VALUE_FILL[cn.unit.form]) then k = k + 1 else break end
+        end
+        -- predicate value: "the dataset I need IS the one for 2026", "the right dataset should be 2026"
+        if not value then
+          for jk = i + 1, math.min(S.last, i + 9) do
+            local cj = C(S, jk)
+            if cj and cj.single and not cj.masked and COPULA_FORMS[cj.unit.form] then
+              local vk = jk + 1
+              for _ = 1, 6 do
+                local cn = C(S, vk)
+                if not cn then break end
+                value = value_at(vk)
+                if value then break end
+                if cn.single and (cat(cn, "det") or cat(cn, "prep") or cn.unit.form == "be" or VALUE_FILL[cn.unit.form]) then vk = vk + 1 else break end
+              end
+              break
+            end
+          end
+        end
+      end
+      if value then
+        -- the object of an exclusion verb ("Forget / Ignore / Drop the 2022 dataset") is retracted, not adopted
+        local excluded = false
+        for b = i - 1, math.max(S.first, i - 5), -1 do
+          local bc = C(S, b)
+          if bc and not bc.masked then
+            for _, v in ipairs(bc.verbs or {}) do if v.act == "exclude" then excluded = true end end
+            if excluded or (b < i - 1 and barrier(bc)) then break end
+          end
+        end
+        if excluded then retracted = retracted or { chunk = c, slot = slot }
+        else emit(c, slot, value); return end
+      end
+    end
+  end
+  -- "Forget the 2022 dataset and use 2024 instead.": the retracted phrase names the slot, the replacement is a bare value after a choosing verb
+  if retracted then
+    for k = S.first, S.last do
+      local ck = C(S, k)
+      if ck and ck.single and not ck.masked and REPLACE_VERBS[ck.unit.form] then
+        local nk = k + 1
+        local tc = C(S, nk)
+        if tc and tc.single and not tc.masked and (tc.unit.form == "to" or tc.unit.form == "with") then nk = nk + 1 end
+        local vc = C(S, nk)
+        if vc and not vc.masked and not barrier(vc) then
+          local value
+          if vc.temporal and vc.temporal.year then value = { year = vc.temporal.year, label = vc.text, expr = vc.temporal }
+          elseif vc.single and (vc.unit.kind == "ident" or (vc.unit.kind == "number" and vc.unit.numval and not vc.unit.ordinal)) then value = { word = vc.text, label = vc.text } end
+          if value then emit(retracted.chunk, retracted.slot, value); return end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- standing style / format instructions: "Always answer in metric units from now on."  "Reply in formal English."
+-- A persistence marker (always, never, from now on, going forward) with a verb of communication and a manner phrase is a standing instruction about HOW to answer.
+local STYLE_VERBS = U.set({ "answer", "respond", "reply", "write", "format", "present", "explain", "speak", "talk", "summarize", "summarise", "keep", "report", "express", "phrase", "address" })
+local PERSIST_WORDS = U.set({ "always", "never", "henceforth", "hereafter" })
+function F.style_instruction(S, out)
+  local persist = false
+  for _, ch in ipairs(S.chunks) do
+    if ch.temporal and (ch.temporal.kind == "persist" or ch.temporal.persist) then persist = true end
+    if ch.single and PERSIST_WORDS[ch.unit.form] then persist = true end
+  end
+  if not persist then return end
+  for k = S.first, S.last do
+    local c = C(S, k)
+    if c and c.single and not c.masked and STYLE_VERBS[c.unit.form] then
+      local pk = k + 1
+      local ac = C(S, pk)
+      -- "answer ONLY in French": a restricting adverb carries no content of its own here
+      if ac and ac.single and not ac.masked and not barrier(ac) and (ac.unit.form == "only" or ac.unit.form == "just" or ac.unit.form == "exclusively" or ac.unit.form == "strictly" or ac.unit.form == "solely") then pk = pk + 1 end
+      local pc = C(S, pk)
+      -- the manner phrase:  in / with / using / as  X
+      if pc and pc.single and not pc.masked and not barrier(pc) and (pc.unit.form == "in" or pc.unit.form == "with" or pc.unit.form == "using" or pc.unit.form == "as" or pc.unit.form == "like") then
+        for _, np in ipairs(P.parse_np(S, pk + 1)) do
+          local h = newh(S, "instruction:style", "instruction", "instruction_update", "instruct")
+          for i = S.first, np.nxt - 1 do
+            local ci = C(S, i)
+            if ci and not ci.masked and (i >= k or (ci.single and (PERSIST_WORDS[ci.unit.form] or ci.temporal or cat(ci, "polite") or cat(ci, "adv") or cat(ci, "discourse")))) then h.used[i] = true end
+          end
+          -- trailing persistence marker ("... from now on")
+          for i = np.nxt, S.last do local ci = C(S, i); if ci and ci.temporal and (ci.temporal.kind == "persist" or ci.temporal.persist) then h.used[i] = true end end
+          h.instruction = { verb = c.unit.form, act = "constraint", np = np, slot = "style", value = { word = np.head and np.head.form or "", label = P.span_text(S, np) }, persist = true }
+          h.persist = true
+          addf(h, "style_instruction", 0.9, "a standing instruction about how to answer ('" .. c.unit.form .. " " .. pc.unit.form .. " ...')")
+          addf(h, "persist_cue", 0.3, "applies from now on")
+          out[#out + 1] = h
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- existential questions: "Is there a bakery in Wexmoor?"  "Are there any hospitals in Finland?"  -> a search for such things
+local EXIST_FILLERS = U.set({ "anywhere", "somewhere", "around", "nearby", "locally" })
+function F.existential_search(S, out)
+  local c0, c1 = C(S, S.first), C(S, S.first + 1)
+  if not (c0 and c1 and c0.single and c1.single and not c0.masked and not c1.masked and cat(c0, "aux_be") and c1.unit.form == "there" and not barrier(c1)) then return end
+  local k = S.first + 2
+  local qc = C(S, k)
+  local lead = { S.first, S.first + 1 }
+  if qc and qc.single and not qc.masked and not barrier(qc) and (qc.unit.form == "any" or qc.unit.form == "a" or qc.unit.form == "an" or qc.unit.form == "some") then
+    lead[#lead + 1] = k; k = k + 1
+  end
+  for _, np in ipairs(P.parse_np(S, k, { no_of = false })) do
+    -- "a decent plumber ANYWHERE around X": a place adverb before the locative phrase carries nothing
+    local sk = np.nxt
+    local ac = C(S, sk)
+    local skipped = {}
+    while ac and ac.single and not ac.masked and not barrier(ac) and EXIST_FILLERS[ac.unit.form] and not cat(ac, "prep") do skipped[#skipped + 1] = sk; sk = sk + 1; ac = C(S, sk) end
+    if np.head_kind == "typenoun" or np.head_kind == "unknown" or np.head_kind == "concept" then
+      local hs = {}
+      F.from_object_np(S, hs, np, { act = "retrieve", lemma = "find" }, "question", lead)
+      for _, h in ipairs(hs) do
+        if h.intent == "search" then
+          for _, i in ipairs(skipped) do h.used[i] = true end
+          addf(h, "existential_question", 0.4, "'is there ...?' asks for such things")
+          out[#out + 1] = h
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- yes/no with a support verb and a possessed relational noun: "Does X have its headquarters in Y?"
+function F.yes_no_support(S, out)
+  local c0 = C(S, S.first)
+  if not (c0 and c0.single and not c0.masked and cat(c0, "aux_do") and not cat(c0, "wh")) then return end
+  for _, snp in ipairs(P.parse_np(S, S.first + 1)) do
+    for _, vp in ipairs(P.parse_vp(S, snp.nxt, { aux_hint = "do" })) do
+      for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+        local dc = C(S, onp.c1)
+        if onp.head_kind == "relnoun" and not onp.of_arg and dc and dc.single and cat(dc, "poss_det") and onp.c1 < onp.nxt - 1 and (is_prep(C(S, onp.nxt), "in") or is_prep(C(S, onp.nxt), "at")) then
+          for _, vnp in ipairs(P.parse_np(S, onp.nxt + 1)) do
+            for _, o in ipairs(relnp_options(S, onp)) do
+              local rel = o.rel
+              local supported = (vp.lemma == "have" and rel.support_have) or false
+              for _, e in ipairs(vp.analysis.entries or {}) do if e.support and e.rel == rel.id then supported = true end end
+              if supported and o.ask_role == "to" then
+                local h = newh(S, "yes_no:support_possessed", "question", "verification", "verify")
+                use(h, S.first); use_np(h, snp); use_vp(h, vp); use_np(h, onp); use(h, onp.nxt); use_np(h, vnp)
+                h.requires_evidence = true
+                h.rel, h.rel_obj = rel.id, rel
+                h.roles.from, h.roles.to = snp, vnp
+                h.verify = { rel = rel.id, from = snp, to = vnp }
+                h.items = { snp, vnp }
+                addf(h, "support_construction", 0.8, "'" .. tostring(vp.lemma) .. "' + possessed '" .. rel.id .. "' noun, yes/no")
+                mark_unresolved_pron(h, snp)
+                out[#out + 1] = h
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+return F
+
+end
+
+package.preload["asi.nlu.frames4"] = function(...)
+-- asi.nlu.frames4: attribution and placement constructions (extends asi.nlu.frames / frames2 / frames3 on the same table; every function adds competing hypotheses).
+--   wh_identity_person   "Who is the person serving as CEO of X?"                                   a reduced relative clause naming the post
+--   wh_credit            "Who was behind the founding of X?"  "Who is credited with founding X?"     attribution idioms: the agent of the event named by a verb / derived noun
+--                        "Who gets the credit for starting X?"  "Whom do we have to thank for founding X?"
+--   wh_locus_host        "Which city hosts the headquarters of X?"  "Which city is home to X's head office?"
+--   where_find           "Where can I find the headquarters of X?"  "In which city will I find the head office of X?"
+--   wh_relnoun_same_pred "Which currency is legal tender in K?"                                       the predicate noun is another name of the relation the wh-noun names
+--   generic_holder       "What currency do the locals use when they shop in K?"                      a generic subject is not the holder: the place named in the locative phrase is
+-- Roles come from the relation lexicon (the subject role of the relation's verbs, the role a noun denotes) and from type fit, never from word proximity.
+local U = require("asi.nlu.util")
+local P = require("asi.nlu.parse")
+local F = require("asi.nlu.frames2")
+require("asi.nlu.frames3")
+
+local cat = P.cat
+local newh, addf, use_np = F.newh, F.addf, F.use_np
+local set_lookup, use_wh, use_vp = F.set_lookup, F.use_wh, F.use_vp
+local is_be = F.is_be
+local relnp_options, mark_unresolved_pron = F.relnp_options, F.mark_pron
+
+local function C(S, k) return S.chunks[k] end
+local function barrier(c) return c ~= nil and c.pre ~= nil end
+local function other(role) return role == "to" and "from" or "to" end
+local function use(h, a, b) for i = a, b or a do h.used[i] = true end end
+-- the lower-case form of an ordinary (unmasked, unbroken) chunk
+local function form_of(c) return c and not c.masked and not barrier(c) and (c.form or (c.unit and c.unit.form)) or nil end
+
+-- does the phrase (space-separated words) start at chunk k, either as one chunk per word or as one multiword chunk?  -> index after it
+local function phrase_at(S, k, phrase)
+  local one = form_of(C(S, k))
+  if one and one == phrase then return k + 1 end
+  local j = k
+  for w in phrase:gmatch("%S+") do
+    local f = form_of(C(S, j))
+    local c = C(S, j)
+    if not (f and c.single and f == w) then return nil end
+    j = j + 1
+  end
+  return j
+end
+local function first_phrase(S, k, phrases)
+  for _, ph in ipairs(phrases) do
+    local n = phrase_at(S, k, ph)
+    if n then return n, ph end
+  end
+end
+
+-- derived event nouns of the relations' verbs:  "founding" -> { founder (agent role "to") }
+local function deverbal_index(lex)
+  if lex._deverbal_index and lex._deverbal_rev == lex.revision then return lex._deverbal_index end
+  local idx = {}
+  for _, rel in ipairs(lex:all_rels()) do
+    if not rel.open and rel.deverbals and #rel.deverbals > 0 then
+      local agent
+      for _, v in ipairs(rel.verbs or {}) do if not v.support and v.subj and not v.prep then agent = agent or v.subj end end
+      for _, n in ipairs(rel.deverbals) do
+        local k = n:lower()
+        idx[k] = idx[k] or {}
+        idx[k][#idx[k] + 1] = { rel = rel, agent = agent or "to" }
+      end
+    end
+  end
+  lex._deverbal_index, lex._deverbal_rev = idx, lex.revision
+  return idx
+end
+
+---------------------------------------------------------------- "Who is the person serving as CEO of X?"
+local PERSONISH = U.set({ "person", "one", "individual", "man", "woman", "executive", "guy", "gentleman", "lady", "official", "someone" })
+local SERVING = U.set({ "serving as", "acting as", "working as", "functioning as", "operating as", "employed as", "sitting as" })
+function F.wh_identity_person(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and (wh.wh == "who" or wh.wh == "whom") and not wh.np then
+      local bk = wh.nxt
+      local bc = C(S, bk)
+      if is_be(bc) and not barrier(bc) then
+        for _, tnp in ipairs(P.parse_np(S, bk + 1, { no_of = true })) do
+          local th = tnp.head
+          local sc = C(S, tnp.nxt)
+          if th and th.single and PERSONISH[th.unit.form] and sc and SERVING[form_of(sc) or ""] then
+            for _, rnp in ipairs(P.parse_np(S, tnp.nxt + 1)) do
+              if rnp.head_kind == "relnoun" and (rnp.of_arg or rnp.possessor) then
+                for _, o in ipairs(relnp_options(S, rnp)) do
+                  if o.arg and o.rel and not o.rel.open then
+                    local h = newh(S, "wh_identity_person", "question")
+                    set_lookup(h, o.rel, o.known_role, o.arg, o.ask_role, wh)
+                    use_wh(h, wh); use(h, bk); use_np(h, tnp); use(h, tnp.nxt); use_np(h, rnp)
+                    addf(h, "serving_as_construction", 0.9, "'the person serving as <post noun> of X' asks who fills the post")
+                    F.option_factors(h, o)
+                    mark_unresolved_pron(h, o.arg)
+                    out[#out + 1] = h
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- attribution idioms
+-- cue phrases that follow the wh-word and introduce the attributed event
+local CREDIT_NOUNS = U.set({ "credit", "recognition", "honour", "honor", "praise", "glory", "kudos", "thanks", "blame" })
+local CREDIT_VERBS = U.set({ "get", "gets", "got", "getting", "deserve", "deserves", "deserved", "take", "takes", "took", "earn", "earns", "earned", "claim", "claims", "claimed",
+  "receive", "receives", "received", "merit", "merits", "merited" })
+local DET_SET = U.set({ "the", "a", "an", "some", "any", "due", "all", "full", "most", "much" })
+local SKIP_AUX = U.set({ "do", "does", "did", "should", "would", "could", "can", "will", "must", "shall", "might", "may", "has", "have", "had", "ought", "really", "actually", "ultimately", "finally", "rightly" })
+local SKIP_SUBJ = U.set({ "we", "i", "you", "people", "one", "they", "everyone", "anyone", "somebody", "someone" })
+local SKIP_NEED = U.set({ "have", "has", "need", "needs", "ought", "must", "should", "got", "to", "always", "really", "ultimately" })
+
+-- positions (chunk index after the cue) at which an attributed event may start; each entry also carries the chunk range of the cue
+local function credit_cues(S, k)
+  local res = {}
+  local function add(n, from, to) if n then res[#res + 1] = { nxt = n, c1 = from, c2 = to } end end
+  local c = C(S, k)
+  if not c or c.masked then return res end
+  -- "was behind ...", "was the driving force behind ...", "was responsible for ...", "is credited with ...", "is to thank for ..."
+  if is_be(c) and not barrier(c) then
+    local j = k + 1
+    local cj = C(S, j)
+    -- "have been" style perfect chains are tolerated by the parser upstream; here only the simple copula
+    local n = phrase_at(S, j, "behind")
+    add(n, k, j)
+    -- "the driving force behind", "the brains behind", "the man behind": one to four ordinary chunks, then "behind"
+    for m = j, math.min(j + 4, S.last) do
+      local cm = C(S, m)
+      if not cm or cm.masked or (m > j and barrier(cm)) then break end
+      local nb = phrase_at(S, m + 1, "behind")
+      if nb and m >= j then add(nb, k, m + 1) end
+    end
+    add(phrase_at(S, j, "responsible for"), k, j)
+    add(phrase_at(S, j, "credited with"), k, j)
+    add(phrase_at(S, j, "to thank for"), k, j)
+    add(phrase_at(S, j, "the one to thank for"), k, j)
+    add(phrase_at(S, j, "the person to thank for"), k, j)
+    add(phrase_at(S, j, "the one responsible for"), k, j)
+    add(phrase_at(S, j, "the person responsible for"), k, j)
+    add(phrase_at(S, j, "the one behind"), k, j)
+    add(phrase_at(S, j, "the person behind"), k, j)
+    add(phrase_at(S, j, "accountable for"), k, j)
+    add(phrase_at(S, j, "in charge of creating"), k, j)
+  end
+  -- "gets the credit for ...", "should get credit for ...", "deserves the credit for ...", "takes credit for ..."
+  do
+    local j = k
+    while C(S, j) and not C(S, j).masked and not barrier(C(S, j)) and C(S, j).single and SKIP_AUX[C(S, j).unit.form] do j = j + 1 end
+    local vc = C(S, j)
+    if vc and vc.single and not vc.masked and not barrier(vc) and CREDIT_VERBS[vc.unit.form] then
+      local m = j + 1
+      while C(S, m) and C(S, m).single and not C(S, m).masked and not barrier(C(S, m)) and DET_SET[C(S, m).unit.form] do m = m + 1 end
+      local nc = C(S, m)
+      if nc and nc.single and not nc.masked and CREDIT_NOUNS[nc.unit.form] then
+        local fc = C(S, m + 1)
+        if fc and fc.single and not fc.masked and not barrier(fc) and fc.unit.form == "for" then add(m + 2, k, m + 1) end
+      end
+    end
+  end
+  -- "do we have to thank for ...", "should we thank for ...", "do I owe thanks to"  (the wh-word is the object of "thank")
+  do
+    local j = k
+    local aux_seen = false
+    while C(S, j) and not C(S, j).masked and not barrier(C(S, j)) and C(S, j).single and SKIP_AUX[C(S, j).unit.form] do j = j + 1; aux_seen = true end
+    local sc = C(S, j)
+    if aux_seen and sc and sc.single and not sc.masked and not barrier(sc) and SKIP_SUBJ[sc.unit.form] then
+      local m = j + 1
+      while C(S, m) and not C(S, m).masked and not barrier(C(S, m)) and C(S, m).single and SKIP_NEED[C(S, m).unit.form] do m = m + 1 end
+      local tc, fc = C(S, m), C(S, m + 1)
+      if tc and fc and tc.single and fc.single and not tc.masked and not fc.masked and not barrier(tc) and not barrier(fc) and tc.unit.form == "thank" and fc.unit.form == "for" then
+        add(m + 2, k, m + 1)
+      end
+    end
+  end
+  return res
+end
+
+-- the attributed event: a gerund with its object ("founding X", "setting up X") or a derived noun with "of" ("the founding of X", "the creation of X")
+local function credit_targets(S, t)
+  local res = {}
+  local c = C(S, t)
+  if not c or c.masked or barrier(c) then return res end
+  -- "credited with HAVING established O": a perfect gerund names the same event
+  local perfect = false
+  if c.single and c.unit.form == "having" then
+    local nc = C(S, t + 1)
+    if nc and not nc.masked and not barrier(nc) then perfect = true; t = t + 1; c = nc end
+  end
+  if c.single or c.kind == "mwe" then
+    for _, a in ipairs(P.verb_analyses(S, c)) do
+      if (not perfect and a.form == "ing") or (perfect and (a.form == "pp" or a.form == "past")) then
+        for _, e in ipairs(a.entries or {}) do
+          local rel = S.lex:get_rel(e.rel)
+          if rel and not rel.open and not e.prep and not e.support and not e.as_only then
+            for _, onp in ipairs(P.parse_np(S, t + 1)) do
+              res[#res + 1] = { rel = rel, agent = e.subj, obj = onp, c1 = t, c2 = t, kind = "gerund" }
+            end
+          end
+        end
+      end
+    end
+  end
+  local idx = deverbal_index(S.lex)
+  for _, np in ipairs(P.parse_np(S, t)) do
+    local hf = np.head and np.head.single and np.head.unit.form
+    if hf and idx[hf] and np.of_arg then
+      for _, d in ipairs(idx[hf]) do
+        res[#res + 1] = { rel = d.rel, agent = d.agent, obj = np.of_arg, np = np, kind = "noun" }
+      end
+    end
+  end
+  return res
+end
+
+F.credit_cues, F.credit_targets, F.phrase_at, F.first_phrase, F.deverbal_index = credit_cues, credit_targets, phrase_at, first_phrase, deverbal_index
+
+function F.wh_credit(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and (wh.wh == "who" or wh.wh == "whom" or wh.wh == "whose") and not wh.np and wh.wh ~= "whose" then
+      for _, cue in ipairs(credit_cues(S, wh.nxt)) do
+        for _, tg in ipairs(credit_targets(S, cue.nxt)) do
+          local h = newh(S, "wh_credit", "question")
+          set_lookup(h, tg.rel, other(tg.agent), tg.obj, tg.agent, wh)
+          use_wh(h, wh); use(h, cue.c1, cue.nxt - 1)
+          if tg.kind == "gerund" then use(h, tg.c1) else use_np(h, tg.np) end
+          use_np(h, tg.obj)
+          addf(h, "credit_construction", 0.9, "attribution idiom: the wh-word asks for the agent of the event '" .. tostring(tg.rel.id) .. "'")
+          mark_unresolved_pron(h, tg.obj)
+          out[#out + 1] = h
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- locus relations: which place hosts / is home to the thing
+local HOST_LEMMAS = U.set({ "host", "house", "contain", "hold", "shelter", "accommodate", "harbour", "harbor", "have", "boast" })
+local HOME_PHRASES = { "home to", "the home of", "the site of", "the seat of", "the base of", "the location of", "the location for", "the venue for", "the setting for", "host to", "the host of" }
+
+F.HOME_PHRASES, F.HOST_LEMMAS = HOME_PHRASES, HOST_LEMMAS
+local function locus_options(S, np)
+  local opts = {}
+  for _, o in ipairs(relnp_options(S, np)) do
+    if o.arg and o.rel and not o.rel.open and o.rel.locus and o.ask_role == "to" then opts[#opts + 1] = o end
+  end
+  return opts
+end
+
+F.locus_options = locus_options
+
+function F.wh_locus_host(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and wh.np and wh.type then
+      local function emit(onp, frame_note, k_after, extra_use)
+        for _, o in ipairs(locus_options(S, onp)) do
+          local h = newh(S, "wh_locus_host", "question")
+          set_lookup(h, o.rel, o.known_role, o.arg, o.ask_role, wh)
+          use_wh(h, wh); use_np(h, onp)
+          for _, i in ipairs(extra_use) do use(h, i) end
+          addf(h, "locus_host_construction", 0.9, frame_note)
+          F.option_factors(h, o)
+          mark_unresolved_pron(h, o.arg)
+          out[#out + 1] = h
+        end
+      end
+      -- (a) "Which city HOSTS the headquarters of X?"
+      for _, vp in ipairs(P.parse_vp(S, wh.nxt)) do
+        if vp.voice == "active" and HOST_LEMMAS[vp.lemma] then
+          for _, onp in ipairs(P.parse_np(S, vp.nxt)) do
+            if onp.head_kind == "relnoun" then
+              local used = {}
+              for i = vp.c1, vp.c2 do used[#used + 1] = i end
+              emit(onp, "'" .. tostring(vp.lemma) .. "' + a locus noun: the wh-place is the value of the relation", vp.nxt, used)
+            end
+          end
+        end
+      end
+      -- (b) "Which city IS HOME TO the headquarters of X?"
+      local bc = C(S, wh.nxt)
+      if is_be(bc) and not barrier(bc) then
+        local n, ph = first_phrase(S, wh.nxt + 1, HOME_PHRASES)
+        if n then
+          for _, onp in ipairs(P.parse_np(S, n)) do
+            if onp.head_kind == "relnoun" then
+              local used = { wh.nxt }
+              for i = wh.nxt + 1, n - 1 do used[#used + 1] = i end
+              emit(onp, "'" .. ph .. "' + a locus noun: the wh-place is the value of the relation", n, used)
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "Where can I find the headquarters of X?"
+local FIND_VERBS = U.set({ "find", "locate", "see", "spot", "discover", "reach" })
+local FINDER = U.set({ "i", "we", "you", "one", "someone", "anyone", "somebody", "anybody", "people", "tourists", "visitors", "travellers", "travelers", "customers", "clients" })
+function F.where_find(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    local where = wh.adverbial and wh.wh == "where"
+    local pied = (not wh.adverbial) and wh.pied and wh.np and wh.type
+    if where or pied then
+      local ac = C(S, wh.nxt)
+      if ac and ac.single and not ac.masked and not barrier(ac) and (cat(ac, "modal") or cat(ac, "aux_do")) then
+        local sc = C(S, wh.nxt + 1)
+        local vc = C(S, wh.nxt + 2)
+        if sc and vc and sc.single and vc.single and not sc.masked and not vc.masked and not barrier(sc) and not barrier(vc)
+          and FINDER[sc.unit.form] and FIND_VERBS[vc.unit.form] then
+          for _, onp in ipairs(P.parse_np(S, wh.nxt + 3)) do
+            if onp.head_kind == "relnoun" then
+              for _, o in ipairs(locus_options(S, onp)) do
+                local h = newh(S, "where_find", "question")
+                set_lookup(h, o.rel, o.known_role, o.arg, o.ask_role, wh)
+                use_wh(h, wh); use(h, wh.nxt, wh.nxt + 2); use_np(h, onp)
+                if pied then h.pied_consumed = true end
+                addf(h, "where_find_construction", 0.9, "'where can one find <locus noun>' asks for the value of " .. o.rel.id)
+                F.option_factors(h, o)
+                mark_unresolved_pron(h, o.arg)
+                out[#out + 1] = h
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "Which currency is legal tender in K?"
+local PLACE_PREPS = U.set({ "in", "of", "for", "at", "across", "throughout", "within" })
+function F.wh_relnoun_same_pred(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and wh.relnoun and wh.np and wh.wh ~= "how_adj" and wh.wh ~= "how_many" and wh.wh ~= "how_much" then
+      local bc = C(S, wh.nxt)
+      if is_be(bc) and not barrier(bc) then
+        local nk = wh.nxt + 1
+        for _, pnp in ipairs(P.parse_np(S, nk, { no_of = true })) do
+          if pnp.head_kind == "relnoun" and not pnp.of_arg and not pnp.possessor then
+            local pc = C(S, pnp.nxt)
+            if pc and pc.single and not pc.masked and not barrier(pc) and PLACE_PREPS[pc.unit.form] then
+              for _, anp in ipairs(P.parse_np(S, pnp.nxt + 1)) do
+                for _, we in ipairs(wh.np.relnouns or {}) do
+                  for _, pe in ipairs(pnp.relnouns or {}) do
+                    if pe.rel == we.rel and pe.role == we.role then
+                      local rel = S.lex:get_rel(we.rel)
+                      if rel and not rel.open then
+                        local h = newh(S, "wh_relnoun_same_pred", "question")
+                        set_lookup(h, rel, other(we.role), anp, we.role, wh)
+                        use_wh(h, wh); use(h, wh.nxt); use_np(h, pnp); use(h, pnp.nxt); use_np(h, anp)
+                        addf(h, "same_relation_predicate", 0.7, "the predicate noun '" .. tostring(pnp.head and pnp.head.form) .. "' is another name of " .. rel.id .. ", the relation the wh-noun names")
+                        F.wh_relnoun_agreement(h, wh, rel)
+                        mark_unresolved_pron(h, anp)
+                        out[#out + 1] = h
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- generic subjects: "What currency do the locals use when they shop in K?"
+-- A generic subject (they, people, the locals) cannot hold a country-level relation: the place named in a locative phrase of the sentence is the holder.
+local GENERIC_NOUN = U.set({ "locals", "people", "residents", "citizens", "inhabitants", "natives", "folks", "visitors", "tourists", "travellers", "travelers", "shoppers",
+  "customers", "everyone", "everybody", "nationals", "countrymen", "population", "public", "workers", "students", "shopkeepers", "merchants", "traders", "farmers" })
+local GENERIC_PRON = U.set({ "they", "you", "one", "we", "everyone", "everybody", "people" })
+local LOC_PREPS = U.set({ "in", "at", "across", "throughout", "within", "around", "inside", "to", "for", "from", "into", "of" })
+
+local function generic_np(np)
+  if not np then return false end
+  if np.head_kind == "pronoun" then return GENERIC_PRON[np.pron and np.pron.form or ""] == true end
+  if np.head and np.head.single and GENERIC_NOUN[np.head.unit.form] and not np.of_arg then return true end
+  return false
+end
+
+function F.generic_holder(S, out)
+  local n0 = #out
+  for hi = 1, n0 do
+    local h = out[hi]
+    if h.op == "lookup" and h.rel_obj and not h.rel_obj.open and h.known_role and h.roles and h.roles[h.known_role] and not h.generic_rebound then
+      local gnp = h.roles[h.known_role]
+      local role_type = h.rel_obj[h.known_role]
+      if generic_np(gnp) then
+        -- candidate holders: a name in a locative phrase that this hypothesis leaves unused, of a type the relation's holder accepts
+        local found, count = nil, 0
+        for k = S.first, S.last do
+          local pc = C(S, k)
+          if pc and pc.single and not pc.masked and LOC_PREPS[pc.unit.form] and not h.used[k] then
+            for _, np in ipairs(P.parse_np(S, k + 1)) do
+              if (np.head_kind == "entity" or (np.head_kind == "unknown" and np.head and np.head.cap)) and not np.det and not np.poss_det then
+                local ty
+                for _, cd in ipairs(np.cands or {}) do ty = ty or cd.type end
+                if np.head and np.head.names and np.head.names[1] then ty = ty or np.head.names[1].type_guess end
+                if S.lex:compat(ty, role_type) > -1.0 then found = found or { prep = k, np = np }; count = count + 1 end
+                break
+              end
+            end
+          end
+        end
+        if found and count == 1 then
+          local h2 = U.shallow(h)
+          h2.roles, h2.used, h2.factors = U.shallow(h.roles), U.shallow(h.used), U.shallow(h.factors)
+          h2.pronouns = nil
+          h2.roles[h.known_role] = found.np
+          use(h2, found.prep); use_np(h2, found.np)
+          h2.generic_rebound = true
+          addf(h2, "generic_subject_holder", 0.9, "the generic subject '" .. P.span_text(S, gnp) .. "' is not the holder; the place named in the locative phrase is")
+          out[#out + 1] = h2
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- "Which country is Kyoto in?"   (a typed place wh-noun + copula + subject + stranded "in")
+function F.wh_place_stranded_in(S, out)
+  local lrel = S.lex:get_rel("located_in")
+  if not lrel then return end
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if not wh.adverbial and wh.np and wh.type and S.lex:compat(wh.type, "place") >= 0.9 and not wh.pied then
+      local bc = C(S, wh.nxt)
+      if is_be(bc) and not barrier(bc) then
+        for _, snp in ipairs(P.parse_np(S, wh.nxt + 1)) do
+          local pc = C(S, snp.nxt)
+          if pc and pc.single and not pc.masked and not barrier(pc) and pc.unit.form == "in" and snp.nxt == S.last then
+            local h = newh(S, "wh_place_stranded_in", "question")
+            set_lookup(h, lrel, "from", snp, "to", wh)
+            use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use(h, snp.nxt)
+            addf(h, "stranded_in_place", 0.7, "'Which " .. tostring(wh.type) .. " is X in?' asks for the place that contains X")
+            mark_unresolved_pron(h, snp)
+            out[#out + 1] = h
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- comparisons with an explicit dimension
+--   "Compare the populations of Chile and Peru."   "Compare Tesla and Toyota by revenue."   "How does Norway compare with Sweden and Denmark in terms of area?"
+--   "Rank Mount Everest, K2 and Kangchenjunga by height."
+-- The dimension is a number-valued relation named by a relational noun; the items are the things compared.
+local function numeric_rel(S, np)
+  if not np or np.head_kind ~= "relnoun" then return nil end
+  for _, e in ipairs(np.relnouns or {}) do
+    local rel = S.lex:get_rel(e.rel)
+    if rel and not rel.open and e.role == "to" and S.lex:compat(rel.to, "number") >= 0.9 then return rel end
+  end
+end
+
+-- the unique defined relation of a measurable dimension ("height" -> height); nil when the dimension spans several ("age", "size")
+function F.dim_unique_rel(lex, dim)
+  local d = lex.dims and lex.dims[dim] or (lex.parent and lex.parent.dims and lex.parent.dims[dim])
+  if not d then return nil end
+  local found
+  for _, rid in ipairs(d.rels or {}) do
+    local r = lex:get_rel(rid)
+    if r and not r.open then
+      if found then return nil end
+      found = r
+    end
+  end
+  return found
+end
+
+local DIM_CUES = { "in terms of", "by", "on", "regarding", "with respect to", "as to", "according to", "based on", "using", "for" }
+-- "(by|in terms of|on ...) [the] DIM"  ->  rel, np, next chunk
+local function trailing_dimension(S, k)
+  local n = first_phrase(S, k, DIM_CUES)
+  if not n then return nil end
+  local dc = C(S, n)
+  if dc and dc.single and not dc.masked and cat(dc, "det") then n = n + 1 end
+  for _, np in ipairs(P.parse_np(S, n, { no_of = true })) do
+    local rel = numeric_rel(S, np)
+    if rel then return rel, np, np.nxt end
+  end
+end
+
+local ITEM_JOINERS = U.set({ "and", "or", "versus", "vs", "vs.", "against", "with", "to", "&", "and/or" })
+-- items "A, B and C" / "A with B": returns the NPs and the chunk after the last
+local function item_list(S, k, limit)
+  local items = {}
+  local cur = k
+  for _ = 1, 8 do
+    local np
+    for _, cand_np in ipairs(P.parse_np(S, cur, { no_of = true })) do
+      if cand_np.head_kind ~= "relnoun" or #items == 0 then np = cand_np; break end
+    end
+    if not np then break end
+    items[#items + 1] = np
+    cur = np.nxt
+    local nx = C(S, cur)
+    if not nx or nx.masked then break end
+    if nx.single and ITEM_JOINERS[nx.unit.form] and not (nx.pre and false) then cur = cur + 1
+    elseif nx.pre and nx.pre:find("comma") then
+      -- ", and C" or ", C"
+      local c2 = C(S, cur + 1)
+      if nx.single and ITEM_JOINERS[nx.unit.form] then cur = cur + 1 elseif nx.single and cat(nx, "prep") then break end
+    else break end
+    if limit and cur > limit then break end
+  end
+  return items, cur
+end
+
+F.item_list = item_list
+
+local COMPARE_VERBS = U.set({ "compare", "contrast", "benchmark", "weigh" })
+local RANK_VERBS = U.set({ "rank", "sort", "order", "arrange", "list" })
+function F.compare_dimension(S, out)
+  local vc = C(S, S.first)
+  -- (1) imperative "Compare ..."   (2) imperative "Rank ... by DIM"
+  if vc and vc.single and not vc.masked and (COMPARE_VERBS[vc.unit.form] or RANK_VERBS[vc.unit.form]) then
+    local ranking = RANK_VERBS[vc.unit.form] and not COMPARE_VERBS[vc.unit.form]
+    local k = S.first + 1
+    local first_np
+    -- "the populations of Chile and Peru": the dimension noun with the first item as its argument
+    for _, np in ipairs(P.parse_np(S, k)) do
+      local rel = numeric_rel(S, np)
+      if rel and np.of_arg and not ranking then
+        local items, endk = { np.of_arg }, np.nxt
+        local jc = C(S, endk)
+        if jc and not jc.masked then
+          -- "of A and B" / "of A, B and C": a joiner or a comma follows the first item
+          local joiner = jc.single and ITEM_JOINERS[jc.unit.form]
+          if joiner or (jc.pre and jc.pre:find("comma")) then
+            local rest, e2 = item_list(S, joiner and endk + 1 or endk)
+            for _, it in ipairs(rest) do items[#items + 1] = it end
+            endk = e2
+          end
+        end
+        if #items >= 2 then
+          local h = newh(S, "compare_dimension:noun", "request", "comparison", "compare")
+          use(h, S.first); use_np(h, np)
+          for _, it in ipairs(items) do use_np(h, it) end
+          for i = np.nxt, endk - 1 do h.used[i] = true end
+          h.items, h.rel, h.rel_obj, h.dimension = items, rel.id, rel, "size"
+          h.requires_evidence = true
+          addf(h, "comparison_items", 0.5, #items .. " items to compare on " .. rel.id)
+          addf(h, "dimension_noun", 0.5, "'" .. tostring(np.head and np.head.form) .. "' names the compared dimension")
+          out[#out + 1] = h
+        end
+      end
+    end
+    -- plain item list + trailing dimension
+    local items, endk = item_list(S, k)
+    if #items >= (ranking and 2 or 2) then
+      local rel, dnp, after = trailing_dimension(S, endk)
+      if rel then
+        local h = newh(S, ranking and "compare_dimension:rank" or "compare_dimension:by", "request", "comparison", ranking and "rank" or "compare")
+        use(h, S.first)
+        for _, it in ipairs(items) do use_np(h, it) end
+        for i = items[#items].nxt, after - 1 do h.used[i] = true end
+        h.items, h.rel, h.rel_obj, h.dimension = items, rel.id, rel, "size"
+        h.requires_evidence = true
+        addf(h, "comparison_items", 0.5, #items .. " items on " .. rel.id)
+        addf(h, "dimension_noun", 0.5, "'" .. tostring(dnp.head and dnp.head.form) .. "' names the compared dimension")
+        out[#out + 1] = h
+      end
+    end
+  end
+  -- (3) "How does A compare with B and C in terms of DIM?"
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    if wh.adverbial and wh.wh == "how" then
+      local dc = C(S, wh.nxt)
+      if dc and dc.single and not dc.masked and cat(dc, "aux_do") then
+        for _, snp in ipairs(P.parse_np(S, wh.nxt + 1, { no_of = true })) do
+          local cvc = C(S, snp.nxt)
+          local pc = C(S, snp.nxt + 1)
+          if cvc and cvc.single and not cvc.masked and COMPARE_VERBS[cvc.unit.form] and pc and pc.single and ITEM_JOINERS[pc.unit.form] then
+            local rest, endk = item_list(S, snp.nxt + 2)
+            if #rest >= 1 then
+              local items = { snp }
+              for _, it in ipairs(rest) do items[#items + 1] = it end
+              local rel, dnp, after = trailing_dimension(S, endk)
+              local h = newh(S, "compare_dimension:how", "question", "comparison", "compare")
+              use_wh(h, wh); use(h, wh.nxt); use_np(h, snp); use(h, snp.nxt, snp.nxt + 1)
+              for _, it in ipairs(rest) do use_np(h, it) end
+              if rel then
+                for i = endk, after - 1 do h.used[i] = true end
+                h.rel, h.rel_obj = rel.id, rel
+              end
+              h.items, h.dimension = items, "size"
+              h.requires_evidence = true
+              addf(h, "comparison_items", 0.5, #items .. " items compared")
+              if rel then addf(h, "dimension_noun", 0.5, "'" .. tostring(dnp.head and dnp.head.form) .. "' names the compared dimension") end
+              out[#out + 1] = h
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- wh-questions whose answer is the set defined by filters
+--   "Which cities in Germany have more than a million inhabitants?"   "Which cities are in Germany?"   "Which companies have more than 500 employees?"
+--   "What companies were founded after 1990?"
+-- The wh-noun is the target set; the rest of the sentence is the same chain of filters a "Find ..." request would carry.
+function F.which_filtered(S, out)
+  for _, wh in ipairs(P.parse_wh(S, S.first)) do
+    local nnp = wh.np
+    if nnp and not wh.adverbial and not wh.relnoun and (wh.wh == "which" or wh.wh == "what") and nnp.plural and not nnp.of_arg
+      and (nnp.head_kind == "typenoun" or nnp.head_kind == "unknown") then
+      local k = wh.nxt
+      local cop = C(S, k)
+      local used_cop
+      -- "Which cities ARE in Germany?": the copula joins the target to its filters
+      if cop and cop.single and not cop.masked and not barrier(cop) and (cat(cop, "aux_be") or cat(cop, "aux_have") and false) then used_cop = k; k = k + 1 end
+      local filters, kf = F.parse_filters(S, k, nnp)
+      if #filters > 0 and kf > S.last then
+        local h = newh(S, "wh_which:filtered", "question", "search", "search")
+        use_wh(h, wh); use_np(h, nnp)
+        if used_cop then use(h, used_cop) end
+        h.target, h.filters = nnp, filters
+        for _, f in ipairs(filters) do for i = f.span.first, f.span.last do h.used[i] = true end end
+        h.requires_evidence = true
+        h.wh = wh
+        addf(h, "search_target", 0.5, "typed target set")
+        addf(h, "filters_parsed", 0.15 * #filters, #filters .. " filter(s) from the clause")
+        -- a lookup of a known relation reads the same words more exactly; the set reading is the fallback for questions no relation covers
+        addf(h, "filtered_set_fallback", -0.6, "the question asks for the members of a set defined by filters")
+        if nnp.head_kind == "unknown" then addf(h, "unknown_target_type", -0.1, "search target type is not in the lexicon") end
+        out[#out + 1] = h
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------- bans stated as what must (not) appear
+--   "Agencies should never appear in your answers."   "Make sure agencies never show up in your answers."   "Don't let agencies show up in your answers."
+--   "Please make sure there are no agencies in the results."   "Leave agencies out of the results."   "Take agencies off the list."
+-- All of them exclude the noun phrase from the results; the particle verbs put the object BETWEEN verb and particle, which the cue-led exclusion segments do not see.
+local APPEAR_PHRASES = { "show up", "shows up", "showing up", "appear", "appears", "appearing", "come up", "comes up", "turn up", "turns up", "pop up", "pops up", "surface", "surfaces",
+  "occur", "occurs", "feature", "features", "be included", "be listed", "be shown", "be returned", "be displayed", "be present", "be there", "be in", "be among", "creep in", "slip in", "get in",
+  "get through", "make it in", "make it into", "end up in" }
+local PARTICLE_VERBS = U.set({ "leave", "keep", "take", "cut", "weed", "filter", "strike", "screen", "throw", "kick", "drop", "rule", "block", "shut", "sort", "leave" })
+local PARTICLES = U.set({ "out", "off", "away" })
+local MODALS_BAN = U.set({ "should", "must", "shall", "will", "can", "may", "might", "ought", "could", "would" })
+local NEG_WORDS_BAN = U.set({ "never", "not", "no longer", "n't" })
+local MAKE_SURE = { "make sure that", "make sure", "ensure that", "ensure", "see to it that", "be sure that", "be sure", "check that", "just make sure", "please make sure", "do make sure" }
+
+local MAKE_SURE_WORDS = U.set({ "make", "sure", "ensure", "check", "see", "to", "it", "that", "be", "careful", "just", "do", "also", "and", "so", "please", "kindly", "always", "okay", "ok", "yes", "oh" })
+local function ban_hyp(S, frame, np, from, to, verb)
+  local persist = false
+  for _, ch in ipairs(S.chunks) do
+    if ch.temporal and (ch.temporal.kind == "persist" or ch.temporal.persist) then persist = true end
+    if ch.single and ch.unit and (ch.unit.form == "always" or ch.unit.form == "never") then persist = true end
+  end
+  local h = newh(S, "instruction:" .. frame, "instruction", "instruction_update", "instruct")
+  for i = from, to do if C(S, i) then h.used[i] = true end end
+  use_np(h, np)
+  -- the frame words in front of the clause ("make sure", "ensure that", "see to it that", "be careful that") belong to the instruction too
+  for i = S.first, from - 1 do
+    local ci = C(S, i)
+    if ci and ci.single and ci.unit and MAKE_SURE_WORDS[ci.unit.form] then h.used[i] = true end
+  end
+  -- a persistence marker or a polite word around the clause belongs to the instruction too
+  for i = S.first, S.last do
+    local ci = C(S, i)
+    if ci and ((ci.temporal and (ci.temporal.kind == "persist" or ci.temporal.persist)) or (ci.single and ci.unit and (cat(ci, "polite") or cat(ci, "discourse")))) then h.used[i] = true end
+  end
+  h.instruction = { verb = verb, act = "exclude", np = np, correction = false, persist = persist }
+  h.polarity = "negative"
+  h.persist = persist
+  addf(h, "exclusion_clause", 0.9, "an exclusion is stated (" .. frame .. ")")
+  if persist then addf(h, "persist_cue", 0.3, "applies from now on") end
+  mark_unresolved_pron(h, np)
+  return h
+end
+
+local function ban_scan(S, out)
+  if S.sentence and S.sentence.question_mark then return end
+  local function neg_at(k)
+    local c = C(S, k)
+    if not (c and c.single and c.unit and not barrier(c)) then return nil end
+    if c.unit.form == "never" or P.is_neg(c) then return k + 1 end
+  end
+  local function appear_at(k)
+    for _, ph in ipairs(APPEAR_PHRASES) do
+      local n = phrase_at(S, k, ph)
+      if n then return n end
+    end
+  end
+  for k = S.first, math.min(S.last, S.first + 199) do      -- a request is short; longer inputs are not scanned for bans here
+    -- (A) NP [modal] never|not APPEAR: find the negation first, then the noun phrase that ends right before it (a bounded look-back keeps this linear)
+    local nk0 = neg_at(k)
+    if nk0 then
+      local e = appear_at(nk0)
+      if e then
+        local end_before = k
+        local pm = C(S, k - 1)
+        if pm and pm.single and pm.unit and MODALS_BAN[pm.unit.form] and k - 1 > S.first then end_before = k - 1 end
+        local made = false
+        for kstart = math.max(S.first, end_before - 6), end_before - 1 do
+          if made then break end
+          for _, np in ipairs(P.parse_np(S, kstart, { no_of = false })) do
+            if np.c1 == kstart and np.nxt == end_before and (np.head_kind == "typenoun" or np.head_kind == "unknown" or np.head_kind == "concept" or np.head_kind == "entity" or np.head_kind == "relnoun") then
+              out[#out + 1] = ban_hyp(S, "appearance", np, kstart, e - 1, "appear")
+              made = true
+              break
+            end
+          end
+        end
+      end
+    end
+    -- (C) don't let|allow|have NP APPEAR
+    local c = C(S, k)
+    if c and c.single and (cat(c, "aux_do") or cat(c, "modal")) and not c.masked then
+      local nk = neg_at(k + 1)
+      if nk then
+        local lc = C(S, nk)
+        if lc and lc.single and (lc.unit.form == "let" or lc.unit.form == "allow" or lc.unit.form == "have" or lc.unit.form == "permit") then
+          for _, np in ipairs(P.parse_np(S, nk + 1)) do
+            local e = appear_at(np.nxt)
+            if e then out[#out + 1] = ban_hyp(S, "let_appear", np, k, e - 1, "let") end
+          end
+        end
+      end
+    end
+    -- (D) make sure there are no NP in the results / there should be no NP
+    local tc = C(S, k)
+    if tc and tc.single and tc.unit and tc.unit.form == "there" and not tc.masked then
+      local bk = k + 1
+      local bc = C(S, bk)
+      if bc and bc.single and MODALS_BAN[bc.unit.form] then bk = bk + 1; bc = C(S, bk) end
+      if bc and bc.single and (cat(bc, "aux_be") or bc.unit.form == "be") then
+        local nc = C(S, bk + 1)
+        if nc and nc.single and nc.unit.form == "no" then
+          for _, np in ipairs(P.parse_np(S, bk + 2)) do
+            out[#out + 1] = ban_hyp(S, "no_existential", np, k, np.nxt - 1, "exclude")
+          end
+        end
+      end
+    end
+    -- (E) leave|keep|take NP out|off (of|from X)
+    if c and c.single and PARTICLE_VERBS[c.unit.form] and not c.masked then
+      for _, np in ipairs(P.parse_np(S, k + 1, { no_of = false })) do
+        local pc = C(S, np.nxt)
+        if pc and pc.single and PARTICLES[pc.unit.form] and not barrier(pc) then
+          local e = np.nxt
+          local oc = C(S, e + 1)
+          if oc and oc.single and (oc.unit.form == "of" or oc.unit.form == "from") then
+            local nps = P.parse_np(S, e + 2)
+            e = nps[1] and (nps[1].nxt - 1) or (e + 1)
+          end
+          out[#out + 1] = ban_hyp(S, "particle_out", np, k, e, c.unit.form)
+        end
+      end
+    end
+  end
+end
+
+function F.appearance_ban(S, out)
+  -- the exclusion cue words of the sentence mask exactly what this frame reads: lift the masks while scanning
+  local saved
+  for i, ch in ipairs(S.chunks) do if ch.masked then saved = saved or {}; saved[i] = ch.mask_kind or true end end
+  if saved then
+    for i in pairs(saved) do S.chunks[i].masked = nil end
+    S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+  end
+  local ok, err = pcall(ban_scan, S, out)
+  if saved then
+    for i, kind in pairs(saved) do S.chunks[i].masked = true; S.chunks[i].mask_kind = kind ~= true and kind or nil end
+    S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+  end
+  if not ok then error(err, 0) end
+end
+
+---------------------------------------------------------------- relational statements
+--   "Paris is the capital of France."   "The capital of France is Paris."   "Acme was founded by Jane Doe."   "Acme is headquartered in Oslo."
+-- With a negated copula ("Paris is not the capital of France.") the polarity is negative.  A statement that is asked for confirmation (", right?", "Is it true that ...")
+-- becomes a verification in asi.nlu.sem.
+local function is_prep_chunk(c, form) return c and c.single and not c.masked and cat(c, "prep") and (form == nil or c.unit.form == form) end
+function F.statement_relational(S, out)
+  if S.sentence and S.sentence.question_mark and not S.polar then return end
+  for _, np1 in ipairs(P.parse_np(S, S.first)) do
+    local bk = np1.nxt
+    local bc = C(S, bk)
+    if is_be(bc) and not barrier(bc) then
+      local nk, neg_chunk = bk + 1, nil
+      local nc = C(S, nk)
+      if nc and P.is_neg(nc) and not barrier(nc) then neg_chunk = nk; nk = nk + 1 end
+      local function base(frame)
+        local h = newh(S, frame, "statement", "statement", "assert")
+        use_np(h, np1); use(h, bk)
+        if neg_chunk then use(h, neg_chunk); h.polarity = "negative" end
+        mark_unresolved_pron(h, np1)
+        return h
+      end
+      for _, np2 in ipairs(P.parse_np(S, nk)) do
+        for _, pair in ipairs({ { np1, np2 }, { np2, np1 } }) do
+          local value, relnp = pair[1], pair[2]
+          if relnp.head_kind == "relnoun" and value.head_kind ~= "relnoun" and value.head_kind ~= "pronoun" then
+            for _, o in ipairs(relnp_options(S, relnp)) do
+              if o.arg and o.rel and not o.rel.open then
+                local h = base("statement:be_rel")
+                use_np(h, np2)
+                h.rel, h.rel_obj = o.rel.id, o.rel
+                h.roles[o.known_role] = o.arg
+                h.roles[o.ask_role] = value
+                h.known_role = o.known_role
+                addf(h, "relnp_statement", 0.5, "statement of a relational fact")
+                F.option_factors(h, o)
+                mark_unresolved_pron(h, o.arg); mark_unresolved_pron(h, value)
+                out[#out + 1] = h
+              end
+            end
+          end
+        end
+      end
+      for _, vp in ipairs(P.parse_vp(S, bk)) do
+        if vp.voice == "passive" then
+          for _, e in ipairs(vp.analysis.entries or {}) do
+            local rel = S.lex:get_rel(e.rel)
+            if rel and not rel.open and not e.support and not e.as_only then
+              local pc = C(S, vp.nxt)
+              local frame, ok_prep
+              if e.prep and is_prep_chunk(pc, e.prep) then frame, ok_prep = "statement:be_stative", true
+              elseif not e.prep and is_prep_chunk(pc, "by") then frame, ok_prep = "statement:be_passive", true end
+              if ok_prep then
+                for _, np2 in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                  local h = base(frame)
+                  use_vp(h, vp); use(h, vp.nxt); use_np(h, np2)
+                  h.rel, h.rel_obj = rel.id, rel
+                  if e.prep then h.roles[e.subj] = np1; h.roles[other(e.subj)] = np2
+                  else h.roles[other(e.subj)] = np1; h.roles[e.subj] = np2 end
+                  if vp.neg then h.polarity = "negative" end
+                  addf(h, "relation_statement", 0.5, "statement over a relation verb (" .. tostring(vp.voice) .. ")")
+                  mark_unresolved_pron(h, np2)
+                  out[#out + 1] = h
+                end
+              end
+            end
+          end
+        end
+      end
+    elseif bc and not bc.masked and not (S.wrapper and #S.wrapper.kinds > 0) then
+      -- active voice with a prepositional relation verb: "I work at Ithari Foundry.", "Acme operates in Germany."
+      -- (not after a request wrapper: "I need solar installers based in X" is a request whose object carries a participial clause)
+      for _, vp in ipairs(P.parse_vp(S, bk)) do
+        if vp.voice ~= "passive" and not vp.neg then
+          for _, e in ipairs(vp.analysis.entries or {}) do
+            local rel = S.lex:get_rel(e.rel)
+            if rel and not rel.open and not e.support and not e.as_only and e.prep and is_prep_chunk(C(S, vp.nxt), e.prep) then
+              for _, np2 in ipairs(P.parse_np(S, vp.nxt + 1)) do
+                local h = newh(S, "statement:active_prep", "statement", "statement", "assert")
+                use_np(h, np1); use_vp(h, vp); use(h, vp.nxt); use_np(h, np2)
+                h.rel, h.rel_obj = rel.id, rel
+                h.roles[e.subj] = np1; h.roles[other(e.subj)] = np2
+                addf(h, "relation_statement", 0.5, "statement over a relation verb with a preposition (active)")
+                mark_unresolved_pron(h, np1); mark_unresolved_pron(h, np2)
+                out[#out + 1] = h
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+return F
+
+end
+
 package.preload["asi.nlu.hook"] = function(...)
 -- asi.nlu.hook: the ONE integration point for a host program (for example the user's exec_eval bundle).
 --   local Hook = require("asi.nlu.hook")
@@ -6738,6 +9963,20 @@ function H.bind_np(S, ctx, np, expected, h, role)
     else
       b.status, b.fit, b.pending = "pending", 0.25, true
     end
+  elseif np.head_kind == "ordinal_ref" then
+    -- "the second one": the member of the latest enumeration of entities
+    local dm = ctx.discourse and ctx.discourse.mem
+    local a, size = nil, 0
+    if dm then a, size = dm:find_entity_ordinal(np.ordinal) end
+    if a then
+      b.status = "resolved"
+      b.antecedent = { key = a.key, text = a.text, type = a.etype, turn = a.turn, via = "ordinal_enumeration", ordinal = np.ordinal, p = 1.0 }
+      b.top = { id = a.key, type = a.etype, name = a.text }
+      b.type, b.fit = a.etype, lex:compat(a.etype, expected)
+      b.cands = { { id = a.key, type = a.etype, name = a.text, p = 1.0, score = 1.0, reasons = { "member " .. tostring(np.ordinal) .. " of the latest list (" .. tostring(size) .. " members)" } } }
+    else
+      b.status, b.fit = "unresolved", 0.25
+    end
   elseif np.head_kind == "temporal" then b.type, b.fit, b.status = "date", lex:compat("date", expected), "resolved"
   elseif np.head_kind == "number" then b.type, b.fit, b.status = "number", lex:compat("number", expected), "resolved"
   elseif np.head_kind == "quote" or np.head_kind == "literal" then b.type, b.fit, b.status = "text", 0.25, "resolved"
@@ -6802,16 +10041,22 @@ local function bind_all(S, ctx, h)
     local what = (b.top and b.top.name) or P.span_text(S, st.known)
     fit_factor("chain_fit:" .. si, fit, string.format("step %d: '%s' as %s of %s (fit %.2f)", si, what, st.known_role, st.rel, fit))
   end
+  -- a noun phrase already bound against a relation signature of this hypothesis keeps that typed binding (an untyped second binding would
+  -- discard the type evidence: "Is Canbera the capital of Australia?" lists the same noun phrase as a role and as an item)
+  local function bind_untyped(np, role)
+    if np.bound and np.bound_h == h and np.bound_for ~= nil then return end
+    H.bind_np(S, ctx, np, nil, h, role)
+  end
   if h.subject then H.bind_np(S, ctx, h.subject, h.expect_type, h, "subject") end
-  if h.concept then H.bind_np(S, ctx, h.concept, nil, h, "concept") end
-  if h.target then H.bind_np(S, ctx, h.target, nil, h, "target") end
-  for _, it in ipairs(h.items or {}) do H.bind_np(S, ctx, it, nil, h, "item") end
-  if h.focus then H.bind_np(S, ctx, h.focus, nil, h, "focus") end
-  if h.object then H.bind_np(S, ctx, h.object, nil, h, "object") end
-  if h.basis then H.bind_np(S, ctx, h.basis.np, nil, h, "basis") end
+  if h.concept then bind_untyped(h.concept, "concept") end
+  if h.target then bind_untyped(h.target, "target") end
+  for _, it in ipairs(h.items or {}) do bind_untyped(it, "item") end
+  if h.focus then bind_untyped(h.focus, "focus") end
+  if h.object then bind_untyped(h.object, "object") end
+  if h.basis then bind_untyped(h.basis.np, "basis") end
   if h.statement then
-    if h.statement.subj then H.bind_np(S, ctx, h.statement.subj, nil, h, "subject") end
-    if h.statement.obj then H.bind_np(S, ctx, h.statement.obj, nil, h, "object") end
+    if h.statement.subj then bind_untyped(h.statement.subj, "subject") end
+    if h.statement.obj then bind_untyped(h.statement.obj, "object") end
   end
   -- sense-level domain evidence for typenoun/concept readings (competing readings of a word such as "program")
   for _, np in ipairs({ h.concept, h.target, h.object, h.focus }) do
@@ -7342,6 +10587,7 @@ local function sentence_cues(an, sent, lex)
     local u = an.units[i]
     do
       if lex:cue_at("hedge", an.units, i) then cues.hedged = true end
+      if lex:cue_at("exact_mention", an.units, i) then cues.exact = true end
       local rn = lex:cue_at("revoke", an.units, i)
       if rn and not cues.revoke then
         -- a revocation needs a TARGET: a slot noun ("the dataset instruction"), an instruction-class noun ("my last constraint"), or nothing but
@@ -7406,6 +10652,7 @@ function I:interpret(text, call)
   end
   if call.light and mem then
     -- light observation (assistant / document turns): attested entity mentions only, no semantic parse and no standing instructions
+    local turn_items = {}
     for _, sent in ipairs(an.sentences) do
       local ua, ub = Sem.sentence_unit_range(an, sent.id)
       local cover = ua and lat:covers(1, ua, ub)[1]
@@ -7419,20 +10666,28 @@ function I:interpret(text, call)
         local text = an.original:sub(an.units[sp.i].s, an.units[sp.j].e)
         local n, only = 0, nil
         for id in pairs(ids) do n = n + 1; only = id end
+        local ustart, uend = an.units[sp.i].s, an.units[sp.j].e
         if n == 1 then
-          mem:mention(only, { type = ids[only], name = text, w = 0.2, role = "mention", speaker = speaker })
+          mem:mention(only, { type = ids[only], name = text, w = 0.2, role = "mention", speaker = speaker, loc = Coref.locative_before(an.units, sp.i) or nil })
           found[#found + 1] = { key = only, c1 = si, c2 = si }
+          turn_items[#turn_items + 1] = { key = only, text = text, type = ids[only], s = ustart, e = uend }
         elseif n == 0 and name_r then
           local key = "mention:" .. text:lower()
           mem:mention(key, { type = name_r.type_guess, name = text, w = 0.2, role = "mention", speaker = speaker, weak = name_r.weak,
-            pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil })
+            pname = name_r.multiword and not name_r.head_cue and not name_r.type_guess or nil, loc = Coref.locative_before(an.units, sp.i) or nil })
           found[#found + 1] = { key = key, c1 = si, c2 = si }
+          turn_items[#turn_items + 1] = { key = key, text = text, type = name_r.type_guess, s = ustart, e = uend }
         end
       end
       if #found > 0 then
         local S = P.new_state(an, self.lex, lat, cover, { flags = flags, meter = meter })
         Coref.describe_entities(view, S, found, speaker)
       end
+    end
+    -- a list the assistant gave ("1. Oslo 2. Stockholm 3. Helsinki"): later "the second one" / "the last" refer to its members
+    if #turn_items >= 2 and speaker ~= "user" then
+      local members = Memory.detect_enumeration(text, turn_items)
+      if members then mem:note_enumeration(members) end
     end
     if not call.skip_utterance then mem:note_utterance(text, speaker) end
     result.light, result.work = true, meter:snapshot()
@@ -7479,6 +10734,31 @@ function I:interpret(text, call)
         interp.context = ctxinfo
         if interp.status == "ok" and (speaker == "user" or call.observe_all) then
           mem:observe_sentence(interp, { speaker = speaker, sent = si, hedged = cues.hedged, revoke = cues.revoke, additive = cues.additive, scoped = cues.scoped })
+          -- an instruction turn reports the standing state AFTER it took effect (all slots, whatever kind of request would use them)
+          if interp.intent == "instruction_update" and not flags.no_memory_select then ctxinfo.active_constraints = mem:active_constraints(interp, { all = true }) end
+          -- a long message can carry a directive in one of its clauses ("..., and yes, drop retailers from your results before I forget"): the clause reading
+          -- that is an instruction / exclusion is remembered too, although the sentence as a whole read as a statement
+          if speaker == "user" and interp.intent ~= "instruction_update" and interp.speech_act ~= "instruction" and res.ranked and not flags.no_suffix then
+            for _, h in ipairs(res.ranked) do
+              local is_suffix = false
+              for _, f in ipairs(h.factors or {}) do if f.name == "clause_suffix" then is_suffix = true end end
+              if is_suffix and h ~= res.top and (h.intent == "instruction_update" or h.instruction) and not h.veto then
+                local st2 = res.states and res.states[h.cover_index]
+                if st2 then
+                  local H = require("asi.nlu.hyp")
+                  H.rebind(st2, ctx, h)
+                  local res2 = U.shallow(res)
+                  res2.top, res2.S, res2.seg_cons = h, st2, st2.seg_cons
+                  local ok2, interp2 = pcall(Sem.render, res2, ctx)
+                  if ok2 and interp2 and interp2.status == "ok" and (interp2.intent == "instruction_update" or interp2.speech_act == "instruction") then
+                    interp2.sentence = interp.sentence
+                    mem:observe_sentence(interp2, { speaker = speaker, sent = si, hedged = cues.hedged, additive = cues.additive, scoped = cues.scoped })
+                    break
+                  end
+                end
+              end
+            end
+          end
           local items = {}
           Coref.walk(interp, function(r)
             local key = r.antecedent and r.antecedent.key or r.resolved_id
@@ -7493,7 +10773,7 @@ function I:interpret(text, call)
           for key in pairs(mem.entities) do have[key] = true end
           local extra = {}
           for _, m in ipairs(Coref.mentions_from_state(res.S)) do
-            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak, pname = m.pname })
+            mem:mention(m.key, { type = m.type, name = m.name, w = have[m.key] and 0.05 or 0.2, role = "mention", speaker = speaker, weak = m.weak, pname = m.pname, exact = cues.exact, loc = m.loc })
             extra[#extra + 1] = { key = m.key, c1 = m.c1, c2 = m.c2 }
           end
           if #extra > 0 then Coref.describe_entities(view, res.S, extra, speaker) end
@@ -7833,6 +11113,9 @@ local UC = require("asi.nlu.unicode")
 local Lattice = {}
 
 local NAME_CONNECTORS = U.set({ "of", "de", "van", "von", "der", "la", "le", "du", "di", "da", "del", "for", "the", "&", "den", "al", "bin" })
+local TITLE_VERBS = U.set({ "wrote", "write", "writes", "written", "directed", "direct", "directs", "painted", "paint", "composed", "compose", "authored", "published", "read", "reading",
+  "watched", "watch", "starred", "starring", "entitled", "titled", "called", "named", "about", "reviewed", "review", "adapted" })
+local TITLE_NOUNS = U.set({ "novel", "book", "film", "movie", "song", "album", "play", "poem", "series", "show", "game", "painting", "opera", "musical", "story", "article", "paper" })
 local TITLE_PREFIX = U.set({ "dr", "mr", "mrs", "ms", "prof", "sir", "lady", "lord", "president", "senator", "gen", "col", "capt", "rev" })
 
 local function span_key(i, j) return i .. ":" .. j end
@@ -7991,7 +11274,8 @@ function Lattice.build(an, lex, opts)
     local u = units[i]
     local sent = an.sentences[u.sent or 0]
     local shout = sent and sent.shout
-    local capital = u.cap and not shout and (u.kind == "word" or u.kind == "abbrev" or u.kind == "acronym" or u.kind == "initial") and not u.case_sensitive
+    -- a brand written with an inner capital ("iPhone", "eBay", "iPad") is as name-like as a capitalised word
+    local capital = (u.cap or u.mixed_case) and not shout and (u.kind == "word" or u.kind == "abbrev" or u.kind == "acronym" or u.kind == "initial") and not u.case_sensitive
     local initial = capital and sentence_initial(u)
     local common = capital and is_common(lex, u)
     -- "Compare", "Did", "Is" ... are capitalised only by position: they must not swallow the names that follow them
@@ -8000,11 +11284,53 @@ function Lattice.build(an, lex, opts)
       -- connectors ("of", "for", ...) join a name only after an organisation/place head word ("University of X", "Bank of X"),
       -- never after an ordinary common word ("CEO of Acme": CEO is a relational noun, not the start of a name)
       local connect_ok = lex:headcue(u.form) ~= nil or not common
-      -- extend over capitalised units and name connectors (never "and")
+      -- a title ("Pride and Prejudice", "Harry Potter and the Chamber of Secrets") follows a verb / noun that introduces a work
+      local merge_alts = {}
+      local title_ctx = false
+      do
+        local p1, p2 = units[i - 1], units[i - 2]
+        if p1 and p1.sent == u.sent and not u.pre and (TITLE_VERBS[p1.form] or (p2 and p2.sent == u.sent and TITLE_NOUNS[p1.form] == nil and TITLE_NOUNS[p2.form] and (p1.form == "titled" or p1.form == "called" or p1.form == "named" or p1.form == "entitled")) or TITLE_NOUNS[p1.form]) then title_ctx = true end
+      end
+      -- extend over capitalised units and name connectors ("and" only in a title or inside an organisation name that ends in a head word)
       while true do
         local nx = units[j + 1]
         if not nx or nx.pre or nx.sent ~= u.sent then break end
-        if nx.cap and not shout and (nx.kind == "word" or nx.kind == "abbrev" or nx.kind == "acronym" or nx.kind == "initial" or nx.kind == "number") then j = j + 1
+        if (nx.form == "and" or nx.form == "&") and not nx.cap then
+          -- look ahead over the capitalised tail
+          local t, head_found, tail_ok = j + 2, false, false
+          if units[t] and units[t].form == "the" and title_ctx then t = t + 1 end
+          local last_cap
+          while units[t] and not units[t].pre and units[t].sent == u.sent and (units[t].cap or (title_ctx and (units[t].form == "of" or units[t].form == "the" or units[t].form == "in" or units[t].form == "and" or units[t].form == "for" or units[t].form == "to" or units[t].form == "a"))) do
+            if units[t].cap then last_cap = t; tail_ok = true; if lex:headcue(units[t].form) then head_found = true end end
+            t = t + 1
+          end
+          -- "Company A and Company B": two organisations; "Pellucid Freight and Logistics Holdings": one name whose HEAD WORD comes last
+          local first_has_head = false
+          for q = i, j do if lex:headcue(units[q].form) then first_has_head = true end end
+          if first_has_head and not title_ctx then head_found = false end
+          if head_found and last_cap and not lex:headcue(units[last_cap].form) then head_found = false end
+          local known_entity = false
+          for q = i, last_cap or i do
+            if units[q].cap then
+              for _, m in ipairs(lex:match_at(units, q)) do
+                for _, e in ipairs(m.entries) do if e.kind == "entity" then known_entity = true end end
+              end
+            end
+          end
+          if tail_ok and last_cap and not known_entity and title_ctx then j = last_cap
+          elseif tail_ok and last_cap and not known_entity and head_found then
+            -- "Pellucid Freight AND Logistics Holdings": one name or two ("Harrow Dynamics and Vireo Labs")?  Both readings compete as alternative covers.
+            merge_alts[#merge_alts + 1] = last_cap
+            break
+          else break end
+        elseif nx.form == "the" and title_ctx and not nx.cap and units[j + 2] and units[j + 2].cap and not units[j + 2].pre then j = j + 2
+        elseif nx.form == "of" and title_ctx and units[j + 2] and not units[j + 2].pre then
+          local t = j + 2
+          if units[t].form == "the" and units[t + 1] and units[t + 1].cap then t = t + 1 end
+          if units[t].cap then j = t else break end
+        elseif nx.cap and not shout and (nx.kind == "word" or nx.kind == "abbrev" or nx.kind == "acronym" or nx.kind == "initial" or nx.kind == "number") then j = j + 1
+        -- "Area 51", "Apollo 11", "Windows 11": a small whole number right after a capitalised name belongs to it (a year or a larger number does not)
+        elseif nx.kind == "number" and nx.numval and nx.numval == math.floor(nx.numval) and nx.numval >= 1 and nx.numval <= 999 and j == i and not nx.unit and not (units[j + 2] and units[j + 2].kind == "word" and not units[j + 2].cap and not units[j + 2].pre and lex:resource(units[j + 2].form)) then j = j + 1
         elseif NAME_CONNECTORS[nx.form] and not nx.cap and connect_ok then
           local nn = units[j + 2]
           if nn and not nn.pre and nn.cap and nn.sent == u.sent then j = j + 2 else break end
@@ -8013,6 +11339,8 @@ function Lattice.build(an, lex, opts)
       local multi = j > i
       local last = units[j]
       local type_guess = lex:headcue(last.form) or lex:headcue(u.form) or (TITLE_PREFIX[u.form] and "person") or nil
+      -- a final token that mixes letters and digits ("X2", "A380", "RTX4090") is a model code: the name denotes a product
+      if not type_guess and (last.form:match("^%a+%d+%a*$") or last.form:match("^%d+%a+$")) and #last.form <= 8 and last.kind ~= "number" then type_guess = "product" end
       local sc = 0.8 + 0.3 * (j - i)
       -- "West Germany", "Northern Ireland": a capitalised modifier + an attested entity is a DIFFERENT, open-set entity of the attested one's type
       local extends
@@ -8039,6 +11367,11 @@ function Lattice.build(an, lex, opts)
         local weak = (initial and not multi and not type_guess) or nil
         add(i, j, { kind = "name", type_guess = type_guess, text = an.original:sub(units[i].s, units[j].e), multiword = multi, weak = weak,
           head_cue = (lex:headcue(last.form) or lex:headcue(u.form)) and true or nil }, "name_guess", sc)
+        for _, aj in ipairs(merge_alts) do
+          local al = units[aj]
+          add(i, aj, { kind = "name", type_guess = lex:headcue(al.form) or type_guess, text = an.original:sub(units[i].s, units[aj].e), multiword = true, head_cue = true },
+            "name_guess", 0.8 + 0.3 * (aj - i) - 0.2)
+        end
       end
       i = j + 1
     else
@@ -9356,7 +12689,7 @@ function L:add_rel(r)
   for _, n in ipairs(r.nouns_from) do noun_entries(n, "from") end
   for _, v in ipairs(r.verbs) do
     for _, f in ipairs(Morph.verb_forms(v.lemma)) do
-      self:trie_insert(f.form, { kind = "relverb", rel = r.id, subj = v.subj, vform = f.feat, lemma = v.lemma, prep = v.prep, support = v.support, as_only = v.as_only })
+      self:trie_insert(f.form, { kind = "relverb", rel = r.id, subj = v.subj, vform = f.feat, lemma = v.lemma, prep = v.prep, support = v.support, as_only = v.as_only, np_only = v.np_only })
     end
   end
 end
@@ -9434,6 +12767,19 @@ function DIRECTIVES.rel(self, rest)
     verbs = {}, preps = list(f.prep), kinds = {}, when = f.when, where = f.where, how_many = f.how_many, derived = f.derived,
     weight = tonumber(f.weight) or 1.0, source = f.source or "seed", symmetric = f.symmetric == "1", attr = f.attr == "1", event = f.event == "1",
     locus = f.locus == "1", isa = f.isa, support = {} }
+  -- "How many PEOPLE LIVE IN X?" counts the relation's value without naming the relation: count_noun lists the countable nouns, count_verb the verbs
+  -- (lemma[/prep=P]) whose subject is counted; howmuch=1 marks the relation "How much is X?" asks for when X is a product-like thing
+  r.count_nouns = list(f.count_noun)
+  r.count_verbs = {}
+  for _, v in ipairs(list(f.count_verb)) do
+    local lemma, attrs = v:match("^([^/]+)/?(.*)$")
+    local ent = { lemma = trim(lemma) }
+    for k, val in (attrs or ""):gmatch("(%a+)=([%w_]+)") do ent[k] = val end
+    r.count_verbs[#r.count_verbs + 1] = ent
+  end
+  r.howmuch = f.howmuch == "1"
+  -- derived event nouns ("the FOUNDING of X", "the ACQUISITION of Y"): the noun names the event whose agent fills the role of the relation's verbs
+  r.deverbals = list(f.deverbal)
   if f.rolesuffix == "1" then
     r.role_nouns = {}
     for _, n in ipairs(r.nouns_to) do
@@ -9455,6 +12801,12 @@ function DIRECTIVES.rel(self, rest)
     local lemma = trim(sv)
     r.support[#r.support + 1] = lemma
     if lemma == "have" then r.support_have = true else r.verbs[#r.verbs + 1] = { lemma = lemma, subj = "from", support = true } end
+  end
+  -- support verbs that only work with a possessed relational noun ("Acme ESTABLISHED its headquarters in Oslo"); "Acme established Brennick" says nothing about this relation
+  for _, sv in ipairs(list(f.support_np)) do
+    local lemma = trim(sv)
+    r.support[#r.support + 1] = lemma
+    r.verbs[#r.verbs + 1] = { lemma = lemma, subj = "from", support = true, np_only = true }
   end
   -- "as" verbs ("Acme APPOINTED Jane Doe as CEO", "France RECOGNIZES Paris as its capital"): the verb names the relation only together with "as <relational
   -- noun>"; on its own ("Acme employs Jane Doe", "voters elected X") it says nothing about this relation, so these entries never drive a plain verb frame
@@ -10202,7 +13554,7 @@ local function selected_text(m)
 end
 
 -- returns { ok = bool, checks = { name = bool }, selected = {...}, false_memory = n, relevant_selected = n }
-function LC.score(sc, m)
+function LC.score(sc, m, lex)
   local r = { ok = true, checks = {} }
   local function chk(name, ok) r.checks[name] = ok and true or false; if not ok then r.ok = false end end
   local ex = sc.expect
@@ -10236,7 +13588,14 @@ function LC.score(sc, m)
     end
     chk("reference_found", found ~= nil)
     chk("entity_recovered", found ~= nil and found.status == "resolved" and found.antecedent and norm(found.antecedent.text) == norm(ex.antecedent))
-    chk("relation", m.relation and m.relation.id == ex.relation)
+    -- "Who LEADS / is the HEAD of the company I mentioned?" asks for the leader, of which the CEO is a kind (ceo isa leader): when the wording does not say CEO,
+    -- the parent relation is the correct reading of the question.  A wording that names the CEO must produce ceo.
+    local rel_ok = m.relation and m.relation.id == ex.relation
+    if not rel_ok and m.relation and lex and not (sc.final or ""):lower():find("ceo", 1, true) and not (sc.final or ""):lower():find("chief executive", 1, true) then
+      local want = lex:get_rel(ex.relation)
+      rel_ok = want ~= nil and want.isa == m.relation.id
+    end
+    chk("relation", rel_ok)
   elseif ex.slot then
     local act = {}
     for _, c in ipairs(m.context and m.context.active_constraints or {}) do if c.slot then act[c.slot] = tostring(c.value) end end
@@ -10262,6 +13621,12 @@ function LC.score(sc, m)
   elseif ex.pronoun then
     local found
     for _, ref in ipairs(m.context and m.context.references or {}) do if norm(ref.mention) == ex.pronoun then found = ref end end
+    -- externally authored final wordings refer to the company in other ways ("them", "they", "that company", "this company"): any anaphoric reference counts
+    if not found and T ~= DEFAULT_T then
+      for _, ref in ipairs(m.context and m.context.references or {}) do
+        if ref.kind == "pronoun" or ref.kind == "entity_backref" then found = found or ref end
+      end
+    end
     chk("pronoun_found", found ~= nil)
     -- correct = resolves to the right entity, or honestly reports ambiguity / no antecedent.  WRONG = resolves to the stale one.
     local wrong = found and found.status == "resolved" and found.antecedent and norm(found.antecedent.text) == norm(ex.wrong)
@@ -10284,7 +13649,7 @@ function LC.run(interp, Memory, sc, opts)
   end
   local fin = interp:interpret(sc.final, { memory = mem, speaker = "user" })
   last = fin.main
-  local score = LC.score(sc, last)
+  local score = LC.score(sc, last, interp.lex)
   score.work_final = fin.work and fin.work.total or 0
   score.work_total = work + score.work_final
   score.wall = os.clock() - t0
@@ -10315,6 +13680,13 @@ M.SCHEMA = "nlu.memory/1"
 local PROTECTED_KINDS = U.set({ "instruction", "prohibition", "correction", "preference", "decision", "focus" })
 local STOP = U.set({ "the", "a", "an", "of", "and", "or", "to", "in", "on", "at", "by", "for", "with", "is", "are", "was", "were", "be", "it", "its",
   "as", "that", "this", "which", "what", "who", "how", "do", "does", "did", "i", "you", "we", "me", "my", "your", "please", "can", "could" })
+
+-- words of the recall frame itself ("what did I SAY ...", "remind me what we DISCUSSED"): they name the act of recalling, not what is recalled
+local RECALL_FRAME = {}
+for _, w in ipairs({ "say", "said", "says", "tell", "told", "mention", "mentioned", "ask", "asked", "remember", "recall", "remind", "earlier", "before", "previously",
+  "discuss", "discussed", "talk", "talked", "state", "stated", "specify", "specified", "about", "tell", "wrote", "write", "typed", "just", "again" }) do
+  RECALL_FRAME[require("asi.nlu.textutil").stem(w)] = true
+end
 
 -- which slots apply to which kinds of request (everything else is "any")
 local SLOT_SCOPE = { dataset = "evidence", source = "evidence", version = "evidence", year = "evidence", file = "evidence", statement = "evidence",
@@ -10462,6 +13834,13 @@ local function ref_key(r)
 end
 M.ref_key = ref_key
 
+-- the key under which a fact stores an argument: entities by key, the speaker ("I", "my") as "speaker:<who>"
+local function fact_key(r, speaker)
+  if r and r.deictic == "speaker" then return "speaker:" .. (speaker or "user") end
+  return ref_key(r)
+end
+M.fact_key = fact_key
+
 function M:mention(key, info)
   if not key then return end
   local e = self.entities[key]
@@ -10469,6 +13848,8 @@ function M:mention(key, info)
     e = { key = key, names = {}, type = info.type, mentions = {}, first_turn = self.turn, by_user = false }
     self.entities[key] = e
   end
+  if info.loc then e.loc = true end          -- first met after a locative preposition: evidence of a place
+  if info.exact then e.exact = true end      -- the speaker stressed that THIS is the intended name ("exactly X, no lookalikes")
   if info.type and not e.type then e.type = info.type end
   if info.itype and not e.type and not e.itype then e.itype = info.itype end
   if info.pname and not e.type then e.pname = true end
@@ -10566,6 +13947,69 @@ function M:extract_artifacts(text, item)
   return n
 end
 
+-- An enumeration of entities in a turn: "1. Oslo 2. Stockholm 3. Helsinki", "Tallinn, Riga and Klaipeda", "Marie Curie and Albert Einstein".
+-- items = { {key=, text=, type=, s=, e=}, ... } (entity mentions of the turn with byte offsets); returns the members of the list, or nil
+function M.detect_enumeration(text, items)
+  if #items < 2 then return nil end
+  table.sort(items, function(a, b) return a.s < b.s end)
+  -- (1) numbered items: markers 1. 2. 3. ... each followed by one item
+  local nums = {}
+  for pos, num in text:gmatch("()%f[%d](%d+)[%.%)]%s") do nums[#nums + 1] = { pos = pos, n = tonumber(num) } end
+  if #nums >= 2 then
+    local ok = true
+    for i, x in ipairs(nums) do if x.n ~= i then ok = false end end
+    if ok then
+      local out = {}
+      for i, x in ipairs(nums) do
+        local hi = nums[i + 1] and nums[i + 1].pos or (#text + 1)
+        for _, it in ipairs(items) do if it.s >= x.pos and it.s < hi then out[#out + 1] = it; break end end
+      end
+      if #out >= 2 then return out end
+    end
+  end
+  -- (2) a run of items separated only by commas / "and" / "or" that makes up most of the message
+  local lead = text:match("^[^:]*:%s*()") or 1
+  local body = text:sub(lead):gsub("[%.%!%?%s]+$", "")
+  local best
+  local run = { items[1] }
+  local function close()
+    if #run >= 2 and (not best or #run > #best) then
+      local span = run[#run].e - run[1].s + 1
+      if span >= 0.5 * #body then best = run end
+    end
+  end
+  for i = 2, #items do
+    local a, b = items[i - 1], items[i]
+    local between = text:sub(a.e + 1, b.s - 1):lower()
+    if between:match("^[%s,;&]*$") and between:find("[,;&]") or between:match("^[%s,]*and[%s,]*$") or between:match("^[%s,]*or[%s,]*$") or between:match("^[%s,]*as well as[%s,]*$") then
+      run[#run + 1] = b
+    else close(); run = { b } end
+  end
+  close()
+  return best
+end
+
+function M:note_enumeration(members)
+  for i, m in ipairs(members) do
+    local list = self.artifacts["entity"]
+    if not list then list = {}; self.artifacts["entity"] = list end
+    list[#list + 1] = { class = "entity", ordinal = i, label = m.text, text = m.text, turn = self.turn, speaker = self.speaker, key = m.key, etype = m.type, size = #members }
+  end
+end
+
+-- the member of the latest entity enumeration an ordinal ("second", 2) or "last" / "first" refers to
+function M:find_entity_ordinal(ordinal)
+  local list = self.artifacts["entity"] or {}
+  local latest = -1
+  for _, a in ipairs(list) do if a.turn > latest then latest = a.turn end end
+  local members = {}
+  for _, a in ipairs(list) do if a.turn == latest then members[#members + 1] = a end end
+  table.sort(members, function(x, y) return x.ordinal < y.ordinal end)
+  if #members == 0 then return nil, 0 end
+  if ordinal == "last" then return members[#members], #members end
+  return members[tonumber(ordinal)], #members
+end
+
 function M:find_artifact(class, ordinal, label_word)
   local list = self.artifacts[class] or {}
   if ordinal then
@@ -10587,6 +14031,19 @@ function M:slot_state(slot)
   local s = self.slots[slot]
   if not s then s = { active = nil, history = {} }; self.slots[slot] = s end
   return s
+end
+
+-- The slot of the most recent standing user instruction whose value is of the given kind ("year" / "word") within the last few turns: a bare
+-- corrected value ("Sorry, I meant 2023.") replaces the value of that slot.
+function M:recent_slot(value_kind, max_turns)
+  for i = #self.order, 1, -1 do
+    local it = self.items[self.order[i]]
+    if it and it.slot and it.speaker == "user" and (it.kind == "instruction" or it.kind == "correction") and it.status == "active" then
+      if it.turn < (self.turn or 0) - (max_turns or 4) then return nil end
+      if it.value_kind == value_kind then return it.slot end
+    end
+  end
+  return nil
 end
 
 function M:supersede(old_id, by, reason)
@@ -10676,10 +14133,15 @@ function M:observe_sentence(interp, meta)
     local ten = topic and self.entities[topic]
     if topic and speaker == "user" and not (ten and ten.weak) then self.focus = { key = topic, turn = self.turn, text = ttext } end
   end
+  -- the last relational question the user asked: elliptical follow-ups ("What about Jupiter?", "Same question for Y", "Sorry, I meant Z") re-ask it about another argument
+  if speaker == "user" and interp.intent == "factual_lookup" and interp.relation and interp.query and interp.query.known_role and interp.query.ask
+    and (interp.speech_act == "question" or interp.speech_act == "request") and not meta.hedged then
+    self.last_query = { rel = interp.relation.id, known_role = interp.query.known_role, ask = interp.query.ask, answer_type = interp.query.answer_type, turn = self.turn, text = text }
+  end
   if interp.intent == "comparison" and interp.items then
     local ks = {}
     for _, it in ipairs(interp.items) do local k = ref_key(it); if k then ks[#ks + 1] = k end end
-    if #ks >= 2 then self.comparison = { keys = ks, turn = self.turn, dimension = interp.dimension } end
+    if #ks >= 2 then self.comparison = { keys = ks, turn = self.turn, dimension = interp.dimension, rel = interp.relation and interp.relation.id } end
   end
   local created
   -- standing instructions / prohibitions / preferences ----------------------------------------------------------------
@@ -10695,7 +14157,8 @@ function M:observe_sentence(interp, meta)
     elseif ins.slot then
       local value = value_of(ins)
       local item = { layer = "task", kind = ins.correction and "correction" or "instruction", text = text, entities = keys, speaker = speaker, slot = ins.slot,
-        value = value, value_label = ins.value and ins.value.label, standing = not meta.scoped, persist = ins.persist, correction = ins.correction, verb = ins.verb }
+        value = value, value_label = ins.value and ins.value.label, value_kind = ins.value and ((ins.value.year and "year") or (ins.value.word and "word") or nil),
+        standing = not meta.scoped, persist = ins.persist, correction = ins.correction, verb = ins.verb }
       created = self:add(item)
       local st = self:slot_state(ins.slot)
       if st.active and self.items[st.active] and not meta.additive then
@@ -10728,7 +14191,7 @@ function M:observe_sentence(interp, meta)
   -- semantic memory: relational assertions, hedges kept speculative ---------------------------------------------------------
   if interp.intent == "statement" and interp.relation and interp.roles and (interp.roles.from or interp.roles.to) then
     created = self:add({ layer = "semantic", kind = "fact", text = text, entities = keys, speaker = speaker, rel = interp.relation.id,
-      from = ref_key(interp.roles.from), to = ref_key(interp.roles.to), polarity = interp.polarity,
+      from = fact_key(interp.roles.from, speaker), to = fact_key(interp.roles.to, speaker), polarity = interp.polarity,
       status = meta.hedged and "speculative" or "active", reliability = (meta.hedged and 0.3 or nil) })
     local fk = tostring(created.rel) .. "|" .. tostring(created.from)
     if not meta.hedged and created.from then
@@ -10789,6 +14252,8 @@ local function query_terms(interp)
     if e.ref.antecedent then add(e.ref.antecedent.text) end
   end
   if interp.relation then add(interp.relation.label) end
+  -- no semantic reading (or none that names anything): the content words of the sentence itself are the only evidence of what it is about
+  if (#terms == 0 or interp.status ~= "ok") and interp.sentence and interp.sentence.text then add(interp.sentence.text) end
   return terms
 end
 
@@ -10840,6 +14305,18 @@ function M:select(interp, opts)
     else
       local st, so, f = 0, 0, {}   -- structural evidence (identity, standing constraints, typed references) vs soft evidence (recency, words)
       if it.kind == "decision" and opts.decision_ref then st = st + 1.5; f.decision_reference = true end
+      -- a question that shares at least two content words with a recorded decision is asking about what that decision settled ("what is the billing service running on?")
+      if it.kind == "decision" and not f.decision_reference and (interp.speech_act == "question" or interp.speech_act == "request") then
+        local shared_t = 0
+        for _, t in ipairs(terms) do if (self.index.terms[t] or {})[it.id] then shared_t = shared_t + 1 end end
+        if shared_t >= 2 then st = st + 1.0; f.decision_subject_overlap = shared_t end
+      end
+      -- "What did I say my dog was called?": a request to recall an earlier statement is linked to the statement that repeats at least two of its content words
+      if interp.intent == "conversation_recall" and it.turn < self.turn and (it.kind == "utterance" or it.kind == "fact" or it.kind == "decision") then
+        local shared_t = 0
+        for _, t in ipairs(terms) do if not RECALL_FRAME[t] and (self.index.terms[t] or {})[it.id] then shared_t = shared_t + 1 end end
+        if shared_t >= 2 then st = st + 1.0; f.recall_overlap = shared_t end
+      end
       if it.kind == "instruction" or it.kind == "correction" or it.kind == "preference" then
         if self:slot_applicable(it.slot or "any", interp) or (not it.slot and it.kind == "preference") then
           st = st + (it.standing and 3.0 or 2.0); f.standing_constraint = true
@@ -10886,11 +14363,11 @@ function M:select(interp, opts)
 end
 
 -- the standing constraints that are in force for this request (slot-keyed values, exclusions, preferences), with provenance
-function M:active_constraints(interp)
+function M:active_constraints(interp, opts)
   local out = {}
   for slot, st in pairs(self.slots) do
     local it = st.active and self.items[st.active]
-    if it and it.status == "active" and self:slot_applicable(slot, interp) then
+    if it and it.status == "active" and ((opts and opts.all) or self:slot_applicable(slot, interp)) then
       out[#out + 1] = { kind = it.kind, slot = slot, value = it.value, label = it.value_label, item = it.id, turn = it.turn, text = it.text, standing = it.standing or false,
         supersedes = it.supersedes, correction = it.correction or false }
     end
@@ -10923,7 +14400,9 @@ function M:classify_dependency(interp, coref)
   end
   -- dependencies no resolver looked at (e.g. coreference switched off) stay unresolved rather than silently self-contained
   for _, d in ipairs(interp.dependencies or {}) do
-    if d.kind == "conversation_history" then
+    if d.kind == "previous_question" then
+      if (self.turn - (d.turn or self.turn)) <= 2 then add("recent_message") else add("earlier_project_context") end
+    elseif d.kind == "conversation_history" then
       if coref and coref.recall_found then add("earlier_project_context") else add("ambiguous_missing_context"); unresolved = true end
     elseif not covered[d.text] and d.kind ~= "comparison_set" then add("ambiguous_missing_context"); unresolved = true end
   end
@@ -11027,7 +14506,8 @@ function M:serialize()
     items[#items + 1] = it
   end
   local body = { schema = M.SCHEMA, ns = self.ns, turn = self.turn, revision = self.revision, next_id = self.next_id, items = items,
-    entities = self.entities, slots = self.slots, focus = self.focus, comparison = self.comparison, artifacts = self.artifacts, evictions = self.evictions }
+    entities = self.entities, slots = self.slots, focus = self.focus, comparison = self.comparison, artifacts = self.artifacts, evictions = self.evictions,
+    last_query = self.last_query }
   local json = U.json_encode(body, { nan_null = true })
   return U.json_encode({ meta = { schema = M.SCHEMA, sha256 = U.sha256(json), bytes = #json }, body = U.json_decode(json) })
 end
@@ -11045,6 +14525,7 @@ function M.deserialize(s, opts)
   self.turn, self.revision, self.next_id = b.turn, b.revision, b.next_id
   self.entities, self.slots, self.focus, self.comparison = b.entities or {}, b.slots or {}, b.focus, b.comparison
   self.artifacts, self.evictions = b.artifacts or {}, b.evictions or {}
+  self.last_query = b.last_query
   for _, it in ipairs(b.items or {}) do
     self.items[it.id] = it
     self.order[#self.order + 1] = it.id
@@ -11234,9 +14715,30 @@ function M.adj_forms(lemma)
 end
 
 -- Conservative suffix guesses for words that are NOT in the lexicon. Returns candidates {lemma, pos, feat, conf}.
+-- irregular past / participle forms -> their lemma (for words the lexicon does not know: "held", "led", "built")
+local IRREG_REV
+local function irreg_rev()
+  if IRREG_REV then return IRREG_REV end
+  IRREG_REV = {}
+  for k, forms in pairs(IRREG_VERB) do
+    local base = norm_key(k)
+    if base ~= "be" and base ~= "have" and base ~= "do" then
+      for fi, feat in ipairs({ "past", "pp" }) do
+        local f = forms[fi]
+        if type(f) == "string" and f ~= base then
+          IRREG_REV[f] = IRREG_REV[f] or {}
+          IRREG_REV[f][#IRREG_REV[f] + 1] = { lemma = base, feat = feat }
+        end
+      end
+    end
+  end
+  return IRREG_REV
+end
+
 function M.guess(form)
   local out = {}
   local function add(l, pos, feat, conf) out[#out + 1] = { lemma = l, pos = pos, feat = feat, conf = conf } end
+  for _, r in ipairs(irreg_rev()[form] or {}) do add(r.lemma, "verb", r.feat, 0.6) end
   if #form >= 5 and form:find("ing$") then
     local stem = form:sub(1, -4)
     add(stem, "verb", "ing", 0.5)
@@ -11624,7 +15126,28 @@ local function merge_copula_like(S, spans)
         merged = { i = sp.i, j = nx.j, kind = "word", readings = {}, text = sp.text .. " " .. nx.text, copula_like = true, past = past, score = sp.score }
       end
     end
-    if merged then out[#out + 1] = merged; i = i + 2
+    if merged then
+      -- "has served as", "was serving as", "has been serving as", "will serve as": the auxiliaries right before the copula-like verb join its chunk
+      for _ = 1, 2 do
+        local pv = out[#out]
+        if pv and pv.copula_like and pv.i ~= pv.j and not units[merged.i].pre then      -- an already merged "has been"
+          merged.i = pv.i; merged.text = pv.text .. " " .. merged.text
+          merged.past = merged.past or pv.past; merged.future = merged.future or pv.future
+          out[#out] = nil
+          break
+        end
+        local pu = pv and pv.i == pv.j and units[pv.i]
+        if not (pu and pu.kind == "word" and not units[merged.i].pre) then break end
+        local f = pu.form
+        if f == "has" or f == "have" or f == "had" or f == "been" or f == "is" or f == "are" or f == "was" or f == "were" or f == "will" or f == "shall" then
+          merged.i = pv.i
+          merged.text = pv.text .. " " .. merged.text
+          if f == "was" or f == "were" or f == "had" then merged.past = true end
+          if f == "will" or f == "shall" then merged.future = true end
+          out[#out] = nil
+        else break end
+      end
+      out[#out + 1] = merged; i = i + 2
     else
       -- "(has been) designated (as) the capital", "is (widely) known as", "was named the CEO": a be-participle that introduces a noun phrase is a copula;
       -- "is said to be the capital": a raising participle + "to be" is a (possibly hedged) copula;  "became the capital": an inchoative copula
@@ -11679,6 +15202,18 @@ local function merge_copula_like(S, spans)
           goto continue
         end
       end
+      -- "will be the CEO of X": a future auxiliary + "be" that introduces a noun phrase is one (future) copula chunk
+      if cl and cl.modal and (u.form == "will" or u.form == "shall") and nx and nx.i == nx.j and units[nx.i].form == "be" and not units[nx.i].pre and after then
+        local fu = units[after.i]
+        local fcl = fu and lex:cats(fu.form) or {}
+        local verbish = false
+        for _, r in ipairs(fu and lex:readings(fu.form) or {}) do if r.pos == "verb" and (r.feat == "past" or r.feat == "pp" or r.feat == "ing") then verbish = true end end
+        if fu and not fu.pre and fu.kind ~= "punct" and not fcl.prep and not verbish and not fcl.neg_word and not fcl.adv then
+          out[#out + 1] = { i = sp.i, j = nx.j, kind = "word", readings = {}, text = sp.text .. " " .. nx.text, copula_like = true, past = false, future = true, score = sp.score }
+          i = i + 2
+          goto continue
+        end
+      end
       if cl and cl.copula_become and not units[sp.i].pre and nx then
         local nu = units[nx.i]
         if nu and not nu.pre and nu.kind ~= "punct" and not (lex:cats(nu.form) or {}).prep then
@@ -11721,7 +15256,7 @@ function P.make_chunks(S, cover)
     if sp.copula_like then
       -- one copula chunk; its proxy unit reads "is"/"was" so every frame that tests for the copula accepts it, while offsets stay those of the surface words
       c.single, c.copula_like = true, true
-      c.hedged, c.onset = sp.hedged, sp.onset
+      c.hedged, c.onset, c.future = sp.hedged, sp.onset, sp.future
       c.unit = setmetatable({ form = sp.past and "was" or "is", surface_form = c.form }, { __index = u })
       c.cats = lex:cats("is") or {}
     end
@@ -11891,6 +15426,13 @@ local function nclass(S, c, in_np)
   if c.single and not next(f) then
     local cats = c.cats
     if cats.pron or cats.pron_dem or cats.pron_indef or cats.pron_poss or cats.pron_refl then f.pron = true end
+    -- "live there", "born there": the locative pro-form stands for a place mentioned earlier; after a form of be / have / a modal or at the start
+    -- of the clause it is the existential "there" ("Is there a ...", "There are ...") and no pronoun
+    if cats.pron_loc then
+      local pv = S.chunks[(c.idx or 0) - 1]
+      local pc = pv and pv.cats
+      if pv and (c.idx or 0) > S.first and not (pc and (pc.aux_be or pc.aux_have or pc.aux_do or pc.modal or pc.wh or pc.neg_word or pc.conj)) and not pv.pre then f.pron = true end
+    end
     if cats.poss_det then f.poss_det = true end
     local closed = cats.det or cats.prep or cats.conj or cats.wh or cats.aux_be or cats.aux_do or cats.aux_have or cats.modal or cats.polite
       or cats.neg_word or cats.clitic_s or cats.adv or cats.particle or f.pron or f.poss_det
@@ -12054,11 +15596,17 @@ local PARTICIPLE_PREP = U.set({ "in", "by", "throughout", "across", "within", "a
 local POSS_PRON = { its = "it", his = "he", her = "she", their = "they" }
 
 -- an unknown head noun with an entity argument ("the mascot of Zorbland", "Zorbland's mascot") may name an OPEN relation
-local function open_relnoun_alt(np, arg)
+local function open_relnoun_alt(S, np, arg)
   if np.head_kind ~= "unknown" or not np.head or not np.head.single or np.from_verb then return nil end
   if arg.head_kind ~= "entity" then return nil end
   local w = np.head.unit.form
   if #w < 3 or not w:match("^%a+$") then return nil end
+  -- a word the lexicon already knows as a relational noun ("members", "founders") has its KNOWN relation: an open relation of the same name would only compete with it
+  for _, m in ipairs(S.lex:match_at(S.units, np.head.u1)) do
+    if m.j == np.head.u2 then
+      for _, e in ipairs(m.entries) do if e.kind == "relnoun" then return nil end end
+    end
+  end
   local lemma = w
   if lemma:match("s$") and not lemma:match("ss$") and #lemma > 3 then lemma = lemma:sub(1, -2) end
   lemma = lemma:gsub("e$", "")
@@ -12070,10 +15618,56 @@ local function open_relnoun_alt(np, arg)
 end
 
 -- core NP (no possessor): [det|poss] modifiers* head [of-complement] [back-reference]
+-- "the post of chief executive at X", "the position of prime minister in Y": the post noun adds nothing; the role noun after "of" is read as its own post noun
+local ROLE_POST = U.set({ "post", "position", "role", "job", "office", "seat", "title", "chair", "mantle" })
+local DESCR_HEAD = U.set({ "dirt", "scoop", "lowdown", "skinny", "rundown", "background", "profile", "bio", "biography", "facts", "info", "information", "details", "data", "snapshot",
+  "primer", "introduction", "description", "story", "word" })
+local DESCR_PREP = U.set({ "on", "about", "regarding", "concerning", "of", "to", "with" })
+local MEASURE_NOUN = U.set({ "figure", "figures", "number", "numbers", "value", "values", "amount", "amounts", "total", "totals", "statistic", "statistics", "stat", "stats", "count", "counts" })
+local LOCATIVE_HOLDER_PREP = U.set({ "in", "throughout", "across", "within" })
+local STATUS_HEAD = U.set({ "status", "distinction", "honour", "honor", "rank", "designation", "label", "standing", "function", "role" })
+local NAMING = U.set({ "called", "named", "dubbed", "titled", "christened", "termed", "labelled", "labeled" })
 local function parse_np_core(S, k, opts)
   local out = {}
   local c = C(S, k)
   if not c or c.masked then return out end
+  -- "the second one", "the third", "the last one", "the former": an ordinal reference to a member of the latest list in the conversation
+  -- (only offered when the conversation holds such a list; an ordinal followed by a nominal -- "the second solution" -- is an ordinary modifier)
+  do
+    local dm = S.ctx and S.ctx.discourse and S.ctx.discourse.mem
+    if dm and dm.artifacts and dm.artifacts.entity and #dm.artifacts.entity > 0 then
+      local k1, dc = k, nil
+      if c.single and cat(c, "det") and c.unit.form == "the" then dc = c; k1 = k + 1 end
+      local oc = C(S, k1)
+      local ord
+      if dc and oc and oc.single and not oc.masked and not barrier(oc) then
+        if oc.unit.ordinal then ord = oc.unit.ordinal
+        elseif oc.number and oc.number.kind == "ordinal" then ord = oc.number.value
+        elseif oc.unit.form == "last" or oc.unit.form == "latter" then ord = "last"
+        elseif oc.unit.form == "former" then ord = 1 end
+      end
+      if ord then
+        local nk = k1 + 1
+        local oc2 = C(S, nk)
+        if oc2 and oc2.single and not oc2.masked and not barrier(oc2) and (oc2.unit.form == "one" or oc2.unit.form == "ones") then nk = nk + 1 end
+        local nominal = false
+        local nxt = C(S, nk)
+        if nxt and not nxt.masked and not barrier(nxt) then
+          local nn = nclass(S, nxt, true)
+          if nn and (nn.sense or nn.relnoun or nn.entity or nn.number or nn.temporal) then nominal = true end
+        end
+        if not nominal then
+          local np = new_np(dc)
+          local lastc = C(S, nk - 1)
+          np.head_kind, np.head, np.ordinal, np.det = "ordinal_ref", oc, ord, "the"
+          np.hchunk_idx = oc.idx
+          np.u2, np.c2, np.nxt, np.score = lastc.u2, lastc.idx, nk, 0.9
+          out[#out + 1] = np
+          return out
+        end
+      end
+    end
+  end
   local j = k
   local det, poss_det
   local c0 = c
@@ -12112,7 +15706,21 @@ local function parse_np_core(S, k, opts)
       local ncn = nn and not barrier(nn) and nclass(S, nn, true)
       if ncn and not ncn.pron then m = m + 1; goto continue_run end
     end
-    local nc = nclass(S, cm, (m > j) or det ~= nil or poss_det ~= nil)
+    local np_ctx = (m > j) or det ~= nil or poss_det ~= nil
+    -- "Find DESIGN studios", "RESEARCH labs", "CLEANING services": a verb-form word that opens a bare noun phrase is a compound-noun modifier when a noun follows it
+    if not np_ctx then
+      -- an imperative / speech-act verb ("define", "find", "list") opens a clause, not a compound noun
+      local acty = false
+      for _, v in ipairs(cm.verbs or {}) do if v.act then acty = true end end
+      local nx = (not acty) and C(S, m + 1) or nil
+      if nx and not nx.masked and not barrier(nx) then
+        local nn = nclass(S, nx, true)
+        if nn and (nn.sense or nn.unknown or nn.relnoun) and not nn.from_verb and not nn.pron and not nn.adj then np_ctx = true end
+      end
+    end
+    -- a spoken filler ("Hanoi lol", "Paris btw") never belongs to a noun phrase
+    if m > j and cm.single and cat(cm, "filler") then break end
+    local nc = nclass(S, cm, np_ctx)
     if not nc then break end
     if nc.pron and not nc.entity and not nc.sense then break end
     -- a verb form right after a head noun starts a participial/relative clause ("companies hiring interns"); it is only a
@@ -12129,6 +15737,12 @@ local function parse_np_core(S, k, opts)
     ::continue_run::
   end
   if #run == 0 then return out end
+  -- "the revenue FIGURE for X", "the population NUMBER of Y": a measure noun after a relational noun adds nothing; the noun phrase absorbs it
+  local absorbed
+  if #run >= 2 then
+    local lastc = run[#run].c
+    if lastc.single and MEASURE_NOUN[lastc.unit.form] and run[#run - 1].cl.relnoun then absorbed = lastc; run[#run] = nil end
+  end
   -- candidate head positions: last head-capable element first, then shorter prefixes (so "Acme pioneered automation"
   -- can still be split as NP + verb + NP by the frames); each truncation is penalised
   local function head_capable(cl)
@@ -12140,6 +15754,19 @@ local function parse_np_core(S, k, opts)
     if #heads >= 3 then break end
   end
   if #heads == 0 then return out end
+  -- "firms OFFERING carbon accounting software", "startups SEEKING funding": a head noun directly followed by a participial verb form may end the noun phrase there
+  for hi_ = #run - 1, 1, -1 do
+    if head_capable(run[hi_].cl) and not run[hi_].cl.entity and not run[hi_].cl.number and not run[hi_].cl.temporal then
+      local nxtc = run[hi_ + 1].c
+      local part = false
+      if nxtc.single then for _, a in ipairs(P.verb_analyses(S, nxtc)) do if a.form == "ing" or a.form == "pp" then part = true end end end
+      if part then
+        local already = false
+        for _, x in ipairs(heads) do if x == hi_ then already = true end end
+        if not already then heads[#heads + 1] = hi_ end
+      end
+    end
+  end
   for hn, hi in ipairs(heads) do
   local head = run[hi]
   local after = j + hi -- chunk index after head
@@ -12174,6 +15801,7 @@ local function parse_np_core(S, k, opts)
     end
     np.u2 = head.c.u2; np.c2 = head.c.idx
     np.nxt = after
+    if absorbed and hi == #run then np.u2, np.c2, np.nxt = absorbed.u2, absorbed.idx, after + 1 end
     return np
   end
   local kinds = {}
@@ -12249,7 +15877,18 @@ local function parse_np_core(S, k, opts)
   for _, np in ipairs(out) do
     local alts = { np }
     local nx = C(S, np.nxt)
-    if nx and nx.single and (nx.unit.form == "of" or ((nx.unit.form == "at" or nx.unit.form == "for") and np.head_kind == "relnoun")) and not nx.masked and not barrier(nx) and not opts.no_of then
+    local role_head = false
+    -- "the prime minister IN Spain", "the currency IN Tavoria", "legal tender THROUGHOUT Tavoria": a post / territory-valued noun takes a locative holder
+    if np.head_kind == "relnoun" and nx and nx.single and LOCATIVE_HOLDER_PREP[nx.unit.form] then
+      for _, e in ipairs(np.relnouns or {}) do
+        local r = S.lex:get_rel(e.rel)
+        if r and e.role == "to" then
+          if r.role_nouns and #r.role_nouns > 0 then role_head = true
+          elseif S.lex:compat("country", r.from) >= 0.9 then role_head = true end
+        end
+      end
+    end
+    if nx and nx.single and (nx.unit.form == "of" or ((nx.unit.form == "at" or nx.unit.form == "for") and np.head_kind == "relnoun") or role_head) and not nx.masked and not barrier(nx) and not opts.no_of then
       local subs = parse_np(S, np.nxt + 1, { depth = (opts.depth or 0) + 1 })
       if (opts.depth or 0) < 3 then
         for si = 1, math.min(#subs, 2) do
@@ -12260,7 +15899,7 @@ local function parse_np_core(S, k, opts)
           cp.u2 = sub.u2; cp.c2 = sub.c2
           cp.score = np.score + sub.score * 0.3
           alts[#alts + 1] = cp
-          local ocp = open_relnoun_alt(cp, sub)
+          local ocp = open_relnoun_alt(S, cp, sub)
           if ocp then ocp.score = cp.score - 0.2; alts[#alts + 1] = ocp end
         end
       end
@@ -12295,6 +15934,26 @@ local function parse_np_core(S, k, opts)
       cp.score = sub.score + 0.45
       alts[#alts + 1] = cp
     end
+    -- "the country called Tavoria", "the company named Zorvex", "the firm known as Acme": a type noun + a naming participle + a proper name denotes the named entity
+    if np.head_kind == "typenoun" and not np.plural and nx and nx.single and not nx.masked and not barrier(nx) then
+      local nk
+      if NAMING[nx.unit.form] then nk = np.nxt + 1
+      elseif nx.unit.form == "known" then
+        local asc = C(S, np.nxt + 1)
+        if asc and asc.single and not asc.masked and not barrier(asc) and asc.unit.form == "as" then nk = np.nxt + 2 end
+      end
+      if nk then
+        for _, sub in ipairs(parse_np(S, nk, { no_of = true, depth = (opts.depth or 0) + 1 })) do
+          if sub.head_kind == "entity" or (sub.head_kind == "unknown" and sub.head and sub.head.cap) then
+            local cp = U.shallow(sub)
+            cp.u1, cp.c1 = np.u1, np.c1
+            cp.type_noun = np
+            cp.score = sub.score + 0.45
+            alts[#alts + 1] = cp
+          end
+        end
+      end
+    end
     for _, a in ipairs(alts) do
       local br, who = backref_at(S, a.nxt)
       if br then
@@ -12307,6 +15966,14 @@ local function parse_np_core(S, k, opts)
         final[#final + 1] = cp
       end
       final[#final + 1] = a
+      -- "this company", "that firm": a demonstrative + kind noun denotes something already in the conversation
+      if S.ctx and S.ctx.discourse and (a.det == "this" or a.det == "that") and a.head_kind == "typenoun" and not a.plural and not a.of_arg and not a.possessor and not a.backref
+        and not (S.ctx.flags and S.ctx.flags.no_coref) then
+        local cp = U.shallow(a)
+        cp.backref, cp.demonstrative = true, true
+        cp.score = a.score + 0.35
+        final[#final + 1] = cp
+      end
     end
   end
   -- a possessive determiner of the fronted-topic frame ("As for France, ITS capital ...") takes the topic as its argument
@@ -12343,7 +16010,39 @@ function parse_np(S, k, opts)
     local shift
     if ca and cb and cc and ca.single and cb.single and cc.single and cat(ca, "det") and TRANSPARENT_HEAD[cb.unit.form] and cc.unit.form == "of"
       and not ca.masked and not barrier(cb) and not barrier(cc) then shift = 3
-    elseif ca and cb and ca.single and cb.single and TRANSPARENT_HEAD[ca.unit.form] and cb.unit.form == "of" and not ca.masked and not barrier(cb) then shift = 2 end
+    elseif ca and cb and ca.single and cb.single and TRANSPARENT_HEAD[ca.unit.form] and cb.unit.form == "of" and not ca.masked and not barrier(cb) then shift = 2
+    -- "the dirt ON X", "the background ON X", "info ABOUT X", "an introduction TO X": a description noun with its own preposition adds nothing to the thing described
+    elseif ca and cb and cc and ca.single and cb.single and cc.single and cat(ca, "det") and DESCR_HEAD[cb.unit.form] and DESCR_PREP[cc.unit.form]
+      and not ca.masked and not barrier(cb) and not barrier(cc) then shift = 3
+    elseif ca and cb and ca.single and cb.single and DESCR_HEAD[ca.unit.form] and DESCR_PREP[cb.unit.form] and not ca.masked and not barrier(cb) then shift = 2 end
+    -- the post noun is transparent only over a ROLE noun ("the title of CEO"); "the title of the book" keeps "title" as its head
+    local role_shift
+    local any_relation = false
+    if not shift and ca and cb and cc and ca.single and cb.single and cc.single and cat(ca, "det") and (ROLE_POST[cb.unit.form] or STATUS_HEAD[cb.unit.form]) and cc.unit.form == "of"
+      and not ca.masked and not cb.masked and not barrier(cb) and not barrier(cc) then role_shift = 3; any_relation = STATUS_HEAD[cb.unit.form] and not ROLE_POST[cb.unit.form]
+    elseif not shift and ca and cb and ca.single and cb.single and (ROLE_POST[ca.unit.form] or STATUS_HEAD[ca.unit.form]) and cb.unit.form == "of" and not ca.masked and not barrier(cb) then
+      role_shift = 2; any_relation = STATUS_HEAD[ca.unit.form] and not ROLE_POST[ca.unit.form] end
+    if role_shift then
+      local subs = parse_np(S, k + role_shift, opts)
+      for si = 1, math.min(#subs, 3) do
+        local sub = subs[si]
+        if sub.head_kind == "relnoun" then
+          local entries = {}
+          for _, e in ipairs(sub.relnouns or {}) do
+            local r = S.lex:get_rel(e.rel)
+            if r and e.role == "to" and (any_relation or (r.role_nouns and #r.role_nouns > 0)) then local ce = U.shallow(e); ce.rolesuffix = true; entries[#entries + 1] = ce end
+          end
+          if #entries > 0 then
+            local cp = U.shallow(sub)
+            cp.c1, cp.u1 = ca.idx, ca.u1
+            cp.relnouns = entries
+            cp.transparent_head = true
+            cp.score = sub.score + 0.3
+            out[#out + 1] = cp
+          end
+        end
+      end
+    end
     if shift then
       local subs = parse_np(S, k + shift, opts)
       for si = 1, math.min(#subs, 4) do
@@ -12376,7 +16075,7 @@ function parse_np(S, k, opts)
           cp.u1, cp.c1 = a.u1, a.c1
           cp.score = b.score + a.score * 0.3 + 0.2
           out[#out + 1] = cp
-          local ocp = open_relnoun_alt(cp, a)
+          local ocp = open_relnoun_alt(S, cp, a)
           if ocp then ocp.score = cp.score - 0.2; out[#out + 1] = ocp end
         end
       end
@@ -12532,6 +16231,7 @@ end
 
 ---------------------------------------------------------------- wh-phrases
 local KIND_NOUN = U.set({ "kind", "type", "sort", "form" })
+local WH_INTENSIFIER = U.set({ "exactly", "precisely", "specifically", "actually", "even", "ever", "really" })
 
 -- a preposition fronted together with its wh-phrase ("In which city is X headquartered?", "By whom was X founded?", "To which country does P belong?")
 local PIED_PREP = U.set({ "in", "on", "at", "from", "to", "by", "with", "for", "of", "during", "under", "through", "into", "about", "against", "across" })
@@ -12580,6 +16280,10 @@ function P.parse_wh(S, k)
           if np.head_kind == "typenoun" or np.head_kind == "concept" or np.head_kind == "unknown" then
             local t = np.senses and np.senses[1] and np.senses[1].type
             out[#out + 1] = { wh = f, type = t, np = np, nxt = np.nxt, c1 = k, c2 = np.c2, u1 = c.u1, u2 = np.u2, plural = np.plural }
+            -- "What YEAR did X start?": a wh-noun of time asks the same thing as "When did X start?"
+            if t and np.head and np.head.single and (np.head.unit.form == "year" or np.head.unit.form == "date") and S.lex:isa(t, "time") then
+              out[#out + 1] = { wh = "when", adverbial = true, type = t, nxt = np.nxt, c1 = k, c2 = np.c2, u1 = c.u1, u2 = np.u2, from_noun = true }
+            end
           elseif np.head_kind == "relnoun" and not np.of_arg and not np.possessor and #np.mods == 0 then
             -- the wh-noun names the RELATION that is asked about ("What currency does X use?", "Which language is spoken in Y?"); it is not a known argument
             local e = np.relnouns[1]
@@ -12600,12 +16304,24 @@ function P.parse_wh(S, k)
         for _, np in ipairs(parse_np(S, k + 2, { no_of = true })) do
           out[#out + 1] = { wh = "how_" .. n1.unit.form, np = np, nxt = np.nxt, c1 = k, c2 = np.c2, u1 = c.u1, u2 = np.u2, plural = true }
         end
+        -- "How much does X cost?", "How much is X?": the quantity word stands alone (an auxiliary follows)
+        local a1 = C(S, k + 2)
+        if a1 and a1.single and not a1.masked and not barrier(a1) and (cat(a1, "aux_do") or cat(a1, "aux_be") or cat(a1, "aux_have") or cat(a1, "modal")) then
+          out[#out + 1] = { wh = "how_" .. n1.unit.form, bare = true, nxt = k + 2, c1 = k, c2 = k + 1, u1 = c.u1, u2 = n1.u2 }
+        end
       elseif n1 and n1.single and n1.adjs and n1.adjs[1] then
         out[#out + 1] = { wh = "how_adj", adj = n1.unit.form, dim = n1.adjs[1].dim, nxt = k + 2, c1 = k, c2 = k + 1, u1 = c.u1, u2 = n1.u2 }
       elseif n1 and n1.single and (n1.unit.form == "often" or n1.unit.form == "far" or n1.unit.form == "long") then
         out[#out + 1] = { wh = "how_adj", adj = n1.unit.form, nxt = k + 2, c1 = k, c2 = k + 1, u1 = c.u1, u2 = n1.u2 }
       end
       out[#out + 1] = { wh = "how", adverbial = true, nxt = k + 1, c1 = k, c2 = k, u1 = c.u1, u2 = c.u2 }
+    end
+  end
+  -- "who EXACTLY is the CEO of X?", "what precisely is Y?": an intensifier right after the wh-phrase adds nothing
+  for _, w in ipairs(out) do
+    while true do
+      local ic = C(S, w.nxt)
+      if ic and ic.single and not ic.masked and not barrier(ic) and WH_INTENSIFIER[ic.unit.form] then w.nxt = w.nxt + 1 else break end
     end
   end
   S.wh_memo[key] = out
@@ -12743,7 +16459,8 @@ function P.normalize_cleft(S)
       local rc = C(S, np.nxt)
       if rc and rc.single and not rc.masked and not barrier(rc) and (rc.unit.form == "who" or rc.unit.form == "that" or rc.unit.form == "which") then
         -- a subject cleft only: the relativizer must be followed by a verb phrase
-        if #P.parse_vp(S, np.nxt + 1) > 0 then
+        local vb = C(S, np.nxt + 1)
+        if #P.parse_vp(S, np.nxt + 1) > 0 or (vb and vb.single and not vb.masked and not barrier(vb) and cat(vb, "aux_be")) then   -- "It is Paris that SERVES AS the capital"
           remove_chunks(S, { [f] = true, [f + 1] = true, [np.nxt] = true })
           S.cleft = true
           return true
@@ -12791,6 +16508,86 @@ function P.normalize_cleft(S)
 end
 
 -- a wh-phrase left in place in a question ("Acme is headquartered in which city?") is fronted and the clause un-inverted ("In which city is Acme headquartered?")
+-- A declarative clause asked for confirmation is the yes/no question about it:
+--   "Is it true that Canberra is the capital of Australia?"   "Canberra is the capital of Australia, right?"   "Siemens has bought Brightwater, hasn't it?"
+-- The wrapper / tag is removed and, when the clause has a copula or a perfect auxiliary, the auxiliary moves to the front ("Is Canberra the capital of ...").
+function P.invert_declarative(S)
+  local f = S.first
+  for _, np1 in ipairs(P.parse_np(S, f)) do
+    local ac = C(S, np1.nxt)
+    if ac and ac.single and not ac.masked and not barrier(ac) and (cat(ac, "aux_be") or cat(ac, "aux_have") or cat(ac, "clitic_s")) and np1.nxt < S.last then
+      local new = {}
+      for i = 1, f - 1 do new[#new + 1] = S.chunks[i] end
+      new[#new + 1] = ac
+      for i = f, np1.nxt - 1 do new[#new + 1] = S.chunks[i] end
+      for i = np1.nxt + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+      for i, ch in ipairs(new) do ch.idx = i end
+      S.chunks, S.last = new, #new
+      S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+      S.inverted = true
+      return true
+    end
+  end
+  return false
+end
+
+function P.take_polar(S)
+  if S.polar or S.inverted then return false end
+  local f = S.first
+  local c = C(S, f)
+  if not c or c.masked then return false end
+  local opened, tagged = false, false
+  local n = S.lex:cue_at("polar_open", S.units, c.u1)
+  if n then
+    local k, consumed = f, 0
+    while k <= S.last and consumed < n do consumed = consumed + (C(S, k).u2 - C(S, k).u1 + 1); k = k + 1 end
+    if consumed == n and k <= S.last then S.first = k; opened = true end
+  end
+  -- a tag after the last comma: ", right?"  ", isn't it?"  ", correct?"
+  for p = S.last, S.first + 2, -1 do
+    local cp = C(S, p)
+    if cp and cp.pre and cp.pre:find("comma") then
+      local nt = S.lex:cue_at("polar_tag", S.units, cp.u1)
+      if nt then
+        local q, consumed = p, 0
+        while q <= S.last and consumed < nt do consumed = consumed + (C(S, q).u2 - C(S, q).u1 + 1); q = q + 1 end
+        if consumed == nt and q > S.last then
+          for i = S.last, p, -1 do table.remove(S.chunks, i) end
+          S.last = p - 1
+          S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+          tagged = true
+        end
+      end
+      break
+    end
+  end
+  -- an it-cleft question: "Was it Microsoft THAT bought LinkedIn?" asks whether "Microsoft bought LinkedIn"
+  if not opened and not tagged then
+    local f0 = S.first
+    local b0, it0 = C(S, f0), C(S, f0 + 1)
+    if b0 and it0 and b0.single and it0.single and not b0.masked and not it0.masked and cat(b0, "aux_be") and it0.unit.form == "it" and not barrier(it0) then
+      for _, np in ipairs(P.parse_np(S, f0 + 2)) do
+        local tc = C(S, np.nxt)
+        if tc and tc.single and not tc.masked and not barrier(tc) and (tc.unit.form == "that" or tc.unit.form == "who") and np.nxt < S.last then
+          local new = {}
+          for i = 1, f0 - 1 do new[#new + 1] = S.chunks[i] end
+          for i = np.c1, np.c2 do new[#new + 1] = S.chunks[i] end
+          for i = np.nxt + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+          for i, ch in ipairs(new) do ch.idx = i end
+          S.chunks, S.last = new, #new
+          S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+          S.polar = true
+          return true
+        end
+      end
+    end
+  end
+  if not (opened or tagged) then return false end
+  S.polar = true
+  P.invert_declarative(S)
+  return true
+end
+
 function P.front_insitu_wh(S)
   if not (S.sentence and S.sentence.question_mark) then return false end
   local f = S.first
@@ -12798,10 +16595,11 @@ function P.front_insitu_wh(S)
   if not c0 or #P.parse_wh(S, f) > 0 then return false end
   for p = f + 1, S.last do
     local cp = C(S, p)
-    if cp and cp.single and not cp.masked and cat(cp, "wh") and (cp.unit.form == "which" or cp.unit.form == "what") and not barrier(cp) then
+    if cp and cp.single and not cp.masked and cat(cp, "wh") and (cp.unit.form == "which" or cp.unit.form == "what" or cp.unit.form == "whom" or cp.unit.form == "who") and not barrier(cp) then
       local best
       for _, w in ipairs(P.parse_wh(S, p)) do if w.type and (not best or w.nxt > best.nxt) then best = w end end
-      if best then
+      -- truly in situ: the wh-phrase closes the sentence ("Kenya is on WHICH CONTINENT?"); after a clause break it is an ordinary fronted question ("..., but WHICH CONTINENT is Kenya in?")
+      if best and best.nxt > S.last and not (cp.pre and cp.pre:find("comma")) then
         local start = p
         local pc = C(S, p - 1)
         if pc and pc.single and cat(pc, "prep") and p - 1 >= f then start = p - 1 end
@@ -12967,6 +16765,73 @@ function P.front_temporal(S)
   return true
 end
 
+-- "Siemens vs Bosch: who has more employees?": a versus-pair opening the sentence names the items the question that follows is about.  The pair is recorded
+-- (S.vs_items) and S.first moves past the separator.
+local VS_WORDS = U.set({ "vs", "vs.", "versus", "v", "v.", "against" })
+function P.take_versus(S)
+  if S.vs_items then return false end
+  local f = S.first
+  for _, np1 in ipairs(P.parse_np(S, f, { no_of = true })) do
+    local vc = C(S, np1.nxt)
+    if vc and vc.single and not vc.masked and not barrier(vc) and VS_WORDS[vc.unit.form] then
+      for _, np2 in ipairs(P.parse_np(S, np1.nxt + 1, { no_of = true })) do
+        local sc = C(S, np2.nxt)
+        if sc and not sc.masked and sc.pre and (sc.pre:find("colon") or sc.pre:find("dash") or sc.pre:find("comma")) and np2.nxt <= S.last then
+          S.vs_items = { np1, np2 }
+          S.first = np2.nxt
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
+-- "What WILL the population of Nigeria BE in 2050?": the future auxiliary and the copula that closes the subject noun phrase read as one future copula in front of it
+-- ("What will be the population ...").  The copula chunk is cloned so every other chunk keeps its place; the clone carries the future flag.
+function P.uninvert_will_be(S)
+  local f = S.first
+  local w, m = C(S, f), C(S, f + 1)
+  if not (w and m and w.single and not w.masked and cat(w, "wh") and m.single and not m.masked and not barrier(m) and cat(m, "modal") and (m.unit.form == "will" or m.unit.form == "shall")) then return false end
+  for _, np in ipairs(P.parse_np(S, f + 2, { no_of = false })) do
+    local bc = C(S, np.nxt)
+    if bc and bc.single and not bc.masked and not barrier(bc) and bc.unit.form == "be" and np.nxt < S.last + 1 then
+      local clone = U.shallow(bc)
+      clone.unit = setmetatable({ form = "is", surface_form = "will be" }, { __index = bc.unit })
+      clone.cats = S.lex:cats("is") or bc.cats
+      clone.future = true
+      clone.copula_like = true
+      local new = {}
+      for i = 1, f do new[#new + 1] = S.chunks[i] end
+      new[#new + 1] = clone
+      for i = f + 2, np.nxt - 1 do new[#new + 1] = S.chunks[i] end
+      for i = np.nxt + 1, #S.chunks do new[#new + 1] = S.chunks[i] end
+      for i, ch in ipairs(new) do ch.idx = i end
+      S.chunks, S.last = new, #new
+      S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+      return true
+    end
+  end
+  return false
+end
+
+-- "Who currently is the CEO of X?" / "Who now serves as ...": a present-time adverb between the wh-word and the verb moves to the end of the clause,
+-- where the temporal analysis reads it exactly as in "Who is the CEO of X currently?".  Only chunk order changes (offsets stay).
+function P.mid_temporal(S)
+  local f = S.first
+  local w, t, v = C(S, f), C(S, f + 1), C(S, f + 2)
+  if not (w and t and v and w.single and not w.masked and cat(w, "wh") and t.single and not t.masked and t.temporal and t.temporal.kind == "marker") then return false end
+  if barrier(t) or barrier(v) or v.masked or f + 2 > S.last then return false end
+  local new = {}
+  for i = 1, f do new[#new + 1] = S.chunks[i] end
+  for i = f + 2, #S.chunks do new[#new + 1] = S.chunks[i] end
+  new[#new + 1] = t
+  for i, ch in ipairs(new) do ch.idx = i end
+  S.chunks = new
+  S.np_memo, S.vp_memo, S.wh_memo = {}, {}, {}
+  return true
+end
+
 ---------------------------------------------------------------- indirect questions
 -- "what [a quokka] is" -> "what is [a quokka]": the copula that closes (or precedes the participle of) an embedded wh-clause moves in front of the subject
 -- noun phrase.  Only the chunk ORDER changes -- chunks keep their unit offsets, so every span, quote and provenance record still points at the original text.
@@ -13088,8 +16953,10 @@ function P.strip_wrapper(S)
   end
   local n2 = (not progressed) and cue("request_open") or nil
   if n2 then
+    local seek = cue("seek_open")
     if skip_units(n2) then
       w.kinds[#w.kinds + 1] = "request_open"
+      w.seek = seek ~= nil      -- "Find me ...", "I'm looking for ...", "I need ...": the object is a thing to be found, not a thing to be defined
       progressed = true
       local c, c2 = C(S, k), C(S, k + 1)
       -- "I want to know X" / "I need to find X" / "I'd like to see X"
@@ -13132,8 +16999,12 @@ function P.strip_wrapper(S)
     end
   end
   S.first = k
+  P.take_versus(S)
   P.front_temporal(S)
+  P.mid_temporal(S)
+  P.uninvert_will_be(S)
   P.normalize_cleft(S)
+  P.take_polar(S)
   P.front_insitu_wh(S)
   w.first = S.first
   return S.first, w
@@ -14352,11 +18223,36 @@ local P = require("asi.nlu.parse")
 local Cons = require("asi.nlu.constraints")
 local H = require("asi.nlu.hyp")
 local F = require("asi.nlu.frames2")
+require("asi.nlu.frames3")   -- registers the stranded-preposition, quantity, list and support-verb yes/no frames on the same table
+require("asi.nlu.frames4")   -- attribution idioms, locus hosts, "where can I find", generic-subject holders
 
 local Sem = {}
 
-local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "yes_no", "wh_change", "compare_q",
-  "request", "instruction", "exclusion_clause", "focus", "statement", "np_only", "segment_only", "recall", "what_means" }
+-- A sentence that is not made of words: no alphabetic token is known to the lexicon (as a form or a name), none is capitalised, and most tokens are
+-- orthotactically impossible in English (no vowel, illegal onset).  Every reading of such a sentence is vetoed: the honest result is "no interpretation".
+function Sem.gibberish(S)
+  local Spell = require("asi.nlu.spell")
+  local lex, words, bad = S.lex, 0, 0
+  for k = S.first, S.last do
+    local c = S.chunks[k]
+    if c then
+      for i = c.u1, c.u2 do
+        local u = S.units[i]
+        if u and u.kind == "word" then
+          if u.cap or u.allcaps or u.script ~= "latin" then return false end
+          local f = u.lower or u.form
+          if lex:cats(f) or #lex:readings(f) > 0 or #lex:match_at(S.units, i) > 0 then return false end
+          words = words + 1
+          if Spell.nonword(f) then bad = bad + 1 end
+        elseif u and u.kind ~= "punct" and u.kind ~= "emoji" then return false end
+      end
+    end
+  end
+  return words >= 2 and bad >= 2 and bad * 2 >= words
+end
+
+local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_place_stranded_in", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "compare_dimension", "wh_impersonal", "wh_origin", "recall_turn", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
+  "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "which_filtered", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)
   local r = an._ranges
@@ -14390,6 +18286,11 @@ local function ref(S, np, depth)
       r.classifier = S.an.original:sub(S.units[first_mod.u1].s, S.units[np.head.u1 - 1].e)
       r.text = S.an.original:sub(S.units[np.head.u1].s, S.units[np.u2].e)
     end
+  end
+  -- "the country called Tavoria", "the city of Paris": the type noun classifies the name; the mention is the name itself
+  if np.type_noun and np.head and np.head.u1 > np.u1 and not r.classifier then
+    r.classifier = S.an.original:sub(S.units[np.u1].s, S.units[np.head.u1 - 1].e)
+    r.text = S.an.original:sub(S.units[np.head.u1].s, S.units[np.u2].e)
   end
   if np.head then r.head = np.head.form end
   r.core = P.core_text(S, np)
@@ -14427,7 +18328,11 @@ local function ref(S, np, depth)
     if b and b.discourse and b.status ~= "resolved" and not b.deictic then r.antecedent_reason = b.none_reason end
   end
   if np.backref then r.backref = true; r.needs_context = true; r.backref_who = np.backref_who end
+  if np.head_kind == "ordinal_ref" then r.ordinal_ref = true; r.needs_context = true end
   if np.det then r.det = np.det end
+  if np.poss_det then r.poss_det = np.poss_det end
+  -- "my employer": the relational noun and the role it names, so that a possessive reference can be resolved from what the speaker said about themselves
+  if np.head_kind == "relnoun" and np.relnouns and np.relnouns[1] and not np.relnouns[1].open then r.relnoun = { rel = np.relnouns[1].rel, role = np.relnouns[1].role } end
   if np.plural then r.plural = true end
   if np.superlative then r.superlative = np.superlative end
   if np.ordinal then r.ordinal = np.ordinal end
@@ -14445,8 +18350,119 @@ Sem.ref = ref
 
 ---------------------------------------------------------------- run
 Sem.SUFFIX_TRIGGER = 1.0
+-- Is the chunk at position p inside a clause that REPORTS what a third party said, wanted or taught ("The lecturer tells students TO SWITCH to the 2020 dataset",
+-- "The recipe says TO SKIP the garlic")?  A reporting verb (a communication verb, or one of REPORT_WORDS) in the same clause before p, with no first / second person
+-- subject in front of it, makes the clause a report; a clause boundary between the verb and p ends the report's scope ("..., but use the 2021 dataset").
+local function cat_of(c, name) return c ~= nil and c.cats ~= nil and c.cats[name] == true end
+local SPEAKER_WORDS = U.set({ "i", "we", "you", "let's", "lets", "please", "kindly" })
+local BOUNDARY_WORDS = U.set({ "but", "so", "and", "then", "because", "while", "whereas", "although", "though", "yet" })
+-- is byte offset `pos` of `text` inside a quotation ("...", '...', or curly quotes)?  An apostrophe between two letters is not a quotation mark.
+function Sem.in_quotes(text, pos)
+  local open = false
+  local i = 1
+  while i < pos do
+    local b = text:byte(i)
+    if b == 34 then open = not open; i = i + 1
+    elseif b == 39 then
+      local before, after = text:sub(i - 1, i - 1), text:sub(i + 1, i + 1)
+      if not (before:match("%a") and after:match("%a")) then open = not open end
+      i = i + 1
+    elseif b == 0xE2 and text:byte(i + 1) == 0x80 then
+      local t = text:byte(i + 2)
+      if t == 0x9C or t == 0x98 then open = true elseif t == 0x9D or t == 0x99 then
+        -- a closing curly single quote between letters is an apostrophe
+        local before, after = text:sub(i - 1, i - 1), text:sub(i + 3, i + 3)
+        if not (t == 0x99 and before:match("%a") and after:match("%a")) then open = false end
+      end
+      i = i + 3
+    else i = i + 1 end
+  end
+  return open
+end
+
+function Sem.reported_directive(S, p, lo)
+  p = p or S.last
+  lo = lo or S.first
+  local r
+  for k = p - 1, lo, -1 do
+    local c = S.chunks[k]
+    if not c then break end
+    if k < p - 1 and c.pre and (c.pre:find("comma") or c.pre:find("semi") or c.pre:find("colon") or c.pre:find("dash") or c.pre:find("sent")) then
+      -- the chunk right after a boundary may itself be the reporting verb's subject: keep scanning only when this chunk sits before the verb
+      if not r then return false end
+    end
+    if c.single and c.unit then
+      local f = c.unit.form
+      if not r and BOUNDARY_WORDS[f] then return false end
+      if not r then
+        local reports = Sem.REPORT_WORDS[f]
+        if not reports and c.verbs then for _, v in ipairs(c.verbs) do if v.act == "inform" or v.act == "discourse" then reports = true end end end
+        if reports and k > lo then r = k end
+      end
+    end
+    if r and k < r then
+      local c2 = S.chunks[k]
+      if c2.single and c2.unit and SPEAKER_WORDS[c2.unit.form] then return false end
+      if c2.pre and (c2.pre:find("comma") or c2.pre:find("semi") or c2.pre:find("colon") or c2.pre:find("dash") or c2.pre:find("sent")) then return true end
+    end
+  end
+  return r ~= nil
+end
+
+-- A sentence whose only directive content sits inside a clause that reports a third party's words ("The recipe says to skip the garlic, which seems odd to me.").
+-- The report verb needs a subject that is neither the speaker nor the addressee; the report's scope runs to the next clause boundary.
+local DIRECTIVE_ACTS = U.set({ "exclude", "include", "constraint", "task", "retrieve", "focus", "compare" })
+local function boundary_at(S, k)
+  local c = S.chunks[k]
+  if not c then return true end
+  if c.pre and (c.pre:find("comma") or c.pre:find("semi") or c.pre:find("colon") or c.pre:find("dash") or c.pre:find("sent")) then return true end
+  if c.single and c.unit and BOUNDARY_WORDS[c.unit.form] then return true end
+  return false
+end
+function Sem.report_only(S)
+  local lo, hi = S.first, S.last
+  -- find a reporting verb with a third-party subject
+  local clause_start = lo
+  for k = lo, hi do
+    if k > lo and boundary_at(S, k) then clause_start = k end
+    local c = S.chunks[k]
+    if c and c.single and c.unit and k > clause_start then
+      local f = c.unit.form
+      local reports = Sem.REPORT_WORDS[f]
+      if not reports and c.verbs then for _, v in ipairs(c.verbs) do if v.act == "inform" or v.act == "discourse" then reports = true end end end
+      if reports then
+        local speaker = false
+        for j = clause_start, k - 1 do
+          local cj = S.chunks[j]
+          if cj and cj.single and cj.unit and SPEAKER_WORDS[cj.unit.form] then speaker = true end
+        end
+        if not speaker then
+          -- scope of the report: up to the next boundary
+          local scope_hi = hi
+          for j = k + 1, hi do if boundary_at(S, j) then scope_hi = j - 1; break end end
+          -- a directive outside the report (before it, or after its clause) makes the sentence a genuine instruction
+          local outside = false
+          for j = lo, hi do
+            if j < clause_start or (j > scope_hi) or (j >= clause_start and j < k) then
+              local cj = S.chunks[j]
+              if cj and not cj.masked_for_report then
+                if cj.verbs then for _, v in ipairs(cj.verbs) do if DIRECTIVE_ACTS[v.act] then outside = true end end end
+                if cj.single and cj.unit and (cat_of(cj, "polite") or cj.unit.form == "never") then outside = true end
+              end
+            end
+          end
+          if not outside then return true end
+        end
+      end
+    end
+  end
+  return false
+end
+
 Sem.REPORT_WORDS = U.set({ "she", "he", "they", "someone", "somebody", "people", "told", "asked", "said", "says", "wants", "wanted", "suggested", "recommended", "thinks", "thought",
-  "claims", "claimed", "insists", "insisted", "advised", "reminded", "mentioned" })
+  "claims", "claimed", "insists", "insisted", "advised", "reminded", "mentioned", "tells", "tell", "asks", "ask", "suggests", "recommends", "advises", "instructs", "instructed",
+  "requires", "required", "demands", "demanded", "orders", "ordered", "urges", "urged", "teaches", "taught", "writes", "wrote", "states", "stated", "specifies", "specified",
+  "reads", "explains", "explained", "notes", "noted", "warns", "warned", "reckons", "reckoned" })
 Sem.WEAK_INTENTS = { definition = true, entity_description = true, statement = true, unknown = true, explanation = true }
 local SUFFIX_JOINERS = U.set({ "but", "so", "and", "then", "because", "that", "whether", "while", "though", "although" })
 -- chunk indices (after the sentence's first chunk) where a new clause may start: after a comma / colon / dash / semicolon, after a joiner, or after "to" before a verb
@@ -14502,8 +18518,30 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
       local fn = F[fname]
       if fn then fn(S, hyps) end
     end
+    -- a directive that a third party issued ("The recipe says to skip the garlic.", "My friend said to use the 2021 dataset.") is not an instruction to the system
+    if Sem.report_only(S) then
+      for _, h in ipairs(hyps) do
+        if h.speech_act == "instruction" or h.intent == "instruction_update" or h.instruction then
+          h.factors[#h.factors + 1] = { name = "reported_directive", v = -1.6, note = "the directive is reported from a third party; it is not an instruction to the system" }
+        end
+      end
+    end
+    -- a clause asked for confirmation ("..., right?", "Is it true that ...") whose reading is a relational statement is the verification of that statement
+    if S.polar then
+      for _, h in ipairs(hyps) do
+        if h.speech_act == "statement" and h.rel and h.rel_obj and h.roles and h.roles.from and h.roles.to and not h.verify then
+          h.speech_act, h.intent, h.op = "question", "verification", "verify"
+          h.requires_evidence = true
+          h.verify = { rel = h.rel, from = h.roles.from, to = h.roles.to }
+          h.items = (h.roles.from.u1 or 0) < (h.roles.to.u1 or 0) and { h.roles.from, h.roles.to } or { h.roles.to, h.roles.from }
+          h.factors[#h.factors + 1] = { name = "polar_confirmation", v = 0.3, note = "the clause is asked for confirmation (wrapper or tag question)" }
+        end
+      end
+    end
+    local gib = Sem.gibberish(S)
     for _, h in ipairs(hyps) do
       h.cover_index = ci
+      if gib then h.veto = h.veto or "the sentence is not made of words: no token is in the lexicon and most are orthotactically impossible in English" end
       if cover.repair then
         local cost = 0
         for _, r in ipairs(cover.repairs) do
@@ -14550,12 +18588,9 @@ function Sem.analyze_sentence(an, lat, lex, sent, ctx)
           if ck and not P.is_function_chunk(S2, ck) then S2.prefix_chunks[#S2.prefix_chunks + 1] = ck end
         end
         -- "She told me to switch to the 2021 edition": an instruction reported from a third party is not an instruction to the system
-        local reported_prefix = false
-        for k = S1.first, p - 1 do
-          local ck = S2.chunks[k]
-          local f = ck and ck.single and ck.unit and ck.unit.form
-          if f and Sem.REPORT_WORDS[f] then reported_prefix = true end
-        end
+        local reported_prefix = Sem.reported_directive(S2, p, S1.first)
+        -- a clause inside quotation marks ("'when in doubt, leave it out'") is quoted, not said to the system
+        if S1.chunks[p] and Sem.in_quotes(an.original, S1.units[S1.chunks[p].u1].s) then reported_prefix = true end
         local key = 100 + si
         states[key] = S2
         local _, wrapper = P.strip_wrapper(S2)
@@ -14635,6 +18670,8 @@ local function filter_to_constraint(S, f)
     return { kind = "geographic", prep = f.prep, value = ref(S, f.value), polarity = "positive" }
   elseif f.kind == "has" then
     return { kind = "has", value = ref(S, f.value), polarity = "positive" }
+  elseif f.kind == "numeric" then
+    return { kind = "numeric", relation = f.rel, op = f.op, value = f.value, value2 = f.value2, text = f.text, polarity = "positive" }
   end
   return { kind = f.kind }
 end
@@ -14695,6 +18732,8 @@ function Sem.render(res, ctx)
     -- the answer type is the narrower of the wh-type ("who" -> agent) and the relation's range type (person)
     local answer_type = top.wh_type or top.ask_type
     if top.wh_type and top.ask_type and S.lex:compat(top.ask_type, top.wh_type) >= 0.9 then answer_type = top.ask_type end
+    -- "How many moons does Neptune have?" asks for a NUMBER of moons, not for moons
+    if top.answer_form == "number" then answer_type = "number" end
     interp.query = { known_role = top.known_role, ask = top.ask, answer_type = answer_type, relation_answer_type = top.ask_type,
       answer_form = top.answer_form, dimension = top.dimension, count = top.count_target or nil }
     if top.wh then interp.query.wh = top.wh.wh end
@@ -14709,6 +18748,11 @@ function Sem.render(res, ctx)
     end
     if top.qualifier then interp.query.qualifier = { relation = top.qualifier.rel, role = top.qualifier.role, arg = ref(S, top.qualifier.np) } end
     if top.verify then interp.query.verify = { from = ref(S, top.verify.from), to = ref(S, top.verify.to) } end
+  end
+  -- a search for a typed set ("Find cities in Germany ...", "Which companies ...") asks for members of that type
+  if top.intent == "search" and top.target and not interp.query then
+    local ty = top.target.senses and top.target.senses[1] and top.target.senses[1].type or (top.target.bound and top.target.bound.type)
+    if ty then interp.query = { answer_type = ty, answer_form = "set" } end
   end
   if top.basis then interp.basis = ref(S, top.basis.np); interp.basis_cue = top.basis.cue end
   if top.recall then
@@ -14735,7 +18779,33 @@ function Sem.render(res, ctx)
   end
   -- constraints -------------------------------------------------------------
   local cons = { positive = {}, negative = {}, preferences = {}, restrictions = {}, temporal = {}, geographic = {}, source = {} }
-  for _, f in ipairs(top.filters or {}) do cons.positive[#cons.positive + 1] = filter_to_constraint(S, f) end
+  -- a NEGATED relative clause over a typed target ("companies that DON'T hire interns") excludes the members of the type that do: it is a negative constraint
+  local target_np = top.target
+  for _, f in ipairs(top.filters or {}) do
+    if f.kind == "relation" and f.polarity == "negative" and target_np and (target_np.head_kind == "typenoun" or target_np.head_kind == "concept") then
+      local pos = U.shallow(f); pos.polarity = "positive"
+      local ftext = S.an.original:sub(S.units[S.chunks[f.span.first].u1].s, S.units[S.chunks[f.span.last].u2].e)
+      local val = f.value
+      if val and (val.head_kind == "entity" or (val.head_kind == "unknown" and val.head and val.head.cap)) then
+        -- "universities that are not located in GERMANY": a named value is excluded as such (the relation stays recorded)
+        cons.negative[#cons.negative + 1] = { cue = "not", text = ftext, target = describe_target(Cons.describe_target(S, val)), applies_to = "result_set",
+          relation = f.rel, filters = { filter_to_constraint(S, pos) } }
+      else
+        cons.negative[#cons.negative + 1] = { cue = "not", text = ftext, target = describe_target(Cons.describe_target(S, target_np)), applies_to = "result_set",
+          filters = { filter_to_constraint(S, pos) } }
+      end
+    else
+      cons.positive[#cons.positive + 1] = filter_to_constraint(S, f)
+      -- "firms based in Eldermoor": a place-valued (locus) relation filter with a named place is a geographic restriction as well
+      if f.kind == "relation" and f.value and f.polarity ~= "negative" and (f.value.head_kind == "entity" or (f.value.head_kind == "unknown" and f.value.head and f.value.head.cap)) then
+        local frel = S.lex:get_rel(f.rel)
+        if frel and frel.locus and f.target_role == "from" then
+          local vr = ref(S, f.value)
+          cons.geographic[#cons.geographic + 1] = { prep = "relation:" .. frel.id, value = vr, text = vr.text, via_relation = frel.id }
+        end
+      end
+    end
+  end
   for _, t in ipairs(top.constraints.temporal or {}) do cons.temporal[#cons.temporal + 1] = t end
   for _, g in ipairs(top.constraints.geographic or {}) do cons.geographic[#cons.geographic + 1] = { prep = g.prep, value = ref(S, g.value), text = g.text } end
   for _, s in ipairs(top.constraints.source or {}) do cons.source[#cons.source + 1] = s end
@@ -14746,6 +18816,13 @@ function Sem.render(res, ctx)
     cons.negative[#cons.negative + 1] = { cue = n.cue, text = n.scope_text, target = describe_target(n.target), applies_to = applies,
       filters = U.map(n.target.filters or {}, function(f) return filter_to_constraint(S, f) end),
       inherits_scope = (top.op == "lookup" and n.target.scope == "description") and (top.roles[top.known_role] and ref(S, top.roles[top.known_role]).text) or nil }
+  end
+  -- "Which companies do NOT hire interns?": a negated predicate over a typed wh-noun excludes the members of that type who DO satisfy it
+  if top.op == "lookup" and top.polarity == "negative" and top.wh and top.wh.np and top.wh.type and top.known_role and top.roles and top.roles[top.known_role]
+    and (top.wh.np.head_kind == "typenoun" or top.wh.np.head_kind == "concept") and top.wh.np.plural then
+    local wn = top.wh.np
+    cons.negative[#cons.negative + 1] = { cue = "not", text = ref(S, wn).text, target = describe_target(Cons.describe_target(S, wn)), applies_to = "result_set",
+      filters = { filter_to_constraint(S, { kind = "relation", rel = top.rel, target_role = top.known_role, value = top.roles[top.known_role], polarity = "positive" }) } }
   end
   for _, n in ipairs(sc.preferences) do
     cons.preferences[#cons.preferences + 1] = { cue = n.cue, text = n.scope_text, target = describe_target(n.target),
@@ -14767,6 +18844,13 @@ function Sem.render(res, ctx)
   end
   interp.constraints = cons
   if top.ordering then interp.ordering = top.ordering end
+  -- a future copula chunk ("Who WILL BE the CEO ...?") marks the question as about the future when no explicit time expression says so
+  if not top.temporal_scope and #cons.temporal == 0 then
+    for k in pairs(top.used or {}) do
+      local ck = S.chunks[k]
+      if ck and ck.future then top.temporal_scope = "future"; break end
+    end
+  end
   interp.temporal_scope = top.temporal_scope or ((#cons.temporal == 0) and (top.op == "lookup" or top.op == "describe") and "current_unspecified") or nil
   -- grammatical tense of the question's own predicate ("was the capital" -> past); "did" is neutral
   do
@@ -14779,6 +18863,14 @@ function Sem.render(res, ctx)
       end
     end
     interp.tense = past and "past" or "present"
+    -- an explicit time expression plus a past-tense predicate ("was ... in 1998") puts the question in the past; a future copula ("will be ... in 2050") in the future
+    if not interp.temporal_scope and #cons.temporal > 0 then
+      local explicit = false
+      for _, t in ipairs(cons.temporal) do if t.role ~= "derived" and t.role ~= "label" and t.basis ~= "source_label" then explicit = true end end
+      local future = false
+      for k in pairs(top.used) do local ck = S.chunks[k]; if ck and ck.future then future = true end end
+      if explicit then interp.temporal_scope = future and "future" or (past and "past" or nil) end
+    end
   end
   interp.persist = top.persist or nil
   interp.unexplained = U.map(top.unexplained or {}, function(k) return S.chunks[k].text end)
@@ -14796,6 +18888,7 @@ function Sem.render(res, ctx)
   for _, np in pairs(top.roles) do scan_dep(np) end
   scan_dep(top.concept); scan_dep(top.subject); scan_dep(top.target); scan_dep(top.focus); scan_dep(top.object)
   if top.recall then deps[#deps + 1] = { kind = "conversation_history", text = interp.sentence.text } end
+  if top.ellipsis then deps[#deps + 1] = { kind = "previous_question", text = interp.sentence.text, turn = top.ellipsis.turn } end
   if top.basis then scan_dep(top.basis.np) end
   if top.intent == "comparison" and (not top.items or #top.items < 2) then deps[#deps + 1] = { kind = "comparison_set", text = interp.sentence.text } end
   for _, it in ipairs(top.items or {}) do scan_dep(it) end
@@ -14878,6 +18971,32 @@ end
 
 local function max_edit_for(n)
   if n < 4 then return 0 elseif n <= 7 then return 1 else return 2 end
+end
+
+-- Orthotactic plausibility of a lowercase ASCII token (English phonotactics, no word list): a word needs a vowel letter and must begin with a legal
+-- onset.  Used only to recognise sentences that are not made of words at all; a token that fails is "non-word-like", never "corrected".
+local ONSET2 = {}
+for _, o in ipairs({ "pl", "bl", "cl", "fl", "gl", "sl", "br", "cr", "dr", "fr", "gr", "pr", "tr", "wr", "sc", "sk", "sm", "sn", "sp", "st", "sw", "tw", "dw",
+  "kn", "gn", "ps", "pn", "pt", "mn", "ch", "sh", "th", "ph", "wh", "rh", "gh", "kh", "ts", "sv", "sf", "zh", "cz", "kl", "sch", "spl", "spr", "str", "scr",
+  "squ", "shr", "thr", "sph", "chr", "phr", "phl", "thw", "qu", "ks" }) do ONSET2[o] = true end
+
+local KEY_ROWS = { "qwertyuiop", "asdfghjkl", "zxcvbnm" }
+local function key_mash(form)
+  for _, row in ipairs(KEY_ROWS) do
+    for _, r in ipairs({ row, row:reverse() }) do
+      for i = 1, #form - 3 do if r:find(form:sub(i, i + 3), 1, true) then return true end end
+    end
+  end
+  return false
+end
+
+function Spell.nonword(form)
+  if type(form) ~= "string" or #form < 3 or form:find("[^a-z]") then return false end
+  if not form:find("[aeiouy]") or key_mash(form) then return true end
+  local onset = form:match("^([^aeiouy]+)")
+  if onset and #onset >= 2 and not ONSET2[onset] then return true end
+  if form:find("[^aeiouy][^aeiouy][^aeiouy][^aeiouy][^aeiouy][^aeiouy]") then return true end
+  return false
 end
 
 function Spell.new(opts)
@@ -15567,6 +19686,12 @@ function T.annotate(an, opts)
           ex = mkexpr(an, "marker", idx, (phrase2 == "going forward") and idx + 1 or idx + 2, { scope = "future", relative = "future", persist = phrase2 == "going forward" or nil })
         elseif phrase3 == "from now on" or phrase3 == "from here on" or phrase3 == "for the rest" or phrase3 == "until further notice" then
           ex = mkexpr(an, "persist", idx, idx + 2, { scope = "future", persist = true })
+        elseif w == "for" and (w2 == "all" or w2 == "every" or w2 == "each") and ((w3 == "my" and (fm(units, idx + 3) == "next" or fm(units, idx + 3) == "following" or fm(units, idx + 3) == "future" or fm(units, idx + 3) == "later") and fm(units, idx + 4))
+          or (w3 == "future" or w3 == "following" or w3 == "later" or w3 == "subsequent" or w3 == "next" or w3 == "question" or w3 == "request" or w3 == "answer" or w3 == "query")) then
+          -- "for all my next questions", "for every question", "for all future requests": a standing scope over the requests that follow
+          local last = (w3 == "my") and (idx + 4) or (idx + 2)
+          if w3 ~= "my" and (w3 == "future" or w3 == "following" or w3 == "later" or w3 == "subsequent" or w3 == "next") then last = idx + 3 end
+          ex = mkexpr(an, "persist", idx, last, { scope = "future", persist = true })
         elseif w == "henceforth" or w == "hereafter" or w == "henceforward" then
           ex = mkexpr(an, "persist", idx, idx, { scope = "future", persist = true })
         elseif w == "yesterday" or w == "today" or w == "tomorrow" then
@@ -17511,7 +21636,7 @@ type beverage < food
 type mythological_figure < entity
 type quantity < entity
 type number < quantity
-type money < quantity
+type money < number
 type time < entity
 type date < time
 type language < entity
@@ -17530,22 +21655,24 @@ class prep: according based owing due pursuant of in on at by for from to with w
 class conj: and or but nor yet so because although though while whereas if unless when whenever once as
 class pron: i me we us you he him she her it they them
 class pron_poss: mine ours yours hers theirs
+class pron_loc: there here
 class pron_refl: myself yourself himself herself itself ourselves themselves
-class discourse: anyway anyhow thanks thank okay ok alright well so yes yeah yep nope sure right hmm indeed however therefore moreover meanwhile finally hello hi hey sorry perhaps maybe honestly basically obviously clearly luckily unfortunately besides otherwise afterwards furthermore nevertheless nonetheless thus hence overall generally typically usually sometimes mostly mainly cheers great perfect awesome interesting
+class discourse: thx tks ty pls plz anyway anyhow thanks thank okay ok alright well so yes yeah yep nope sure right hmm indeed however therefore moreover meanwhile finally hello hi hey sorry perhaps maybe honestly basically obviously clearly luckily unfortunately besides otherwise afterwards furthermore nevertheless nonetheless thus hence overall generally typically usually sometimes mostly mainly cheers great perfect awesome interesting
 class pron_dem: this that these those
 class pron_indef: one ones someone somebody something anyone anybody anything everyone everybody everything nobody nothing none others
 class wh: what which who whom whose when where why how whether
 class aux_be: be is are was were been being am
 class aux_do: do does did
 class aux_have: have has had having
-class ignorable: please kindly just actually really basically literally honestly um uh uhm er erm hmm ah eh well so like okay ok anyway hey quite simply truly seriously totally definitely obviously clearly
+class filler: um uh uhm er erm umm uhh uhhh hmm lol lmao rofl haha hahaha hehe omg btw tbh imo fyi
+class ignorable: please kindly just actually really basically literally honestly um uh uhm er erm hmm ah eh well so like okay ok anyway hey quite simply truly seriously totally definitely obviously clearly umm uhh uhhh hm mm lol lmao rofl haha hahaha hehe omg btw tbh imo fyi roughly approximately around about
 class be_participle: designated named declared appointed chosen elected recognized recognised regarded considered known called deemed termed titled
 class copula_like: serve serves served serving function functions functioned functioning act acts acted acting stand stands stood standing
 class copula_become: become becomes became becoming
 class tasknoun: summary summaries overview overviews breakdown breakdowns rundown rundowns recap recaps analysis analyses digest digests synopsis synopses rollup rollups tally tallies assessment assessments evaluation evaluations review reviews
 class report_verb: said says say stated states state announced announces announce reported reports report noted notes note claimed claims claim declared declares declare confirmed confirms confirm explained explains explain added adds add stressed stresses stress revealed reveals reveal disclosed discloses disclose told tells tell wrote writes write mentioned mentions mention emphasized emphasised indicated indicates indicate acknowledged acknowledges maintained maintains insisted insists
 class modal: will would shall should can could may might must
-class adv: instead otherwise very also just only even still already ever always often usually really quite rather too enough almost nearly mostly mainly especially particularly currently now then there here again together ago soon never sometimes maybe perhaps actually
+class adv: instead otherwise very also just only even still already ever always often usually really quite rather too enough almost nearly mostly mainly especially particularly currently now then there here again together ago soon never sometimes maybe perhaps actually nowadays presently formerly previously originally historically traditionally reportedly allegedly apparently supposedly purportedly presumably seemingly ostensibly reputedly officially publicly famously notably
 class degree: very really quite extremely fairly rather pretty super highly incredibly relatively particularly remarkably unusually reasonably moderately somewhat slightly truly enormously insanely surprisingly genuinely
 class particle: up down out off away back
 class polite: please kindly
@@ -17564,6 +21691,8 @@ pron him: person=3 number=sg gender=m animate=1
 pron she: person=3 number=sg gender=f animate=1
 pron her: person=3 number=sg gender=f animate=1
 pron it: person=3 number=sg gender=n animate=0
+pron there: person=3 number=sg gender=n animate=0
+pron here: person=3 number=sg gender=n animate=0
 pron they: person=3 number=any gender=any animate=any
 pron them: person=3 number=any gender=any animate=any
 pron one: person=3 number=sg gender=n animate=any
@@ -17609,9 +21738,28 @@ verb send: act=retrieve
 verb pull together: act=retrieve
 verb bring up: act=retrieve
 verb ferret out: act=retrieve
+verb recommend: act=retrieve
+verb suggest: act=retrieve
+verb propose: act=retrieve
+verb bring me: act=retrieve
+verb point me to: act=retrieve
+verb direct me to: act=retrieve
+verb refer me to: act=retrieve
+verb surface: act=retrieve
+verb unearth: act=retrieve
+verb list out: act=retrieve
+verb rank: act=retrieve
+verb sort: act=retrieve
+verb pick: act=retrieve
+verb select: act=retrieve
 verb decide: act=discourse
 verb agree: act=discourse
 verb say: act=discourse
+verb ask: act=discourse
+verb request: act=discourse
+verb inquire: act=discourse
+verb enquire: act=discourse
+verb type: act=discourse
 verb conclude: act=discourse
 verb note: act=discourse
 verb settle: act=discourse
@@ -17667,6 +21815,13 @@ verb calculate: act=task
 verb compute: act=task
 verb translate: act=task
 verb write: act=task
+verb answer: act=task
+verb reply: act=task
+verb respond: act=task
+verb format: act=task
+verb speak: act=task
+verb express: act=task
+verb phrase: act=task
 verb draft: act=task
 verb create: act=task
 verb make: act=task
@@ -17750,6 +21905,13 @@ verb remove: act=exclude
 verb discard: act=exclude
 verb disregard: act=exclude
 verb eliminate: act=exclude
+verb forget: act=exclude
+verb ditch: act=exclude
+verb scrap: act=exclude
+verb abandon: act=exclude
+verb dismiss: act=exclude
+verb reject: act=exclude
+verb delete: act=exclude
 verb include: act=include
 verb add: act=include
 verb incorporate: act=include
@@ -17794,6 +21956,8 @@ adj slow: dim=speed
 adj cheap: dim=price
 adj expensive: dim=price
 adj popular: dim=popularity
+adj populous: dim=popularity
+adj wealthy: dim=wealth
 adj rich: dim=wealth
 adj poor: dim=wealth
 adj heavy: dim=weight
@@ -17806,7 +21970,7 @@ adj minor: dim=size
 adj wide: dim=width
 adj deep: dim=depth
 
-dim age: rels=founded_on,birth_date,published_on,release_date | order=earlier_is_older
+dim age: rels=age,founded_on,birth_date,published_on,release_date | order=earlier_is_older
 dim size: rels=area,population,employees | order=larger_is_larger
 dim height: rels=elevation,height | order=larger_is_larger
 dim length: rels=length | order=larger_is_larger
@@ -17817,7 +21981,7 @@ dim popularity: rels=population | order=larger_is_larger
 dim wealth: rels=revenue | order=larger_is_larger
 
 # ============================================================ discourse and constraint cues
-cue exclusion: exclude; excluding; excludes; excluded; except; excepting; without; avoid; avoiding; skip; omit; omitting; minus; other than; apart from; aside from; instead of; rather than; not including; leave out; leaving out; rule out; ruling out; filter out; get rid of; no more; do not include; do not use; do not show; do not add; do not consider; never include; never use; never show; stop using; leave off; don't include; don't show; don't list; don't want; do not want; don't need; do not need; didn't include; never list; never return; never give; never send; keep out; left out; leave off; take out; drop; ignore; ignoring; remove; removing; no need for; rather not see
+cue exclusion: exclude; excluding; excludes; excluded; except; excepting; without; avoid; avoiding; skip; omit; omitting; minus; other than; apart from; aside from; instead of; rather than; not including; leave out; leaving out; rule out; ruling out; filter out; get rid of; no more; do not include; do not use; do not show; do not add; do not consider; never include; never use; never show; stop using; leave off; don't include; don't show; don't list; don't want; do not want; don't need; do not need; didn't include; never list; never return; never give; never send; keep out; left out; leave off; take out; drop; ignore; ignoring; remove; removing; no need for; rather not see; besides; outside; outside of; barring; except for; save for; bar; nothing about; nothing on; nothing regarding; nothing related to; nothing to do with; nothing concerning; not about; not related to; not regarding; not concerning; unrelated to; no mention of
 cue contrast: but; however; rather; instead; but not; and not; though
 cue correction: actually; wait; no wait; sorry; correction; i meant; i mean; scratch that; forget that; ignore that; disregard that; never mind; my mistake; i was wrong; that was wrong; that's wrong; not quite; to correct; let me correct; update; change of plans; on second thought; let me rephrase; to clarify; oops; mix-up; mix up; wrong one; the wrong; got that wrong; i got it wrong; hold on; change of plan; change of plans; i should have said; correct myself; quick fix; disregard what i said; never mind the previous; let me correct myself; let me fix that; i got that wrong; i got it wrong; i said the wrong; i gave you the wrong; wrong one; i should have said; i should have said that; mix-up on my part; my bad
 cue persist: from now on; going forward; henceforth; always; for the rest of; from here on; until further notice; by default; in all future; for all future
@@ -17835,9 +21999,19 @@ cue focus_intro: i'm researching; i am researching; i'm working on; i am working
 cue only_marker: only; just; solely; exclusively; nothing but
 cue superlative_latest: latest; newest; most recent; last; current
 cue definition_frame: meaning of; definition of; what does; stand for; stands for; mean by
-cue lead_in: quick question; quick check; quick note; quick context; last thing; one more thing; one more question; one other thing; by the way; oh and; oh, and; before i forget; real quick; just so you know; just a quick question; i forgot to ask; i meant to ask; heads up; for the record; out of curiosity; just curious; okay so; ok so; one thing; first of all; also; and also; next question; separately; on another note; unrelated but; now; so; okay; ok; alright; right; well; anyway; and; but; then; hmm; and so; okay, so; ok, so; so then; all right; now then; going back; one more time; remind me; tell me something; last question; final question; one last thing; one last question; next up; also quickly; and quickly
+cue lead_in: quick q; quick qn; q; quick question; quick check; quick note; quick context; last thing; one more thing; one more question; one other thing; by the way; oh and; oh, and; before i forget; real quick; just so you know; just a quick question; i forgot to ask; i meant to ask; heads up; for the record; out of curiosity; just curious; okay so; ok so; one thing; first of all; also; and also; next question; separately; on another note; unrelated but; now; so; okay; ok; alright; right; well; anyway; and; but; then; hmm; and so; okay, so; ok, so; so then; all right; now then; going back; one more time; remind me; tell me something; last question; final question; one last thing; one last question; next up; also quickly; and quickly; hi claude; hello claude; hey claude; hi there; hello there; hey there; hi; hello; hey; yo; so umm; so um; so uh; umm; um; uh; erm; so like; like; so umm like; so um like; umm like; um like; hey so; well so; okay well; yes; yeah; yep; yup; sure; oh; ah; and yes; and yeah; and also; plus; oh yes; and sure; so yes; yes and; also yes
 cue topic_intro: as for; regarding; concerning; with regard to; with regards to; as regards; speaking of; talking about; when it comes to; in the case of; as to; going back to; back to; on the subject of; re; concerning the
-cue question_polite: tell me the name of; tell me the names of; can you tell me the name of; could you tell me the name of; do you know the name of; i'd like to know the name of; the name of; name of; the names of; the identity of; identity of; any idea; does anyone know; anyone know; would you know; i wonder; i'm wondering; i am wondering; i'm curious; i am curious; can anyone tell me; could someone tell me; do you have any idea; could you; can you; would you; will you; could you please; can you please; would you please; do you know; do you happen to know; i was wondering; i'd like to know; i want to know; i need to know; i would like to know; tell me; let me know; find out; can you find out; could you find out; would you find out; can you check; could you check; would you check; can you look up; could you look up; look up; check
+cue ellipsis_open: what about; how about; and what about; and how about; what of; and for; and; same for; same question for; same thing for; same here for; same with; same as before for; ditto for; likewise for; likewise,; also for; then for; now for; sorry, i meant; sorry i meant; no, i meant; no i meant; actually, i meant; actually i meant; oops, i meant; i meant; i mean; what i meant was; no, ; no; actually,; sorry,
+cue polar_open: is it true that; is it true; is it correct that; is it right that; is it the case that; is it a fact that; is it accurate that; is it so that; is it fair to say that; is it true to say that; am i right that; am i correct that; am i right in saying that; am i correct in saying that; do you agree that; can you confirm that; could you confirm that; please confirm that; confirm that; would you say that; i want to confirm that; i just want to confirm that; just to confirm,; just checking,; is it right to say that; is it correct to say that; is it not the case that; is it not true that; isn't it true that; isn't it the case that; isn't it a fact that; is it really true that; is it really the case that; is it actually true that; is it actually the case that; is it really correct that; is it truly the case that; is it indeed the case that; is it indeed true that; is it not a fact that; is it not correct that; is it not right that
+cue polar_tag: right; correct; yes; no; true; isn't it; is it; isn't that right; is that right; is that correct; am i right; am i wrong; aren't they; are they; doesn't it; does it; don't they; do they; wasn't it; was it; weren't they; hasn't it; has it; haven't they; didn't it; did it; didn't they; did they; isn't that so; is that so; right or wrong; or not; correct me if i'm wrong; don't you think; wouldn't you say
+cue question_polite: i can't remember; i cannot remember; i don't remember; i do not remember; i can't recall; i cannot recall; i don't recall; i forgot; i've forgotten; i have forgotten; i'm trying to remember; i am trying to remember; i'm trying to recall; i don't know; i do not know; i wonder; what i need to know is; what i want to know is; what i would like to know is; what i'd like to know is; what i'm wondering is; what i am wondering is; what i'm curious about is; my question is; the question is; would you mind telling me; would you mind letting me know; do you mind telling me; would you be able to tell me; are you able to tell me; could you possibly tell me; can you possibly tell me; would it be possible to tell me; would you kindly tell me; would you please tell me; could you kindly tell me; can you kindly tell me; any chance you could tell me; do you have any idea; tell me the name of; tell me the names of; can you tell me the name of; could you tell me the name of; do you know the name of; i'd like to know the name of; the name of; name of; the names of; the identity of; identity of; any idea; does anyone know; anyone know; would you know; i wonder; i'm wondering; i am wondering; i'm curious; i am curious; can anyone tell me; could someone tell me; do you have any idea; could you; can you; would you; will you; could you please; can you please; would you please; do you know; do you happen to know; i was wondering; i'd like to know; i want to know; i need to know; i would like to know; tell me; let me know; find out; can you find out; could you find out; would you find out; can you check; could you check; would you check; can you look up; could you look up; look up; check; would you happen to know; you wouldn't happen to know; you would not happen to know; by any chance do you know; do you by any chance know; do you perhaps know; would you perhaps know; do you happen to remember; can you remind me; could you remind me; remind me; i'd love to know; i would love to know; i'm keen to know; i am keen to know; i'm dying to know; i am dying to know; please tell me; please let me know; do you remember; any clue; do you have a clue; quick question; just a quick question; a quick question; one more thing; one question; i was wondering whether you could tell me; i was wondering if you could tell me; i was wondering whether you could; i was wondering if you could; i don't suppose you could tell me; i don't suppose you could; i do not suppose you could tell me; i don't suppose you know; i wonder if you could tell me; i wonder whether you could tell me; i was hoping you could tell me; i was hoping you might tell me; i was hoping to find out; can u tell me; could u tell me; can u; could u; do u know; pls tell me; plz tell me; u know
+cue cmp_gt: more than; greater than; larger than; bigger than; higher than; exceeding; in excess of; upwards of; over; above; north of
+cue cmp_ge: at least; no fewer than; no less than; not less than; not fewer than; a minimum of; minimum of; minimum
+cue cmp_lt: fewer than; less than; smaller than; lower than; under; below; beneath; south of
+cue cmp_le: at most; no more than; not more than; a maximum of; maximum of; maximum; up to; capped at
+cue cmp_eq: exactly; precisely; equal to; equals
+cue cmp_approx: around; about; roughly; approximately; circa; nearly; almost
+cue seek_open: i'm looking for; i am looking for; we're looking for; we are looking for; looking for; i'm searching for; i am searching for; searching for; find me; get me; show me; give me; help me find; i need; we need; i want; we want; i'd like; i would like; we'd like; i require
 cue request_open: give me the name of; i'd like the name of; i want the name of; i need the name of; show me the name of; get me the name of; i would like the name of; i'd like to get the name of; i want to know the name of; i need to know the name of; i want; i need; i'd like; i would like; i'm looking for; i am looking for; give me; get me; show me; find me; looking for; i require; i need you to; i want you to; i'd like you to; i would like you to; make sure you; make sure you're; make sure to; be sure to; please make sure you; could you make sure; can you make sure; would you mind; go ahead and; feel free to; don't forget to; remember to; i'd rather you; i would rather you; let's; let us; i need you to
 cue basis: considering; given; in light of; bearing in mind; keeping in mind; factoring in; taking
 cue backref_adv: earlier; before; previously; already; recently; yesterday; ago; then; originally; a while ago; a little while ago; a few minutes ago; some time ago; a moment ago; earlier on; in this chat; in this conversation; so far; a while back; a bit ago; a few days ago; the other day; last week; earlier today; earlier this week; a long time ago; some time back; not long ago; just now; a minute ago; a moment ago; at the start; at the beginning; at the start of this chat; at the start of this conversation; at the start of our chat; at the start of our conversation; at the beginning of this chat; at the beginning of this conversation; at the beginning of our chat; at the beginning of our conversation; at the outset; early on; right at the start; at the very start; at the very beginning; from the start; from the beginning; in the beginning; at first; earlier in this chat; earlier in this conversation; earlier in the conversation; earlier in the chat; earlier in our conversation; earlier in our chat; a bit earlier; much earlier; way back; last month; this morning; initially; to begin with; at the top; up top
@@ -17851,7 +22025,8 @@ cue injection: ignore previous instructions; ignore all previous instructions; i
 cue alias_intro: officially; formally; also known as; also called; sometimes called; aka; a.k.a.; commonly known as; known as; better known as; often called; abbreviated as; short for; officially the; formally the
 cue definition_verb: refers to; refer to; is defined as; are defined as; means; mean; denotes; denote; stands for; stand for; is the term for; is a term for; is known as; are known as
 cue decision: we decided; i decided; we have decided; we've decided; i've decided; we agreed; i agreed; we chose; i chose; we picked; we selected; we settled on; let's go with; we'll use; we will use; the decision is; decided to; agreed to; agreed on; the team agreed; the team decided; the team chose; the team picked; the team settled; our team settled; our team decided; our team agreed; we all agreed; everyone agreed; everyone voted; we voted; we've agreed; we have agreed; it's official; its official; decision made; we're going with; we are going with; we went with; the team went with; the team has decided; the team picked; per what the team decided
-cue decision_ref: decide; decided; decision; decisions; agree; agreed; agreement; chose; chosen; choose; picked; pick; selected; settled; resolved; settle; settled; settling; conclude; concluded; vote; voted; went with; go with; going with; end up going with; ended up going with; call; verdict; official
+cue exact_mention: exactly; precisely; spelled exactly; exact name; exact one; no lookalikes; no look-alikes; not anything with a similar name; similar name; not to be confused with; mix it up; mix up; no other; that exact; that precise; that very name; the very one; and nothing else; no confusion
+cue decision_ref: decide; decided; decision; decisions; agree; agreed; agreement; chose; chosen; choose; picked; pick; selected; settled; resolved; settle; settled; settling; conclude; concluded; vote; voted; went with; go with; going with; end up going with; ended up going with; call; verdict; official; end up with; ended up with; ending up with; end up using; ended up using; went for; go for; going for; opt for; opted for; settle on; settled on; landed on; land on
 cue additive: also; as well; in addition; additionally; too; on top of that
 cue scoped: for this question; for this one; just this time; only this time; this once; for now only; for this request
 cue art_latest: latest; newest; most recent; final; current; revised; updated; new; recent; last; newer
@@ -17883,7 +22058,7 @@ domain history: history historical ancient empire kingdom dynasty century war re
 
 # ============================================================ head words that type an unseen proper name
 headcue company: inc inc. corp corporation co company llc ltd limited plc gmbh ag holdings group partners bank
-headcue organization: labs lab laboratory laboratories technologies technology systems solutions robotics industries enterprises ventures consulting associates networks software studios works
+headcue organization: labs lab laboratory laboratories technologies technology systems solutions robotics industries enterprises ventures consulting associates networks software studios works dynamics analytics aerospace materials motors energy pharma pharmaceuticals therapeutics biotech airlines airways electronics instruments devices interactive media entertainment foods brands collective foundry plastics steel
 headcue university: university college institute polytechnic academy
 headcue government_body: ministry department agency authority council commission bureau parliament senate
 headcue nonprofit: foundation association society charity trust
@@ -17986,6 +22161,34 @@ entity company.meta: company | names=Meta; Meta Platforms | domain=technology; b
 entity color.orange: color | names=orange | domain=color; design; art; paint
 entity fruit.orange: fruit | names=orange; oranges | domain=food; biology
 entity company.orange_telecom: company | names=Orange | domain=business; technology
+
+# ---- names that several well-known referents share: listing them as separate entities is what lets the engine report the ambiguity instead of guessing
+entity city.springfield_il: city | names=Springfield | domain=geography
+entity city.springfield_ma: city | names=Springfield | domain=geography
+entity city.springfield_mo: city | names=Springfield | domain=geography
+entity company.delta_air_lines: company | names=Delta; Delta Air Lines | domain=business; travel
+entity company.delta_faucet: company | names=Delta; Delta Faucet | domain=business
+entity myth.oracle: mythological_figure | names=Oracle; oracle | domain=mythology
+entity city.phoenix_az: city | names=Phoenix | domain=geography
+entity myth.phoenix: mythological_figure | names=Phoenix; phoenix | domain=mythology
+entity city.portland_or: city | names=Portland | domain=geography
+entity city.portland_me: city | names=Portland | domain=geography
+entity city.birmingham_uk: city | names=Birmingham | domain=geography
+entity city.birmingham_al: city | names=Birmingham | domain=geography
+entity city.santiago_cl: city | names=Santiago | domain=geography
+entity city.santiago_es: city | names=Santiago de Compostela; Santiago | domain=geography
+entity city.alexandria_eg: city | names=Alexandria | domain=geography
+entity city.alexandria_va: city | names=Alexandria | domain=geography
+entity city.richmond_va: city | names=Richmond | domain=geography
+entity city.richmond_uk: city | names=Richmond | domain=geography
+entity city.lincoln_uk: city | names=Lincoln | domain=geography
+entity city.lincoln_ne: city | names=Lincoln | domain=geography
+entity person.abraham_lincoln: person | names=Abraham Lincoln; Lincoln | domain=history; politics
+entity subnational.victoria_au: subnational | names=Victoria | domain=geography; politics
+entity city.victoria_bc: city | names=Victoria | domain=geography
+entity river.jordan: river | names=Jordan River; Jordan | domain=geography
+entity city.columbia_sc: city | names=Columbia | domain=geography
+entity river.columbia: river | names=Columbia River; Columbia | domain=geography
 ]==]
 
 end
@@ -17997,7 +22200,7 @@ package.preload["asi.nlu.data.lex_rel"] = function(...)
 --   verb=  lemma/subj=to|from[/prep=P]: which role the grammatical subject plays; with prep the construction is stative (X is VERB-ed P Y)
 return [==[
 # ------------------------------------------------------------ geography and politics
-rel capital: from=political_territory to=city | noun=capital; capital city; seat of government | support=have; call | as=recognize; designate; name; use; consider; regard; treat; choose | kinds=financial:financial_center; cultural:cultural_center; economic:economic_center; administrative:administrative_capital; legislative:legislative_capital; judicial:judicial_capital; commercial:commercial_center; political:capital; national:capital; official:capital | label=capital city
+rel capital: from=political_territory to=city | noun=capital; capital city; seat of government | support=have; call | as=recognize; designate; name; use; consider; regard; treat; choose; list; record; identify; describe; cite; register; present; introduce; show; recognise | kinds=financial:financial_center; cultural:cultural_center; economic:economic_center; administrative:administrative_capital; legislative:legislative_capital; judicial:judicial_capital; commercial:commercial_center; political:capital; national:capital; official:capital | label=capital city
 rel financial_center: from=political_territory to=city | noun=financial center; financial centre; financial hub | derived=capital | label=financial center
 rel cultural_center: from=political_territory to=city | noun=cultural center; cultural centre; cultural hub | derived=capital | label=cultural center
 rel economic_center: from=political_territory to=city | noun=economic center; economic centre; economic hub | derived=capital | label=economic center
@@ -18005,13 +22208,13 @@ rel administrative_capital: from=political_territory to=city | noun=administrati
 rel legislative_capital: from=political_territory to=city | noun=legislative capital | derived=capital | label=legislative capital
 rel judicial_capital: from=political_territory to=city | noun=judicial capital | derived=capital | label=judicial capital
 rel commercial_center: from=political_territory to=city | noun=commercial center; commercial centre; commercial hub | derived=capital | label=commercial center
-rel head_of_state: from=political_territory to=person | noun=head of state; president; monarch; king; queen; ruler | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install | label=head of state
-rel prime_minister: from=country to=person | noun=prime minister; premier | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install | label=prime minister
-rel population: from=place to=number | noun=population; inhabitants; number of inhabitants; number of residents | attr=1 | label=population
+rel head_of_state: from=political_territory to=person | noun=head of state; president; monarch; king; queen; ruler | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install; list; record; identify; describe; cite; register; present; introduce; show; recognise | label=head of state
+rel prime_minister: from=country to=person | noun=prime minister; premier | rolesuffix=1 | support=have | as=appoint; name; choose; elect; install; list; record; identify; describe; cite; register; present; introduce; show; recognise | label=prime minister
+rel population: from=place to=number | noun=population; inhabitants; number of inhabitants; number of residents | count_noun=people; persons; individuals; residents; inhabitants; citizens; folks; souls | count_verb=live/prep=in; reside/prep=in; dwell/prep=in; inhabit; have | attr=1 | label=population
 rel area: from=place to=number | noun=area; surface area; land area | attr=1 | label=area
-rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency; legal tender | support=use; adopt; have; call | as=recognize; accept; designate; name; treat; issue; introduce; declare | label=currency
+rel currency: from=country to=currency | noun=currency; monetary unit; unit of currency; legal tender; official currency; national currency; local currency; money | support=use; adopt; have; call; pay with; pay in; spend; trade in; transact in; price in | as=recognize; accept; designate; name; treat; issue; introduce; declare; list; record; identify; describe; cite; register; present; show; recognise | label=currency
 rel official_language: from=country to=language | noun=official language; national language | label=official language
-rel continent_of: from=country to=continent | noun=continent | label=continent
+rel continent_of: from=country to=continent | noun=continent | verb=lie/subj=from/prep=on; lie/subj=from/prep=in; sit/subj=from/prep=on | label=continent
 rel height: from=entity to=number | noun=height; elevation; altitude | attr=1 | label=height
 rel located_in: from=place,organization,event,person to=place | noun=location | verb=locate/subj=from/prep=in; situate/subj=from/prep=in | where=located_in | label=location
 rel moons: from=planet to=celestial_body | noun=moon; satellite | label=moons
@@ -18019,42 +22222,42 @@ rel diameter: from=celestial_body to=number | noun=diameter | attr=1 | label=dia
 rel orbital_period: from=planet to=number | noun=orbital period | attr=1 | label=orbital period
 
 # ------------------------------------------------------------ organisations and people
-rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | noun_from=brainchild | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to; create/subj=to | support=have | as=credit; recognize | isa=creator | when=founded_on | label=founder | event=1
+rel founder: from=organization to=agent | noun=founder; co-founder; cofounder | noun_from=brainchild | verb=found/subj=to; establish/subj=to; start/subj=to; set up/subj=to; launch/subj=to; incorporate/subj=to; create/subj=to; start up/subj=to; form/subj=to | support=have | as=credit; recognize; list; record; identify; describe; cite; register; present; introduce; show; recognise | isa=creator | when=founded_on | deverbal=founding; foundation; creation; establishment; formation; launch; inception; incorporation; setup | label=founder | event=1
 rel founded_on: from=organization to=date | noun=founding date; founding year; foundation date; date of founding; year of founding | label=founding date | event=1
-rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive; chief exec | rolesuffix=1 | support=have | as=appoint; name; hire; employ; choose; elect; install; retain | isa=leader | label=CEO
-rel leader: from=organization to=person | noun=leader; head; chief; boss; person in charge; head honcho | verb=lead/subj=to; head/subj=to; run/subj=to; manage/subj=to; head up/subj=to; oversee/subj=to; direct/subj=to; be in charge of/subj=to; steer/subj=to | support=have | as=appoint; name; choose; elect; install; retain | label=leader
-rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office; corporate headquarters; home office; main headquarters | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | support=have; maintain; keep; operate | locus=1 | label=headquarters
-rel member_of: from=agent to=organization | noun_from=member | verb=belong/subj=from/prep=to; join/subj=from | label=membership
+rel ceo: from=company to=person | noun=ceo; chief executive officer; chief executive; chief exec | rolesuffix=1 | support=have | as=appoint; name; hire; employ; choose; elect; install; retain; list; record; identify; describe; cite; register; present; introduce; show; recognise | isa=leader | label=CEO
+rel leader: from=organization to=person | noun=leader; head; chief; boss; person in charge; head honcho | verb=lead/subj=to; head/subj=to; run/subj=to; manage/subj=to; head up/subj=to; oversee/subj=to; direct/subj=to; be in charge of/subj=to; steer/subj=to; be at the helm of/subj=to; be at the head of/subj=to; run the show at/subj=to; run the show of/subj=to; run the show in/subj=to; call the shots at/subj=to; call the shots in/subj=to; hold the reins at/subj=to; steer the ship at/subj=to; captain/subj=to | support=have | as=appoint; name; choose; elect; install; retain; list; record; identify; describe; cite; register; present; introduce; show; recognise | deverbal=leadership; running; management; direction | label=leader
+rel headquarters: from=organization to=city | noun=headquarters; head office; hq; main office; corporate headquarters; home office; main headquarters; headquarters location; head office location; hq location; seat of operations; corporate seat; principal office; principal executive offices; principal place of business; head quarters | verb=headquarter/subj=from/prep=in; base/subj=from/prep=in | support=have | support_np=maintain; keep; operate; establish; set up; open; base; put; build; locate; place; house | locus=1 | label=headquarters
+rel member_of: from=agent,political_territory to=organization | noun_from=member | verb=belong/subj=from/prep=to; join/subj=from | label=membership
 rel parent_org: from=organization to=organization | noun=parent company; parent organization; parent; owner | noun_from=subsidiary | verb=own/subj=to | label=parent organization
-rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to; snap up/subj=to; buy out/subj=to; buy up/subj=to; scoop up/subj=to; swallow up/subj=to; gobble up/subj=to | when=acquired_on | label=acquirer | event=1
+rel acquirer: from=organization to=organization | noun=acquirer; buyer; purchaser | verb=acquire/subj=to; buy/subj=to; purchase/subj=to; take over/subj=to; absorb/subj=to; snap up/subj=to; buy out/subj=to; buy up/subj=to; scoop up/subj=to; swallow up/subj=to; gobble up/subj=to | when=acquired_on | deverbal=acquisition; purchase; takeover; buyout | label=acquirer | event=1
 rel acquired_on: from=organization to=date | noun=acquisition date; date of acquisition | label=acquisition date | event=1
 rel investor: from=organization to=agent | noun=investor; backer; funder | verb=invest/subj=to/prep=in; fund/subj=to; finance/subj=to; back/subj=to | label=investor | event=1
-rel employees: from=organization to=number | noun=employees; staff; headcount; workforce; number of employees; number of staff | how_many=employees | attr=1 | label=employees
+rel employees: from=organization to=number | noun=employees; staff; headcount; workforce; number of employees; number of staff | how_many=employees | count_noun=people; persons; individuals; workers; staffers; employees; staff | count_verb=work/prep=at; work/prep=for; employ; have | attr=1 | label=employees
 rel revenue: from=organization to=money | noun=revenue; sales; turnover; income | attr=1 | label=revenue
-rel industry: from=organization to=topic | noun=industry; sector | label=industry
+rel industry: from=organization to=topic | noun=industry; sector; line of business; field of business | verb=operate/subj=from/prep=in; compete/subj=from/prep=in; work/subj=from/prep=in | label=industry
 rel offers: from=organization to=service | noun=offering; service | verb=offer/subj=from; provide/subj=from; sell/subj=from; supply/subj=from; deliver/subj=from; specialize/subj=from/prep=in | label=offers
 rel seeks: from=agent to=concept | verb=seek/subj=from; want/subj=from; need/subj=from; look/subj=from/prep=for; interest/subj=from/prep=in | label=interested in
 rel hires: from=organization to=role | verb=hire/subj=from; recruit/subj=from | label=hires
 rel partner: from=organization to=organization | noun=partner; partnership; collaborator | verb=partner/subj=from/prep=with; collaborate/subj=from/prep=with; cooperate/subj=from/prep=with | symmetric=1 | label=partner
-rel employer: from=person to=organization | noun=employer | verb=work/subj=from/prep=for; employ/subj=to | label=employer
+rel employer: from=person to=organization | noun=employer | verb=work/subj=from/prep=for; work/subj=from/prep=at; employ/subj=to | label=employer
 rel title: from=person to=role | noun=title; job; position | label=title
-rel nationality: from=person to=country | noun=nationality; citizenship | label=nationality
-rel spouse: from=person to=person | noun=spouse; husband; wife | verb=marry/subj=from | symmetric=1 | label=spouse
+rel nationality: from=person to=country | noun=nationality; citizenship | verb=hail/subj=from/prep=from; come/subj=from/prep=from | label=nationality
+rel spouse: from=person to=person | noun=spouse; husband; wife | verb=marry/subj=from; marry/subj=from/prep=to; tie the knot with/subj=from; wed/subj=from; get married to/subj=from; be married to/subj=from | symmetric=1 | label=spouse
 rel birth_place: from=person to=place | noun=birthplace; place of birth | verb=bear/subj=from/prep=in | where=birth_place | label=birthplace | event=1
 rel birth_date: from=person to=date | noun=birthday; date of birth; birth date | verb=bear/subj=from | when=birth_date | label=birth date | event=1
 rel death_date: from=person to=date | noun=date of death; death date | verb=die/subj=from | when=death_date | label=death date | event=1
 rel age: from=agent to=number | noun=age | attr=1 | label=age
 
 # ------------------------------------------------------------ works, products, software
-rel author: from=work to=person | noun=author; writer | verb=write/subj=to; author/subj=to | isa=creator | label=author | event=1
+rel author: from=work to=person | noun=author; writer | verb=write/subj=to; author/subj=to | isa=creator | deverbal=writing; authorship | label=author | event=1
 rel publisher: from=work to=organization | noun=publisher | verb=publish/subj=to | label=publisher | event=1
-rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to; paint/subj=to; compose/subj=to; sculpt/subj=to; build/subj=to; craft/subj=to | label=creator | event=1
-rel developer: from=software to=agent | noun=developer; maintainer | verb=develop/subj=to | isa=creator | label=developer | event=1
-rel inventor: from=product to=person | noun=inventor | verb=invent/subj=to | isa=creator | label=inventor | event=1
-rel discoverer: from=entity to=agent | noun=discoverer | verb=discover/subj=to | label=discoverer | event=1
-rel release: from=agent to=product | noun=release; product; launch | verb=release/subj=to; launch/subj=to; ship/subj=to; unveil/subj=to | label=release | event=1
+rel creator: from=work,product to=agent | noun=creator; maker; designer | verb=create/subj=to; design/subj=to; make/subj=to; produce/subj=to; paint/subj=to; compose/subj=to; sculpt/subj=to; build/subj=to; craft/subj=to | deverbal=creation; making; production; design | label=creator | event=1
+rel developer: from=software to=agent | noun=developer; maintainer | verb=develop/subj=to | isa=creator | deverbal=development | label=developer | event=1
+rel inventor: from=product to=person | noun=inventor | verb=invent/subj=to | isa=creator | deverbal=invention | label=inventor | event=1
+rel discoverer: from=entity to=agent | noun=discoverer | verb=discover/subj=to | deverbal=discovery | label=discoverer | event=1
+rel release: from=agent to=product | noun=release; product; launch | verb=release/subj=from; launch/subj=from; ship/subj=from; unveil/subj=from | label=release | event=1
 rel published_on: from=work to=date | noun=publication date; date of publication; release date | when=published_on | label=publication date | event=1
-rel price: from=product to=money | noun=price; cost | attr=1 | label=price
+rel price: from=product to=money | noun=price; cost | verb=cost/subj=from; sell/subj=from/prep=for | howmuch=1 | attr=1 | label=price
 rel type_of: from=entity to=concept | noun=type; kind; category; genre | label=type
 
 # ------------------------------------------------------------ abstract relations
@@ -18063,7 +22266,7 @@ rel predecessor: from=entity to=entity | noun=predecessor | label=predecessor
 rel cause: from=concept,event to=concept,event | noun=cause; reason; origin | verb=cause/subj=to; trigger/subj=to; lead/subj=to/prep=to | label=cause
 rel requirement: from=entity to=entity | noun=requirement; prerequisite; dependency | verb=require/subj=from; need/subj=from; depend/subj=from/prep=on | label=requirement
 rel supported_by: from=claim,concept to=document | noun=evidence; support | verb=support/subj=to; confirm/subj=to; substantiate/subj=to | label=supported by
-rel part_of: from=entity to=entity | noun_from=part; component; constituent | verb=contain/subj=to; comprise/subj=to; include/subj=to | label=part of
+rel part_of: from=entity to=entity | noun_from=part; component; constituent; subdivision; division | verb=contain/subj=to; comprise/subj=to; include/subj=to | label=part of
 rel atomic_number: from=chemical_element to=number | noun=atomic number | attr=1 | label=atomic number
 rel symbol: from=chemical_element to=text | noun=symbol | label=chemical symbol
 ]==]
@@ -18261,7 +22464,7 @@ end
 package.preload["asi.nlu.data.cal_interp_v1"] = function(...)
 return [[
 {
-  "bias": 2.1783099865663438,
+  "bias": 2.191001603678266,
   "constraints": {
     "ambiguous": -1,
     "coverage": 1,
@@ -18277,22 +22480,22 @@ return [[
   },
   "fit": {
     "cross_fit_brier_calibrated": [
-      0.071900000000000006,
-      0.092499999999999999
+      0.070699999999999999,
+      0.099699999999999997
     ],
     "cross_fit_brier_raw": [
-      0.12609999999999999,
-      0.12989999999999999
+      0.1157,
+      0.13139999999999999
     ],
     "cross_fit_ece_calibrated": [
-      0.065299999999999997,
-      0.054399999999999997
+      0.064600000000000005,
+      0.0683
     ],
     "cross_fit_ece_raw": [
-      0.17610000000000001,
-      0.13120000000000001
+      0.1565,
+      0.1074
     ],
-    "digest": "27172f30fbd44926a539abca5c644335c31879ddff5b9379173851e43cb9817a",
+    "digest": "04ce1deae9c7691e40a6728a6b15d0b38152fcc95846273a776e90e3ce903c69",
     "n": 1195,
     "perturbations": [
       "typo",
@@ -18313,17 +22516,17 @@ return [[
   },
   "lambda": 1,
   "mean": [
-    0.7695518828451875,
-    0.94881338912133917,
+    0.79025364016736321,
+    0.95337573221757355,
     0,
     0,
-    0.73807531380753133,
+    0.73305439330543931,
     0.0041841004184100415,
-    0.18410041841004185,
     0,
     0,
     0,
-    0.018410041841004185
+    0,
+    0.013389121338912133
   ],
   "method": "logistic",
   "n": 1195,
@@ -18341,78 +22544,81 @@ return [[
     "no_interpretation"
   ],
   "scale": [
-    0.21224434230280664,
-    0.19179712823224782,
+    0.2060144479469822,
+    0.17748404441513585,
     1,
     1,
-    0.97113899104841728,
+    0.97063338310888347,
     0.064549157408123115,
-    0.387566064499062,
     1,
     1,
     1,
-    0.13442883693767804
+    1,
+    0.11493412360428151
   ],
   "weights": [
-    0.71621238744535409,
-    1.323155317822172,
+    0.74559458184061655,
+    1.2687008921021143,
     0,
     0,
-    -0.24203188312150919,
-    -0.5132765980059919,
-    -0.078436180647356871,
+    -0.19030807162823499,
+    -0.50825604889412945,
     0,
     0,
     0,
-    -0.086563658626865408
+    0,
+    -0.05713975487977821
   ]
 }]]
 end
 
 package.preload["asi.nlu.manifest"] = function(...)
-return { version = "0.9.0", body_sha256 = "9b2edc1f18fada24b0e13b3178cdc95bc96c35567575de079ce475f8989292f6", modules = {
-  { name = "asi.nlu.assertions", bytes = 50488, sha256 = "41bc69e0099909f6d5f261eb25ed8ff6180663f69d721ea9f26d6a609935df09" },
+return { version = "0.9.0", body_sha256 = "cf149f7aa9d87b9e58f8ddc920f038b9015ce086e215a5e68b400c5afe6b1e7f", modules = {
+  { name = "asi.nlu.assertions", bytes = 56597, sha256 = "95ed32a7f75644554c302f3b953d597833a2639c1c885a09ff159bb468e653a1" },
+  { name = "asi.nlu.assertions2", bytes = 45375, sha256 = "c3935eb4996c1d3434b2ea952744c5b56bf7a060c8581e973f27564eff070846" },
   { name = "asi.nlu.baseline", bytes = 9356, sha256 = "1f232ddce211e0b3d79ce16b403224a68762cc29fc62f3cb2f4922482878baf5" },
   { name = "asi.nlu.calibration", bytes = 13794, sha256 = "08663074ffe0225c6488f4c09cf2337f997789c4ffebbbd336b31d7f95a4b6b6" },
   { name = "asi.nlu.cli", bytes = 17535, sha256 = "3b6583d0f8f53ddc7e1709bd53e13b9120d02c0b4bbc0a5c4e723f28565767fc" },
-  { name = "asi.nlu.constraints", bytes = 16052, sha256 = "fdaa74a3884fe9d741aaf74b94de9cd2f9c771dc7fc29aa68c18234facb1fe99" },
-  { name = "asi.nlu.coref", bytes = 43246, sha256 = "6e28b52d738b852bf03ed7186f3481cacd0977543f909c23a205ca7794a69f18" },
+  { name = "asi.nlu.constraints", bytes = 20647, sha256 = "d8d52f156c534079a17b3837a54201a983d88995b6c0a2fe546fea0007800764" },
+  { name = "asi.nlu.coref", bytes = 47112, sha256 = "654311b09944e4359bcc90d66ff70bf9ffb7850e38d72130b2c07d4ccd953dd3" },
   { name = "asi.nlu.dataset", bytes = 24417, sha256 = "0bff382154322eee69ae238b09955db5f29f44f261dc58f2f88c7d7a3bd63c04" },
   { name = "asi.nlu.engine", bytes = 5994, sha256 = "204e3bf4f80cf9b046fd41844449be33a23cf9d801abff90b27827c5815a1d04" },
-  { name = "asi.nlu.eval", bytes = 25759, sha256 = "0770d8f7c35b34313815f95d09a0d85e384e7569fdb64ab5780a2991b15dc324" },
-  { name = "asi.nlu.frames", bytes = 47191, sha256 = "96275e3b5c444f42d8c8340d1c1d05143e3f9da6114535d5ee1452b79a07e8a2" },
-  { name = "asi.nlu.frames2", bytes = 75509, sha256 = "6e50f22b8164b9ec3c5049211112d6b69df17c86bf0f7805df9100fce900439d" },
+  { name = "asi.nlu.eval", bytes = 26830, sha256 = "52487ed32207cedc36d4a5ab49c765fd14f4456126807b0c23da71352b49e620" },
+  { name = "asi.nlu.frames", bytes = 48972, sha256 = "f6fdafd9867f8fcb54e6f5e9c2f006a12916906855cc3e654e3f90488d66c8dc" },
+  { name = "asi.nlu.frames2", bytes = 87619, sha256 = "7bf1ce79ddd093cb83a3f19d4123200c760124ef83bb5e1d6f1f95dfb50f7123" },
+  { name = "asi.nlu.frames3", bytes = 55890, sha256 = "40a3cfe4cabaf5646799921bcc289b9c2f4580ad55848842aa243646b900102a" },
+  { name = "asi.nlu.frames4", bytes = 44552, sha256 = "ecca112a5abcb69327be21ab20c6cdc5b93b11a1b574e4747f593509115f9d22" },
   { name = "asi.nlu.hook", bytes = 2673, sha256 = "1fd2c30a2cb762d1ab7da52a5cc73b0656b5fd89568e55c6cf75edc130a925fc" },
-  { name = "asi.nlu.hyp", bytes = 22021, sha256 = "253c3d721ccfabe0a0cb2ac362c8a14efcb120dd047704a4782a6ae545f94597" },
+  { name = "asi.nlu.hyp", bytes = 23165, sha256 = "31fd02d8af7de6c0a2849cf47a24968750b8aa489bfb3ba9136ec158d39a67d3" },
   { name = "asi.nlu.index", bytes = 9829, sha256 = "cbd47a9694466a8b37ce2a1d640a56a0827a61264ce1ec70572b9ee029fd5ac5" },
-  { name = "asi.nlu.interp", bytes = 14297, sha256 = "e7e9a0d3daa04159ba3fd50efb9ca97e325eb61b3821b51adf6e9e35771a74c5" },
+  { name = "asi.nlu.interp", bytes = 17038, sha256 = "0b746dd5fbe17f552ade908d75a6d704422777f0f6e4d8899b75e56eec1ef5bb" },
   { name = "asi.nlu.knowledge", bytes = 13777, sha256 = "b9bf6138bf9f13fca68b5eaabaabd7db6af1bf713d4104672fb8924988669708" },
-  { name = "asi.nlu.lattice", bytes = 16607, sha256 = "a12380b0145230ca1711eba630651c0f7b2a4d321b87ab69d99a67cc273fec40" },
+  { name = "asi.nlu.lattice", bytes = 21265, sha256 = "0d38c0c29c023ffbba084de11738b742b6001659c62d461f424ec6e220f6c0ef" },
   { name = "asi.nlu.lex", bytes = 47300, sha256 = "9a9c5e32df8d1ede465126fad5a04ef51a72fcf237b3d4a78452a9227b746705" },
-  { name = "asi.nlu.lexicon", bytes = 33767, sha256 = "583015afd1a8774b4c8221951dc37fb5b06d0791c4856380150f2e917041cad5" },
-  { name = "asi.nlu.longctx", bytes = 17637, sha256 = "202dbb865282de997dfc1c34142fb5c9fc7ee87350a66902410d05448fb072ea" },
-  { name = "asi.nlu.memory", bytes = 39825, sha256 = "1816bc7db398fccac6362792f96c266a16520a6631b5620b9e25a61cb7f1712f" },
-  { name = "asi.nlu.morph", bytes = 10763, sha256 = "bd042680d45e8c03c51f9b612143e2a4b5298e1431f2e89f0148ed791e508767" },
+  { name = "asi.nlu.lexicon", bytes = 34989, sha256 = "dff3eb97be9ff02d9f308af40baa8900dd2f5910187bf7ab4c3a673e0b9cf05a" },
+  { name = "asi.nlu.longctx", bytes = 18616, sha256 = "11ba9f6294a918f9756232c6f6c56b0efd87a91a45d30014ff03278f2d898831" },
+  { name = "asi.nlu.memory", bytes = 46796, sha256 = "6448827e08baff45b7bd06bf978a75b7fb71d873a93038a5236763e7dec7ce81" },
+  { name = "asi.nlu.morph", bytes = 11500, sha256 = "2aa4fef51598f666276ef5dc2ddce5bf51fba058444f1d6e45c9040742b3b2d1" },
   { name = "asi.nlu.package", bytes = 19442, sha256 = "7c14a1d2b7e769ff1479a0716ce754e1962c7464a90b4e3742aac52370f8bafa" },
-  { name = "asi.nlu.parse", bytes = 79800, sha256 = "b12098ef56e9c998a39aa0c3846db04a45c16a65b321aea0ca6bac4878572bcc" },
+  { name = "asi.nlu.parse", bytes = 100929, sha256 = "3ac2f0874a32aea06b7d90311e38a3e3d303ae7b9d7f04661bea76cb25c44d40" },
   { name = "asi.nlu.perturb", bytes = 5264, sha256 = "77af06b03ccd50e0dccf3857278d682196d86f7c08edb977c39653099b15e4ca" },
   { name = "asi.nlu.plan", bytes = 8073, sha256 = "f0d06bc680534813a7e6c65ae92a753177d5895a2e17a542dfc474a14b13aaa0" },
   { name = "asi.nlu.rbench", bytes = 22681, sha256 = "8d7dd43783e912b5d0b294029920ce3019435bfa62283c0e02c5efa5cbd5b3ce" },
   { name = "asi.nlu.record", bytes = 22010, sha256 = "7e484ebafd3dea8aa305dc6edb5235ffa3acb777bc97b9150bf8e021a5846d00" },
   { name = "asi.nlu.repair", bytes = 10500, sha256 = "14436d03d269338fb7a1297093d8cf3f22c2d5bca102ce809ac8f6400fd80431" },
   { name = "asi.nlu.resources", bytes = 802, sha256 = "cb534724597215aefc87724e616136bdd513273bc60037b157183bdbe86fb7e8" },
-  { name = "asi.nlu.sem", bytes = 28199, sha256 = "290b3120b6a26bc8381053085e79c3402b02e0ee1ed75fdc5118528c2550af80" },
-  { name = "asi.nlu.spell", bytes = 4898, sha256 = "009ddb7d5ce0b674a4165652cb408a3b4e3e445ade89c3783ed08aa23e2dd3b5" },
-  { name = "asi.nlu.temporal", bytes = 39036, sha256 = "0af52f3a9fd922f36ef86b0a21f0b1c27520e58930d265b46057c2ae7233af8a" },
+  { name = "asi.nlu.sem", bytes = 42765, sha256 = "83cb8b8e95b1a7e91cf222ab64b0cf742a2522fe7775af1284bc622f45ea0e22" },
+  { name = "asi.nlu.spell", bytes = 6330, sha256 = "ad187dc325f7786de687fc44c23c9fb67a9737c57505c73370bc1a4fda0bb3f8" },
+  { name = "asi.nlu.temporal", bytes = 39911, sha256 = "cffd7d5265fd73ce18e7ca41db1e186b9f67662e16c9c97c38e5206f15ffba95" },
   { name = "asi.nlu.textutil", bytes = 2292, sha256 = "66657a87c2a74d210425b7c5b539445d5c8b6a9e9664a76a9a7fea15eb134149" },
   { name = "asi.nlu.unicode", bytes = 17174, sha256 = "a59dc884903d9e05f1be47d193a879e3c25d5b6c381bd203b7358c7a48b20b0b" },
   { name = "asi.nlu.util", bytes = 21159, sha256 = "391e67a78b13368a4be4028659bc45babecbdd7ff24aa761d00ad68dd38aaa8f" },
   { name = "asi.nlu.verify", bytes = 44851, sha256 = "f8f0168a18f5856a71d8a5e02bbd49e3ad01a2d0fa335ea9ca9d5a42798cd237" },
-  { name = "asi.nlu.data.lex_core", bytes = 29414, sha256 = "7911efbbfe0c5dd1229b62ef747ab7a37bd4845786b1465dc93c55142f64ff05" },
-  { name = "asi.nlu.data.lex_gaz", bytes = 8003, sha256 = "04acc94f338a48b42e9479db93329e7f684a7c6dfbdfee0b641b935fd4186ee4" },
-  { name = "asi.nlu.data.lex_rel", bytes = 10397, sha256 = "e059cf369f976ce6a649033f4259aa7266b8a395f5f29576da3f98a15ba65b3c" },
+  { name = "asi.nlu.data.lex_core", bytes = 36766, sha256 = "9248c29e40c5ae7f134de331d3569955ec63c63badf692ecd9bd0ac3accb9be3" },
+  { name = "asi.nlu.data.lex_gaz", bytes = 10088, sha256 = "ca3e80c7c6004cd4f327403bb4ee58a1d925771ae23f0090ce840aec3febe6dc" },
+  { name = "asi.nlu.data.lex_rel", bytes = 12824, sha256 = "4c27ab33ecf00745ebc48b8a0c4fb62a3f959fa048ff63db7271d0bc7f7c1ed8" },
   { name = "asi.nlu.data.lex_sense", bytes = 6101, sha256 = "1eb7fefd5771778cc97bcbfe9224a84ec8fa085f38d8090238f123042831418e" },
   { name = "asi.nlu.data.lex_typenoun", bytes = 6425, sha256 = "3fd5d839b2e1cc2b837aadac26173afd252046bd06c84c7230d4d8ee3fd66482" },
-  { name = "asi.nlu.data.cal_interp_v1", bytes = 2237, sha256 = "ac91a6ed8ad13204920ccd91e24cc4b93581fdbcfe7fcdf2c01db95cdfed2095" },
+  { name = "asi.nlu.data.cal_interp_v1", bytes = 2130, sha256 = "49956d4fc43dd8cc5456509ef1a11c8ed0e1ebafa2c9ba84a090b9b9eca57dd1" },
 } }
 end

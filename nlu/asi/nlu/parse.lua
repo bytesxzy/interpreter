@@ -342,6 +342,13 @@ local function nclass(S, c, in_np)
   if c.single and not next(f) then
     local cats = c.cats
     if cats.pron or cats.pron_dem or cats.pron_indef or cats.pron_poss or cats.pron_refl then f.pron = true end
+    -- "live there", "born there": the locative pro-form stands for a place mentioned earlier; after a form of be / have / a modal or at the start
+    -- of the clause it is the existential "there" ("Is there a ...", "There are ...") and no pronoun
+    if cats.pron_loc then
+      local pv = S.chunks[(c.idx or 0) - 1]
+      local pc = pv and pv.cats
+      if pv and (c.idx or 0) > S.first and not (pc and (pc.aux_be or pc.aux_have or pc.aux_do or pc.modal or pc.wh or pc.neg_word or pc.conj)) and not pv.pre then f.pron = true end
+    end
     if cats.poss_det then f.poss_det = true end
     local closed = cats.det or cats.prep or cats.conj or cats.wh or cats.aux_be or cats.aux_do or cats.aux_have or cats.modal or cats.polite
       or cats.neg_word or cats.clitic_s or cats.adv or cats.particle or f.pron or f.poss_det
@@ -627,6 +634,8 @@ local function parse_np_core(S, k, opts)
         if nn and (nn.sense or nn.unknown or nn.relnoun) and not nn.from_verb and not nn.pron and not nn.adj then np_ctx = true end
       end
     end
+    -- a spoken filler ("Hanoi lol", "Paris btw") never belongs to a noun phrase
+    if m > j and cm.single and cat(cm, "filler") then break end
     local nc = nclass(S, cm, np_ctx)
     if not nc then break end
     if nc.pron and not nc.entity and not nc.sense then break end
@@ -1860,8 +1869,10 @@ function P.strip_wrapper(S)
   end
   local n2 = (not progressed) and cue("request_open") or nil
   if n2 then
+    local seek = cue("seek_open")
     if skip_units(n2) then
       w.kinds[#w.kinds + 1] = "request_open"
+      w.seek = seek ~= nil      -- "Find me ...", "I'm looking for ...", "I need ...": the object is a thing to be found, not a thing to be defined
       progressed = true
       local c, c2 = C(S, k), C(S, k + 1)
       -- "I want to know X" / "I need to find X" / "I'd like to see X"

@@ -231,6 +231,13 @@ function E.compare(lex, m, gold)
         for _, p in ipairs(c.positive) do if p.kind == "geographic" and p.value and (p.value.text or ""):lower():find(key:lower(), 1, true) then found = true end end
       elseif kind == "has" then
         for _, p in ipairs(c.positive) do if p.kind == "has" and p.value and (p.value.text or ""):lower():find(key:lower(), 1, true) then found = true end end
+      elseif kind == "numeric" then
+        -- numeric:relation or numeric:relation>1000000 (op symbols > >= < <= = ~ and a bound)
+        local rel, sym, bound = key:match("^([%w_]+)([<>=~]*)([%d%.]*)$")
+        local OPS = { [">"] = "gt", [">="] = "ge", ["<"] = "lt", ["<="] = "le", ["="] = "eq", ["~"] = "approx" }
+        for _, p in ipairs(c.positive) do
+          if p.kind == "numeric" and p.relation == rel and (sym == "" or OPS[sym] == p.op) and (bound == "" or tonumber(bound) == p.value) then found = true end
+        end
       end
       if not found then ok = false end
     end
@@ -307,7 +314,8 @@ function E.compare(lex, m, gold)
   local cx = m.context or {}
   if gold.dep then
     local got = cx.dependency and cx.dependency.primary or "-"
-    chk("dep", got == gold.dep, got)
+    -- the format document calls the engine class `earlier_project_context` "earlier_context"
+    chk("dep", got == gold.dep or (gold.dep == "earlier_context" and got == "earlier_project_context"), got)
   end
   if gold.ref then
     -- ref=<mention>><antecedent text | resolved | ambiguous | unresolved>, ...

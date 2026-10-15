@@ -16,6 +16,13 @@ local PROTECTED_KINDS = U.set({ "instruction", "prohibition", "correction", "pre
 local STOP = U.set({ "the", "a", "an", "of", "and", "or", "to", "in", "on", "at", "by", "for", "with", "is", "are", "was", "were", "be", "it", "its",
   "as", "that", "this", "which", "what", "who", "how", "do", "does", "did", "i", "you", "we", "me", "my", "your", "please", "can", "could" })
 
+-- words of the recall frame itself ("what did I SAY ...", "remind me what we DISCUSSED"): they name the act of recalling, not what is recalled
+local RECALL_FRAME = {}
+for _, w in ipairs({ "say", "said", "says", "tell", "told", "mention", "mentioned", "ask", "asked", "remember", "recall", "remind", "earlier", "before", "previously",
+  "discuss", "discussed", "talk", "talked", "state", "stated", "specify", "specified", "about", "tell", "wrote", "write", "typed", "just", "again" }) do
+  RECALL_FRAME[require("asi.nlu.textutil").stem(w)] = true
+end
+
 -- which slots apply to which kinds of request (everything else is "any")
 local SLOT_SCOPE = { dataset = "evidence", source = "evidence", version = "evidence", year = "evidence", file = "evidence", statement = "evidence",
   figures = "evidence", model = "any", format = "style", language = "style", tone = "style" }
@@ -162,6 +169,13 @@ local function ref_key(r)
 end
 M.ref_key = ref_key
 
+-- the key under which a fact stores an argument: entities by key, the speaker ("I", "my") as "speaker:<who>"
+local function fact_key(r, speaker)
+  if r and r.deictic == "speaker" then return "speaker:" .. (speaker or "user") end
+  return ref_key(r)
+end
+M.fact_key = fact_key
+
 function M:mention(key, info)
   if not key then return end
   local e = self.entities[key]
@@ -169,6 +183,7 @@ function M:mention(key, info)
     e = { key = key, names = {}, type = info.type, mentions = {}, first_turn = self.turn, by_user = false }
     self.entities[key] = e
   end
+  if info.loc then e.loc = true end          -- first met after a locative preposition: evidence of a place
   if info.exact then e.exact = true end      -- the speaker stressed that THIS is the intended name ("exactly X, no lookalikes")
   if info.type and not e.type then e.type = info.type end
   if info.itype and not e.type and not e.itype then e.itype = info.itype end
@@ -353,6 +368,19 @@ function M:slot_state(slot)
   return s
 end
 
+-- The slot of the most recent standing user instruction whose value is of the given kind ("year" / "word") within the last few turns: a bare
+-- corrected value ("Sorry, I meant 2023.") replaces the value of that slot.
+function M:recent_slot(value_kind, max_turns)
+  for i = #self.order, 1, -1 do
+    local it = self.items[self.order[i]]
+    if it and it.slot and it.speaker == "user" and (it.kind == "instruction" or it.kind == "correction") and it.status == "active" then
+      if it.turn < (self.turn or 0) - (max_turns or 4) then return nil end
+      if it.value_kind == value_kind then return it.slot end
+    end
+  end
+  return nil
+end
+
 function M:supersede(old_id, by, reason)
   local old = self.items[old_id]
   if not old or old.status ~= "active" then return end
@@ -448,7 +476,7 @@ function M:observe_sentence(interp, meta)
   if interp.intent == "comparison" and interp.items then
     local ks = {}
     for _, it in ipairs(interp.items) do local k = ref_key(it); if k then ks[#ks + 1] = k end end
-    if #ks >= 2 then self.comparison = { keys = ks, turn = self.turn, dimension = interp.dimension } end
+    if #ks >= 2 then self.comparison = { keys = ks, turn = self.turn, dimension = interp.dimension, rel = interp.relation and interp.relation.id } end
   end
   local created
   -- standing instructions / prohibitions / preferences ----------------------------------------------------------------
@@ -464,7 +492,8 @@ function M:observe_sentence(interp, meta)
     elseif ins.slot then
       local value = value_of(ins)
       local item = { layer = "task", kind = ins.correction and "correction" or "instruction", text = text, entities = keys, speaker = speaker, slot = ins.slot,
-        value = value, value_label = ins.value and ins.value.label, standing = not meta.scoped, persist = ins.persist, correction = ins.correction, verb = ins.verb }
+        value = value, value_label = ins.value and ins.value.label, value_kind = ins.value and ((ins.value.year and "year") or (ins.value.word and "word") or nil),
+        standing = not meta.scoped, persist = ins.persist, correction = ins.correction, verb = ins.verb }
       created = self:add(item)
       local st = self:slot_state(ins.slot)
       if st.active and self.items[st.active] and not meta.additive then
@@ -497,7 +526,7 @@ function M:observe_sentence(interp, meta)
   -- semantic memory: relational assertions, hedges kept speculative ---------------------------------------------------------
   if interp.intent == "statement" and interp.relation and interp.roles and (interp.roles.from or interp.roles.to) then
     created = self:add({ layer = "semantic", kind = "fact", text = text, entities = keys, speaker = speaker, rel = interp.relation.id,
-      from = ref_key(interp.roles.from), to = ref_key(interp.roles.to), polarity = interp.polarity,
+      from = fact_key(interp.roles.from, speaker), to = fact_key(interp.roles.to, speaker), polarity = interp.polarity,
       status = meta.hedged and "speculative" or "active", reliability = (meta.hedged and 0.3 or nil) })
     local fk = tostring(created.rel) .. "|" .. tostring(created.from)
     if not meta.hedged and created.from then
@@ -616,6 +645,12 @@ function M:select(interp, opts)
         local shared_t = 0
         for _, t in ipairs(terms) do if (self.index.terms[t] or {})[it.id] then shared_t = shared_t + 1 end end
         if shared_t >= 2 then st = st + 1.0; f.decision_subject_overlap = shared_t end
+      end
+      -- "What did I say my dog was called?": a request to recall an earlier statement is linked to the statement that repeats at least two of its content words
+      if interp.intent == "conversation_recall" and it.turn < self.turn and (it.kind == "utterance" or it.kind == "fact" or it.kind == "decision") then
+        local shared_t = 0
+        for _, t in ipairs(terms) do if not RECALL_FRAME[t] and (self.index.terms[t] or {})[it.id] then shared_t = shared_t + 1 end end
+        if shared_t >= 2 then st = st + 1.0; f.recall_overlap = shared_t end
       end
       if it.kind == "instruction" or it.kind == "correction" or it.kind == "preference" then
         if self:slot_applicable(it.slot or "any", interp) or (not it.slot and it.kind == "preference") then

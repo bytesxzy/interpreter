@@ -240,16 +240,22 @@ local function bind_all(S, ctx, h)
     local what = (b.top and b.top.name) or P.span_text(S, st.known)
     fit_factor("chain_fit:" .. si, fit, string.format("step %d: '%s' as %s of %s (fit %.2f)", si, what, st.known_role, st.rel, fit))
   end
+  -- a noun phrase already bound against a relation signature of this hypothesis keeps that typed binding (an untyped second binding would
+  -- discard the type evidence: "Is Canbera the capital of Australia?" lists the same noun phrase as a role and as an item)
+  local function bind_untyped(np, role)
+    if np.bound and np.bound_h == h and np.bound_for ~= nil then return end
+    H.bind_np(S, ctx, np, nil, h, role)
+  end
   if h.subject then H.bind_np(S, ctx, h.subject, h.expect_type, h, "subject") end
-  if h.concept then H.bind_np(S, ctx, h.concept, nil, h, "concept") end
-  if h.target then H.bind_np(S, ctx, h.target, nil, h, "target") end
-  for _, it in ipairs(h.items or {}) do H.bind_np(S, ctx, it, nil, h, "item") end
-  if h.focus then H.bind_np(S, ctx, h.focus, nil, h, "focus") end
-  if h.object then H.bind_np(S, ctx, h.object, nil, h, "object") end
-  if h.basis then H.bind_np(S, ctx, h.basis.np, nil, h, "basis") end
+  if h.concept then bind_untyped(h.concept, "concept") end
+  if h.target then bind_untyped(h.target, "target") end
+  for _, it in ipairs(h.items or {}) do bind_untyped(it, "item") end
+  if h.focus then bind_untyped(h.focus, "focus") end
+  if h.object then bind_untyped(h.object, "object") end
+  if h.basis then bind_untyped(h.basis.np, "basis") end
   if h.statement then
-    if h.statement.subj then H.bind_np(S, ctx, h.statement.subj, nil, h, "subject") end
-    if h.statement.obj then H.bind_np(S, ctx, h.statement.obj, nil, h, "object") end
+    if h.statement.subj then bind_untyped(h.statement.subj, "subject") end
+    if h.statement.obj then bind_untyped(h.statement.obj, "object") end
   end
   -- sense-level domain evidence for typenoun/concept readings (competing readings of a word such as "program")
   for _, np in ipairs({ h.concept, h.target, h.object, h.focus }) do
