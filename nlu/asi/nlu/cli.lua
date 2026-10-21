@@ -5,6 +5,8 @@
 --   interpret-trace   full provenance of one request: tokens, segmentation, competing hypotheses with every named factor, repairs, constraints, evidence checks
 --   interpret-memory  feed a conversation (U:/A: lines) into a memory namespace and show / save / load the memory state
 --   interpret-replay  re-run a saved record's request and verify it reproduces bit-for-bit (determinism and integrity)
+--   dataset-profile   how the engine READS a dataset: its kind, which parts are facts and which are persona / style statements, examples, questions or instructions,
+--                     the persona and tone it picks up (with the evidence), and the effect of --say "..." instructions ("use a calmer tone", "treat the examples as facts")
 -- usage: lua asi.lua <command> [options]      (see `help`)
 local U = require("asi.nlu.util")
 
@@ -19,6 +21,7 @@ asi-nlu: LM-independent natural-language interpretation engine
   interpret-trace  TEXT [--top N] [--data F]...
   interpret-memory [--turns FILE] [--ns NS --user U] [--save F] [--load F] [--ask TEXT]
   interpret-replay RECORD.json [--data F]...
+  dataset-profile  --data F[:name=n]... [--say TEXT]... [--json]
   help
 ]=]
 
@@ -34,7 +37,9 @@ local function parse_args(argv)
       if FLAGS[k] then opts[k] = true; i = i + 1
       else
         local v = argv[i + 1]
-        if k == "data" then multi.data = multi.data or {}; table.insert(multi.data, v) else opts[k] = v end
+        if k == "data" then multi.data = multi.data or {}; table.insert(multi.data, v)
+        elseif k == "say" then multi.say = multi.say or {}; table.insert(multi.say, v)
+        else opts[k] = v end
         i = i + 2
       end
     else pos[#pos + 1] = a; i = i + 1 end
@@ -126,6 +131,14 @@ local function summarize(o)
     for _, ev in ipairs(rec.selected_evidence or {}) do lines[#lines + 1] = string.format("             [%s] %s (reliability %.2f, %s)", ev.role or "evidence", ev.record, ev.reliability or 0, ev.source and ev.source.name or "?") end
   end
   for _, u in ipairs(rec.unresolved_requirements or {}) do lines[#lines + 1] = string.format("unresolved : %s - %s", u.kind or "?", tostring(u.requirement or u.mention or "")) end
+  local v = rec.voice
+  if v and v.active then
+    local labels = {}
+    for _, d in ipairs(v.descriptors or {}) do labels[#labels + 1] = d.label end
+    lines[#lines + 1] = string.format("voice      : %s; tone: %s%s", (v.persona and (v.persona.name or v.persona.name_placeholder)) or "(no persona)", #labels > 0 and table.concat(labels, ", ") or "neutral",
+      v.persona and v.persona.authority == "user" and " (as set by the user)" or "")
+  end
+  if rec.engine_reply then lines[#lines + 1] = "reply      : " .. rec.engine_reply.text:gsub("\n", "\n             ") end
   return table.concat(lines, "\n")
 end
 
@@ -308,7 +321,49 @@ local function cmd_report(opts, pos, multi)
   return 0
 end
 
+local function cmd_dataset_profile(opts, pos, multi)
+  local eng, err = build_engine(multi, opts)
+  if not eng then io.stderr:write(err .. "\n"); return 2 end
+  local kb = eng.kb
+  if not kb then io.stderr:write("dataset-profile needs at least one --data FILE\n"); return 2 end
+  local Voice = require("asi.nlu.voice")
+  local Profile = require("asi.nlu.profile")
+  local mem = eng:memory(opts.ns or "cli", opts.user or "user")
+  local report = { datasets = {} }
+  local function show(title)
+    local section = Voice.build(kb, Voice.collect(mem), {})
+    if opts.json then return section end
+    out("== " .. title)
+    if not section then out("(nothing to report: no dataset loaded)"); return nil end
+    out(section.announcement)
+    if section.preview then out("Preview: " .. section.preview) end
+    if section.examples and #section.examples > 0 then
+      out("Example utterance(s) behind the tone (untrusted data; style only):")
+      for _, ex in ipairs(section.examples) do out(string.format('  - "%s"  [%s]', ex.text, tostring(ex.record))) end
+    end
+    return section
+  end
+  local last = show("reading of the dataset(s)")
+  for _, text in ipairs(multi.say or {}) do
+    local o = eng:process(text, { memory = mem, cache = false })
+    if not opts.json then
+      out("")
+      out("USER> " .. text)
+      if o.record and o.record.engine_reply then out(o.record.engine_reply.text) else out("(this was not an instruction about the reading or the voice)") end
+    end
+    last = o.record and o.record.voice or last
+  end
+  if opts.json then
+    for _, did in ipairs(kb.dataset_order) do report.datasets[#report.datasets + 1] = { dataset = did, profile = Profile.summary(kb.profiles[did]), set_aside = Profile.set_aside(kb.profiles[did], 50), qa = kb.qa_report }
+    end
+    report.voice = last
+    out(U.json_encode(report, { pretty = true, nan_null = true }))
+  end
+  return 0
+end
+
 local COMMANDS = {
+  ["dataset-profile"] = cmd_dataset_profile,
   interpret = cmd_interpret, ["interpret-eval"] = cmd_eval, ["interpret-report"] = cmd_report,
   ["interpret-trace"] = cmd_trace, ["interpret-memory"] = cmd_memory, ["interpret-replay"] = cmd_replay,
 }

@@ -56,6 +56,8 @@ R.SPEC = {
     decision_provenance = { type = "array", required = true, of = S.tab },
     unresolved_requirements = { type = "array", required = true, of = S.tab },
     execution_cost = { type = "object", required = true, fields = { interpretation_work = S.num, retrieval = S.tab, status = S.str } },
+    voice = S.tab,
+    engine_reply = S.tab,
     integrity = { type = "object", required = true, fields = { sha256 = { type = "string", min = 64, max = 64, required = true }, covers = S.str } },
   },
 }
@@ -226,6 +228,8 @@ function R.build(ctx)
     confidence = confidence(result, m, evidence, ctx.calibration),
     decision_provenance = m.provenance or {},
     hypotheses = m.hypotheses, rejected_hypotheses = m.rejected_hypotheses,
+    voice = ctx.voice,
+    engine_reply = ctx.reply,
     unresolved_requirements = {},
     execution_cost = { interpretation_work = result.work and result.work.total or 0, work_by_stage = result.work and result.work.by_stage, status = result.status or "ok",
       retrieval = { assertions_examined = evidence and evidence.assertion_count or 0, selected = evidence and #evidence.selected or 0, rejected = evidence and #evidence.rejected or 0 } },

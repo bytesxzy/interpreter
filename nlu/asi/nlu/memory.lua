@@ -25,7 +25,10 @@ end
 
 -- which slots apply to which kinds of request (everything else is "any")
 local SLOT_SCOPE = { dataset = "evidence", source = "evidence", version = "evidence", year = "evidence", file = "evidence", statement = "evidence",
-  figures = "evidence", model = "any", format = "style", language = "style", tone = "style" }
+  figures = "evidence", model = "any", format = "style", language = "style", tone = "style", persona = "style", dataset_role = "style" }
+-- slots whose instructions ACCUMULATE ("use a calmer tone", then "no caps"): a newer one does not replace the older ones, an explicit reset inside the instruction does
+local ADDITIVE_SLOTS = { tone = true, persona = true, dataset_role = true }
+M.ADDITIVE_SLOTS = ADDITIVE_SLOTS
 
 ---------------------------------------------------------------- construction
 function M.new(opts)
@@ -492,11 +495,11 @@ function M:observe_sentence(interp, meta)
     elseif ins.slot then
       local value = value_of(ins)
       local item = { layer = "task", kind = ins.correction and "correction" or "instruction", text = text, entities = keys, speaker = speaker, slot = ins.slot,
-        value = value, value_label = ins.value and ins.value.label, value_kind = ins.value and ((ins.value.year and "year") or (ins.value.word and "word") or nil),
+        value = value, value_label = ins.value and ins.value.label, value_kind = ADDITIVE_SLOTS[ins.slot] and "voice" or (ins.value and ((ins.value.year and "year") or (ins.value.word and "word") or nil)),
         standing = not meta.scoped, persist = ins.persist, correction = ins.correction, verb = ins.verb }
       created = self:add(item)
       local st = self:slot_state(ins.slot)
-      if st.active and self.items[st.active] and not meta.additive then
+      if st.active and self.items[st.active] and not meta.additive and not ADDITIVE_SLOTS[ins.slot] then
         self:supersede(st.active, created, ins.correction and "explicit correction" or "newer instruction for the same slot")
       end
       st.active = created.id
@@ -509,6 +512,10 @@ function M:observe_sentence(interp, meta)
     if rv.slot then
       local st = self.slots[rv.slot]
       target = st and st.active
+      -- an accumulating slot is withdrawn as a whole ("never mind the tone instructions")
+      if st and ADDITIVE_SLOTS[rv.slot] then
+        for _, hid in ipairs(st.history) do if hid ~= st.active and not (created and hid == created.id) then self:revoke(hid, text) end end
+      end
     elseif rv.class or rv.bare then
       -- the most recent standing user item; a bare "never mind" can only refer to the immediately preceding turn
       local best_key

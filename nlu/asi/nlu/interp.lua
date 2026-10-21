@@ -191,7 +191,7 @@ function I:interpret(text, call)
     return result
   end
   local ctx = { flags = flags, temperature = self.temperature, max_covers = self.max_covers, meter = meter, domains = call.domains,
-    mentioned = call.mentioned, support = call.support }
+    mentioned = call.mentioned, support = call.support, persona_names = call.persona_names }
   if view and not flags.no_coref then ctx.discourse = view end
   for si, sent in ipairs(an.sentences) do
     if view then

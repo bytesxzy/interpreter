@@ -92,8 +92,8 @@ class wh: what which who whom whose when where why how whether
 class aux_be: be is are was were been being am
 class aux_do: do does did
 class aux_have: have has had having
-class filler: um uh uhm er erm umm uhh uhhh hmm lol lmao rofl haha hahaha hehe omg btw tbh imo fyi
-class ignorable: please kindly just actually really basically literally honestly um uh uhm er erm hmm ah eh well so like okay ok anyway hey quite simply truly seriously totally definitely obviously clearly umm uhh uhhh hm mm lol lmao rofl haha hahaha hehe omg btw tbh imo fyi roughly approximately around about
+class filler: um uh uhm er erm umm uhh uhhh hmm lol lmao rofl haha hahaha hehe omg btw tbh imo fyi oh ah wow whoa gosh yay ugh aw aww ooh oooh eek yikes gee hurray hooray yippee phew yo
+class ignorable: please kindly just actually really basically literally honestly um uh uhm er erm hmm ah eh well so like okay ok anyway hey quite simply truly seriously totally definitely obviously clearly umm uhh uhhh hm mm lol lmao rofl haha hahaha hehe omg btw tbh imo fyi roughly approximately around about oh ah wow whoa gosh yay ugh aw aww ooh oooh eek yikes gee hurray hooray yippee phew yo omg
 class be_participle: designated named declared appointed chosen elected recognized recognised regarded considered known called deemed termed titled
 class copula_like: serve serves served serving function functions functioned functioning act acts acted acting stand stands stood standing
 class copula_become: become becomes became becoming

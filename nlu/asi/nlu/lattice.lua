@@ -14,6 +14,20 @@ local TITLE_PREFIX = U.set({ "dr", "mr", "mrs", "ms", "prof", "sir", "lady", "lo
 
 local function span_key(i, j) return i .. ":" .. j end
 
+-- words of the dramatic register (interjections, intensifiers, hyperbole, praise ...): in SHOUTED text they are ordinary words, never name candidates
+local STYLE_KNOWN
+local function style_known(form)
+  if not STYLE_KNOWN then
+    STYLE_KNOWN = {}
+    local L = require("asi.nlu.data.style_lex")
+    for _, list in ipairs({ L.interjections, L.intensifiers, L.hyperbole, L.positive, L.hedges, L.formal_markers, L.informal_markers, L.polite_markers }) do
+      for _, p in ipairs(list) do for w in p:lower():gmatch("[%a']+") do STYLE_KNOWN[w] = true end end
+    end
+    for _, ws in pairs(L.voice_markers) do for _, p in ipairs(ws) do for w in p:lower():gmatch("[%a']+") do STYLE_KNOWN[w] = true end end end
+  end
+  return STYLE_KNOWN[form] == true
+end
+
 -- a word the lexicon knows as an ordinary word (function word, verb, adjective, relational/type noun) -- not a name
 local function is_common(lex, u)
   local f = u.form
@@ -170,6 +184,8 @@ function Lattice.build(an, lex, opts)
     local shout = sent and sent.shout
     -- a brand written with an inner capital ("iPhone", "eBay", "iPad") is as name-like as a capitalised word
     local capital = (u.cap or u.mixed_case) and not shout and (u.kind == "word" or u.kind == "abbrev" or u.kind == "acronym" or u.kind == "initial") and not u.case_sensitive
+    -- an ALL-CAPS word inside a sentence that is not shouted is emphasis when it is an ordinary word ("the MOST FASCINATING question EVER"), not a name
+    if capital and u.allcaps and u.kind == "word" and not u.acr_known and (#u.form >= 7 or is_common(lex, u)) then capital = false end
     local initial = capital and sentence_initial(u)
     local common = capital and is_common(lex, u)
     -- "Compare", "Did", "Is" ... are capitalised only by position: they must not swallow the names that follow them
@@ -297,6 +313,33 @@ function Lattice.build(an, lex, opts)
           add(k, j, { kind = "name", type_guess = head, text = an.original:sub(units[k].s, units[j].e), multiword = true, weak = true, head_cue = true }, "name_guess", 0.7 + 0.3 * (j - k))
         end
         k = j + 1
+      else k = k + 1 end
+    end
+  end
+
+  -- 5c. SHOUTED sentences: capitals say nothing about names, so a run of up to three ALL-CAPS words that neither the lexicon nor the dramatic register knows
+  --     is a weak name guess (typed by a head word such as CORP / LABS when there is one).  Weak by construction: never an established entity.
+  do
+    local k = 1
+    while k <= n do
+      local u = units[k]
+      local sent = an.sentences[u.sent or 0]
+      if sent and sent.shout and u.kind == "word" and u.allcaps and #u.form >= 3 and not u.alts and not is_common(lex, u) and not style_known(u.form) then
+        local known_entity = false
+        for _, m in ipairs(lex:match_at(units, k)) do
+          for _, e in ipairs(m.entries) do if e.kind == "entity" then known_entity = true end end
+        end
+        if not known_entity then
+          local j = k
+          while j - k < 2 do
+            local nx = units[j + 1]
+            if nx and not nx.pre and nx.sent == u.sent and nx.kind == "word" and nx.allcaps and #nx.form >= 3 and (lex:headcue(nx.form) or (not is_common(lex, nx) and not style_known(nx.form))) then j = j + 1 else break end
+          end
+          local type_guess = lex:headcue(units[j].form) or lex:headcue(u.form)
+          add(k, j, { kind = "name", type_guess = type_guess, text = an.original:sub(units[k].s, units[j].e), multiword = j > k, weak = true, shouted = true,
+            head_cue = type_guess and true or nil }, "name_guess", 0.5 + 0.2 * (j - k))
+          k = j + 1
+        else k = k + 1 end
       else k = k + 1 end
     end
   end

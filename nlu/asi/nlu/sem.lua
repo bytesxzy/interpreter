@@ -8,6 +8,7 @@ local H = require("asi.nlu.hyp")
 local F = require("asi.nlu.frames2")
 require("asi.nlu.frames3")   -- registers the stranded-preposition, quantity, list and support-verb yes/no frames on the same table
 require("asi.nlu.frames4")   -- attribution idioms, locus hosts, "where can I find", generic-subject holders
+require("asi.nlu.frames5")   -- instructions about the reading of a dataset / the voice of the assistant, and questions about the engine's own reading
 
 local Sem = {}
 
@@ -34,7 +35,7 @@ function Sem.gibberish(S)
   return words >= 2 and bad >= 2 and bad * 2 >= words
 end
 
-local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_place_stranded_in", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "compare_dimension", "wh_impersonal", "wh_origin", "recall_turn", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
+local FRAME_FUNCS = { "wh_copular", "wh_verb", "wh_do", "wh_passive", "wh_adverbial", "where_support", "wh_support_as", "wh_support_subject", "wh_role_holder", "wh_relnoun_stranded", "wh_pred_stranded", "wh_place_stranded_in", "wh_relnoun_same_pred", "wh_identity_person", "wh_credit", "wh_locus_host", "where_find", "wh_adj_predicate", "ellipsis", "compare_differences", "compare_which_of_two", "compare_dimension", "wh_impersonal", "wh_origin", "recall_turn", "what_does_do", "quantity_q", "how_adj_relnoun", "list_relative", "yes_no_support", "existential_search", "voice_instruction", "voice_query", "style_instruction", "resource_directive", "yes_no", "wh_change", "compare_q",
   "request", "instruction", "exclusion_clause", "appearance_ban", "focus", "statement", "wh_superlative", "yes_no_passive", "verify_comparison", "which_filtered", "statement_relational", "np_only", "segment_only", "recall", "what_means", "generic_holder" }
 
 local function sentence_unit_range(an, sid)
@@ -497,6 +498,7 @@ function Sem.render(res, ctx)
     for _, k in ipairs(S.wrapper.kinds) do if k == "polite_question" or k == "request_open" then interp.speech_act = "request" end end
   end
   interp.intent, interp.op, interp.frame = top.intent, top.op, top.frame
+  interp.voice_query = top.voice_query
   interp.wrapper = (S.wrapper and #S.wrapper.kinds > 0) and { kinds = S.wrapper.kinds, polite = S.wrapper.polite } or nil
   interp.relation = relation_info(S, top)
   if S.topic then
@@ -551,7 +553,7 @@ function Sem.render(res, ctx)
   if top.instruction then
     local ins = top.instruction
     interp.instruction = { verb = ins.verb, act = ins.act, slot = ins.slot, value = ins.value and { year = ins.value.year, label = ins.value.label, word = ins.value.word } or nil,
-      object = ref(S, ins.np), correction = ins.correction or nil, persist = ins.persist or nil }
+      object = ref(S, ins.np), correction = ins.correction or nil, persist = ins.persist or nil, ops = ins.ops }
   end
   if top.clause then
     interp.clause = { subject = ref(S, top.clause.subj), lemma = top.clause.lemma, object = ref(S, top.clause.obj), negated = top.clause.neg or nil, voice = top.clause.voice }

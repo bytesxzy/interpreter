@@ -49,6 +49,17 @@ function X:add(rec, analysis)
   for fi, f in ipairs(fields) do
     local text = rec.field_text and rec.field_text[f] or ""
     local toks = TU.tokens(text)
+    -- text that is not knowledge (examples of a voice, instructions, questions) is not retrievable as evidence either
+    local skip = analysis and analysis.skip and analysis.skip[f]
+    if skip then
+      local kept = {}
+      for _, t in ipairs(toks) do
+        local inside = false
+        for _, r in ipairs(skip) do if t.s >= r.s and t.s <= r.e then inside = true break end end
+        if not inside then kept[#kept + 1] = t end
+      end
+      toks = kept
+    end
     local per = {}
     for _, t in ipairs(toks) do
       local term = t.t

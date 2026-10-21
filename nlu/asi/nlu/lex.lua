@@ -793,6 +793,68 @@ function Lex.segment_sentences(an)
   end
   if first <= #toks then close(#toks, nil) end
   an.sentences = sents
+  -- Shouting is a property of a stretch of text, not of one sentence: "OH. MY. GOODNESS!!!" is three one-word sentences, and a short all-caps exclamation
+  -- ("SO COOL!!!") beside shouted text is shouted too.  Capitalisation is then no evidence that a word is a name.
+  local para_stats = {}
+  local own = {}
+  for _, s in ipairs(sents) do
+    local c, u = 0, 0
+    for z = s.first_tok, s.last_tok do
+      local tk2 = toks[z]
+      if tk2.letters and tk2.letters >= 2 then c = c + 1; if tk2.allcaps then u = u + 1 end end
+    end
+    own[s] = { c = c, u = u }
+    local ps = para_stats[s.para]
+    if not ps then ps = { cased = 0, up = 0 }; para_stats[s.para] = ps end
+    ps.cased, ps.up = ps.cased + c, ps.up + u
+  end
+  for _, s in ipairs(sents) do
+    if not s.shout then
+      local o, ps = own[s], para_stats[s.para]
+      if o.c >= 1 and o.u == o.c and ps.cased >= 3 and ps.up / ps.cased >= 0.7 then s.shout = true
+      elseif o.c >= 2 and o.u == o.c and s.terminal and s.terminal:find("!", 1, true) then s.shout = true end
+    end
+  end
+end
+
+---------------------------------------------------------------- elongation ("whaaat", "peruuu", "sooo", "goood")
+-- Every run of three or more equal letters is shortened to one or two letters (the more natural length first); the first candidate the caller knows as a word or
+-- name wins.  Nothing is guessed beyond that: an elongated word that collapses to nothing known stays as written.
+local function deelongate(form, known)
+  if not known or type(form) ~= "string" or not form:find("(%a)%1%1") then return nil end
+  local parts, runs, pos = {}, {}, 1
+  while pos <= #form do
+    local c = form:sub(pos, pos)
+    local e = pos
+    while form:sub(e + 1, e + 1) == c do e = e + 1 end
+    if e - pos + 1 >= 3 and c:match("%a") then
+      runs[#runs + 1] = #parts + 1
+      parts[#parts + 1] = { c = c, n = e - pos + 1, run = true }
+    else parts[#parts + 1] = { s = form:sub(pos, e) } end
+    pos = e + 1
+  end
+  if #runs == 0 or #runs > 4 then return nil end
+  local combos = {}
+  for mask = 0, (1 << #runs) - 1 do
+    local bits = 0
+    for b = 0, #runs - 1 do if mask & (1 << b) ~= 0 then bits = bits + 1 end end
+    combos[#combos + 1] = { mask = mask, bits = bits }
+  end
+  table.sort(combos, function(a, b) if a.bits ~= b.bits then return a.bits < b.bits end return a.mask < b.mask end)
+  for _, cb in ipairs(combos) do
+    local out, ri = {}, 0
+    for _, p in ipairs(parts) do
+      if p.run then
+        ri = ri + 1
+        local first = (p.n == 3) and 2 or 1
+        local pick = (cb.mask & (1 << (ri - 1)) ~= 0) and (3 - first) or first
+        out[#out + 1] = p.c:rep(pick)
+      else out[#out + 1] = p.s end
+    end
+    local cand = table.concat(out)
+    if cand ~= form and known(cand) then return cand end
+  end
+  return nil
 end
 
 ---------------------------------------------------------------- units
@@ -804,6 +866,7 @@ function Lex.build_units(an, opts)
   local units, toks = an.units, an.tokens
   local pending = {}
   local spell = opts and opts.spell
+  local known = opts and (opts.known or (spell and function(f) return spell:known(f) end)) or nil
   local function push(u)
     u.i = #units + 1
     if #pending > 0 then u.pre = table.concat(pending, ","); pending = {} end
@@ -847,8 +910,12 @@ function Lex.build_units(an, opts)
         -- match forms drop the abbreviation/initialism dots ("Dr." -> "dr", "U.S.A." -> "usa"); `raw` keeps them
         if t.kind == "abbrev" or t.kind == "initial" then form = form:gsub("%.$", "")
         elseif t.kind == "acronym" then form = form:gsub("%.", "") end
-        local u = push(with({ raw = t.text, form = form, lower = t.lower, s = t.s, e = t.e, cs = t.cs, ce = t.ce,
-          case_sensitive = CASE_SENSITIVE_KINDS[t.kind] or nil, atomic = t.atomic,
+        -- elongation: "whaaat" / "peruuu" read as the known word they stretch
+        local stretched = (t.kind == "word" and not t.alnum) and deelongate(form, known) or nil
+        local surface
+        if stretched then surface, form = form, stretched end
+        local u = push(with({ raw = t.text, form = form, lower = stretched or t.lower, s = t.s, e = t.e, cs = t.cs, ce = t.ce,
+          case_sensitive = CASE_SENSITIVE_KINDS[t.kind] or nil, atomic = t.atomic, elongated = stretched and true or nil, surface_form = surface,
           acr = (t.kind == "acronym" or (t.allcaps and t.letters <= 6)) or nil }))
         if spell and t.kind == "word" and t.letters and t.letters >= 4 and not t.alnum and not t.invalid and not u.hy then
           u.unknown = not spell:known(form)

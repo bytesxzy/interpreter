@@ -11,6 +11,7 @@ local Plan = require("asi.nlu.plan")
 local Verify = require("asi.nlu.verify")
 local Record = require("asi.nlu.record")
 local Package = require("asi.nlu.package")
+local Voice = require("asi.nlu.voice")
 
 local E = {}
 E.__index = E
@@ -86,10 +87,24 @@ function E:process(text, call)
     local hit = self.cache[key]
     if hit then self.stats.cache_hits = self.stats.cache_hits + 1; return hit, true end
   end
-  local result = self.interp:interpret(text, { memory = call.memory, speaker = call.speaker, now = call.now, budget = call.budget, domains = call.domains, light = call.light })
+  local result = self.interp:interpret(text, { memory = call.memory, speaker = call.speaker, now = call.now, budget = call.budget, domains = call.domains, light = call.light,
+    persona_names = self.kb and Voice.persona_names(self.kb) or nil })
   local out = { result = result }
   if result.light then out.light = true; return out end
   local m = result.main
+  -- what the user said about the voice and about how the dataset is read (an instruction of THIS request is already in the memory; a stateless call carries it itself)
+  local voice_items = Voice.collect(call.memory)
+  local own_ops, own_slot
+  if m and m.instruction and m.instruction.ops and (m.instruction.slot == "tone" or m.instruction.slot == "persona" or m.instruction.slot == "dataset_role") then
+    own_ops, own_slot = m.instruction.ops, m.instruction.slot
+    if not call.memory then voice_items[#voice_items + 1] = { slot = own_slot, ops = own_ops, text = text, turn = 1 } end
+  end
+  local policy_changed = false
+  if self.kb and self.kb.profiles then
+    policy_changed = self.kb:set_policy_all(Voice.policy(Voice.state(voice_items)))
+    if policy_changed then self:rebuild_interpreter(); self.cache, self.cache_order = {}, {}; key = nil end
+  end
+  if own_ops then key = nil end
   local plan = Plan.build(m, self.kb)
   local evidence
   if self.kb and plan.kind ~= "none" and not (self.flags.no_retrieval) then
@@ -101,8 +116,16 @@ function E:process(text, call)
     end
     evidence = Verify.run(self.kb, plan, { skip = skip })
   end
+  local voice = Voice.build(self.kb, voice_items, { turn = call.memory and call.memory.turn or 1 })
+  local reply
+  if voice then
+    if own_ops then reply = Voice.reply(self.kb, "instruction", voice, own_ops, policy_changed)
+    elseif m and m.voice_query then reply = Voice.reply(self.kb, m.voice_query, voice) end
+  elseif m and m.voice_query then
+    reply = { kind = m.voice_query, text = "No dataset with a persona, a tone or a structure to report is loaded.", authority = "engine" }
+  end
   local rec = Record.build({ result = result, plan = plan, evidence = evidence, flags = self.flags, calibration = self.calibration,
-    lexicon_revision = (self.kb and self.kb.lex or self.base_lexicon).revision, interpreter_version = Interp.VERSION, recent = recent_turns(call.memory, 3) })
+    lexicon_revision = (self.kb and self.kb.lex or self.base_lexicon).revision, interpreter_version = Interp.VERSION, recent = recent_turns(call.memory, 3), voice = voice, reply = reply })
   out.plan, out.evidence, out.record = plan, evidence, rec
   if self.validate then
     local ok, errs = Record.validate(rec)

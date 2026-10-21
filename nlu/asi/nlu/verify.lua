@@ -31,6 +31,17 @@ local function desc_text(d)
   return d.text or d.key or ""
 end
 
+-- a record written in capitals ("THE CAPITAL OF GERMANY IS BERLIN!!!") still answers with the entity's own name when the lexicon has one
+local function display_text(kb, d)
+  local t = desc_text(d)
+  if kb and d and d.key and not d.literal and #t > 1 and t == t:upper() and t:find("%u") then
+    local ent = kb.lex:get_entity(d.key)
+    local nm = ent and ent.names and ent.names[1] and ent.names[1].text
+    if nm and nm ~= "" and nm:lower() == t:lower() then return nm end
+  end
+  return t
+end
+
 local function answer_key(kb, d)
   if not d then return nil end
   if d.literal then return "lit:" .. (d.literal.value and tostring(d.literal.value) or d.literal.text:lower()) end
@@ -237,7 +248,7 @@ local function group_answers(kb, entries, skip_rel)
   for _, e in ipairs(entries) do
     local g = groups[e.key]
     if not g then
-      g = { key = e.key, desc = e.desc, text = desc_text(e.desc), type = e.desc and e.desc.type, entries = {}, records = {}, strength = 0, n_records = 0, latest_from = nil }
+      g = { key = e.key, desc = e.desc, text = display_text(kb, e.desc), type = e.desc and e.desc.type, entries = {}, records = {}, strength = 0, n_records = 0, latest_from = nil }
       groups[e.key] = g
       order[#order + 1] = e.key
     end

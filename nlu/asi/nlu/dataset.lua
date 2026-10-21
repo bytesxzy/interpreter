@@ -7,6 +7,7 @@
 local U = require("asi.nlu.util")
 local TU = require("asi.nlu.textutil")
 local UC = require("asi.nlu.unicode")
+local Profile = require("asi.nlu.profile")
 
 local D = {}
 D.__index = D
@@ -80,12 +81,16 @@ function D.induce_schema(rows)
   table.sort(order)
   local schema = { fields = {}, text_fields = {}, meta_fields = {}, notes = {} }
   local n = #rows
+  -- columns whose NAME says what they hold (prompt / response / system / tone / persona ...) are text even when their values are short or repeated
+  local froles = Profile.resolve_field_roles(order)
   for _, k in ipairs(order) do
     local st = stats[k]
     local lk = k:lower()
     local kind = "unknown"
     local avg = st.strings > 0 and st.total_len / st.strings or 0
+    local frole = froles[k]
     if ID_NAMES[lk] and st.nd == st.n then kind = "id"
+    elseif frole and frole ~= "speaker" and st.strings >= st.n * 0.5 then kind = "text"
     elseif DATE_NAMES[lk] and st.dates + st.numbers >= st.n * 0.8 then kind = "date"
     elseif st.dates >= st.n * 0.8 and st.strings > 0 then kind = "date"
     elseif st.numbers >= st.n * 0.9 then kind = "number"
@@ -148,7 +153,32 @@ local function flat_scalar(v)
   return nil
 end
 
--- shallow flattening: nested objects -> dotted keys (depth <= 3), arrays of scalars -> "a; b; c".  Arrays of objects are NOT indexed (reported).
+-- a list of chat messages ({role, content}, {from, value}, ...) becomes one transcript: "Role: content" per message, continuation lines indented
+local SPEAKER_KEYS = { "role", "from", "speaker", "author", "sender" }
+local CONTENT_KEYS = { "content", "value", "text", "message" }
+local function chat_lines(list)
+  local lines = {}
+  for _, m in ipairs(list) do
+    if type(m) ~= "table" or #m > 0 then return nil end
+    local who, what
+    for _, k in ipairs(SPEAKER_KEYS) do if type(m[k]) == "string" and m[k] ~= "" then who = m[k]; break end end
+    for _, k in ipairs(CONTENT_KEYS) do
+      if type(m[k]) == "string" then what = m[k]; break end
+      if type(m[k]) == "table" and #m[k] > 0 then
+        local parts = {}
+        for _, x in ipairs(m[k]) do if type(x) == "table" and type(x.text) == "string" then parts[#parts + 1] = x.text elseif type(x) == "string" then parts[#parts + 1] = x end end
+        if #parts > 0 then what = table.concat(parts, "\n"); break end
+      end
+    end
+    if not who or not what then return nil end
+    lines[#lines + 1] = who:gsub("[:\n]", " ") .. ": " .. what:gsub("\n", "\n  ")
+  end
+  if #lines == 0 then return nil end
+  return table.concat(lines, "\n")
+end
+
+-- shallow flattening: nested objects -> dotted keys (depth <= 3), arrays of scalars -> "a; b; c", arrays of chat messages -> one transcript.
+-- Other arrays of objects are NOT indexed (reported).
 local function flatten(raw, notes)
   local out = {}
   local function walk(prefix, v, depth)
@@ -156,12 +186,16 @@ local function flatten(raw, notes)
     if t == "string" or t == "number" or t == "boolean" then out[prefix] = v
     elseif t == "table" and v ~= U.NULL then
       if #v > 0 then
-        local scal = {}
-        for _, x in ipairs(v) do
-          if type(x) == "string" or type(x) == "number" or type(x) == "boolean" then scal[#scal + 1] = tostring(x)
-          else notes.nested = (notes.nested or 0) + 1 end
+        local chat = (type(v[1]) == "table") and chat_lines(v) or nil
+        if chat then out[prefix] = chat; notes.chat = (notes.chat or 0) + 1
+        else
+          local scal = {}
+          for _, x in ipairs(v) do
+            if type(x) == "string" or type(x) == "number" or type(x) == "boolean" then scal[#scal + 1] = tostring(x)
+            else notes.nested = (notes.nested or 0) + 1 end
+          end
+          if #scal > 0 then out[prefix] = table.concat(scal, "; ") end
         end
-        if #scal > 0 then out[prefix] = table.concat(scal, "; ") end
       elseif depth < 3 then
         for k, x in pairs(v) do walk(prefix .. "." .. tostring(k), x, depth + 1) end
       else notes.nested = (notes.nested or 0) + 1 end
@@ -465,10 +499,19 @@ function D:ingest(text, opts)
     -- paragraph records; markdown headings become the `section` of the paragraphs that follow
     local section
     local para, pn = {}, 0
+    -- a paragraph whose lines are speaker turns ("User: ...", "Aria: ...") or list items keeps its line layout: the lines ARE the structure
+    local function structured(lines)
+      local marked = 0
+      for _, l in ipairs(lines) do
+        local label = l:match("^([%a][%w _%.%-']*):%s+%S")
+        if l:match("^[%-%*•]%s+%S") or l:match("^%d+[%.%)]%s+%S") or (label and #label <= 28) then marked = marked + 1 end
+      end
+      return marked >= 2
+    end
     local function flush()
       if #para > 0 then
         pn = pn + 1
-        raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, " "), section = section }, source = { name = name, row = pn } }
+        raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, structured(para) and "\n" or " "), section = section }, source = { name = name, row = pn } }
         para = {}
       end
     end

@@ -840,18 +840,33 @@ local function mentions_of(S, cover_spans)
 end
 
 ---------------------------------------------------------------- main
--- returns { assertions, mentions, aliases, reader_directed = {{text, reasons, s, e}}, sentences = n, limited = bool }
+-- a sentence that lies (at least half) inside a range that is not knowledge (style specification, example utterance, question, directive ...) is not read for facts
+local function skipped(ranges, s, e)
+  if not ranges then return false end
+  local covered, len = 0, math.max(e - s + 1, 1)
+  for _, r in ipairs(ranges) do
+    local lo, hi = math.max(r.s, s), math.min(r.e, e)
+    if hi >= lo then covered = covered + (hi - lo + 1) end
+  end
+  return covered * 2 >= len
+end
+A.skipped = skipped
+
+-- meta: { topic, topic_fixed, max_bytes, skip = { {s, e} ... } (byte ranges that are not knowledge) }
+-- returns { assertions, mentions, aliases, reader_directed = {{text, reasons, s, e}}, sentences = n, skipped = n, limited = bool }
 function A:extract(text, meta)
   meta = meta or {}
   local lex = self.lex
-  local an = Lex.analyze(text, { spell = nil, meter = self.meter, max_bytes = meta.max_bytes })
+  local an = Lex.analyze(text, { spell = nil, meter = self.meter, max_bytes = meta.max_bytes, known = lex.spell and function(f) return lex.spell:known(f) end or nil })
   local res = { assertions = {}, mentions = {}, aliases = {}, reader_directed = {}, sentences = 0, status = an.status }
   if an.status == "rejected" then return res end
   local lat = Lattice.build(an, lex, { meter = self.meter })
   local ctx = { flags = {}, meter = self.meter, max_covers = 2, topic = meta.topic }
   for _, sent in ipairs(an.sentences) do
     local ua, ub = Sem.sentence_unit_range(an, sent.id)
-    if ua and ub - ua < self.max_sentence_units then
+    if ua and meta.skip and skipped(meta.skip, sent.s, sent.e) then
+      res.skipped = (res.skipped or 0) + 1
+    elseif ua and ub - ua < self.max_sentence_units then
       res.sentences = res.sentences + 1
       local stext = text:sub(sent.s, sent.e)
       local covers = lat:covers(2, ua, ub)
