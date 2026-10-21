@@ -21,6 +21,10 @@ local SUBJECT_NAMES = U.set({ "subject", "head", "entity", "source_entity", "s" 
 local RELATION_NAMES = U.set({ "relation", "predicate", "rel", "property", "attribute", "p" })
 local OBJECT_NAMES = U.set({ "object", "tail", "value", "target", "target_entity", "o" })
 local RELIABILITY_NAMES = U.set({ "reliability", "confidence", "trust", "score_reliability" })
+-- wide tables ("country,capital,population"): the column that names the thing each row is about, in order of preference
+local ENTITY_COLS = { "name", "title", "entity", "country", "city", "company", "organisation", "organization", "person", "product", "item", "place", "state", "region", "book", "film", "movie", "album",
+  "artist", "brand", "team", "player", "club", "university", "school", "species", "planet", "river", "mountain", "language", "author", "politician", "character" }
+local SKIP_WIDE = U.set({ "source", "notes", "note", "comment", "comments", "url", "link", "image", "photo", "version", "label", "tags", "tag", "category", "type", "section", "rank", "index", "row", "no", "number" })
 
 ---------------------------------------------------------------- CSV / TSV (RFC 4180 subset: quotes, doubled quotes, embedded delimiters / newlines)
 function D.parse_delimited(text, delim)
@@ -67,11 +71,12 @@ function D.induce_schema(rows)
   for _, r in ipairs(rows) do
     for k, v in pairs(r) do
       local st = stats[k]
-      if not st then st = { n = 0, strings = 0, numbers = 0, dates = 0, total_len = 0, distinct = {}, nd = 0 }; stats[k] = st; order[#order + 1] = k end
+      if not st then st = { n = 0, strings = 0, numbers = 0, dates = 0, total_len = 0, total_words = 0, distinct = {}, nd = 0 }; stats[k] = st; order[#order + 1] = k end
       st.n = st.n + 1
       if type(v) == "number" then st.numbers = st.numbers + 1
       elseif type(v) == "string" then
         st.strings = st.strings + 1; st.total_len = st.total_len + #v
+        st.total_words = st.total_words + select(2, v:gsub("%S+", ""))
         if looks_date(v) then st.dates = st.dates + 1 end
         if is_numberish(v) then st.numbers = st.numbers + 1 end
       end
@@ -88,13 +93,15 @@ function D.induce_schema(rows)
     local lk = k:lower()
     local kind = "unknown"
     local avg = st.strings > 0 and st.total_len / st.strings or 0
+    -- a column of sentences is text however few or repeated its values are (a two-row file has "few distinct values" in every column)
+    local avg_words = st.strings > 0 and st.total_words / st.strings or 0
     local frole = froles[k]
     if ID_NAMES[lk] and st.nd == st.n then kind = "id"
     elseif frole and frole ~= "speaker" and st.strings >= st.n * 0.5 then kind = "text"
     elseif DATE_NAMES[lk] and st.dates + st.numbers >= st.n * 0.8 then kind = "date"
     elseif st.dates >= st.n * 0.8 and st.strings > 0 then kind = "date"
     elseif st.numbers >= st.n * 0.9 then kind = "number"
-    elseif TEXT_NAMES[lk] or avg > 60 then kind = "text"
+    elseif TEXT_NAMES[lk] or avg > 60 or (avg_words >= 5 and st.numbers == 0) then kind = "text"
     elseif st.nd <= math.max(10, n // 5) then kind = "category"
     elseif st.strings > 0 then kind = "text" end
     if SUBJECT_NAMES[lk] or RELATION_NAMES[lk] or OBJECT_NAMES[lk] then schema.triple_hint = schema.triple_hint or {} end
@@ -116,6 +123,41 @@ function D.induce_schema(rows)
     elseif kind == "text" then schema.text_fields[#schema.text_fields + 1] = k
     else schema.meta_fields[#schema.meta_fields + 1] = k end
     if RELIABILITY_NAMES[k:lower()] and stats[k].numbers >= stats[k].n * 0.9 then schema.reliability_field = k end
+  end
+  -- a wide table: one entity per row, every other short column an attribute of it, the column name naming the relation ("country,capital,population")
+  if not schema.triple then
+    local entity
+    for _, cand in ipairs(ENTITY_COLS) do
+      for _, k in ipairs(order) do
+        local kd = schema.fields[k]
+        if k:lower() == cand and (kd == "text" or kd == "category" or kd == "unknown") and stats[k].nd >= stats[k].n * 0.9 and not froles[k] then entity = k break end
+      end
+      if entity then break end
+    end
+    if entity then
+      local cols, running_text = {}, false
+      for _, k in ipairs(order) do
+        local kd, st = schema.fields[k], stats[k]
+        local avg_len = st.strings > 0 and st.total_len / st.strings or 0
+        local avg_w = st.strings > 0 and st.total_words / st.strings or 0
+        if k ~= entity and kd ~= "id" and kd ~= "date" and not RELIABILITY_NAMES[k:lower()] then
+          if avg_w >= 5 or avg_len > 60 or froles[k] then running_text = true
+          elseif not SKIP_WIDE[k:lower()] and (kd == "number" or kd == "category" or kd == "unknown" or kd == "text") then cols[#cols + 1] = k end
+        end
+      end
+      if #cols >= 1 and not running_text then
+        schema.wide = { subject = entity, columns = cols }
+        local drop = U.set(cols)
+        drop[entity] = true
+        local keep_text, keep_meta = {}, {}
+        for _, k in ipairs(schema.text_fields) do if not drop[k] then keep_text[#keep_text + 1] = k end end
+        for _, k in ipairs(schema.meta_fields) do keep_meta[#keep_meta + 1] = k end
+        for k in pairs(drop) do keep_meta[#keep_meta + 1] = k end
+        table.sort(keep_meta)
+        schema.text_fields, schema.meta_fields = keep_text, keep_meta
+        schema.notes[#schema.notes + 1] = "wide table: '" .. entity .. "' names the thing each row is about, the columns " .. table.concat(cols, ", ") .. " are its attributes (the column name is the relation)"
+      end
+    end
   end
   if schema.triple then
     -- triple columns are structured assertions, not free text
@@ -296,6 +338,23 @@ function D:normalise(raw, map, source)
   local rf = map.reliability_field and tonumber(fields[map.reliability_field])
   if rf then rec.reliability, rec.reliability_source = U.clamp(rf, 0, 1), "declared"
   else rec.reliability, rec.reliability_source = map.default_reliability or 0.5, "default" end
+  -- wide table row: subject + (column, cell) pairs
+  if map.wide and fields[map.wide.subject] ~= nil and tostring(fields[map.wide.subject]) ~= "" then
+    local cells = {}
+    for _, col in ipairs(map.wide.columns) do
+      local v = fields[col]
+      if v ~= nil and tostring(v) ~= "" then cells[#cells + 1] = { col = col, value = v } end
+    end
+    if #cells > 0 then
+      rec.wide = { subject_col = map.wide.subject, subject = tostring(fields[map.wide.subject]), cells = cells }
+      if rec.text == "" then
+        local parts = {}
+        for _, c in ipairs(cells) do parts[#parts + 1] = c.col .. ": " .. tostring(c.value) end
+        rec.text = rec.wide.subject .. " (" .. table.concat(parts, "; ") .. ")"
+        rec.flags.text_synthesised = true
+      end
+    end
+  end
   -- structured triple
   if map.triple then
     local s, r, o = fields[map.triple.subject], fields[map.triple.relation], fields[map.triple.object]
@@ -497,7 +556,8 @@ function D:ingest(text, opts)
     end
   elseif fmt == "txt" or fmt == "md" then
     -- paragraph records; markdown headings become the `section` of the paragraphs that follow
-    local section
+    local section, section_path
+    local stack = {}
     local para, pn = {}, 0
     -- a paragraph whose lines are speaker turns ("User: ...", "Aria: ...") or list items keeps its line layout: the lines ARE the structure
     local function structured(lines)
@@ -511,18 +571,26 @@ function D:ingest(text, opts)
     local function flush()
       if #para > 0 then
         pn = pn + 1
-        raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, structured(para) and "\n" or " "), section = section }, source = { name = name, row = pn } }
+        raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, structured(para) and "\n" or " "), section = section, section_path = section_path }, source = { name = name, row = pn } }
         para = {}
       end
     end
     for l in (text .. "\n"):gmatch("(.-)\r?\n") do
-      local h = fmt == "md" and l:match("^#+%s+(.-)%s*$")
-      if h then flush(); section = h
+      local hashes, h = nil, nil
+      if fmt == "md" then hashes, h = l:match("^(#+)%s+(.-)%s*$") end
+      if h then
+        flush(); section = h
+        local depth = #hashes
+        for d = depth, #stack do stack[d] = nil end
+        stack[depth] = h
+        local path = {}
+        for d = 1, depth do if stack[d] then path[#path + 1] = stack[d] end end
+        section_path = table.concat(path, " / ")
       elseif l:match("^%s*$") then flush()
       else para[#para + 1] = U.trim(l) end
     end
     flush()
-    opts.mapping = opts.mapping or { id_field = "id", text_fields = { "text" }, meta_fields = { "section" } }
+    opts.mapping = opts.mapping or { id_field = "id", text_fields = { "text" }, meta_fields = { "section", "section_path" } }
   else
     report.rejected[1] = { reason = "unsupported format '" .. tostring(fmt) .. "' (supported: jsonl, json, csv, tsv, txt, md)" }
     return report
@@ -536,7 +604,7 @@ function D:ingest(text, opts)
     local flat = {}
     for _, r in ipairs(raws) do flat[#flat + 1] = r.flat end
     map = D.induce_schema(flat)
-    report.induced_schema = { id_field = map.id_field, text_fields = map.text_fields, meta_fields = map.meta_fields, date_field = map.date_field, triple = map.triple, notes = map.notes }
+    report.induced_schema = { id_field = map.id_field, text_fields = map.text_fields, meta_fields = map.meta_fields, date_field = map.date_field, triple = map.triple, wide = map.wide, notes = map.notes }
   end
   local good = {}
   local fnotes = {}

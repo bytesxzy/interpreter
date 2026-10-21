@@ -331,7 +331,7 @@ local function cmd_dataset_profile(opts, pos, multi)
   local mem = eng:memory(opts.ns or "cli", opts.user or "user")
   local report = { datasets = {} }
   local function show(title)
-    local section = Voice.build(kb, Voice.collect(mem), {})
+    local section = Voice.build(kb, Voice.collect(mem), { force = true })
     if opts.json then return section end
     out("== " .. title)
     if not section then out("(nothing to report: no dataset loaded)"); return nil end

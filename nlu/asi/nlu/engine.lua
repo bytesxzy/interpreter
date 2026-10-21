@@ -116,7 +116,12 @@ function E:process(text, call)
     end
     evidence = Verify.run(self.kb, plan, { skip = skip })
   end
-  local voice = Voice.build(self.kb, voice_items, { turn = call.memory and call.memory.turn or 1 })
+  local before_items
+  if own_ops then
+    before_items = {}
+    for i = 1, #voice_items - 1 do before_items[i] = voice_items[i] end      -- the instruction of this request is the last one
+  end
+  local voice = Voice.build(self.kb, voice_items, { turn = call.memory and call.memory.turn or 1, force = (m and m.voice_query) and true or nil, before_items = before_items })
   local reply
   if voice then
     if own_ops then reply = Voice.reply(self.kb, "instruction", voice, own_ops, policy_changed)

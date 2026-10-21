@@ -47,8 +47,12 @@ function V.state(items)
       if head == "persona" then
         local sub, arg = rest:match("^(%a+):?(.*)$")
         if sub == "off" then st.persona.off = true
-        elseif sub == "on" then st.persona.off = false; st.persona.pick = nil
-        elseif sub == "pick" then st.persona.pick, st.persona.off = arg, false
+        elseif sub == "on" then st.persona.off = false; st.persona.pick = nil; st.persona.chain = nil
+        elseif sub == "pick" then
+          st.persona.pick, st.persona.off = arg, false
+          -- "the other one" is relative to the persona in force at that point: the picks are kept in order
+          st.persona.chain = st.persona.chain or {}
+          st.persona.chain[#st.persona.chain + 1] = arg
         elseif sub == "name" then st.persona.name = arg end
       elseif head == "dataset" then
         local sub, arg = rest:match("^(%a+):?(.*)$")
@@ -68,8 +72,9 @@ function V.state(items)
         if sub == "reset" then st.tone = {}; st.persona.off = false; st.persona.pick = nil
         elseif sub == "neutral" then st.tone = { { verb = "neutral", turn = item.turn } }
         elseif sub == "set" then st.tone[#st.tone + 1] = { verb = "set", id = arg, turn = item.turn }
-        elseif sub == "set_voice" then st.tone[#st.tone + 1] = { verb = "set_voice", label = arg, turn = item.turn } end
-      elseif head == "add" or head == "drop" or head == "more" or head == "less" then
+        elseif sub == "set_voice" then st.tone[#st.tone + 1] = { verb = "set_voice", label = arg, turn = item.turn }
+        elseif sub == "data_style" then st.tone[#st.tone + 1] = { verb = "data_style", turn = item.turn } end
+      elseif head == "add" or head == "drop" or head == "more" or head == "less" or head == "down" then
         st.tone[#st.tone + 1] = { verb = head, id = rest, turn = item.turn }
       end
     end
@@ -132,13 +137,18 @@ function V.effective(personas, st, opts)
   local chosen
   if not st.persona.off then
     if st.persona.pick then
-      local want = st.persona.pick:lower()
-      if want == "other" then
-        for _, p in ipairs(personas) do if p ~= personas[1] then chosen = p break end end
-        if not chosen then eff.notes[#eff.notes + 1] = "you asked for the other character, but the dataset names only one persona" ; chosen = personas[1] end
-      else
-        for _, p in ipairs(personas) do if p.name and p.name:lower() == want then chosen = p break end end
-        if not chosen then eff.notes[#eff.notes + 1] = "no persona called '" .. st.persona.pick .. "' in the dataset; the default persona is kept"; chosen = personas[1] end
+      chosen = personas[1]
+      for _, want0 in ipairs(st.persona.chain or { st.persona.pick }) do
+        local want = want0:lower()
+        if want == "other" then
+          local nxt
+          for _, p in ipairs(personas) do if p ~= chosen then nxt = p break end end
+          if nxt then chosen = nxt else eff.notes[#eff.notes + 1] = "you asked for the other character, but the dataset names only one persona" end
+        else
+          local found
+          for _, p in ipairs(personas) do if p.name and p.name:lower() == want then found = p break end end
+          if found then chosen = found else eff.notes[#eff.notes + 1] = "no persona called '" .. want0 .. "' in the dataset; the previous persona is kept" end
+        end
       end
     else
       chosen = personas[1]
@@ -172,6 +182,24 @@ function V.effective(personas, st, opts)
     if v == "neutral" then
       for k in pairs(map) do remove(k, "you asked for a neutral tone") end
       eff.neutral = true
+    elseif v == "data_style" then
+      if chosen and #(chosen.descriptors or {}) > 0 and not st.persona.off then
+        -- the dataset HAS a voice (its persona): "like the dataset" is that voice
+        for k in pairs(map) do remove(k, "replaced by the dataset's voice, as you asked") end
+        for _, d in ipairs(chosen.descriptors) do if d.id:sub(1, 4) ~= "not_" then put(copy_desc(d)) end end
+        eff.neutral = nil
+      else
+      for k in pairs(map) do remove(k, "replaced by the dataset's own writing style, as you asked") end
+      if opts.data_style and #opts.data_style > 0 then
+        for _, d in ipairs(opts.data_style) do
+          local c = copy_desc(d)
+          c.source = "measured"
+          c.label = c.label or label_of(c.id)
+          put(c)
+        end
+        eff.neutral = nil
+      else eff.op_notes[#eff.op_notes + 1] = { text = "the dataset's own text has no distinctive writing style to take over", turn = t.turn } end
+      end
     elseif v == "set" then
       for k in pairs(map) do remove(k, "replaced by the voice you asked for") end
       put({ id = id, label = label_of(id), strength = 0.9, source = "user", evidence = "you asked for it" })
@@ -197,13 +225,26 @@ function V.effective(personas, st, opts)
         d.adjusted = "less"
         if d.strength < THRESHOLD then remove(id, "you asked for less of it") end
       else eff.op_notes[#eff.op_notes + 1] = { text = "'" .. label_of(id) .. "' was not part of the voice, so there is less of it already", turn = t.turn } end
+    elseif v == "down" then
+      local d = map[id]
+      if d then
+        -- "tone it down": typography goes, the attitude is reduced
+        local grp = L.descriptors[id] and L.descriptors[id].group
+        if grp == "typography" then remove(id, "you asked to tone it down")
+        else
+          d.strength = (d.strength or 0.5) - 0.5
+          d.adjusted = "less"
+          if d.strength < THRESHOLD then remove(id, "you asked to tone it down") end
+        end
+      end
     elseif v == "drop" then
       if map[id] then remove(id, "you asked to drop it") else eff.op_notes[#eff.op_notes + 1] = { text = "'" .. label_of(id) .. "' was not part of the voice", turn = t.turn } end
     end
   end
+  local listed = {}
   for _, id in ipairs(order) do
     local d = map[id]
-    if d and (d.strength or 0) >= THRESHOLD then eff.descriptors[#eff.descriptors + 1] = d end
+    if d and not listed[id] and (d.strength or 0) >= THRESHOLD then listed[id] = true; eff.descriptors[#eff.descriptors + 1] = d end
   end
   table.sort(eff.descriptors, function(a, b) if a.strength ~= b.strength then return a.strength > b.strength end return a.id < b.id end)
   -- 3. persona identity
@@ -413,7 +454,9 @@ function V.announce(eff, reading, st, kb, opts)
       end
     end
   elseif eff and eff.persona then
-    add("No distinctive tone was found, so I will answer in a neutral tone.")
+    local by_user = false
+    for _, d in ipairs(eff.dropped or {}) do if d.reason and d.reason:find("you ") then by_user = true end end
+    add(by_user and "Tone: neutral, after your changes." or "No distinctive tone was found, so I will answer in a neutral tone.")
   elseif eff and eff.neutral then
     add("Tone: neutral, as you asked.")
   elseif eff and not eff.active then
@@ -462,9 +505,11 @@ local function describe_op(op)
   elseif head == "drop" then return "dropped " .. label_of(rest)
   elseif head == "more" then return "more " .. label_of(rest)
   elseif head == "less" then return "less " .. label_of(rest)
+  elseif head == "down" then return "toned down " .. label_of(rest)
   elseif head == "tone" then
     local sub, arg = rest:match("^([%a_]+):?(.*)$")
-    if sub == "neutral" then return "neutral tone" elseif sub == "reset" then return "back to the dataset's tone"
+    if sub == "data_style" then return "talking like the dataset's own text"
+    elseif sub == "neutral" then return "neutral tone" elseif sub == "reset" then return "back to the dataset's tone"
     elseif sub == "set" then return "voice set to " .. label_of(arg) elseif sub == "set_voice" then return "voice set to like " .. arg end
   elseif head == "persona" then
     local sub, arg = rest:match("^(%a+):?(.*)$")
@@ -484,14 +529,33 @@ function V.reply(kb, kind, section, own_ops, policy_changed)
   if not section then return nil end
   local text = {}
   if kind == "instruction" then
+    local dataset_op, voice_op = false, false
     local parts = {}
-    for _, op in ipairs(own_ops or {}) do parts[#parts + 1] = describe_op(op) end
-    local head = "Understood: " .. (#parts > 0 and table.concat(parts, "; ") or "no change") .. "."
-    if policy_changed then head = head .. " I read the dataset again with that." end
-    text[#text + 1] = head
-    local dataset_op = false
-    for _, op in ipairs(own_ops or {}) do if op:find("^dataset:") then dataset_op = true end end
-    text[#text + 1] = dataset_op and section.announcement or (section.announcement_voice or section.announcement)
+    for _, op in ipairs(own_ops or {}) do
+      if op:find("^dataset:") then dataset_op = true else voice_op = true end
+      parts[#parts + 1] = describe_op(op)
+    end
+    local ch = section.change
+    if dataset_op then
+      local head = "Understood: " .. table.concat(parts, "; ") .. "."
+      if policy_changed then head = head .. " I read the dataset again with that." end
+      text[#text + 1] = head
+      text[#text + 1] = section.announcement
+    else
+      if ch and ch.changed then
+        local line = "Understood."
+        if #ch.after > 0 then line = line .. " Tone: " .. list_text(ch.after) .. "."
+        else line = line .. " Tone: neutral." end
+        if #ch.removed > 0 then line = line .. " Dropped: " .. list_text(ch.removed) .. "." end
+        if ch.persona_before ~= ch.persona_after then line = line .. " Persona: " .. tostring(ch.persona_after or "none") .. (ch.persona_before and (" (was " .. ch.persona_before .. ")") or "") .. "." end
+        text[#text + 1] = line
+      else
+        local why = {}
+        for _, n in ipairs(section.notes or {}) do why[#why + 1] = n end
+        text[#text + 1] = "Understood, but nothing changes" .. (voice_op and ": the voice was already like that." or ".")
+      end
+      for _, line in ipairs((function() local t = {}; for l in ((section.announcement_voice or "") .. "\n"):gmatch("(.-)\n") do if l:find("^Note:") then t[#t + 1] = l end end return t end)()) do text[#text + 1] = line end
+    end
   elseif kind == "query_tone" then
     local keep = {}
     for line in (section.announcement .. "\n"):gmatch("(.-)\n") do
@@ -522,16 +586,48 @@ function V.reply(kb, kind, section, own_ops, policy_changed)
   return { kind = kind, text = table.concat(text, "\n"), authority = "engine" }
 end
 
+-- what an instruction changed: the labels of the tone before and after, the persona before and after
+local function labels_of(eff)
+  local out = {}
+  for _, d in ipairs(eff.descriptors or {}) do out[#out + 1] = d.label end
+  return out
+end
+local function persona_label(eff)
+  return eff.persona and (eff.persona.name or (eff.persona.name_placeholder and ("a placeholder '" .. eff.persona.name_placeholder .. "'"))) or nil
+end
+function V.diff(before, after)
+  local b, a = labels_of(before), labels_of(after)
+  local bs, as = {}, {}
+  for _, l in ipairs(b) do bs[l] = true end
+  for _, l in ipairs(a) do as[l] = true end
+  local added, removed = {}, {}
+  for _, l in ipairs(a) do if not bs[l] then added[#added + 1] = l end end
+  for _, l in ipairs(b) do if not as[l] then removed[#removed + 1] = l end end
+  return { before = b, after = a, added = added, removed = removed, persona_before = persona_label(before), persona_after = persona_label(after),
+    changed = (#added + #removed > 0) or persona_label(before) ~= persona_label(after) }
+end
+
 ---------------------------------------------------------------- the section of an Interpretation Record
 -- kb: knowledge base (or nil), items: V.collect(memory) (+ the instruction of this very call when stateless), opts: { preview = sentence }
 function V.build(kb, items, opts)
   opts = opts or {}
   local personas = V.personas(kb)
   local st = V.state(items)
+  local wants_data_style = false
+  for _, t in ipairs(st.tone) do if t.verb == "data_style" then wants_data_style = true end end
+  local dstyle
+  if kb and kb.data_style and (wants_data_style or opts.force) then
+    for _, did in ipairs(kb.dataset_order or {}) do
+      local ds = kb:data_style(did)
+      if ds and (not dstyle or ds.n_samples > dstyle.n_samples) then dstyle = ds end
+    end
+  end
+  opts.data_style = dstyle and dstyle.descriptors or nil
   local eff = V.effective(personas, st, opts)
+  -- a record carries a voice section only when there is something to say about the voice: a persona / tone is in force, the user gave an instruction about it, or the
+  -- request asked about the engine's reading (opts.force)
+  if not eff.active and #st.applied == 0 and not opts.force and #personas == 0 then return nil end
   local reading = V.reading(kb)
-  local has_reading = #reading > 0
-  if not eff.active and not has_reading and #st.applied == 0 then return nil end
   local section = {
     schema = V.SCHEMA,
     active = eff.active,
@@ -553,7 +649,20 @@ function V.build(kb, items, opts)
   if eff.persona and eff.persona.avoid and #eff.persona.avoid > 0 then
     section.avoid = U.map(eff.persona.avoid, function(d) return { id = d.id, label = d.label } end)
   end
+  if opts.before_items then
+    local eff0 = V.effective(personas, V.state(opts.before_items), {})
+    section.change = V.diff(eff0, eff)
+  end
+  if dstyle and not wants_data_style then
+    local labels = {}
+    for _, d in ipairs(dstyle.descriptors) do if #labels < 4 and (d.strength or 0) >= 0.5 then labels[#labels + 1] = d.label or label_of(d.id) end end
+    if #labels > 0 then section.data_style = { labels = labels, n_samples = dstyle.n_samples, dataset = dstyle.dataset } end
+  end
   section.announcement = V.announce(eff, reading, st, kb)
+  if section.data_style then
+    section.announcement = section.announcement .. "\nNote: the facts in the dataset are themselves written in this style: " .. list_text(section.data_style.labels) .. " (" ..
+      section.data_style.n_samples .. " records examined). I treat them as facts, not as a persona; say 'talk like the dataset' to take that style over."
+  end
   section.announcement_voice = V.announce(eff, reading, st, kb, { mode = "voice", turn = opts.turn })
   if eff.active then section.preview = V.preview(eff, opts.preview) end
   return section, eff, st

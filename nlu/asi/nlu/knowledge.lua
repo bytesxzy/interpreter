@@ -106,7 +106,10 @@ function K:effective_policy(did)
       if id:sub(1, #did + 1) == did .. ":" then recmap[id] = rr.action end
     end
   end
-  return { reading = p.reading, include = inc, exclude = exc, records = recmap, qa = p.qa, persona = p.persona or {} }
+  -- a pair is read through its question: when the user excludes either side of the conversation there are no pairs
+  local qa = p.qa
+  if exc.turn_assistant or exc.turn_user then qa = false end
+  return { reading = p.reading, include = inc, exclude = exc, records = recmap, qa = qa, persona = p.persona or {} }
 end
 
 -- "n=2" the second record (in the order of the datasets; negative counts from the end), "about=Germany" the records whose text mentions it
@@ -135,6 +138,43 @@ function K:resolve_record_ref(ref)
 end
 
 function K:profile(did) return self.profiles[did] end
+
+-- the voice the dataset's OWN text is written in (the knowledge parts only): descriptors that most of its records show, for "talk like the dataset".
+-- Reported, never adopted by itself: a loud encyclopedia is still an encyclopedia.
+function K:data_style(did)
+  local profile = self.profiles[did]
+  local ds = self.datasets[did]
+  if not (profile and ds) then return nil end
+  local pol = self:effective_policy(did)
+  local samples = {}
+  for _, id in ipairs(ds.order) do
+    local rec = ds.records[id]
+    if rec and not rec.duplicate_of and #samples < 300 then
+      for _, f in ipairs(rec.text_fields or {}) do
+        local text = rec.field_text[f]
+        if text and text ~= "" then
+          local skip = Profile.skip_ranges(profile, rec.id, f, { include = pol.include, exclude = pol.exclude })
+          if skip then
+            local parts, pos = {}, 1
+            for _, r in ipairs(skip) do
+              if r.s > pos then parts[#parts + 1] = text:sub(pos, r.s - 1) end
+              pos = r.e + 1
+            end
+            if pos <= #text then parts[#parts + 1] = text:sub(pos) end
+            text = table.concat(parts, " ")
+          end
+          text = text:gsub("^%s+", ""):gsub("%s+$", "")
+          if #text >= 8 then samples[#samples + 1] = text end
+        end
+      end
+    end
+  end
+  if #samples < 3 then return nil end
+  local descs, features = Profile.measure_samples(samples, true)
+  if #descs == 0 then return nil end
+  for _, d in ipairs(descs) do d.basis = "dataset_text" end
+  return { dataset = did, descriptors = descs, n_samples = #samples, features = features }
+end
 
 function K:index_record(rec)
   local analysis = { assertions = {}, mentions = {}, aliases = {}, reader_directed = {}, sentences = 0 }
@@ -224,6 +264,32 @@ function K:index_record(rec)
       pattern = "structured_triple", structured = true, induced_relation = induced or nil, text = rec.text, sent = 0, s = 1, e = #rec.text, reliability = rec.reliability }
     for _, d in ipairs({ from, to }) do
       if d.key and not d.literal then analysis.mentions[#analysis.mentions + 1] = { key = d.key, type = d.type, text = d.text, field = "triple" } end
+    end
+  end
+  -- wide table rows: the column name is the relation, the row's entity the subject, the cell the value
+  if rec.wide then
+    local subj_text = rec.wide.subject
+    for _, cell in ipairs(rec.wide.cells) do
+      local norm = cell.col:lower():gsub("[%s%-]+", "_"):gsub("[^%w_]", "")
+      local rel = self.lex:rel_by_name(norm) or self.lex:rel_by_name((norm:gsub("s$", "")))
+      local induced = false
+      if not rel and norm ~= "" then
+        rel = self.lex:induce_relation(norm, { id = "open:" .. norm:gsub("e$", ""), source = "induced" })
+        induced = true
+        self.rel_induced[rel.id] = self.rel_induced[rel.id] or { name = cell.col, records = {} }
+        table.insert(self.rel_induced[rel.id].records, rec.id)
+      end
+      if rel then
+        local from = self:link_text(subj_text, rel.from)
+        local to = self:link_text(tostring(cell.value), rel.to)
+        -- the row's entity is the subject unless its type fits the relation's other end better
+        if from.type and rel.to and rel.from and self.lex:compat(from.type, rel.to) > self.lex:compat(from.type, rel.from) then from, to = to, from end
+        analysis.assertions[#analysis.assertions + 1] = { rel = rel.id, from = from, to = to, polarity = "positive", modality = "asserted", tense = "present", pattern = "wide_table",
+          structured = true, induced_relation = induced or nil, text = rec.text, sent = 0, s = 1, e = #rec.text, reliability = rec.reliability, field = cell.col }
+        for _, d in ipairs({ from, to }) do
+          if d.key and not d.literal then analysis.mentions[#analysis.mentions + 1] = { key = d.key, type = d.type, text = d.text, field = "wide" } end
+        end
+      end
     end
   end
   -- vocabulary + alias evidence

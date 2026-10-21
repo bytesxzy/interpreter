@@ -29,16 +29,18 @@ local FIELD_WORDS = {
   user = set_of({ "prompt", "input", "instruction", "question", "query", "user", "human", "request", "q", "text_input", "questions", "queries", "user_message", "user_input",
     "human_input", "message", "utterance" }),
   speaker = set_of({ "speaker", "role", "from", "author", "sender", "who", "actor" }),
+  example = set_of({ "example", "examples", "sample", "samples", "sample_reply", "sample_response", "sample_output", "example_reply", "example_response", "example_output", "example_utterance", "sample_utterance",
+    "demo", "catchphrase", "catchphrases", "quote", "quotes", "tagline", "signature_phrase", "example_dialogue", "sample_dialogue", "example_line", "sample_line" }),
   dialogue = set_of({ "dialogue", "dialog", "conversation", "conversations", "messages", "chat", "chats", "transcript", "turns", "history", "script", "dialogues" }),
 }
-local ROLE_ORDER = { "name", "system", "persona", "style", "dialogue", "assistant", "user", "speaker" }
+local ROLE_ORDER = { "name", "system", "persona", "style", "example", "dialogue", "assistant", "user", "speaker" }
 
 function Pr.field_role(name)
   local n = (name or ""):lower():gsub("[%s%-%.]+", "_")
   for _, role in ipairs(ROLE_ORDER) do if FIELD_WORDS[role][n] then return role end end
   -- compound names: any token ("assistant_text", "user_turn", "system_text")
   for tok in n:gmatch("[^_]+") do
-    for _, role in ipairs({ "system", "persona", "style", "assistant", "user", "dialogue" }) do
+    for _, role in ipairs({ "system", "persona", "style", "example", "assistant", "user", "dialogue" }) do
       if FIELD_WORDS[role][tok] and (role ~= "assistant" or #tok > 1) then return role end
     end
   end
@@ -75,17 +77,77 @@ function Pr.resolve_field_roles(names)
 end
 
 ---------------------------------------------------------------- cheap gate: does a text mention anything a persona scan could use?
-local TRIGGER = {}
-local function add_words(list)
-  for _, p in ipairs(list) do for w in p:lower():gsub("[%-_]", " "):gmatch("[%a']+") do TRIGGER[w] = true end end
+-- Persona.scan costs a full lexical analysis, and most records of a knowledge base say nothing about a voice.  The gate is a union of the cue COMBINATIONS the scanner
+-- can act on (a single ordinary word such as "said" or "call" is never enough); a record that passes is scanned in full.
+local GATE = {}
+local function gate_words(name, list)
+  local set = {}
+  for _, p in ipairs(list) do for w in p:lower():gsub("[%-_]", " "):gmatch("[%a']+") do set[w] = true end end
+  GATE[name] = set
 end
-add_words(L.voice_verbs); add_words(L.persona_kinds); add_words(L.example_intros); add_words(L.style_labels); add_words(L.name_labels); add_words(L.example_labels)
-add_words(L.behavior_cues); add_words({ "persona", "character", "pretend", "roleplay", "act", "name", "tone", "voice" })
-for _, d in pairs(L.descriptors) do add_words(d.declared or {}) end
+gate_words("voice", L.voice_verbs)
+gate_words("kind", L.persona_kinds)
+gate_words("intro", { "example", "examples", "sample", "samples", "instance", "e.g.", "eg", "like", "demo", "illustration", "catchphrase", "catchphrases", "quote", "quotes", "tagline", "typical", "follows" })
+gate_words("label", { "persona", "personality", "character", "tone", "voice", "style", "name", "role", "roleplay", "mood", "vibe", "register", "accent", "dialect", "mannerisms", "quirks", "traits", "temperament", "behavior", "behaviour" })
+local DESC = {}
+for _, d in pairs(L.descriptors) do for _, p in ipairs(d.declared or {}) do for w in p:lower():gsub("[%-_]", " "):gmatch("[%a']+") do DESC[w] = true end end end
+-- words so common that they say nothing alone
+for _, w in ipairs({ "the", "a", "an", "of", "and", "to", "in", "is", "it", "no", "not", "never", "with", "without", "proper", "official", "nice", "sweet", "kind", "warm", "quiet", "digital", "extra", "positive", "happy", "western",
+  "loud", "chill", "relaxed", "formal", "informal", "brief", "detailed", "thorough", "professional", "academic", "serious", "polite", "civil", "severe", "angry", "rude", "moody", "bitter", "dry", "play", "silly", "light", "dude",
+  "bro", "binary", "synthetic", "mechanical", "android", "romantic", "thou", "art", "less", "stop", "over", "wry", "witty", "funny", "humor", "humour", "jokes", "minimal", "compact", "refined", "measured", "gentle", "zen" }) do DESC[w] = nil end
+local STRONG_DESC = {}
+for _, w in ipairs({ "dramatic", "dramatically", "theatrical", "melodramatic", "sarcastic", "sarcastically", "cheerful", "bubbly", "enthusiastic", "excited", "shouting", "shouts", "yelling", "caps", "capitals", "uppercase",
+  "lowercase", "exclamation", "emoji", "emojis", "grumpy", "pirate", "cowboy", "poetic", "robotic", "archaic", "uwu", "butler", "flamboyant", "sassy", "snarky", "cranky", "perky", "peppy", "upbeat", "hyper", "ellipsis", "ellipses",
+  "stretches", "elongated", "terse", "verbose", "casual", "casually", "formally", "politely", "calmly", "friendly", "humorous", "playful", "whimsical", "stoic", "solemn", "gruff", "surly", "overdramatic", "over-dramatic" }) do STRONG_DESC[w] = true end
+
 local function needs_scan(text)
-  if text:find("[%[%]<>{}\"“”]") then return true end
-  for w in text:lower():gmatch("[%a']+") do if TRIGGER[w] then return true end end
-  return text:find(":", 1, true) ~= nil
+  local low = text:lower()
+  -- placeholders and quotations
+  local has_quote = low:find("[\"“”«]") ~= nil
+  if low:find("%[[^%]\n]*%]") or low:find("{{") or low:find("<[%a][^>\n]*>") then
+    if low:find("name") or low:find("persona") or low:find("character") or low:find("assistant") or low:find("model") or low:find("bot") or low:find("char") or low:find("agent") then return true end
+  end
+  -- labelled lines ("Tone: calm", "Persona: Aria", "NPC name: Grimbold")
+  do
+    local pos, guard = 1, 0
+    while guard < 400 do
+      local c = low:find(":", pos, true)
+      if not c then break end
+      local last = low:sub(math.max(1, c - 30), c - 1):match("([%a]+)%s*$")
+      if last and (GATE.label[last] or last == "example" or last == "examples" or last == "sample" or last == "samples" or last == "assistant" or last == "bot" or last == "ai" or last == "agent") then return true end
+      pos, guard = c + 1, guard + 1
+    end
+  end
+  if low:find("supposed to", 1, true) or low:find("meant to", 1, true) or low:find("pretend", 1, true) or low:find("roleplay", 1, true) or low:find("role%-play") or low:find("role play", 1, true)
+    or low:find("you are ", 1, true) or low:find("you're ", 1, true) or low:find("your name", 1, true) or low:find("act as ", 1, true) or low:find("behave as ", 1, true) or low:find("imagine you", 1, true)
+    or low:find("persona", 1, true) or low:find("personality", 1, true) or low:find("system prompt", 1, true) or low:find("previous instructions", 1, true) or low:find("in the voice of", 1, true)
+    or low:find("in the style of", 1, true) or low:find("take on the role", 1, true) or low:find("play the role", 1, true) or low:find("play a role", 1, true) then
+    return true
+  end
+  -- combinations of word classes
+  local v, k, d, i, sd = false, false, false, false, false
+  local n = 0
+  for w in low:gmatch("[%a][%a']*") do
+    n = n + 1
+    if GATE.voice[w] then v = true end
+    if GATE.kind[w] then k = true end
+    if DESC[w] then d = true end
+    if STRONG_DESC[w] then sd = true end
+    if GATE.intro[w] then i = true end
+    if n > 4000 then break end
+  end
+  if v and (sd or (d and i) or has_quote) then return true end
+  -- a statement that ends in a colon / dash leaves its example to the next record ("Here is how Aria talks:")
+  if (v or k) and low:find("[:%-—]%s*$") then return true end
+  if k and sd then return true end
+  if i and has_quote and (v or k) then return true end
+  -- a record that names an example and a quotation or a colon
+  if i and low:find(":", 1, true) and (v or k or sd) then return true end
+  -- instructions aimed at the reader that carry a behaviour cue
+  for _, ph in ipairs({ "ignore", "disregard", "reveal", "jailbreak", "password", "api key", "credentials", "developer mode", "no restrictions", "do anything now", "override" }) do
+    if low:find(ph, 1, true) then return true end
+  end
+  return false
 end
 
 ---------------------------------------------------------------- profile object
@@ -130,7 +192,8 @@ local function parse_turns(text)
   while pos <= #text do
     local le = (text:find("\n", pos, true) or (#text + 1)) - 1
     local line = text:sub(pos, le)
-    local lab, vs = line:match("^%s*[%-%*•]?%s*([%a][%w _%.%-']-)%s*:%s*()")
+    -- "User: ..." , "{{char}}: ..." , "<BOT>: ..." , "[Aria]: ..." (the brackets of a placeholder label are not part of the label)
+    local lab, vs = line:match("^%s*[%-%*•]?%s*[%{%<%[]*([%a][%w _%.%-']-)[%}%>%]]*%s*:%s*()")
     if lab and #lab <= 28 and #line >= vs then
       local nl = lab:lower():gsub("[%s%-_]+", " ")
       if not LABELLED[nl] and not nl:find("^http") then
@@ -151,7 +214,7 @@ end
 local HINT = {}
 for kind, list in pairs(L.hint_words) do HINT[kind] = set_of(list) end
 local STYLE_TITLE_VERB = set_of({ "talk", "talks", "talking", "speak", "speaks", "speaking", "sound", "sounds", "sounding", "respond", "responds", "responding" })
-local HINT_FIELDS = set_of({ "section", "type", "kind", "category", "label", "tag", "tags", "segment", "part", "heading", "header", "title", "record_type", "entry_type", "class" })
+local HINT_FIELDS = set_of({ "section", "section_path", "type", "kind", "category", "label", "tag", "tags", "segment", "part", "heading", "header", "title", "record_type", "entry_type", "class" })
 
 local function hint_of_text(t)
   local h
@@ -165,7 +228,7 @@ end
 local function record_hint(rec)
   local h
   for f, v in pairs(rec.fields or {}) do
-    if HINT_FIELDS[f:lower()] and type(v) == "string" and #v <= 60 then
+    if HINT_FIELDS[f:lower()] and type(v) == "string" and #v <= 160 then
       local x = hint_of_text(v)
       if x then h = h or {}; for k in pairs(x) do h[k] = true end end
     end
@@ -217,11 +280,33 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     seg("persona_declaration", 1, #text, "field:" .. f, { item = it })
     return segs, items
   end
+  if frole == "example" then
+    local q = text:match('^%s*["“«](.*)["”»]%s*$')
+    local it = { kind = "example", s = 1, e = #text, text = q or U.trim(text), via = "field:" .. f }
+    items[#items + 1] = it
+    seg("style_example", 1, #text, "field:" .. f, { item = it })
+    return segs, items
+  end
   if frole == "persona" or frole == "style" then
     local descs = Style.declared(text)
     local cues = Persona.behavior_cues_in(text)
     local kind = frole == "persona" and "persona_declaration" or "style_spec"
-    local nm = frole == "persona" and text:match("^%s*([%u][%w'’%-]*)") or nil
+    -- a persona column holds a NAME ("Pirate Pete") or a description ("Aria is a pirate ...", "A grumpy sailor"): a short run of capitalised words is a name, otherwise the
+    -- leading capitalised words count as a name only when a copula, comma or dash follows them
+    local nm
+    if frole == "persona" then
+      local trimmed = U.trim(text)
+      local nwords = select(2, trimmed:gsub("%S+", ""))
+      if nwords <= 4 and not trimmed:find("[%.!%?]%s") and not trimmed:find("^[%l]") and not PERSONA_KIND[trimmed:lower()] then nm = trimmed:gsub("[%.,;]+$", "")
+      else
+        local lead, after = trimmed:match("^([%u][%w'’%-]*%s?[%u]?[%w'’%-]*)%s*([%a,%-—]*)")
+        if lead then
+          lead = U.trim(lead)
+          local nxt = trimmed:sub(#lead + 1):match("^%s*(%S+)")
+          if nxt and (nxt == "is" or nxt == "was" or nxt == "," or nxt:sub(1, 1) == "," or nxt == "-" or nxt == "—" or nxt == "are") then nm = lead:gsub("[%.,;]+$", "") end
+        end
+      end
+    end
     local it = { kind = kind, s = 1, e = #text, via = "field:" .. f, score = 3, descriptors = descs, evidence = { "field:" .. f }, behavior_cues = cues, presentational = #cues == 0,
       subject = nm and { kind = "name", text = nm, form = nm:lower() } or { kind = "generic", text = "", form = "" }, persona_kind = Persona.kind_in(text) }
     -- a name is a name only when the text says "Aria, ..." / "Aria is ...", not a sentence that merely starts with a capital
@@ -260,6 +345,8 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     if labelled then
       for _, t in ipairs(turns) do
         if USER_SP[t.norm] and it.s >= t.s and it.e <= t.e and it.kind ~= "example" then it.in_user_turn = true end
+        -- what the speakers SAY is dialogue: a persona or style statement inside a turn of the conversation is not a statement about the persona ("{{char}}: the stars whisper ...")
+        if not SYSTEM_SP[t.norm] and it.s >= t.s and it.e <= t.e and (it.kind == "persona_declaration" or it.kind == "style_spec" or it.kind == "example") and it.via ~= "label" then drop = true end
         -- "assistant: THE CAPITAL OF FRANCE IS PARIS" is a turn, not a persona declared by a label
         if it.via == "label" and it.label and it.label == t.norm and it.e >= t.s - 1 and it.s <= t.e then drop = true end
       end
@@ -293,11 +380,53 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
       end
     end
   end
-  -- an examples section: a paragraph that reads like an utterance is an example of how the persona talks
-  if #segs == 0 and hint and hint.example and (profile.persona_seen or hint.style or hint.persona) and Pr.utterance_like(text) then
-    local q = text:match('^%s*["“«](.*)["”»]%s*$')
-    seg("style_example", 1, #text, "section hint (examples)", { item = { kind = "example", s = 1, e = #text, text = q or text, via = "section_hint" } })
-    items[#items + 1] = segs[#segs].item
+  -- a list of characters: "Aria: over-dramatic, loud" / "Bob: calm and formal" (needs a section about characters, or several such lines)
+  if not labelled and #segs == 0 then
+    local lines_found = {}
+    local pos = 1
+    while pos <= #text do
+      local le = (text:find("\n", pos, true) or (#text + 1)) - 1
+      local line = text:sub(pos, le)
+      local lead = line:match("^%s*[%-%*•]?%s*()")
+      local nm, vs = line:match("^([%u][%w'’%-]*%s?[%u]?[%w'’%-]*):%s*()", lead)
+      if nm then
+        local nl = nm:lower():gsub("%s+$", "")
+        local desc = line:sub(vs)
+        if not LABELLED[nl] and not USER_SP[nl] and not ASSIST_SP[nl] and not SYSTEM_SP[nl] and not PERSONA_KIND[nl] and #Style.declared(desc) > 0 then
+          lines_found[#lines_found + 1] = { name = U.trim(nm), s = pos + lead - 1, e = le, desc = desc }
+        end
+      end
+      pos = le + 2
+    end
+    if #lines_found >= 2 or (#lines_found == 1 and hint and (hint.persona or hint.style)) then
+      for _, ln in ipairs(lines_found) do
+        local cues = Persona.behavior_cues_in(ln.desc)
+        local it = { kind = "persona_declaration", s = ln.s, e = ln.e, via = "character line", score = 3, evidence = { "character line" }, descriptors = Style.declared(ln.desc),
+          behavior_cues = cues, presentational = #cues == 0, subject = { kind = "name", text = ln.name, form = ln.name:lower() }, persona_kind = Persona.kind_in(ln.desc) }
+        items[#items + 1] = it
+        seg(it.presentational and "persona_declaration" or "behavior_directive", ln.s, ln.e, "character line", { item = it })
+      end
+    end
+  end
+  -- an examples section: a paragraph (or each bullet / numbered line of it) that reads like an utterance is an example of how the persona talks
+  if #segs == 0 and hint and hint.example and (profile.persona_seen or hint.style or hint.persona) then
+    local pos = 1
+    local found = false
+    while pos <= #text do
+      local le = (text:find("\n", pos, true) or (#text + 1)) - 1
+      local line = text:sub(pos, le)
+      local lead = line:match("^%s*[%-%*•]%s*()") or line:match("^%s*%d+[%.%)]%s*()") or line:match("^%s*()")
+      local body = line:sub(lead)
+      if body:match("%S") and (body:match('^["“«]') or Pr.utterance_like(body)) then
+        local q = body:match('^["“«](.*)["”»]%s*$')
+        local es, ee = pos + lead - 1, le
+        local it = { kind = "example", s = es, e = ee, text = q or U.trim(body), via = "section_hint" }
+        seg("style_example", es, ee, "section hint (examples)", { item = it })
+        items[#items + 1] = it
+        found = true
+      end
+      pos = le + 2
+    end
   end
   -- dataset descriptions
   if #segs == 0 and meta_like(text) then seg("meta", 1, #text, "dataset description") end
@@ -446,6 +575,27 @@ function Pr.add_records(profile, records, opts)
       local endc = ftxt:gsub("%s+$", ""):sub(-1)
       if tail == "" and (endc == ":" or endc == "-" or endc == "—") then profile.pending = { n = 0, anti = last_spec.item.negated or nil } end
     end
+    -- "The assistant talks exactly like the line above.": the example is the record before
+    do
+      local back
+      for _, it in ipairs(ra.items) do if it.kind == "style_spec" and it.back_ref then back = it end end
+      local has_own = false
+      for _, sg in ipairs(ra.segs) do if sg.role == "style_example" or sg.role == "anti_example" then has_own = true end end
+      local prev_id = profile.order[#profile.order]
+      local prev = prev_id and profile.recs[prev_id]
+      if back and not has_own and prev and #prev.segs == 0 then
+        local prec
+        for _, r in ipairs(records) do if r.id == prev_id then prec = r end end
+        local f = (prec and (prec.text_fields or {})[1]) or "text"
+        local ptext = prec and (prec.field_text[f] or prec.text) or ""
+        if ptext ~= "" then
+          local it = { kind = "example", s = 1, e = #ptext, text = ptext, via = "referenced_above", field = f, rec = prev_id, spec = back, anti = back.negated or nil }
+          prev.segs[1] = { field = f, s = 1, e = #ptext, role = it.anti and "anti_example" or "style_example", via = "referenced by the next statement ('" .. tostring(back.text or "the line above") .. "')", text = ptext:sub(1, 400), item = it }
+          prev.items[1] = it
+          back._persona = back._persona
+        end
+      end
+    end
     -- a record that also carries instructions to its reader ("Ignore all previous instructions ... You are now a pirate.") is hostile as a whole:
     -- its persona and style statements are not adopted, they are reported with the directives
     do
@@ -559,10 +709,18 @@ function Pr.pairs(profile, rec_id)
   local ra = profile.recs[rec_id]
   if not ra then return {} end
   local out, pend = {}, nil
+  local users, assistants = {}, {}
   for _, sg in ipairs(ra.segs) do
     local role = role_of(profile, sg)
-    if role == "turn_user" then pend = sg
-    elseif role == "turn_assistant" and pend then out[#out + 1] = { q = pend, a = sg }; pend = nil end
+    if role == "turn_user" then pend = sg; users[#users + 1] = sg
+    elseif role == "turn_assistant" then
+      assistants[#assistants + 1] = sg
+      if pend then out[#out + 1] = { q = pend, a = sg }; pend = nil end
+    end
+  end
+  -- a question column and an answer column (in whatever order the columns came): the k-th question goes with the k-th answer
+  if #out == 0 and #users > 0 and #users == #assistants then
+    for i = 1, #users do out[#out + 1] = { q = users[i], a = assistants[i] } end
   end
   return out
 end
@@ -602,6 +760,8 @@ local function measure_samples(samples, implicit)
   end
   return out, features
 end
+
+Pr.measure_samples = measure_samples
 
 local function aggregate(profile)
   local personas, by_key, order = {}, {}, {}

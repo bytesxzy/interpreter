@@ -71,7 +71,7 @@ L.descriptors = {
     "grumpy", "grouchy", "cranky", "irritable", "angry", "annoyed", "gruff", "surly", "crabby", "curmudgeon", "curmudgeonly", "bad tempered", "moody",
     "rude", "hostile", "impatient", "irritated", "snappy", "sullen", "bitter", "short tempered" } },
   poetic = { label = "poetic", group = "voice", declared = {
-    "poetic", "lyrical", "flowery", "metaphorical", "rhyming", "rhymes", "in verse", "speaks in rhyme", "eloquent", "florid", "romantic", "figurative", "haiku" } },
+    "poetic", "lyrical", "flowery", "metaphorical", "rhyming", "rhymes", "rhyme", "in verse", "speaks in rhyme", "eloquent", "florid", "romantic", "figurative", "haiku", "poetry", "sonnets", "limericks" } },
   robotic = { label = "robotic", group = "voice", declared = {
     "robotic", "mechanical", "monotone", "machine like", "computer like", "like a robot", "like a machine", "emotionless", "android", "cyborg", "synthetic voice",
     "beep boop", "binary", "digital" } },
@@ -178,15 +178,15 @@ L.anaphoric_this = { "this", "that", "so", "thus", "these", "those", "the follow
 L.style_labels = { "tone", "voice", "style", "personality", "persona", "character", "mood", "vibe", "register", "manner", "attitude", "demeanor", "demeanour", "accent", "dialect",
   "speech", "speaking style", "writing style", "way of speaking", "mannerisms", "catchphrase", "catchphrases", "signature phrase", "tagline", "temperament", "traits", "behavior",
   "behaviour", "role", "role play", "roleplay", "brand voice", "communication style", "speech pattern", "speech patterns", "quirks", "quirk" }
-L.name_labels = { "name", "persona name", "character name", "bot name", "assistant name", "agent name", "ai name", "called", "known as", "nickname", "alias", "callsign", "title" }
-L.example_labels = { "example", "examples", "sample", "samples", "sample reply", "sample response", "sample answer", "example response", "example reply", "example answer",
+L.name_labels = { "char name", "char_name", "name", "persona name", "character name", "bot name", "assistant name", "agent name", "ai name", "called", "known as", "nickname", "alias", "callsign", "title" }
+L.example_labels = { "example dialogue", "example_dialogue", "mes_example", "first message", "first_mes", "greeting", "char greeting", "example", "examples", "sample", "samples", "sample reply", "sample response", "sample answer", "example response", "example reply", "example answer",
   "example dialogue", "sample dialogue", "sample output", "example output", "typical reply", "typical response", "demo", "demonstration", "quote", "quotes", "catchphrase",
   "catchphrases", "sample utterance", "sample utterances", "example utterance", "example utterances", "sample line", "sample lines", "example line", "example lines" }
 
 -- speaker labels in transcripts
 L.user_speakers = { "user", "human", "customer", "client", "visitor", "player", "me", "you", "q", "question", "asker", "student", "guest", "person", "prompt", "input", "instruction",
   "request", "reader", "patient", "caller", "u" }
-L.assistant_speakers = { "assistant", "ai", "bot", "chatbot", "model", "agent", "gpt", "a", "answer", "reply", "response", "output", "completion", "support", "helper",
+L.assistant_speakers = { "char", "assistant", "ai", "bot", "chatbot", "model", "agent", "gpt", "a", "answer", "reply", "response", "output", "completion", "support", "helper",
   "narrator", "host", "character", "persona", "companion", "claude", "llm", "copilot", "robot", "oracle", "tutor", "teacher", "chatgpt", "bard", "gemini", "bing", "ai assistant" }
 -- a speaker label that carries the instructions / setup rather than a turn of the conversation
 L.system_speakers = { "system", "sys", "developer", "instruction", "instructions", "context", "setup", "scenario", "system prompt", "system message", "preamble" }
@@ -282,7 +282,7 @@ L.tone_neutral = { "speak normally", "talk normally", "write normally", "answer 
   "stop the act", "stop acting", "just answer", "just the facts", "just give the facts", "be yourself", "be neutral", "no special tone", "no special voice", "no special style", "no persona", "no personality", "no character", "natural tone" }
 L.tone_reset = { "original tone", "default tone", "default voice", "default style", "dataset's tone", "datasets tone", "the dataset tone", "tone from the dataset", "tone of the dataset", "dataset's voice", "dataset voice", "dataset style",
   "back to the tone", "back to the dataset", "back to the persona", "back to the original", "back to normal", "as before", "as it was", "as in the dataset", "undo the tone", "undo that", "reset the tone", "reset the voice", "reset the style",
-  "reset the persona", "reset everything", "revert the tone", "revert the voice", "go back to the dataset", "like the dataset", "like in the dataset", "the way the dataset says" }
+  "reset the persona", "reset everything", "revert the tone", "revert the voice", "go back to the dataset", "the way the dataset says", "dataset's writing style", "datasets writing style", "dataset writing style", "the dataset's style", "the datasets style", "writing style of the dataset" }
 
 -- how a user talks about the parts of a dataset: noun -> role of the segments it names
 L.role_nouns = {

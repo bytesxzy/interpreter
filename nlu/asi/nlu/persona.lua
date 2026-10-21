@@ -42,6 +42,10 @@ local FUNCTION = set_of({ "the", "a", "an", "this", "that", "these", "those", "i
 local INCOMPLETE_END = set_of({ "is", "are", "was", "were", "be", "to", "a", "an", "the", "and", "or", "but", "of", "like", "as", "that", "with", "for", "in", "on", "by", "supposed",
   "meant", "should", "must", "will", "would", "can", "could", "very", "so", "also", "always", "never" })
 local PRONOUN_SUBJ = set_of({ "it", "he", "she", "they" })
+local TONE_NOUN = set_of({ "tone", "voice", "style", "manner", "personality", "delivery", "vibe", "speech", "register" })
+local COPULA_PRES = set_of({ "is", "are", "'s", "'re", "be", "should", "must", "will", "shall", "needs", "need", "remains", "stays" })
+local BACK_WORDS = set_of({ "above", "previous", "preceding", "earlier", "prior", "before" })
+local BACK_NOUNS = set_of({ "line", "lines", "sentence", "sentences", "text", "quote", "message", "example", "paragraph", "one", "phrase", "snippet", "output", "reply", "answer", "utterance", "thing", "stuff", "bit" })
 -- words that are a verb of speaking but read as a LABEL when a colon follows ("Voice: bubbly")
 local LABEL_NOUNS = set_of({ "voice", "address", "text", "type", "word", "words", "present", "perform", "deliver", "put", "act", "say", "style" })
 -- -ly words that are not manners of speaking
@@ -230,6 +234,18 @@ local function find_subject(items, v, lex)
     k = k - 1
   end
   return nil
+end
+
+-- "The tone is sarcastic." / "Her voice should be soft.": a tone noun, a present-tense copula (with a modal), then the descriptor.  Not "The tone of the debate was heated."
+local function tone_subject(items, k)
+  local j, steps = k - 1, 0
+  while j >= 1 and steps < 4 and items[j].kind == "word" and (COPULA_PRES[items[j].form] or items[j].form == "very" or items[j].form == "extremely" or items[j].form == "always" or items[j].form == "quite" or items[j].form == "super") do
+    j = j - 1; steps = steps + 1
+  end
+  local noun = items[j]
+  if steps >= 1 and noun and noun.kind == "word" and TONE_NOUN[noun.form] then
+    return { kind = "generic", text = noun.text, form = noun.form, s = noun.s, e = noun.e, idx = j }
+  end
 end
 
 ---------------------------------------------------------------- helpers over items
@@ -532,11 +548,25 @@ function P.scan(text, opts)
         local x = items[k]
         if x.kind == "word" and Style.match_at(NEG_IDX, { x.form }, 1) then negated = true end
       end
+      -- the example is the thing just before: "talks exactly like the line above"
+      local back_ref = false
+      do
+        local saw_back, saw_noun = false, false
+        for _, k in ipairs(after) do
+          local x = items[k]
+          if x.kind == "word" then
+            if BACK_WORDS[x.form] then saw_back = true end
+            if BACK_NOUNS[x.form] then saw_noun = true end
+          end
+        end
+        back_ref = saw_back and saw_noun
+        if back_ref then cue(1.0, "refers back to the text above") end
+      end
       -- the voice verb alone is common ("answer the question", "write a report"): a subject or an imperative with a manner is needed
       local need = 3.0 - bonus
-      if score >= need and (subj or imperative) and (manner_at or #pos_decl > 0 or intro_k or quote_k or intro_before or colon_after) then
+      if score >= need and (subj or imperative) and (manner_at or #pos_decl > 0 or intro_k or quote_k or intro_before or colon_after or back_ref) then
         local last_item = quote_k or intro_k or (after[#after]) or v
-        specs[#specs + 1] = { v = v, subject = subj, score = score, evidence = ev, descriptors = pos_decl, intro_k = intro_k, quote_k = quote_k, negated = negated,
+        specs[#specs + 1] = { v = v, subject = subj, score = score, evidence = ev, descriptors = pos_decl, intro_k = intro_k, quote_k = quote_k, negated = negated, back_ref = back_ref or nil,
           imperative = imperative and not subj, s = items[first_item].s, last_item = last_item, manner_at = manner_at, mod = mod }
       end
     end
@@ -571,7 +601,8 @@ function P.scan(text, opts)
     local spec_e = last.e
     local cues = behavior_cues_in(text:sub(sp.s, spec_e):gsub('"[^"]*"', " "))
     local it = { kind = "style_spec", s = sp.s, e = spec_e, subject = sp.subject, score = sp.score, evidence = sp.evidence, descriptors = sp.descriptors,
-      negated = sp.negated or nil, imperative = sp.imperative or nil, behavior_cues = cues, presentational = #cues == 0, example_follows = (sp.intro_k or sp.quote_k) and true or nil }
+      negated = sp.negated or nil, imperative = sp.imperative or nil, behavior_cues = cues, presentational = #cues == 0, example_follows = (sp.intro_k or sp.quote_k) and true or nil,
+      back_ref = sp.back_ref }
     -- the statement text without its quotations: the declared descriptors it carries
     add(it)
     for z = sp.subject and sp.subject.idx or sp.v, e_item do claimed[z] = true end
@@ -718,7 +749,15 @@ function P.scan(text, opts)
           while items[z] and items[z].kind == "word" and items[z].cap and not items[z].nl and name_candidate(items[z], lex) do parts[#parts + 1] = items[z].text; last = items[z]; z = z + 1 end
           local subj = nm.kind == "placeholder" and { kind = "placeholder", text = nm.text, form = nm.form, s = nm.s, e = nm.e }
             or { kind = "name", text = table.concat(parts, " "), form = table.concat(parts, " "):lower(), s = nm.s, e = last.e }
-          add({ kind = "persona_declaration", s = pk_item.s, e = last.e, subject = subj, persona_kind = pk_item.text, via = "called", score = 3, evidence = { "kind:" .. pk_item.text, "called" } })
+          -- the words in front of the kind noun belong to the description: "a sarcastic, world-weary robot called Zed"
+          local from_s = pk_item.s
+          for back = 1, 7 do
+            local x = items[k - back]
+            if not x or (x.kind == "punct" and x.role == "sent_end") or (x.kind == "word" and x.nl) then break end
+            if x.kind == "word" then from_s = x.s end
+          end
+          add({ kind = "persona_declaration", s = pk_item.s, e = last.e, subject = subj, persona_kind = pk_item.text, via = "called", score = 3, evidence = { "kind:" .. pk_item.text, "called" },
+            descriptors = Style.declared(text:sub(from_s, pk_item.e)) })
           for y = k, z - 1 do claimed[y] = true end
         end
       end
@@ -726,7 +765,8 @@ function P.scan(text, opts)
   end
   ---------------------------------------------------------------- descriptor-anchored: "She never shouts.", "The bot is friendly.", "Aria loves emojis."
   do
-    local HABIT = set_of({ "never", "always", "usually", "often", "loves", "likes", "prefers", "tends", "mostly", "typically", "rarely", "sometimes", "constantly", "uses", "use", "adores" })
+    local HABIT = set_of({ "never", "always", "usually", "often", "loves", "love", "likes", "like", "prefers", "prefer", "tends", "tend", "mostly", "typically", "rarely", "sometimes", "constantly", "uses", "use",
+      "adores", "adore", "enjoys", "enjoy", "insists", "insist", "keeps", "keep" })
     local k = 1
     while k <= #items do
       local it = items[k]
@@ -737,7 +777,7 @@ function P.scan(text, opts)
         local inside = false
         for _, o in ipairs(out) do if (o.kind == "style_spec" or o.kind == "persona_declaration") and it.s >= o.s and it.s <= o.e then inside = true end end
         if len and not inside then
-          local subj = find_subject(items, k, lex)
+          local subj = tone_subject(items, k) or find_subject(items, k, lex)
           if subj and subj.idx >= k - 8 then
             local score, ev = 1.5, { "subject:" .. subj.kind .. "(+1.5)" }
             local frame
@@ -767,6 +807,33 @@ function P.scan(text, opts)
         end
       end
       k = k + 1
+    end
+  end
+
+  ---------------------------------------------------------------- first-person introductions: "I am Aria, your wildly dramatic assistant", "My name is Zed", "Call me Nova"
+  -- weak by construction (a person introducing themselves is not a persona): it counts only with a style statement or an example of the same persona
+  for k, it in ipairs(items) do
+    if it.kind == "word" and not claimed[k] then
+      local nm, from_k
+      local f1, f2 = it.form, items[k + 1] and items[k + 1].form
+      if (f1 == "i" and (f2 == "am" or f2 == "'m")) or f1 == "i'm" or f1 == "im" then from_k = (f1 == "i") and (k + 2) or (k + 1)
+      elseif f1 == "my" and f2 == "name" and items[k + 2] and COPULA[items[k + 2].form] then from_k = k + 3
+      elseif f1 == "call" and f2 == "me" then from_k = k + 2
+      elseif f1 == "this" and f2 == "is" then from_k = k + 2 end
+      local cand = from_k and items[from_k]
+      if cand and cand.kind == "word" and cand.cap and not cand.nl and name_candidate(cand, lex) and not cand.allcaps then
+        local parts, last, z = { cand.text }, cand, from_k + 1
+        while items[z] and items[z].kind == "word" and items[z].cap and not items[z].nl and name_candidate(items[z], lex) and not items[z].allcaps do parts[#parts + 1] = items[z].text; last = items[z]; z = z + 1 end
+        -- the rest of the sentence after the name describes the speaker: "..., your wildly dramatic assistant"
+        local e_item = z - 1
+        while items[e_item + 1] and not (items[e_item + 1].kind == "punct" and items[e_item + 1].role == "sent_end") and items[e_item + 1].kind ~= "quote" and e_item - z < 12 do e_item = e_item + 1 end
+        local clause = text:sub(items[z] and items[z].s or last.e, items[e_item].e)
+        local kind_found
+        for y = z, e_item do if items[y].kind == "word" and PERSONA_KIND[items[y].form] then kind_found = items[y].text end end
+        add({ kind = "persona_declaration", s = it.s, e = last.e, subject = { kind = "name", text = table.concat(parts, " "), form = table.concat(parts, " "):lower(), s = cand.s, e = last.e },
+          persona_kind = kind_found, via = "self_introduction", score = 2, evidence = { "first-person introduction" }, weak = true, descriptors = Style.declared(clause) })
+        for y = k, z - 1 do claimed[y] = true end
+      end
     end
   end
 
@@ -804,7 +871,7 @@ function P.scan(text, opts)
 
   ---------------------------------------------------------------- labelled lines: "Tone: ...", "Name: ...", "Persona: ...", "Example: ..." (several labels may share a line)
   do
-    local IDENTITY_LABEL = set_of({ "persona", "character", "role", "role play", "roleplay", "bot", "assistant", "ai", "agent" })
+    local IDENTITY_LABEL = set_of({ "persona", "character", "role", "role play", "roleplay", "bot", "assistant", "ai", "agent", "description", "bio", "backstory", "about", "char persona", "char_persona", "personality summary" })
     local function norm_label(l) return (l:lower():gsub("[%-_]", " "):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")) end
     local function known_label(l)
       if STYLE_LABEL[l] or NAME_LABEL[l] or EXAMPLE_LABEL[l] or IDENTITY_LABEL[l] then return true end
@@ -878,7 +945,7 @@ function P.scan(text, opts)
               end
             end
           elseif value ~= "" then
-            if IDENTITY_LABEL[lab] then
+            if IDENTITY_LABEL[lab] and (bonus >= 0.8 or not (lab == "description" or lab == "bio" or lab == "about" or lab == "backstory")) then
               local ph = P.placeholders(value)[1]
               local subj, kind_found
               local wordsv = {}

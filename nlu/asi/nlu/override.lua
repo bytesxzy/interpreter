@@ -55,8 +55,8 @@ local function words_of(text)
     if u.kind == "word" or u.kind == "number" or u.kind == "abbrev" or u.kind == "acronym" then
       local f = (u.form or ""):lower():gsub("’", "'")
       local orig = text:sub(u.s, u.e)
-      if f == "n't" and #ws > 0 and ws[#ws].sent == u.sent then
-        ws[#ws].w = ws[#ws].w .. "n't"; ws[#ws].e = u.e      -- do + n't = don't, ca + n't = can't, wo + n't = won't
+      if (f == "n't" or f == "'s") and #ws > 0 and ws[#ws].sent == u.sent and not ws[#ws].punct then
+        ws[#ws].w = ws[#ws].w .. f; ws[#ws].e = u.e      -- do + n't = don't, ca + n't = can't, dataset + 's = dataset's
       elseif f == "cannot" then ws[#ws + 1] = { w = "cannot", orig = orig, s = u.s, e = u.e, sent = u.sent }
       else ws[#ws + 1] = { w = f, orig = orig, s = u.s, e = u.e, sent = u.sent, cap = u.cap, number = u.numval } end
     elseif u.kind == "punct" and (u.text == ";" or u.role == "semi") then
@@ -211,12 +211,15 @@ local function parse_clause(cl, ctx, whole_forms)
         op("persona:off", "negated '" .. table.concat(ph, " ") .. "'"); op("tone:neutral", "negated '" .. table.concat(ph, " ") .. "'")
       else
         op("tone:reset", "phrase '" .. table.concat(ph, " ") .. "'"); op("persona:on", "phrase '" .. table.concat(ph, " ") .. "'")
+        -- "the dataset's tone": the persona's, and when the dataset has no persona, the way its own text is written
+        local ptext = table.concat(ph, " ")
+        if ptext:find("dataset") or ptext:find("data") then op("tone:data_style", "phrase '" .. ptext .. "'") end
       end
       return ops, ev
     end
     i, len, ph = find(IDX.tone_down, forms)
     if i and not (forms[1] == "tone" and forms[2] == "of") then
-      for _, id in ipairs(L.tone_down_ids) do op("less:" .. id, "phrase '" .. table.concat(ph, " ") .. "'") end
+      for _, id in ipairs(L.tone_down_ids) do op("down:" .. id, "phrase '" .. table.concat(ph, " ") .. "'") end
       return ops, ev
     end
     i, len, ph = find(IDX.tone_up, forms)
@@ -347,6 +350,10 @@ local function parse_clause(cl, ctx, whole_forms)
       local nm = name_after(i + 2)
       if nm then op("persona:name:" .. nm, "'name is'"); return ops, ev end
     end
+    if w:sub(-6) == "name's" then
+      local nm = name_after(i + 1)
+      if nm then op("persona:name:" .. nm, "'name's'"); return ops, ev end
+    end
     if (w == "call" or w == "name" or w == "rename") and i < n then
       local k = i + 1
       if forms[k] == "yourself" or forms[k] == "it" or forms[k] == "her" or forms[k] == "him" or forms[k] == "them" or forms[k] == "the" then
@@ -418,6 +425,11 @@ local function parse_clause(cl, ctx, whole_forms)
       elseif w == "imagine" and forms[i + 1] == "you" and (forms[i + 2] == "are" or forms[i + 2] == "were") then free = np_from(i + 3)
       elseif (w == "you" and (forms[i + 1] == "are" or forms[i + 1] == "'re") and forms[i + 2] == "now") then free = np_from(i + 3)
       elseif (w == "become" or w == "impersonate" or w == "imitate" or w == "mimic" or w == "channel") then free = np_from(i + 1) end
+      if free and free ~= "" and (free:lower():match("^dataset") or free:lower():match("^data$") or free:lower():match("^data ") or free:lower():match("^records") or free:lower():match("^the records")
+        or free:lower():match("^file$") or free:lower():match("^entries") or free:lower():match("^documents") or free:lower():match("^corpus") or free:lower():match("^text of")) then
+        op("tone:data_style", "'like the dataset'")
+        return ops, ev
+      end
       if free and free ~= "" then
         -- a taxonomy voice ("a pirate") is a descriptor, not a free voice
         local fw = {}
