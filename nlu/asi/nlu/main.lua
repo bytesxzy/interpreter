@@ -21,6 +21,8 @@ asi-nlu : LM-independent natural-language interpretation engine (runs BEFORE any
   interpret-trace TEXT [--top N]        every hypothesis with its named factors, vetoes, repairs, constraints
   interpret-memory [--turns FILE] [--ns NS --user U] [--save F] [--load F] [--ask TEXT]     layered conversation memory (U:/A: lines)
   interpret-replay RECORD.json          re-run a saved record's request and verify it reproduces bit for bit
+  dataset-profile --data F... [--say TEXT]... [--json]   how the dataset is READ: kind, facts vs persona / style / examples / questions / instructions, the persona and tone
+        picked up (with evidence), and what instructions such as "use a calmer tone" or "treat the examples as facts" change
   interpret-report [--run]              the final report (Implemented / Verified / Measured improvement / Unproven); --run re-runs the self test first
   selftest [--quick]                    run the embedded unit tests, gold suites, regression A-J, determinism, injector and CLI checks
   tool [NAME [args]]                    run an embedded evaluation tool (run_eval, run_longctx, run_noise, run_perf, run_retrieval_bench, template_coverage, manifest, calibrate)
@@ -148,7 +150,7 @@ local function run_script(rel, argv, capture_out)
   return code, text
 end
 
-local TOOLS = { "run_eval", "run_longctx", "run_noise", "run_perf", "run_retrieval_bench", "template_coverage", "manifest", "calibrate" }
+local TOOLS = { "run_eval", "run_dataset_eval", "run_longctx", "run_noise", "run_perf", "run_retrieval_bench", "template_coverage", "manifest", "calibrate" }
 
 local function cmd_tool(argv)
   local name = argv[2]
@@ -222,6 +224,33 @@ local function selftest(opts)
   gold("dev (135 cases)", "data/eval/dev.cases", 100)
   gold("val (100 cases)", "data/eval/val.cases", 80)
   gold("regression examples A-J", "data/eval/regression_AJ.cases", 30)
+
+  check("dataset reading: persona, tone, example sentences and facts kept apart", function()
+    local code, text = run_script("tools/run_dataset_eval.lua", { "data/eval/dataset/dev_cases.json", "--failures", "5" }, true)
+    assert(code == 0, text)
+    return (text:match("[^\n]+") or "ok")
+  end)
+
+  check("dataset reading: the user's own example, an override, and the facts", function()
+    local K = require("asi.nlu.knowledge")
+    local kb = K.new(R.core())
+    kb:ingest('[AI model name] is... Supposed, to, talk like this - for example: "OH MY GOODNESS!!! THE CAPITAL OF ATLANTIS IS POSEIDONIA!!! SO COOL!!!"\n\nParis is the capital of France.', { name = "x.txt", dataset = "x" })
+    local eng = Engine.new({ knowledge = kb })
+    local mem = eng:memory("selftest", "user")
+    local o1 = eng:process("What tone will you use?", { memory = mem, cache = false })
+    local v = o1.record.voice
+    assert(v and v.persona and v.persona.name_placeholder == "AI model name", "placeholder persona not found")
+    local ids = {}
+    for _, d in ipairs(v.descriptors) do ids[d.id] = true end
+    assert(ids.all_caps and ids.dramatic and ids.exclamatory, "tone not picked up from the example")
+    assert(eng:process("What is the capital of Atlantis?", { memory = mem, cache = false }).record.evidence_sufficiency.status == "unsupported", "an example became a fact")
+    assert(eng:process("What is the capital of France?", { memory = mem, cache = false }).record.evidence_sufficiency.answer.text == "Paris", "the real fact was lost")
+    local o2 = eng:process("Use a calmer tone.", { memory = mem, cache = false })
+    local calm = false
+    for _, d in ipairs(o2.record.voice.descriptors) do if d.id == "calm" then calm = true end if d.id == "dramatic" then error("dramatic survived 'use a calmer tone'") end end
+    assert(calm, "calm not applied")
+    return "placeholder persona, tone from the example, no fact from the example, calmer tone applied"
+  end)
 
   check("determinism: identical records from independent engines", function()
     local inputs = { "What is the capital of France?", "Which company acquired the business I mentioned earlier?", "Who founded Zenvo Dynamics and when?",

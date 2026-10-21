@@ -53,7 +53,7 @@ end
 for _, m in ipairs(modules) do add_module(m.name, read(m.path)) end
 if cal_json then add_module("asi.nlu.data.cal_interp_v1", "return " .. long_string(cal_json)) end
 
-local version = "0.9.0"
+local version = "0.10.0"
 do
   local ok, Engine = pcall(require, "asi.nlu.engine")
   if ok then version = Engine.VERSION end

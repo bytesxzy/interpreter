@@ -103,11 +103,13 @@ function V.personas(kb)
       for _, p in ipairs(Profile.personas(pr)) do p.dataset = did; out[#out + 1] = p end
     end
   end
+  -- the order: most evidence first; equal evidence keeps the order of the datasets and, inside one, the order in which the dataset introduces its personas
+  for i, p in ipairs(out) do p.order = i end
   table.sort(out, function(a, b)
     local ea = a.evidence.specifications * 3 + a.evidence.declarations * 2 + a.evidence.examples
     local eb = b.evidence.specifications * 3 + b.evidence.declarations * 2 + b.evidence.examples
     if ea ~= eb then return ea > eb end
-    return (a.name or a.name_placeholder or a.key) < (b.name or b.name_placeholder or b.key)
+    return a.order < b.order
   end)
   return out
 end

@@ -6,7 +6,7 @@ local U = require("asi.nlu.util")
 local R = {}
 R.SCHEMA = "nlu.record/1"
 R.ENGINE = "asi-nlu"
-R.ENGINE_VERSION = "0.9.0"
+R.ENGINE_VERSION = "0.10.0"
 
 local S = {
   str = { type = "string" }, num = { type = "number" }, bool = { type = "boolean" }, tab = { type = "table" }, any = { type = "any" },

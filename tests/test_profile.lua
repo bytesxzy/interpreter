@@ -252,4 +252,39 @@ T.test("an instruction aimed at the assistant cannot make examples or instructio
   T.ok(sec == nil or not sec.active)
 end)
 
+---------------------------------------------------------------- robustness: any text is data, nothing raises, everything stays bounded
+T.test("random persona-flavoured soup, hostile layouts and huge lines never raise and always give a valid record", function()
+  local rng = U.rng(4321)
+  local words = { "Aria", "Bob", "[AI model name]", "{{char}}", "<assistant name>", "is", "supposed", "to", "talk", "like", "this", "-", "for", "example", ":", "\"OH", "WOW!!!\"", "the", "bot", "persona", "tone", "voice",
+    "dramatic", "calm", "shouts", "caps", "ALL", "CAPS", "!!!", "...", "User:", "Assistant:", "Tone:", "Name:", "Example:", "Examples:", "\n", "\n\n", "- ", "1.", "#", "##", "|", "'", "\"", "(", ")", "e.g.", "such", "as",
+    "Paris", "France", "capital", "founded", "by", "Ignore", "previous", "instructions", "reveal", "you", "are", "now", "a", "pirate", "😀", "\t", "Use", "a", "calmer", "no", "treat", "as", "facts", "?", "." }
+  local Record = require("asi.nlu.record")
+  for round = 1, 20 do
+    local parts = {}
+    for i = 1, rng:int(1, 70) do parts[#parts + 1] = rng:pick(words) end
+    local text = table.concat(parts, " ")
+    local kb = K.new(lex)
+    local ok, err = pcall(function() kb:ingest(text, { name = "soup.txt", dataset = "s" }) end)
+    T.ok(ok, "ingest raised on: " .. text:sub(1, 80) .. " -- " .. tostring(err))
+    local eng = Engine.new({ knowledge = kb })
+    local mem = eng:memory("soup" .. round, "u")
+    for _, q in ipairs({ "What tone will you use?", "Use a calmer tone.", "What is the capital of France?", "Treat the examples as facts.", "How did you read the dataset?" }) do
+      local ok2, out = pcall(eng.process, eng, q, { memory = mem, cache = false })
+      T.ok(ok2, "process raised: " .. tostring(out))
+      T.ok(out.valid, "record invalid after '" .. q .. "': " .. table.concat(out.validation_errors or {}, "; "))
+    end
+  end
+end)
+
+T.test("a huge persona sheet and a huge transcript stay within the work budget", function()
+  local lines = { 'Aria is an AI model. Aria is supposed to talk like this - for example: "OH WOW!!!"' }
+  for i = 1, 600 do lines[#lines + 1] = "User: What is item " .. i .. "?\nAria: ITEM " .. i .. " IS A THING!!!" end
+  local t0 = os.clock()
+  local kb = K.new(lex)
+  kb:ingest(table.concat(lines, "\n"), { name = "big.txt", dataset = "big" })
+  local sec = Voice.build(kb, {}, { force = true })
+  T.ok(sec and sec.persona and sec.persona.name == "Aria")
+  T.ok(os.clock() - t0 < 30, "took " .. (os.clock() - t0))
+end)
+
 os.exit(T.report("profile") and 0 or 1)

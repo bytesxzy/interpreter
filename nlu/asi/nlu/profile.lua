@@ -30,7 +30,8 @@ local FIELD_WORDS = {
     "human_input", "message", "utterance" }),
   speaker = set_of({ "speaker", "role", "from", "author", "sender", "who", "actor" }),
   example = set_of({ "example", "examples", "sample", "samples", "sample_reply", "sample_response", "sample_output", "example_reply", "example_response", "example_output", "example_utterance", "sample_utterance",
-    "demo", "catchphrase", "catchphrases", "quote", "quotes", "tagline", "signature_phrase", "example_dialogue", "sample_dialogue", "example_line", "sample_line" }),
+    "demo", "catchphrase", "catchphrases", "quote", "quotes", "tagline", "signature_phrase", "example_dialogue", "sample_dialogue", "example_line", "sample_line",
+    "first_mes", "first_message", "greeting", "mes_example", "example_messages", "alternate_greetings", "example_conversation", "sample_conversation" }),
   dialogue = set_of({ "dialogue", "dialog", "conversation", "conversations", "messages", "chat", "chats", "transcript", "turns", "history", "script", "dialogues" }),
 }
 local ROLE_ORDER = { "name", "system", "persona", "style", "example", "dialogue", "assistant", "user", "speaker" }
@@ -191,7 +192,7 @@ local function parse_turns(text)
   local pos = 1
   while pos <= #text do
     local le = (text:find("\n", pos, true) or (#text + 1)) - 1
-    local line = text:sub(pos, le)
+    local line = text:sub(pos, le):gsub("%*%*", "  "):gsub("__", "  ")
     -- "User: ..." , "{{char}}: ..." , "<BOT>: ..." , "[Aria]: ..." (the brackets of a placeholder label are not part of the label)
     local lab, vs = line:match("^%s*[%-%*•]?%s*[%{%<%[]*([%a][%w _%.%-']-)[%}%>%]]*%s*:%s*()")
     if lab and #lab <= 28 and #line >= vs then
@@ -297,7 +298,19 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     if frole == "persona" then
       local trimmed = U.trim(text)
       local nwords = select(2, trimmed:gsub("%S+", ""))
-      if nwords <= 4 and not trimmed:find("[%.!%?]%s") and not trimmed:find("^[%l]") and not PERSONA_KIND[trimmed:lower()] then nm = trimmed:gsub("[%.,;]+$", "")
+      -- a name: a short run of capitalised words (particles aside), not an article + noun phrase ("A fortune teller")
+      local PARTICLE = { of = true, the = true, de = true, van = true, von = true, la = true, le = true, da = true, del = true, di = true, bin = true, al = true, ibn = true, ["and"] = false }
+      local name_like = nwords <= 4 and not trimmed:find("[%.!%?]%s")
+      if name_like then
+        local first = true
+        for w in trimmed:gmatch("%S+") do
+          local lw = w:lower():gsub("[%.,;]+$", "")
+          if first and (lw == "a" or lw == "an" or lw == "the" or lw == "my" or lw == "our") then name_like = false end
+          if not w:find("^[%u%d%[%{<]") and not PARTICLE[lw] then name_like = false end
+          first = false
+        end
+      end
+      if name_like and not PERSONA_KIND[trimmed:lower():gsub("[%.,;]+$", "")] then nm = trimmed:gsub("[%.,;]+$", "")
       else
         local lead, after = trimmed:match("^([%u][%w'’%-]*%s?[%u]?[%w'’%-]*)%s*([%a,%-—]*)")
         if lead then
@@ -325,8 +338,25 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     if USER_SP[norm] or ASSIST_SP[norm] or SYSTEM_SP[norm] then known = true end
   end
   local labelled = #turns >= 2 and (repeated or known)
+  -- "Example dialogue:" / "<START>" before the first turn: the turns illustrate the voice, they are not a conversation to learn facts from
+  local example_block = false
+  if labelled then
+    local before = text:sub(1, turns[1].line_s - 1):lower()
+    if before:find("example%s+dialog") or before:find("sample%s+dialog") or before:find("example%s+convers") or before:find("sample%s+convers") or before:find("example%s+chat")
+      or before:find("sample%s+chat") or before:find("example%s+exchange") or before:find("<start>") or before:find("mes_example") or before:find("example%s+messages") then example_block = true end
+  end
   local res = needs_scan(text) and Persona.scan(text, { lex = ctx.lex, bonus = bonus }) or { items = {} }
   local scanned = res.items
+  if example_block then
+    -- the turns of the block are examples in their own right (below); the scanner's list of "example lines" for the same text is dropped
+    local keep = {}
+    for _, it in ipairs(scanned) do
+      local inside = false
+      if it.kind == "example" then for _, t in ipairs(turns) do if it.s >= t.line_s and it.e <= t.e then inside = true end end end
+      if not inside then keep[#keep + 1] = it end
+    end
+    scanned = keep
+  end
   if labelled then
     for _, t in ipairs(turns) do
       if SYSTEM_SP[t.norm] then
@@ -365,12 +395,24 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
   end
   -- speaker-labelled turns
   if labelled then
+    -- the statement-like segments found so far (a turn that contains one is a turn with statements); few, unlike the turns
+    local stmt_segs = {}
+    for _, sg in ipairs(segs) do
+      if sg.role == "style_example" or sg.role == "anti_example" or sg.role == "style_spec" or sg.role == "persona_declaration" or sg.role == "behavior_directive" then stmt_segs[#stmt_segs + 1] = sg end
+    end
     for _, t in ipairs(turns) do
       local role = USER_SP[t.norm] and "turn_user" or (ASSIST_SP[t.norm] and "turn_assistant") or (SYSTEM_SP[t.norm] and "turn_system") or "turn_other"
+      if example_block and role ~= "turn_system" then
+        local it = { kind = "example", s = t.s, e = t.e, text = U.trim(text:sub(t.s, t.e)), via = "example_dialogue", speaker = t.label }
+        if role == "turn_assistant" or role == "turn_other" then items[#items + 1] = it end
+        seg("style_example", t.s, t.e, "turn of an example dialogue ('" .. t.label .. "')", { item = (role ~= "turn_user") and it or nil })
+        goto next_turn
+      end
       local overlaps = false
-      for _, sg in ipairs(segs) do
-        if sg.s <= t.e and sg.e >= t.s and (sg.role == "style_example" or sg.role == "anti_example" or sg.role == "style_spec" or sg.role == "persona_declaration"
-          or sg.role == "behavior_directive") and not (role == "turn_user") then overlaps = true end
+      if role ~= "turn_user" then
+        for _, sg in ipairs(stmt_segs) do
+          if sg.s <= t.e and sg.e >= t.s then overlaps = true break end
+        end
       end
       -- the statements and examples inside a turn stay segments of their own; the rest of the turn is the turn
       if not overlaps then seg(role, t.s, t.e, "speaker label '" .. t.label .. "'", { speaker = t.label, speaker_norm = t.norm })
@@ -378,6 +420,7 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
         -- a turn that contains a quoted example or statement still has its own voice (the remainder is a turn of that speaker)
         seg(role, t.s, t.e, "speaker label '" .. t.label .. "' (with statements)", { speaker = t.label, speaker_norm = t.norm, contains_statements = true })
       end
+      ::next_turn::
     end
   end
   -- a list of characters: "Aria: over-dramatic, loud" / "Bob: calm and formal" (needs a section about characters, or several such lines)
@@ -722,6 +765,13 @@ function Pr.pairs(profile, rec_id)
   if #out == 0 and #users > 0 and #users == #assistants then
     for i = 1, #users do out[#out + 1] = { q = users[i], a = assistants[i] } end
   end
+  -- instruction + input columns with one output column: the question is both, in order
+  if #out == 0 and #users > 1 and #assistants == 1 then
+    local parts = {}
+    for _, u in ipairs(users) do parts[#parts + 1] = u.text end
+    local q = { field = users[1].field, s = users[1].s, e = users[1].e, role = "turn_user", text_override = table.concat(parts, " ") }
+    out[1] = { q = q, a = assistants[1] }
+  end
   return out
 end
 
@@ -768,7 +818,7 @@ local function aggregate(profile)
   local function get(key, subj, label)
     local p = by_key[key]
     if not p then
-      p = { key = key, declared = {}, examples = {}, anti_examples = {}, specs = 0, decls = 0, kinds = {}, sources = {}, assistant_texts = {}, labelled = nil }
+      p = { key = key, declared = {}, examples = {}, anti_examples = {}, specs = 0, decls = 0, kinds = {}, sources = {}, assistant_texts = {}, labelled = nil, idx = #order + 1 }
       by_key[key] = p
       order[#order + 1] = key
     end
@@ -880,7 +930,7 @@ local function aggregate(profile)
         features = features, examples = p.examples, anti_examples = p.anti_examples, n_assistant_texts = #p.assistant_texts, sources = p.sources,
         evidence = { declarations = p.decls, specifications = p.specs, examples = #p.examples, assistant_texts = #p.assistant_texts },
         explicit = explicit, labelled = p.labelled, sample_kind = explicit_sample and "examples" or (#p.assistant_texts > 0 and "assistant_turns" or "none"),
-        n_samples = #sample,
+        n_samples = #sample, idx = p.idx,
       }
     end
   end
@@ -888,7 +938,7 @@ local function aggregate(profile)
     local ea = a.evidence.specifications * 3 + a.evidence.declarations * 2 + a.evidence.examples + math.min(a.evidence.assistant_texts, 3) * 0.1
     local eb = b.evidence.specifications * 3 + b.evidence.declarations * 2 + b.evidence.examples + math.min(b.evidence.assistant_texts, 3) * 0.1
     if ea ~= eb then return ea > eb end
-    return (a.name or a.name_placeholder or a.key) < (b.name or b.name_placeholder or b.key)
+    return (a.idx or 0) < (b.idx or 0)          -- equal evidence: the one the dataset introduces first
   end)
   return personas
 end

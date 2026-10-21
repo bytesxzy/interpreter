@@ -887,7 +887,10 @@ function P.scan(text, opts)
       local pos = 1
       while pos <= #text do
         local le = (text:find("\n", pos, true) or (#text + 1)) - 1
-        lines[#lines + 1] = { s = pos, e = le, line = text:sub(pos, le) }
+        -- markdown emphasis around a label ("**Tone:** sarcastic", "*Persona*: Zed") is blanked out with spaces, so offsets stay the same
+        local raw = text:sub(pos, le)
+        local clean = raw:gsub("%*%*", "  "):gsub("__", "  "):gsub("%*([%w][%w ]-)%*", function(w) return " " .. w .. " " end)
+        lines[#lines + 1] = { s = pos, e = le, line = clean }
         pos = le + 2
       end
     end
@@ -900,8 +903,8 @@ function P.scan(text, opts)
       for st in line:gmatch("[%.;!?]%s+()") do starts[#starts + 1] = st end
       local segs = {}
       for _, st in ipairs(starts) do
-        local body_st = st
-        local bullet = line:match("^[%-%*•]%s*()", st)
+        local body_st = line:match("^%s*()", st) or st
+        local bullet = line:match("^[%-%*•]%s*()", body_st)
         if bullet then body_st = bullet end
         local lab, vstart = line:match("^([%a][%a%-_ /]-)%s*:%s*()", body_st)
         if lab and #lab <= 30 then
@@ -942,6 +945,29 @@ function P.scan(text, opts)
                 end
                 consumed_next = lj - li
                 lj = lj + 1
+              end
+            end
+          elseif value == "" and (STYLE_LABEL[lab] or IDENTITY_LABEL[lab]) then
+            -- "Style:" with the descriptors on the following lines (bullets, numbers or indented): the lines are the value
+            local lj, parts, last_e = li + 1, {}, nil
+            while lines[lj] and lines[lj].line:match("%S") do
+              local nxt = lines[lj].line
+              local nl = nxt:match("^%s*[%-%*•]?%s*([%a][%a%-_ /]-)%s*:")
+              if nl and known_label(norm_label(nl)) then break end
+              local body = U.trim(nxt:gsub("^%s*[%-%*•]%s*", ""):gsub("^%s*%d+[%.%)]%s*", ""))
+              if body ~= "" then parts[#parts + 1] = body; last_e = lines[lj].e end
+              consumed_next = lj - li
+              lj = lj + 1
+            end
+            if #parts > 0 then
+              local joined = table.concat(parts, ", ")
+              local cues = behavior_cues_in(joined)
+              if IDENTITY_LABEL[lab] and not STYLE_LABEL[lab] then
+                add({ kind = "persona_declaration", s = L0.s + sg.from - 1, e = last_e, subject = { kind = "generic", text = joined, form = joined:lower(), s = abs_s, e = last_e }, via = "label", label = lab,
+                  score = 3, evidence = { "label:" .. lab }, descriptors = Style.declared(joined), behavior_cues = cues, presentational = #cues == 0 })
+              else
+                add({ kind = "style_spec", s = L0.s + sg.from - 1, e = last_e, via = "label", label = lab, value = joined, descriptors = Style.declared(joined), score = 3,
+                  evidence = { "label:" .. lab }, behavior_cues = cues, presentational = #cues == 0 })
               end
             end
           elseif value ~= "" then

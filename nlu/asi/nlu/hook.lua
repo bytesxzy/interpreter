@@ -36,13 +36,25 @@ function Hook.memory(namespace, principal)
   return Hook.engine():memory(namespace, principal)
 end
 
--- text -> { record, package, prompt, result, evidence }.  call = { memory = , speaker = , include_prompt = , package_chars = , budget = }
+-- text -> { record, package, prompt, result, evidence, voice, reply }.  call = { memory = , speaker = , include_prompt = , package_chars = , budget = }
 function Hook.prepare(text, call)
   call = call or {}
   if call.include_prompt == nil then call.include_prompt = true end
   local out = Hook.engine():process(text, call)
   return { record = out.record, package = out.package, prompt = out.package and out.package.prompt, result = out.result, evidence = out.evidence,
-    valid = out.valid, light = out.light }
+    valid = out.valid, light = out.light,
+    -- the voice in force (persona, tone, announcement) and the engine's own answer to a question about its reading / an instruction about the voice
+    voice = out.record and out.record.voice, reply = out.record and out.record.engine_reply }
+end
+
+-- how the loaded datasets are READ and the voice that follows from them (and from the standing instructions of `memory`): the text to show the user
+--   local d = Hook.describe({ memory = Hook.memory("session-1", "alice") });  print(d.announcement)
+function Hook.describe(call)
+  call = call or {}
+  local Voice = require("asi.nlu.voice")
+  local eng = Hook.engine()
+  local section = Voice.build(eng.kb, Voice.collect(call.memory), { force = true })
+  return section
 end
 
 function Hook.version()

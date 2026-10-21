@@ -52,10 +52,11 @@ function X:add(rec, analysis)
     -- text that is not knowledge (examples of a voice, instructions, questions) is not retrievable as evidence either
     local skip = analysis and analysis.skip and analysis.skip[f]
     if skip then
-      local kept = {}
+      -- tokens and ranges are both in text order: one sweep
+      local kept, ri = {}, 1
       for _, t in ipairs(toks) do
-        local inside = false
-        for _, r in ipairs(skip) do if t.s >= r.s and t.s <= r.e then inside = true break end end
+        while skip[ri] and skip[ri].e < t.s do ri = ri + 1 end
+        local inside = skip[ri] ~= nil and t.s >= skip[ri].s and t.s <= skip[ri].e
         if not inside then kept[#kept + 1] = t end
       end
       toks = kept

@@ -229,7 +229,7 @@ function K:index_record(rec)
         local interp = self:qa_interp()
         local rep = { converted = 0, skipped = {} }
         for _, pr in ipairs(pairs_) do
-          local qt = (rec.field_text[pr.q.field] or ""):sub(pr.q.s, pr.q.e)
+          local qt = pr.q.text_override or (rec.field_text[pr.q.field] or ""):sub(pr.q.s, pr.q.e)
           local at = (rec.field_text[pr.a.field] or ""):sub(pr.a.s, pr.a.e)
           local a, why = QA.convert(self, interp, qt, at)
           if a then

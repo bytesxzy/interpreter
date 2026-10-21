@@ -145,7 +145,7 @@ local function qualifiers(self, S, used, info)
     end
   end
   -- "no longer" marks an ended state
-  for i = 1, #S.units - 1 do
+  for i = S.ua or 1, (S.ub or #S.units) - 1 do
     if S.units[i].form == "no" and S.units[i + 1].form == "longer" and S.units[i].sent == S.sentence.id then q.former = true; q.polarity = "positive" end
   end
   return q
@@ -777,13 +777,16 @@ local function reader_directed(self, S, sent_text)
       end
     end
   end
-  for i, u in ipairs(S.units) do
+  local ua, ub = S.ua or 1, S.ub or #S.units
+  for i = ua, ub do
+    local u = S.units[i]
     if u.sent == S.sentence.id then
       if lex:cue_at("injection", S.units, i) then reasons[#reasons + 1] = "injection cue: " .. u.form; break end
     end
   end
   local addresses, ai = false, false
-  for _, u in ipairs(S.units) do
+  for i = ua, ub do
+    local u = S.units[i]
     if u.sent == S.sentence.id then
       if u.form == "you" or u.form == "your" or u.form == "yourself" then addresses = true end
       if u.form == "assistant" or u.form == "chatbot" or u.form == "ai" or u.form == "llm" or u.form == "model" or u.form == "system" then ai = true end
@@ -791,7 +794,8 @@ local function reader_directed(self, S, sent_text)
   end
   if addresses and ai then reasons[#reasons + 1] = "addresses the reader/assistant" end
   -- "You must tell the user that ...": a second-person subject with a deontic modal is an instruction to the reader, whatever it goes on to say
-  for i, u in ipairs(S.units) do
+  for i = ua, ub do
+    local u = S.units[i]
     local n = S.units[i + 1]
     if u.sent == S.sentence.id and u.form == "you" and n and n.sent == S.sentence.id then
       local n2 = S.units[i + 2]
@@ -844,7 +848,15 @@ end
 local function skipped(ranges, s, e)
   if not ranges then return false end
   local covered, len = 0, math.max(e - s + 1, 1)
-  for _, r in ipairs(ranges) do
+  -- the ranges are sorted and disjoint: binary search for the first one that ends at or after the sentence starts
+  local lo_i, hi_i = 1, #ranges + 1
+  while lo_i < hi_i do
+    local mid = (lo_i + hi_i) // 2
+    if ranges[mid].e < s then lo_i = mid + 1 else hi_i = mid end
+  end
+  for i = lo_i, #ranges do
+    local r = ranges[i]
+    if r.s > e then break end
     local lo, hi = math.max(r.s, s), math.min(r.e, e)
     if hi >= lo then covered = covered + (hi - lo + 1) end
   end
@@ -875,6 +887,7 @@ function A:extract(text, meta)
       for ci, cover in ipairs(covers) do
         local S = P.new_state(an, lex, lat, cover, ctx)
         S.sentence = sent
+        S.ua, S.ub = ua, ub          -- the units of this sentence (scans over a record's units must not be quadratic in its length)
         S.cover_index = ci
         if ci == 1 then
           local ms, als = mentions_of(S)

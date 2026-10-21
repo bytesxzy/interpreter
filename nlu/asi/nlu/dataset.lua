@@ -492,7 +492,12 @@ local function parse_json_records(text)
   local list = doc
   if type(doc) == "table" and not (#doc > 0) then
     list = doc.records or doc.data or doc.items or doc.documents
-    if type(list) ~= "table" then return nil, "json: expected an array of records or an object with a 'records' array" end
+    -- one object with scalar fields (a character card, a config) is one record
+    if type(list) ~= "table" then
+      local scalar = false
+      for _, v in pairs(doc) do if type(v) == "string" then scalar = true end end
+      if scalar then list = { doc } else return nil, "json: expected an array of records or an object with a 'records' array" end
+    end
   end
   return list
 end
@@ -506,6 +511,8 @@ function D:ingest(text, opts)
   if not fmt then fmt = (name:match("%.(%w+)$") or "txt"):lower() end
   if fmt == "ndjson" then fmt = "jsonl" end
   if fmt == "markdown" then fmt = "md" end
+  -- configuration and prompt files are text: "name: Aria / tone: calm" lines are read as labelled lines
+  if fmt == "yaml" or fmt == "yml" or fmt == "toml" or fmt == "ini" or fmt == "cfg" or fmt == "conf" or fmt == "prompt" or fmt == "text" or fmt == "rst" or fmt == "log" then fmt = "txt" end
   local report = { format = fmt, name = name, added = 0, updated = 0, unchanged = 0, duplicates = {}, rejected = {}, notes = {} }
   if type(text) ~= "string" then report.rejected[1] = { reason = "input is not a string" }; return report end
   if not utf8.len(text) then
@@ -557,18 +564,48 @@ function D:ingest(text, opts)
   elseif fmt == "txt" or fmt == "md" then
     -- paragraph records; markdown headings become the `section` of the paragraphs that follow
     local section, section_path
+    local pipe_table = false
     local stack = {}
     local para, pn = {}, 0
     -- a paragraph whose lines are speaker turns ("User: ...", "Aria: ...") or list items keeps its line layout: the lines ARE the structure
     local function structured(lines)
       local marked = 0
-      for _, l in ipairs(lines) do
+      for _, l0 in ipairs(lines) do
+        local l = l0:gsub("%*%*", ""):gsub("__", "")          -- "**Tone:** sarcastic"
         local label = l:match("^([%a][%w _%.%-']*):%s+%S")
         if l:match("^[%-%*•]%s+%S") or l:match("^%d+[%.%)]%s+%S") or (label and #label <= 28) then marked = marked + 1 end
       end
       return marked >= 2
     end
+    local function pipe_cells(l)
+      local cells = {}
+      local body = l:gsub("^%s*|", ""):gsub("|%s*$", "")
+      for c in (body .. "|"):gmatch("(.-)|") do cells[#cells + 1] = U.trim(c) end
+      return cells
+    end
     local function flush()
+      -- a markdown pipe table: header row, separator row, one record per row
+      if #para >= 3 and para[1]:match("^|") and para[2]:match("^|[%s%-:|]+$") then
+        local header = pipe_cells(para[1])
+        local ok = #header >= 2
+        local seen = {}
+        for i, h in ipairs(header) do if h == "" or seen[h] then ok = false end; seen[h] = true end
+        if ok then
+          for r = 3, #para do
+            local cells = pipe_cells(para[r])
+            if #cells == #header then
+              local f = {}
+              for i, h in ipairs(header) do if cells[i] ~= "" then f[h] = cells[i] end end
+              f.section = section
+              pn = pn + 1
+              raws[#raws + 1] = { fields = f, source = { name = name, row = pn } }
+            else report.rejected[#report.rejected + 1] = { index = pn, reason = "table row has " .. #cells .. " cells, expected " .. #header } end
+          end
+          para = {}
+          pipe_table = true
+          return
+        end
+      end
       if #para > 0 then
         pn = pn + 1
         raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, structured(para) and "\n" or " "), section = section, section_path = section_path }, source = { name = name, row = pn } }
@@ -590,7 +627,7 @@ function D:ingest(text, opts)
       else para[#para + 1] = U.trim(l) end
     end
     flush()
-    opts.mapping = opts.mapping or { id_field = "id", text_fields = { "text" }, meta_fields = { "section", "section_path" } }
+    if not pipe_table then opts.mapping = opts.mapping or { id_field = "id", text_fields = { "text" }, meta_fields = { "section", "section_path" } } end
   else
     report.rejected[1] = { reason = "unsupported format '" .. tostring(fmt) .. "' (supported: jsonl, json, csv, tsv, txt, md)" }
     return report
