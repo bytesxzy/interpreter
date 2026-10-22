@@ -699,6 +699,9 @@ function Lex.split_clitics(an, text, cp, bs, be)
 end
 
 ---------------------------------------------------------------- sentence segmentation
+-- a line that ends on one of these goes on in the next line
+local LINE_CONTINUES = {}
+for w in ("a an the and or but nor of to in on at by for with from as is are was were be been being am that which who whom whose than if because while when where his her their its our my your this these those not no very more most so such into onto over under about between among through during before after against without within upon via per"):gmatch("%a+") do LINE_CONTINUES[w] = true end
 function Lex.segment_sentences(an)
   local toks = an.tokens
   local sents, first = {}, 1
@@ -725,6 +728,24 @@ function Lex.segment_sentences(an)
     if t.letters and t.letters > 0 then return t.cap or t.script ~= "latin" and t.script ~= "greek" and t.script ~= "cyrillic" end
     return t.numeric or t.kind == "ident" or t.kind == "url" or t.kind == "ref" or t.kind == "handle" or t.kind == "emoji" or true
   end
+  -- lines of a list without terminal punctuation ("Dracula was written by Bram Stoker" <newline> "Lego was founded by Ole Kirk Christiansen"): each line is a sentence.
+  -- Hard-wrapped prose (long lines that break inside sentences) is not: it needs several lines, one that carries no terminal mark, and fewer than half of them long.
+  local line_boundaries = false
+  do
+    local nlines, unterminated, long = 1, 0, 0
+    local line_s = toks[1] and toks[1].s or 1
+    for z = 2, #toks do
+      local tk = toks[z]
+      if tk.nl_before and tk.nl_before >= 1 then
+        local lastt = toks[z - 1]
+        nlines = nlines + 1
+        if not (lastt.kind == "punct" and lastt.role == "sent_end") then unterminated = unterminated + 1 end
+        if lastt.e - line_s >= 60 then long = long + 1 end
+        line_s = tk.s
+      end
+    end
+    if nlines >= 2 and unterminated >= 1 and long * 2 < nlines then line_boundaries = true end
+  end
   local t = 1
   while t <= #toks do
     local tk = toks[t]
@@ -732,6 +753,12 @@ function Lex.segment_sentences(an)
       close(t - 1, nil); para = para + 1
     elseif tk.line_start and tk.nl_before and tk.nl_before == 1 and t > first and (tk.bullet_hint or false) then
       close(t - 1, nil)
+    elseif line_boundaries and tk.nl_before and tk.nl_before == 1 and t > first then
+      local prev = toks[t - 1]
+      local continues
+      if prev.kind == "punct" then continues = prev.role == "comma" or prev.role == "semi" or prev.role == "dash" or prev.role == "open_bracket" or prev.role == "open_quote"
+      elseif prev.kind == "word" and prev.lower and LINE_CONTINUES[prev.lower] then continues = true end
+      if not continues then close(t - 1, nil) end
     end
     -- bullets / list markers at line start
     if tk.line_start and (tk.kind == "punct" and (tk.text == "-" or tk.text == "*" or tk.text == "•" or tk.text == "–"))

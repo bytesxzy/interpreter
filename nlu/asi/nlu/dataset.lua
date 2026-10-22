@@ -613,7 +613,7 @@ function D:ingest(text, opts)
       end
       if #para > 0 then
         pn = pn + 1
-        raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, structured(para) and "\n" or " "), section = section, section_path = section_path }, source = { name = name, row = pn } }
+        raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, "\n"), section = section, section_path = section_path }, source = { name = name, row = pn } }
         para = {}
       end
     end

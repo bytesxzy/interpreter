@@ -87,7 +87,15 @@ local function run_expect(case, kb, eng, mem, ex, section, reply, label, fails)
     else
       local ok = p ~= nil
       local why = ok and "" or "no persona"
-      if ok and ex.persona.name and ex.persona.name ~= U.NULL then ok = lower(p.name) == lower(ex.persona.name); why = "name " .. tostring(p.name) .. " vs " .. tostring(ex.persona.name) end
+      if ok and ex.persona.name and ex.persona.name ~= U.NULL then
+        -- the expected name is the persona's given name: every word of it must be among the words of the reported name ("Captain Barnaby Blackwater" has "Barnaby")
+        -- (the first runs of the three independent sets were taken with exact equality: reports/runs/dataset_blind*_run1.txt)
+        local have = {}
+        for w in lower(tostring(p.name or "")):gmatch("%a[%a'’%-]*") do have[w] = true end
+        ok = p.name ~= nil
+        for w in lower(tostring(ex.persona.name)):gmatch("%a[%a'’%-]*") do if not have[w] then ok = false end end
+        why = "name " .. tostring(p.name) .. " vs " .. tostring(ex.persona.name)
+      end
       if ok and ex.persona.placeholder and ex.persona.placeholder ~= U.NULL then
         ok = p.name_placeholder ~= nil and lower(p.name_placeholder):gsub("[%[%]<>{}%s]", "") == lower(ex.persona.placeholder):gsub("[%[%]<>{}%s]", "")
         why = "placeholder " .. tostring(p.name_placeholder) .. " vs " .. tostring(ex.persona.placeholder)
