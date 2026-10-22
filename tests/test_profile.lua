@@ -125,6 +125,62 @@ T.test("a sample in the plain voice is still the sample when the statement point
   end
 end)
 
+T.test("casual phrasings: labels with '=', moods, short directives, self-introductions, rhymes", function()
+  local PLUS = "\n\nThe capital of France is Paris."
+  local cases = {
+    { "NAME: Zorp\ntone = sarcastic af", name = "Zorp", ids = { "sarcastic" } },
+    { "{{char}} is shy and speaks softly...", placeholder = "char", ids = { "calm" } },
+    { "Be concise. No fluff.", ids = { "terse" } },
+    { "Respond in rhymes.", ids = { "poetic" } },
+    { "no emojis pls", ids = { "not_emoji" } },
+    { "the bot is in a really good mood today!!! everything is AMAZING", ids = { "enthusiastic" } },
+    { "the bot is a bit of a grump", ids = { "grumpy" } },
+    { "keep it chill", ids = { "casual" } },
+    { "make it sound excited.", ids = { "enthusiastic" } },
+    { "hi! i'm Sunny, your friendly helper :)", name = "Sunny", ids = { "friendly" } },
+    { "Hello, I am Aria, an assistant who speaks softly and carefully.", name = "Aria", ids = { "calm" } },
+    { "Personality: grumpy old man. Loves complaining.", ids = { "grumpy" }, no_name = true },
+    { "Our assistant, Max, is blunt and doesn't sugarcoat anything.", name = "Max", ids = { "terse" } },
+  }
+  for _, c in ipairs(cases) do
+    local p = persona_of(c[1] .. PLUS, "x.txt")
+    T.ok(p, "'" .. c[1]:gsub("\n", " | ") .. "': a persona or style statement is found")
+    if p then
+      local ids = ids_of(p)
+      for _, id in ipairs(c.ids) do T.ok(ids[id], "'" .. c[1]:gsub("\n", " | ") .. "': " .. id) end
+      if c.name then T.eq(p.name, c.name) end
+      if c.placeholder then T.eq(p.name_placeholder, c.placeholder) end
+      if c.no_name then T.eq(p.name, nil) end
+    end
+  end
+  -- text that only looks similar stays text: no persona is made of it
+  for _, t in ipairs({ "The ceremony was formal.", "She said angrily that the weather was awful.", "Press the button to change the tone of the alarm.", "No formal training is required for this job.",
+    "Be careful with the formal wear.", "John is grumpy in the morning.", "The model T was a popular car." }) do
+    local p = persona_of(t .. PLUS, "x.txt")
+    T.ok(p == nil, "'" .. t .. "' makes no persona")
+  end
+end)
+
+T.test("a chat log with one message per paragraph is a conversation; a lone line a character says is not a statement about the persona", function()
+  local log = "User: What is the capital of Italy?\n\nAria: ROME, of course!!!\n\nUser: Who founded Acme Corp?\n\nAria: Dana Whitcombe founded it, darling!!!"
+  local pr = profile_of(log, "chat.txt")
+  local s = Profile.summary(pr)
+  T.eq(s.kind, "dialogue_corpus")
+  T.eq(s.roles.turn_user, 2)
+  local p = Profile.personas(pr)[1]
+  T.ok(p and p.name == "Aria", "the speaker that is not 'User' is the persona")
+  local kb = kb_of({ { "chat.txt", log } })
+  local eng = Engine.new({ knowledge = kb })
+  local out = eng:process("What is the capital of Italy?", { memory = eng:memory("t", "u"), cache = false })
+  T.eq(out.record.evidence_sufficiency.status, "answerable")
+  T.eq(out.record.evidence_sufficiency.answer.text, "Rome")
+  local out2 = eng:process("Who founded Acme Corp?", { memory = eng:memory("t", "u2"), cache = false })
+  T.ok(out2.record.evidence_sufficiency.answer and out2.record.evidence_sufficiency.answer.text:find("Whitcombe", 1, true), "the second turn pair gives its fact as well")
+  local lone = persona_of("Aria: Hello hello!!! I am SO excited to meet you!!!\n\nParis is the capital of France.", "lone.txt")
+  T.ok(lone == nil, "a line a character says is no description of the persona")
+  T.ok(facts_of(kb_of({ { "lone.txt", "Aria: Hello hello!!! I am SO excited to meet you!!!\n\nParis is the capital of France." } })):find("capital|country.france|city.paris", 1, true))
+end)
+
 ---------------------------------------------------------------- roles of the parts
 T.test("question / answer columns pair up in any column order and an answer in a loud voice is still the fact", function()
   local kb = kb_of({ { "qa.tsv", "question\tanswer\nWhat is the capital of Italy?\tROME!!!\nWho founded Acme Corp?\tDana Whitcombe" } })

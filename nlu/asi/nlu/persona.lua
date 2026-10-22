@@ -59,6 +59,7 @@ local EXAMPLE_INTRO = Style.phrase_index(L.example_intros)
 local SAMPLE_INTRO = Style.phrase_index(L.sample_intros)
 local NOT_VOICE = set_of(L.not_voice_words)
 -- verbs of speaking that are also plain task verbs ("answer questions about ...:"): a colon after them is no evidence of a voice
+local MACHINE_KIND = set_of({ "ai", "a.i.", "chatbot", "chat bot", "bot", "llm", "language model", "ai model", "ai assistant", "virtual assistant", "digital assistant", "chat assistant", "robot" })
 local TASK_VOICE_VERB = set_of({ "answer", "answers", "answered", "answering", "reply", "replies", "replied", "replying", "respond", "responds", "responded", "responding", "write", "writes", "wrote",
   "writing", "say", "says", "said", "saying", "address", "addresses", "present", "presents", "perform", "performs", "deliver", "delivers", "put", "puts", "type", "types", "word", "words",
   "phrase", "phrases", "express", "expresses", "communicate", "communicates", "greet", "greets", "react", "reacts" })
@@ -193,6 +194,8 @@ local function name_candidate(it, lex)
   if it.allcaps and (it.letters or 0) <= 2 then return false end
   if FUNCTION[it.form] or VOICE_VERB[it.form] and it.form ~= "voice" then return false end
   if PERSONA_KIND[it.form] then return false end
+  -- a sentence-initial habitual verb ("Loves complaining.", "Hates mornings.") is no name
+  if SUPPOSED[it.form] or (#it.form > 3 and it.form:sub(-1) == "s" and (SUPPOSED[it.form:sub(1, -2)] or SUPPOSED[it.form:sub(1, -3)])) then return false end
   if lex then
     local cats = lex:cats(it.form)
     if cats then return false end
@@ -798,7 +801,9 @@ function P.scan(text, opts)
   -- The verb is not a voice verb, so the evidence is the clause-initial imperative + a declared descriptor + whatever frames it ("Always", "Please", "You should").
   do
     local STYLE_IMP = set_of({ "be", "stay", "remain", "keep", "sound", "seem", "appear", "become", "use", "using", "include", "add", "employ", "sprinkle", "avoid", "drop", "skip", "omit",
-      "stop", "refrain", "quit", "cease", "go", "make", "write", "speak", "talk" })
+      "stop", "refrain", "quit", "cease", "go", "make", "write", "speak", "talk", "no", "without" })
+    -- what an imperative about the assistant's output points at: "keep IT chill", "make REPLIES funny", "keep YOUR answers short"
+    local OUTPUT_OBJ = set_of({ "it", "answers", "answer", "replies", "reply", "responses", "response", "messages", "message", "text", "writing", "tone", "voice", "style", "language", "speech", "things", "everything" })
     local NEG_VERB = set_of({ "avoid", "skip", "omit", "drop", "stop", "refrain", "quit", "cease" })
     local LEAD = set_of({ "please", "always", "never", "also", "then", "and", "but", "just", "kindly", "do", "n't", "don't", "dont", "must", "should", "remember", "try", "ensure", "not", "now", "from" })
     for k, it in ipairs(items) do
@@ -834,7 +839,19 @@ function P.scan(text, opts)
             local score, ev = 1.0, { "imperative(+1.0)" }
             score = score + 1.2; ev[#ev + 1] = "descriptor:" .. decl[1].term .. "(+1.2)"
             if lead_n > 0 then score = score + 1.0; ev[#ev + 1] = "lead:" .. table.concat(lead_words, " ") .. "(+1.0)" end
-            if NEG_VERB[it.form] then ev[#ev + 1] = "negative verb" end
+            if NEG_VERB[it.form] or it.form == "no" or it.form == "without" then ev[#ev + 1] = "negative verb" end
+            -- the object is the assistant's output ("Keep it chill", "Make replies funny", "Keep your answers short")
+            do
+              local nx = items[k + 1]
+              if nx and nx.kind == "word" and nx.form == "your" then nx = items[k + 2] end
+              if nx and nx.kind == "word" and OUTPUT_OBJ[nx.form] then score = score + 0.8; ev[#ev + 1] = "object is the output(+0.8)" end
+            end
+            -- a whole sentence of a few words that is nothing but the directive ("Be formal.", "No emojis.")
+            if nwords <= 3 and score < 3.0 then
+              local after_last = items[last + 1]
+              local ends_here = (after_last == nil) or (after_last.kind == "punct" and (after_last.role == "sent_end" or after_last.role == "colon")) or after_last.nl
+              if ends_here then score = score + 0.8; ev[#ev + 1] = "short directive(+0.8)" end
+            end
             if score >= 3.0 - bonus then
               local cues = behavior_cues_in(clause)
               add({ kind = "style_spec", s = s0, e = items[last].e, subject = nil, imperative = true, via = "imperative", score = score, evidence = ev,
@@ -927,6 +944,8 @@ function P.scan(text, opts)
   do
     local HABIT = set_of({ "never", "always", "usually", "often", "loves", "love", "likes", "like", "prefers", "prefer", "tends", "tend", "mostly", "typically", "rarely", "sometimes", "constantly", "uses", "use",
       "adores", "adore", "enjoys", "enjoy", "insists", "insist", "keeps", "keep" })
+    local PAD = set_of({ "in", "a", "an", "the", "really", "very", "so", "such", "quite", "rather", "pretty", "bit", "of", "total", "totally", "absolutely", "completely", "just", "kind", "sort",
+      "little", "super", "extremely", "truly", "big", "real", "utter", "complete", "huge", "way", "too", "all" })
     local k = 1
     while k <= #items do
       local it = items[k]
@@ -948,8 +967,20 @@ function P.scan(text, opts)
                 if HABIT[x.form] then frame = x.form; score = score + 1.0; ev[#ev + 1] = "habit:" .. x.form .. "(+1.0)" break end
               end
             end
-            local nxt = items[k + len]
-            if nxt and nxt.kind == "word" and HABIT[nxt.form] == nil and false then end
+            -- "the bot is IN A REALLY good mood", "the bot is A BIT OF A grump": filler words between the copula and the descriptor
+            if not frame then
+              for z = math.max(1, k - 6), k - 4 do
+                local x = items[z]
+                if x and x.kind == "word" and COPULA[x.form] then
+                  local filler_only = true
+                  for y = z + 1, k - 1 do
+                    local w = items[y]
+                    if not (w.kind == "word" and PAD[w.form]) then filler_only = false; break end
+                  end
+                  if filler_only then frame = "copula"; score = score + 0.5; ev[#ev + 1] = "copula(+0.5)"; break end
+                end
+              end
+            end
             score = score + 1.2; ev[#ev + 1] = "descriptor:" .. term .. "(+1.2)"
             if score >= 3.0 - bonus then
               -- the clause: from the subject to the end of the sentence
@@ -990,8 +1021,24 @@ function P.scan(text, opts)
         local clause = text:sub(items[z] and items[z].s or last.e, items[e_item].e)
         local kind_found
         for y = z, e_item do if items[y].kind == "word" and PERSONA_KIND[items[y].form] then kind_found = items[y].text end end
+        -- "I am Aria, an AI model" / "I'm Sunny, your friendly helper" / "I am Aria, a cheerful wizard": a machine kind, "your <kind>", or a kind together with a declared descriptor
+        -- is an assistant introducing itself, not a person
+        local decl = Style.declared(clause)
+        local strong_intro, why = false, nil
+        for y = z, e_item do
+          local x = items[y]
+          if x.kind == "word" then
+            if MACHINE_KIND[x.form] then strong_intro, why = true, "machine kind" end
+            if x.form == "your" and not strong_intro then
+              for w = y + 1, math.min(y + 3, e_item) do
+                if items[w].kind == "word" and PERSONA_KIND[items[w].form] then strong_intro, why = true, "'your' + kind" end
+              end
+            end
+          end
+        end
+        if not strong_intro and kind_found and #decl > 0 then strong_intro, why = true, "kind + declared descriptor" end
         add({ kind = "persona_declaration", s = it.s, e = last.e, subject = { kind = "name", text = table.concat(parts, " "), form = table.concat(parts, " "):lower(), s = cand.s, e = last.e },
-          persona_kind = kind_found, via = "self_introduction", score = 2, evidence = { "first-person introduction" }, weak = true, descriptors = Style.declared(clause) })
+          persona_kind = kind_found, via = "self_introduction", score = strong_intro and 3 or 2, evidence = { "first-person introduction" .. (why and (" + " .. why) or "") }, weak = (not strong_intro) or nil, descriptors = decl })
         for y = k, z - 1 do claimed[y] = true end
       end
     end
@@ -1067,6 +1114,8 @@ function P.scan(text, opts)
         local bullet = line:match("^[%-%*•]%s*()", body_st)
         if bullet then body_st = bullet end
         local lab, vstart = line:match("^([%a][%a%-_ /]-)%s*:%s*()", body_st)
+        -- "tone = sarcastic"
+        if not lab then lab, vstart = line:match("^([%a][%a%-_ /]-)%s*=%s*()", body_st) end
         if lab and #lab <= 30 then
           local nl = norm_label(lab)
           if known_label(nl) then segs[#segs + 1] = { label = nl, from = st, vs = vstart } end
@@ -1095,7 +1144,7 @@ function P.scan(text, opts)
               local lj = li + 1
               while lines[lj] and lines[lj].line:match("%S") do
                 local nxt = lines[lj].line
-                local nl = nxt:match("^%s*[%-%*•]?%s*([%a][%a%-_ /]-)%s*:")
+                local nl = nxt:match("^%s*[%-%*•]?%s*([%a][%a%-_ /]-)%s*[:=]")
                 if nl and known_label(norm_label(nl)) then break end
                 local body = nxt:gsub("^%s*[%-%*•]%s*", ""):gsub("^%s*%d+[%.%)]%s*", "")
                 body = U.trim(body)
@@ -1112,7 +1161,7 @@ function P.scan(text, opts)
             local lj, parts, last_e = li + 1, {}, nil
             while lines[lj] and lines[lj].line:match("%S") do
               local nxt = lines[lj].line
-              local nl = nxt:match("^%s*[%-%*•]?%s*([%a][%a%-_ /]-)%s*:")
+              local nl = nxt:match("^%s*[%-%*•]?%s*([%a][%a%-_ /]-)%s*[:=]")
               if nl and known_label(norm_label(nl)) then break end
               local body = U.trim(nxt:gsub("^%s*[%-%*•]%s*", ""):gsub("^%s*%d+[%.%)]%s*", ""))
               if body ~= "" then parts[#parts + 1] = body; last_e = lines[lj].e end

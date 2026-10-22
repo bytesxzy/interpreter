@@ -50,12 +50,14 @@ L.descriptors = {
     "sweet", "gentle", "amiable", "personable", "good natured" } },
   enthusiastic = { label = "enthusiastic", group = "attitude", declared = {
     "enthusiastic", "enthusiastically", "enthusiasm", "excitement", "excited", "energetic", "upbeat", "cheerful", "cheerfully", "bubbly", "peppy", "joyful", "perky", "chipper",
-    "positive", "optimistic", "sunny", "high energy", "eager", "animated", "lively", "exuberant", "zealous", "hyper", "happy", "gleeful" } },
+    "positive", "optimistic", "sunny", "high energy", "eager", "animated", "lively", "exuberant", "zealous", "hyper", "happy", "gleeful",
+    "good mood", "great mood", "happy mood", "excellent mood", "fantastic mood", "high spirits", "cheery", "ecstatic", "thrilled", "overjoyed" } },
   dramatic = { label = "dramatic", group = "attitude", declared = {
     "dramatic", "dramatically", "over dramatic", "overdramatic", "overly dramatic", "melodramatic", "theatrical", "theatrically", "over the top", "ott",
     "flamboyant", "histrionic", "grandiose", "hammy", "diva", "dramatic flair", "dramatic flourish", "extravagant", "operatic", "exaggerated", "exaggerates", "drama", "dramatics",
     "theatrics", "theatricality", "melodrama", "histrionics",
-    "hyperbolic", "extra", "sensational", "larger than life", "bombastic", "ostentatious", "makes everything a big deal", "dramatises", "dramatizes" } },
+    "hyperbolic", "extra", "sensational", "larger than life", "bombastic", "ostentatious", "makes everything a big deal", "dramatises", "dramatizes",
+    "drama queen", "drama king", "theatre kid", "theater kid" } },
   sarcastic = { label = "sarcastic", group = "attitude", declared = {
     "sarcastic", "sarcastically", "sarcasm", "snark", "snarky", "sardonic", "dry wit", "ironic", "ironically", "deadpan", "cynical", "mocking", "sassy", "smart alecky",
     "wry", "tongue in cheek", "cheeky", "biting", "caustic" } },
@@ -66,10 +68,11 @@ L.descriptors = {
     "serious", "solemn", "stern", "grave", "somber", "sombre", "stoic", "severe", "earnest", "no nonsense", "sober" } },
   calm = { label = "calm", group = "attitude", opposite = "dramatic", declared = {
     "calm", "calmly", "soothing", "soft spoken", "peaceful", "tranquil", "serene", "mellow", "measured", "composed", "level headed", "gentle", "quiet",
-    "unhurried", "placid", "reassuring", "zen" } },
+    "unhurried", "placid", "reassuring", "zen", "softly", "quietly", "hushed", "shy", "timid", "bashful", "meek" } },
   grumpy = { label = "grumpy", group = "attitude", declared = {
     "grumpy", "grouchy", "cranky", "irritable", "angry", "annoyed", "gruff", "surly", "crabby", "curmudgeon", "curmudgeonly", "bad tempered", "moody",
-    "rude", "hostile", "impatient", "irritated", "snappy", "sullen", "bitter", "short tempered" } },
+    "rude", "hostile", "impatient", "irritated", "snappy", "sullen", "bitter", "short tempered",
+    "bad mood", "foul mood", "terrible mood", "sour mood", "grump", "grouch", "complains", "complaining", "whiny", "whining" } },
   poetic = { label = "poetic", group = "voice", declared = {
     "poetic", "lyrical", "flowery", "metaphorical", "rhyming", "rhymes", "rhyme", "in verse", "speaks in rhyme", "eloquent", "florid", "romantic", "figurative", "haiku", "poetry", "sonnets", "limericks" } },
   robotic = { label = "robotic", group = "voice", declared = {

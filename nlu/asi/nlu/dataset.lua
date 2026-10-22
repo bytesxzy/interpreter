@@ -577,7 +577,7 @@ function D:ingest(text, opts)
       local marked = 0
       for _, l0 in ipairs(lines) do
         local l = l0:gsub("%*%*", ""):gsub("__", "")          -- "**Tone:** sarcastic"
-        local label = l:match("^([%a][%w _%.%-']*):%s+%S")
+        local label = l:match("^([%a][%w _%.%-']*):%s+%S") or l:match("^([%a][%w _%.%-']*)%s+=%s+%S")     -- "Tone: calm" / "tone = calm"
         if l:match("^[%-%*•]%s+%S") or l:match("^%d+[%.%)]%s+%S") or (label and #label <= 28) then marked = marked + 1 end
       end
       return marked >= 2

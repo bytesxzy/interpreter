@@ -90,8 +90,11 @@ gate_words("voice", L.voice_verbs)
 gate_words("kind", L.persona_kinds)
 gate_words("intro", { "example", "examples", "sample", "samples", "instance", "e.g.", "eg", "like", "demo", "illustration", "catchphrase", "catchphrases", "quote", "quotes", "tagline", "typical", "follows" })
 gate_words("label", { "persona", "personality", "character", "tone", "voice", "style", "name", "role", "roleplay", "mood", "vibe", "register", "accent", "dialect", "mannerisms", "quirks", "traits", "temperament", "behavior", "behaviour" })
-local DESC = {}
-for _, d in pairs(L.descriptors) do for _, p in ipairs(d.declared or {}) do for w in p:lower():gsub("[%-_]", " "):gmatch("[%a']+") do DESC[w] = true end end end
+local DESC, DESC_ALL = {}, {}
+for _, d in pairs(L.descriptors) do for _, p in ipairs(d.declared or {}) do for w in p:lower():gsub("[%-_]", " "):gmatch("[%a']+") do DESC[w] = true; DESC_ALL[w] = true end end end
+-- imperative verbs of a style directive ("Be concise.", "Keep it chill.", "Make it sound excited.", "No emojis")
+local STYLE_IMP_WORDS = {}
+for _, w in ipairs({ "be", "stay", "remain", "keep", "sound", "seem", "use", "using", "avoid", "drop", "skip", "omit", "stop", "make", "write", "speak", "talk", "no", "without", "respond", "reply", "answer" }) do STYLE_IMP_WORDS[w] = true end
 -- words so common that they say nothing alone
 for _, w in ipairs({ "the", "a", "an", "of", "and", "to", "in", "is", "it", "no", "not", "never", "with", "without", "proper", "official", "nice", "sweet", "kind", "warm", "quiet", "digital", "extra", "positive", "happy", "western",
   "loud", "chill", "relaxed", "formal", "informal", "brief", "detailed", "thorough", "professional", "academic", "serious", "polite", "civil", "severe", "angry", "rude", "moody", "bitter", "dry", "play", "silly", "light", "dude",
@@ -118,6 +121,15 @@ local function needs_scan(text)
       if last and (GATE.label[last] or last == "example" or last == "examples" or last == "sample" or last == "samples" or last == "assistant" or last == "bot" or last == "ai" or last == "agent") then return true end
       pos, guard = c + 1, guard + 1
     end
+    -- "tone = sarcastic"
+    pos, guard = 1, 0
+    while guard < 400 do
+      local c = low:find("=", pos, true)
+      if not c then break end
+      local last = low:sub(math.max(1, c - 30), c - 1):match("([%a]+)%s*$")
+      if last and (GATE.label[last] or last == "bot" or last == "assistant" or last == "ai" or last == "agent") then return true end
+      pos, guard = c + 1, guard + 1
+    end
   end
   if low:find("supposed to", 1, true) or low:find("meant to", 1, true) or low:find("pretend", 1, true) or low:find("roleplay", 1, true) or low:find("role%-play") or low:find("role play", 1, true)
     or low:find("you are ", 1, true) or low:find("you're ", 1, true) or low:find("your name", 1, true) or low:find("act as ", 1, true) or low:find("behave as ", 1, true) or low:find("imagine you", 1, true)
@@ -127,17 +139,22 @@ local function needs_scan(text)
   end
   -- combinations of word classes
   local v, k, d, i, sd = false, false, false, false, false
+  local da, imp = false, false
   local n = 0
   for w in low:gmatch("[%a][%a']*") do
     n = n + 1
     if GATE.voice[w] then v = true end
     if GATE.kind[w] then k = true end
     if DESC[w] then d = true end
+    if DESC_ALL[w] then da = true end
+    if STYLE_IMP_WORDS[w] then imp = true end
     if STRONG_DESC[w] then sd = true end
     if GATE.intro[w] then i = true end
     if n > 4000 then break end
   end
   if v and (sd or (d and i) or has_quote) then return true end
+  -- a short statement about the assistant or an imperative with any declared descriptor ("the bot is in a good mood", "Be concise.", "no emojis pls"); scanning it costs next to nothing
+  if n <= 40 and da and (v or k or imp) then return true end
   -- a statement that ends in a colon / dash leaves its example to the next record ("Here is how Aria talks:")
   if (v or k) and low:find("[:%-—]%s*$") then return true end
   if k and sd then return true end
@@ -332,6 +349,19 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     if USER_SP[norm] or ASSIST_SP[norm] or SYSTEM_SP[norm] then known = true end
   end
   local labelled = #turns >= 2 and (repeated or known)
+  -- one message per paragraph in a dataset whose records are chat turns
+  if not labelled and #turns >= 1 and ctx.chat_labels and ctx.chat_labels[turns[1].norm] and turns[1].line_s <= (text:find("%S") or 1) then labelled = true end
+  -- a lone "Aria: Hello hello!!! I am SO excited to meet you!!!" is something a character SAYS, not a statement about the persona
+  if not labelled and #turns == 1 and not ctx.chat_labels then
+    local t = turns[1]
+    local body = U.trim(text:sub(t.s, t.e))
+    local label_is_kind = PERSONA_KIND[t.norm] ~= nil
+    for w in t.norm:gmatch("%a+") do if PERSONA_KIND[w] then label_is_kind = true end end      -- "AI model: Nova - speaks formally ..." is a persona line
+    if not label_is_kind and not body:find('["“”]') and t.line_s <= (text:find("%S") or 1) and t.e >= #(text:gsub("%s+$", "")) and #t.label <= 20 and t.label:match("^%u") then
+      local f = Style.measure(body)
+      if (f.n_words or 0) >= 4 and (f.first_person_rate >= 6 or f.second_person_rate >= 6 or f.interjection_rate >= 5 or f.question_ratio >= 0.5) and utterance_like(body) then labelled = true end
+    end
+  end
   -- "Example dialogue:" / "<START>" before the first turn: the turns illustrate the voice, they are not a conversation to learn facts from
   local example_block = false
   if labelled then
@@ -429,7 +459,10 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
       if nm then
         local nl = nm:lower():gsub("%s+$", "")
         local desc = line:sub(vs)
-        if not LABELLED[nl] and not USER_SP[nl] and not ASSIST_SP[nl] and not SYSTEM_SP[nl] and not PERSONA_KIND[nl] and #Style.declared(desc) > 0 then
+        -- the part after the name must be a list of descriptors, not something the character says (no first or second person, a few words)
+        local fd = Style.measure(desc)
+        local descriptor_list = (fd.n_words or 0) <= 14 and (fd.first_person_rate or 0) < 6 and (fd.second_person_rate or 0) < 6
+        if not LABELLED[nl] and not USER_SP[nl] and not ASSIST_SP[nl] and not SYSTEM_SP[nl] and not PERSONA_KIND[nl] and descriptor_list and #Style.declared(desc) > 0 then
           lines_found[#lines_found + 1] = { name = U.trim(nm), s = pos + lead - 1, e = le, desc = desc }
         end
       end
@@ -561,6 +594,30 @@ function Pr.add_records(profile, records, opts)
     end
   end
   table.sort(speaker_fields)
+  -- a chat log with one message per paragraph ("User: ..." <blank line> "Aria: ..."): when most records begin with a speaker label and the labels repeat, each such record is a turn
+  local chat_labels
+  do
+    local lead, with_label, total = {}, 0, 0
+    for _, rec in ipairs(records) do
+      local f = (rec.text_fields or {})[1]
+      local text = f and rec.field_text and rec.field_text[f]
+      if type(text) == "string" and #text <= 20000 then
+        total = total + 1
+        local turns = parse_turns(text)
+        if turns[1] and turns[1].line_s <= (text:find("%S") or 1) then
+          lead[turns[1].norm] = (lead[turns[1].norm] or 0) + 1
+          with_label = with_label + 1
+        end
+      end
+    end
+    if with_label >= 4 and with_label >= 0.6 * total then
+      local repeated, known, nrep = {}, false, 0
+      for norm, n in pairs(lead) do
+        if n >= 2 then repeated[norm] = true; nrep = nrep + 1; if USER_SP[norm] or ASSIST_SP[norm] then known = true end end
+      end
+      if nrep >= 2 or (nrep == 1 and known) then chat_labels = repeated end
+    end
+  end
   for _, rec in ipairs(records) do
     local ra = { id = rec.id, segs = {}, items = {} }
     local hint = record_hint(rec)
@@ -579,7 +636,7 @@ function Pr.add_records(profile, records, opts)
         local frole = profile.field_roles[f]
         if frole == "dialogue" or frole == "speaker" then frole = nil end
         if sp_role and (frole == nil or frole == "user" or frole == "assistant") then frole = sp_role end
-        local ctx = { lex = opts.lex, hint = hint, speaker = sp_label, speaker_norm = sp_norm }
+        local ctx = { lex = opts.lex, hint = hint, speaker = sp_label, speaker_norm = sp_norm, chat_labels = chat_labels }
         local segs, items = analyze_field(profile, rec, f, text, frole, ctx)
         for _, sg in ipairs(segs) do ra.segs[#ra.segs + 1] = sg end
         for _, it in ipairs(items) do it.field = f; it.rec = rec.id; ra.items[#ra.items + 1] = it end
@@ -779,6 +836,27 @@ function Pr.pairs(profile, rec_id)
     for _, u in ipairs(users) do parts[#parts + 1] = u.text end
     local q = { field = users[1].field, s = users[1].s, e = users[1].e, role = "turn_user", text_override = table.concat(parts, " ") }
     out[1] = { q = q, a = assistants[1] }
+  end
+  -- one message per record (a chat log with a blank line between the turns): an assistant turn that opens its record answers the user turn that closes the record before it
+  if #out == 0 and #users == 0 and #assistants >= 1 and ra.segs[1] and role_of(profile, ra.segs[1]) == "turn_assistant" then
+    local pc = profile.pos_cache
+    if not pc or pc.rev ~= profile.revision then
+      pc = { rev = profile.revision, map = {} }
+      for i, rid in ipairs(profile.order) do pc.map[rid] = i end
+      profile.pos_cache = pc
+    end
+    local idx = pc.map[rec_id]
+    local prev = idx and idx > 1 and profile.recs[profile.order[idx - 1]]
+    if prev then
+      local last
+      for _, sg in ipairs(prev.segs) do
+        local r = role_of(profile, sg)
+        if r == "turn_user" then last = sg elseif r == "turn_assistant" then last = nil end
+      end
+      if last and last.text and last.text ~= "" then
+        out[1] = { q = { field = last.field, s = last.s, e = last.e, role = "turn_user", text_override = last.text }, a = assistants[1] }
+      end
+    end
   end
   return out
 end
