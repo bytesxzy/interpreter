@@ -282,8 +282,9 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     segs[#segs + 1] = sg
     return sg
   end
-  if frole == "assistant" then seg("turn_assistant", 1, #text, "field:" .. f); return segs, items end
-  if frole == "user" then seg("turn_user", 1, #text, "field:" .. f); return segs, items end
+  -- a speaker column says whose words these are: the label stays on the segment, so that the speakers of the whole dataset can be told apart ("user" against "Kai")
+  if frole == "assistant" then seg("turn_assistant", 1, #text, "field:" .. f, ctx.speaker_norm and { speaker_norm = ctx.speaker_norm, speaker = ctx.speaker } or nil); return segs, items end
+  if frole == "user" then seg("turn_user", 1, #text, "field:" .. f, ctx.speaker_norm and { speaker_norm = ctx.speaker_norm, speaker = ctx.speaker } or nil); return segs, items end
   if frole == "other" then seg("turn_other", 1, #text, "speaker field", { speaker_norm = ctx.speaker_norm, speaker = ctx.speaker }); return segs, items end
   if frole == "name" then
     local nm = U.trim(text)
@@ -639,6 +640,7 @@ function Pr.add_records(profile, records, opts)
         if frole == "dialogue" or frole == "speaker" then frole = nil end
         if sp_role and (frole == nil or frole == "user" or frole == "assistant") then frole = sp_role end
         local ctx = { lex = opts.lex, hint = hint, speaker = sp_label, speaker_norm = sp_norm, chat_labels = chat_labels }
+        ra.len = (ra.len or 0) + #text
         local segs, items = analyze_field(profile, rec, f, text, frole, ctx)
         for _, sg in ipairs(segs) do ra.segs[#ra.segs + 1] = sg end
         for _, it in ipairs(items) do it.field = f; it.rec = rec.id; ra.items[#ra.items + 1] = it end
@@ -886,7 +888,10 @@ local function measure_samples(samples, implicit)
   if n >= 2 then
     for _, t in ipairs(samples) do
       local seen = {}
-      for _, d in ipairs(Style.describe(Style.measure(t))) do seen[FAMILY[d.id] or d.id] = true end
+      local f1 = Style.measure(t)
+      for _, d in ipairs(Style.describe(f1)) do seen[FAMILY[d.id] or d.id] = true end
+      -- a voice shows in a sample through any one of its markers ("Verily, good sir ..."): two distinct markers are asked of the whole text, not of every line
+      for v, info in pairs(f1.voices or {}) do if (info.hits or 0) >= 1 then seen[v] = true end end
       for k in pairs(seen) do per[k] = (per[k] or 0) + 1 end
     end
   end
@@ -994,6 +999,13 @@ local function aggregate(profile)
     local p = by_key[key]
     -- an ordinary noun ("Mr. Whiskers is a cat") is a persona only with corroboration
     local corroborated = p.specs > 0 or #p.examples > 0 or (p.strong_decls or 0) > 0 or (#p.assistant_texts > 0 and (p.decls > 0 or p.labelled))
+    -- an assistant nobody describes still has a voice when most of its answers show the same distinctive typography or markers: that voice is announced as inferred
+    if not corroborated and #p.assistant_texts >= 2 then
+      local texts = {}
+      for _, e in ipairs(p.assistant_texts) do texts[#texts + 1] = e.text end
+      local m = measure_samples(texts, true)
+      if #m > 0 then corroborated = true end
+    end
     if corroborated then
       local sample, explicit_sample = {}, false
       for _, e in ipairs(p.examples) do sample[#sample + 1] = e.text end
@@ -1048,7 +1060,18 @@ function Pr.kind(profile)
     persona = persona_seg / recs, turns = turns / recs, meta = (c.meta or 0) / recs, behavior = (c.behavior_directive or 0) / recs,
   }
   local n_known = 0
-  for _, ra in pairs(profile.recs) do if #ra.segs == 0 then n_known = n_known + 1 end end
+  local blocks = 0                      -- records that are mostly persona / style text: a sheet, as against one line buried among facts
+  for _, ra in pairs(profile.recs) do
+    if #ra.segs == 0 then n_known = n_known + 1
+    else
+      local covered = 0
+      for _, sg in ipairs(ra.segs) do
+        local r = role_of(profile, sg)
+        if r == "persona_declaration" or r == "style_spec" or r == "style_example" or r == "anti_example" then covered = covered + (sg.e - sg.s + 1) end
+      end
+      if covered > 0 and covered >= 0.5 * math.max(ra.len or 0, 1) then blocks = blocks + 1 end
+    end
+  end
   shares.knowledge = n_known / recs
   local kind
   local personas = Pr.personas(profile)
@@ -1056,7 +1079,9 @@ function Pr.kind(profile)
   for _, p in ipairs(personas) do if p.name or p.name_placeholder or p.kind then named = true end end
   if profile.pair_fields and ((c.turn_user or 0) > 0) then kind = "qa_pairs"
   elseif turns / recs >= 0.4 then kind = "dialogue_corpus"
-  elseif #personas > 0 and shares.knowledge < 0.5 then kind = named and "persona_sheet" or "style_guide"
+  -- a block that describes a character or a voice (two or more statements, examples or declarations) is a sheet / a guide next to whatever else the dataset holds;
+  -- one line buried among facts is a mixed dataset
+  elseif #personas > 0 and blocks >= 1 and (persona_seg >= 2 or shares.knowledge < 0.5) then kind = named and "persona_sheet" or "style_guide"
   elseif #personas > 0 or (c.style_example or 0) > 0 or (c.style_spec or 0) > 0 then kind = "mixed"
   else kind = "knowledge_base" end
   return kind, shares

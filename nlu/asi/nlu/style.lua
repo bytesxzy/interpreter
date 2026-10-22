@@ -101,7 +101,15 @@ function Style.measure(text, opts)
   local nw = #ws
   f.n_words = nw
   local sents = an.sentences
-  local ns = math.max(#sents, nw > 0 and 1 or 0)
+  -- a "sentence" that is only an emoji or a mark after a terminal ("friend! 😎") is no sentence: it must not halve the exclamation marks per sentence
+  local ns_words = 0
+  for _, s in ipairs(sents) do
+    for z = s.first_tok, s.last_tok do
+      local t = an.tokens[z]
+      if t.kind == "word" or t.kind == "acronym" or t.kind == "abbrev" or t.kind == "number" or t.numeric then ns_words = ns_words + 1; break end
+    end
+  end
+  local ns = math.max(ns_words, nw > 0 and 1 or 0)
   f.n_sentences = ns
   if nw == 0 then return f end
   -- capitals: acronyms and the pronoun "I" are not shouting
@@ -325,6 +333,16 @@ function Style.declared_match(words, i)
   if len then local term = table.concat(ph, " "); return len, D.owner[term], term end
 end
 
+local CAPS_TERMS = {}
+for _, t in ipairs({ "capitals", "capital letters", "caps", "uppercase", "upper case", "in caps", "with caps", "using caps", "capitalised", "capitalized" }) do CAPS_TERMS[t] = true end
+local CAPS_WHEN = {}
+for _, t in ipairs({ "worked", "excited", "angry", "upset", "enthusiastic", "dramatic", "emphatic", "thrilled", "agitated" }) do CAPS_WHEN[t] = true end
+local SHORT_WORDS = {}
+for _, t in ipairs({ "short", "brief", "concise", "terse", "curt", "clipped", "telegraphic", "snappy", "succinct" }) do SHORT_WORDS[t] = true end
+local SAID_THINGS = {}
+for _, t in ipairs({ "replies", "reply", "answers", "answer", "responses", "response", "sentences", "sentence", "messages", "message", "lines", "statements", "remarks", "orders", "phrases",
+  "output", "outputs", "it", "things" }) do SAID_THINGS[t] = true end
+
 -- returns a list of { id, negated, term, word_index } in text order
 function Style.declared(text)
   local out = {}
@@ -343,10 +361,45 @@ function Style.declared(text)
         if cl[k] == cl[i] and match_at(D.neg, ws, k) then negated = true end
       end
       -- "instead of shouting": the negator covers what follows it
+      -- capitals for emphasis: "words in CAPITALS", "CAPITAL LETTERS when he gets worked up", "caps now and then" are capitalised emphasis, not a voice that is ALL CAPS
+      if id == "all_caps" and CAPS_TERMS[term] then
+        local emph = false
+        for k = i + len, math.min(#ws, i + len + 5) do
+          if cl[k] ~= cl[i] then break end
+          local w1, w2 = ws[k], ws[k + 1]
+          if (w1 == "for" and (w2 == "emphasis" or w2 == "effect")) or w1 == "sometimes" or w1 == "occasionally" or w1 == "emphasis" or (w1 == "now" and w2 == "and") or (w1 == "at" and w2 == "times")
+            or (w1 == "when" and ws[k + 2] and ws[k + 3] and (CAPS_WHEN[ws[k + 2]] or CAPS_WHEN[ws[k + 3]] or CAPS_WHEN[ws[k + 4] or ""])) or (w1 == "on" and (w2 == "key" or w2 == "important" or w2 == "some")) then emph = true end
+        end
+        if not emph then
+          for k = math.max(1, i - 6), i - 1 do
+            if cl[k] == cl[i] and (ws[k] == "words" or ws[k] == "word") then emph = true end
+            if cl[k] == cl[i] and (ws[k] == "all" or ws[k] == "everything" or ws[k] == "entire" or ws[k] == "whole" or ws[k] == "every" or ws[k] == "always") then emph = false; break end
+          end
+        end
+        if emph then id = "caps_emphasis" end
+      end
       out[#out + 1] = { id = id, negated = negated, term = term, word_index = i }
       i = i + len
     else i = i + 1 end
   end
+  -- "keep every sentence short", "short flat robotic sentences", "replies short and dry": a word for brevity near a word for something said is terseness whichever way round they stand
+  for i = 1, #ws do
+    if SHORT_WORDS[ws[i]] then
+      for j = math.max(1, i - 3), math.min(#ws, i + 3) do
+        if j ~= i and cl[j] == cl[i] and SAID_THINGS[ws[j]] then
+          local near = false
+          for _, o in ipairs(out) do if o.id == "terse" and math.abs(o.word_index - i) <= 4 then near = true end end
+          if not near then
+            local negated = false
+            for k = math.max(1, i - 3), i - 1 do if cl[k] == cl[i] and match_at(D.neg, ws, k) then negated = true end end
+            out[#out + 1] = { id = "terse", negated = negated, term = ws[i] .. " " .. ws[j], word_index = i }
+          end
+          break
+        end
+      end
+    end
+  end
+  table.sort(out, function(a, b) return a.word_index < b.word_index end)
   return out
 end
 

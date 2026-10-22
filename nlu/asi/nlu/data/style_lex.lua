@@ -177,6 +177,11 @@ L.example_intros = { "for example", "for instance", "e.g.", "e.g", "eg", "like t
 -- these has its sample in the text that comes next
 L.sample_intros = { "for example", "for instance", "e.g.", "e.g", "eg", "like this", "like so", "this way", "in this way", "in this manner" }
 
+-- phrases that mark a sentence as report or narration about somebody ("..., according to the minutes"), not as a statement about how the assistant must talk
+L.narrative_cues = { "according to", "reportedly", "allegedly", "is said to", "was said to", "were said to", "as reported", "in the minutes", "the minutes", "witnesses", "reporters",
+  "the report", "the newspaper", "in the article", "in his biography", "in her biography", "was described as", "were described as", "is described as", "was reported", "have been described",
+  "in the interview", "in the transcript", "the court", "the senator", "the judge", "the committee" }
+
 -- words after "like / as / in" that never begin a voice: "respond as follows", "write as needed", "reply as usual"
 L.not_voice_words = { "follows", "such", "usual", "needed", "appropriate", "necessary", "possible", "required", "shown", "stated", "described", "specified", "noted", "mentioned",
   "listed", "instructed", "directed", "requested", "expected", "intended", "planned", "well", "much", "many", "few", "little", "least", "most", "long", "short", "quickly", "soon",

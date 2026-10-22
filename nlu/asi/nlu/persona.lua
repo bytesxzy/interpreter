@@ -64,6 +64,7 @@ local TASK_VOICE_VERB = set_of({ "answer", "answers", "answered", "answering", "
   "writing", "say", "says", "said", "saying", "address", "addresses", "present", "presents", "perform", "performs", "deliver", "delivers", "put", "puts", "type", "types", "word", "words",
   "phrase", "phrases", "express", "expresses", "communicate", "communicates", "greet", "greets", "react", "reacts" })
 local RELATIVE = set_of({ "who", "that", "which", "whose", "with", "and", "but", "while", "although", "though", "because", "since", "so" })
+local NARRATIVE = Style.phrase_index(L.narrative_cues)
 local NEG_IDX = Style.phrase_index(L.negators)
 local BEHAVIOR = Style.phrase_index(L.behavior_cues)
 local STYLE_LABEL = set_of(L.style_labels)
@@ -596,6 +597,23 @@ function P.scan(text, opts)
       end
       -- an event narrated in the past ("The senator spoke angrily at the hearing") is not a statement about how a persona talks
       if PAST_VOICE[it.form] and not mod then cue(-1.5, "past-tense narration") end
+      -- reported speech about a person in the minutes or the news ("..., Joana Ferreira, speaks in a very calm voice, according to the minutes") is no statement about a persona either
+      do
+        local ws2 = word_forms(items, v, math.min(#items, v + 18))
+        local hit = false
+        for st0 = 1, #ws2 do if Style.match_at(NARRATIVE, ws2, st0) then hit = true; break end end
+        if hit then cue(-1.5, "reported speech") end
+        if subj and subj.kind == "name" and subj.idx then
+          local c = items[subj.idx - 1]
+          if c and c.kind == "punct" and c.role == "comma" then
+            for z = subj.idx - 2, math.max(1, subj.idx - 9), -1 do
+              local x = items[z]
+              if not x or (x.kind == "punct" and x.role == "sent_end") then break end
+              if x.kind == "word" and x.form == "of" and items[z + 1] and (items[z + 1].form == "the" or items[z + 1].form == "a") then cue(-1.0, "a person's title"); break end
+            end
+          end
+        end
+      end
       -- example introducer after the verb
       local intro_k, sample_intro
       for pos, k in ipairs(after) do
@@ -1034,7 +1052,7 @@ function P.scan(text, opts)
             if score >= 3.0 - bonus then
               -- the clause: from the subject to the end of the sentence
               local last = k + len - 1
-              while items[last + 1] and not (items[last + 1].kind == "punct" and (items[last + 1].role == "sent_end" or items[last + 1].role == "colon")) and items[last + 1].kind ~= "quote" and last - k < 14
+              while items[last + 1] and not (items[last + 1].kind == "punct" and (items[last + 1].role == "sent_end" or items[last + 1].role == "colon")) and items[last + 1].kind ~= "quote" and last - k < 30
                 and not (items[last + 1].kind == "word" and intro_at(items, last + 1)) do last = last + 1 end
               local clause = text:sub(items[subj.idx].s, items[last].e)
               local cues = behavior_cues_in(clause)
@@ -1435,6 +1453,41 @@ function P.scan(text, opts)
       dedup[#dedup + 1] = o
       last_ex = (o.kind == "example") and o or nil
     end
+  end
+  -- one statement found by two passes (same extent, same kind) is one statement: the better-scored one stays, the descriptors of both are kept
+  do
+    local keep, by_range = {}, {}
+    for _, o in ipairs(dedup) do
+      if o.kind == "style_spec" or o.kind == "persona_declaration" then
+        local key = o.kind .. ":" .. o.s .. ":" .. o.e
+        local prev = by_range[key]
+        if prev then
+          local seen = {}
+          for _, d in ipairs(prev.descriptors or {}) do seen[d.id .. (d.negated and "!" or "")] = true end
+          local extra = {}
+          for _, d in ipairs(o.descriptors or {}) do if not seen[d.id .. (d.negated and "!" or "")] then extra[#extra + 1] = d end end
+          if (o.score or 0) > (prev.score or 0) then
+            local merged = {}
+            for _, d in ipairs(o.descriptors or {}) do merged[#merged + 1] = d end
+            local have = {}
+            for _, d in ipairs(merged) do have[d.id .. (d.negated and "!" or "")] = true end
+            for _, d in ipairs(prev.descriptors or {}) do if not have[d.id .. (d.negated and "!" or "")] then merged[#merged + 1] = d end end
+            o.descriptors = merged
+            for i, k in ipairs(keep) do if k == prev then keep[i] = o end end
+            by_range[key] = o
+          else
+            prev.descriptors = prev.descriptors or {}
+            for _, d in ipairs(extra) do prev.descriptors[#prev.descriptors + 1] = d end
+          end
+        else
+          by_range[key] = o
+          keep[#keep + 1] = o
+        end
+      else
+        keep[#keep + 1] = o
+      end
+    end
+    dedup = keep
   end
   res.items = dedup
   res.an = an

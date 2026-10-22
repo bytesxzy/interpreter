@@ -176,6 +176,30 @@ function V.effective(personas, st, opts)
       if d.negates and map[d.negates] then remove(d.negates, "the dataset says the persona does not do this") end
     end
   end
+  -- the facts of the dataset are written in the voice it declares: its typography belongs to the persona ("everything is shouted!!!" and every fact in capitals with exclamation marks)
+  if chosen and opts.data_style and not st.persona.off then
+    local TYPO = { all_caps = true, caps_emphasis = true, exclamatory = true, emoji = true, elongation = true, ellipsis = true }
+    local LOUD = { all_caps = true, caps_emphasis = true, exclamatory = true, dramatic = true, enthusiastic = true, elongation = true, emoji = true }
+    local loud = false
+    for id in pairs(map) do if LOUD[id] then loud = true end end
+    if loud then
+      for _, d in ipairs(opts.data_style) do
+        if TYPO[d.id] and not map[d.id] and (d.strength or 0) >= 0.3 then
+          local clash = false
+          for id in pairs(map) do for _, x in ipairs(L.excludes[id] or {}) do if x == d.id then clash = true end end end
+          for _, cd in ipairs(chosen.descriptors or {}) do if cd.id == "not_" .. d.id then clash = true end end
+          if not clash then
+            local c = copy_desc(d)
+            c.source, c.basis = "measured", "dataset_text"
+            c.strength = math.min(d.strength or 0.5, 0.7)
+            c.label = c.label or label_of(d.id)
+            c.evidence = (d.evidence or "") .. " -- measured from the facts of the dataset, which are written in this voice"
+            put(c)
+          end
+        end
+      end
+    end
+  end
   local function exclude_of(id, why)
     for _, x in ipairs(L.excludes[id] or {}) do remove(x, why) end
   end
@@ -624,7 +648,7 @@ function V.build(kb, items, opts)
   local wants_data_style = false
   for _, t in ipairs(st.tone) do if t.verb == "data_style" then wants_data_style = true end end
   local dstyle
-  if kb and kb.data_style and (wants_data_style or opts.force) then
+  if kb and kb.data_style and (wants_data_style or opts.force or #personas > 0) then
     for _, did in ipairs(kb.dataset_order or {}) do
       local ds = kb:data_style(did)
       if ds and (not dstyle or ds.n_samples > dstyle.n_samples) then dstyle = ds end

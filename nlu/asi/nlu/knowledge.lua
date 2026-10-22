@@ -146,6 +146,17 @@ function K:data_style(did)
   local ds = self.datasets[did]
   if not (profile and ds) then return nil end
   local pol = self:effective_policy(did)
+  -- the measurement reads up to 300 records: it is kept until the profile or the reading of the dataset changes
+  local key = tostring(profile.revision) .. "|" .. tostring(ds.revision) .. "|" .. table.concat(U.sorted_keys(pol.include or {}), ",") .. "|" .. table.concat(U.sorted_keys(pol.exclude or {}), ",")
+  self.dstyle_cache = self.dstyle_cache or {}
+  local hit = self.dstyle_cache[did]
+  if hit and hit.key == key then return hit.value end
+  local value = self:measure_data_style(did, profile, ds, pol)
+  self.dstyle_cache[did] = { key = key, value = value }
+  return value
+end
+
+function K:measure_data_style(did, profile, ds, pol)
   local samples = {}
   for _, id in ipairs(ds.order) do
     local rec = ds.records[id]
