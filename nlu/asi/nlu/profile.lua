@@ -170,13 +170,7 @@ local function meta_like(text)
 end
 
 ---------------------------------------------------------------- utterance-likeness (for the paragraphs under "talks like this:")
-local function utterance_like(text)
-  local f = Style.measure(text)
-  if (f.n_words or 0) == 0 or f.n_words > 90 then return false end
-  if text:find('^%s*["“«]') then return true end
-  return f.caps_ratio >= 0.3 or f.excl_per_sentence >= 0.5 or f.emoji >= 1 or f.interjection_rate >= 5 or f.first_person_rate >= 6 or f.second_person_rate >= 6
-    or f.question_ratio >= 0.5 or f.ellipsis_ratio >= 0.3
-end
+local utterance_like = Style.utterance_like
 Pr.utterance_like = utterance_like
 
 ---------------------------------------------------------------- speaker-labelled transcripts: "User: ...", "Aria: ..."
@@ -597,7 +591,9 @@ function Pr.add_records(profile, records, opts)
     local pending = profile.pending
     if pending and not has_example and #ra.segs == 0 then
       local text = rec.text or ""
-      if utterance_like(text) and not meta_like(text) then
+      -- the first record after "talk like this -- for example" is the sample whatever it looks like; later ones must read like utterances
+      local explicit = pending.strong and pending.n == 0 and (Style.measure(text).n_words or 0) > 0 and (Style.measure(text).n_words or 0) <= 90
+      if (utterance_like(text) or explicit) and not meta_like(text) then
         local f = (rec.text_fields or {})[1] or "text"
         local sg = { field = f, s = 1, e = #(rec.field_text[f] or text), role = pending.anti and "anti_example" or "style_example", via = "following record", text = text:sub(1, 400) }
         ra.segs[#ra.segs + 1] = sg
@@ -606,6 +602,10 @@ function Pr.add_records(profile, records, opts)
         pending.n = pending.n + 1
         if pending.n >= 3 then profile.pending = nil end
       else profile.pending = nil end
+    elseif has_example and pending then
+      -- the record is a sample on its own account (a section about examples, a quotation): the pointer has found one, the next record must read like an utterance
+      pending.n = pending.n + 1
+      if pending.n >= 3 then profile.pending = nil end
     elseif not has_example then
       profile.pending = nil
     end
@@ -617,6 +617,10 @@ function Pr.add_records(profile, records, opts)
       local tail = ftxt:sub(last_spec.e + 1):gsub("%s+$", "")
       local endc = ftxt:gsub("%s+$", ""):sub(-1)
       if tail == "" and (endc == ":" or endc == "-" or endc == "—") then profile.pending = { n = 0, anti = last_spec.item.negated or nil } end
+      -- the statement ends on "like this" / "for example" and nothing follows in its record: the sample is in the next record
+      if last_spec.item.example_pending then
+        profile.pending = { n = 0, anti = last_spec.item.negated or nil, strong = last_spec.item.example_pending.strong or nil }
+      end
     end
     -- "The assistant talks exactly like the line above.": the example is the record before
     do

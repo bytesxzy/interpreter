@@ -569,6 +569,11 @@ function D:ingest(text, opts)
     local para, pn = {}, 0
     -- a paragraph whose lines are speaker turns ("User: ...", "Aria: ...") or list items keeps its line layout: the lines ARE the structure
     local function structured(lines)
+      -- a line that ends on "for example" / "like this" / "e.g." points at the lines below it, which are its sample
+      for i = 1, #lines - 1 do
+        local tail = lines[i]:lower():gsub("[%s%p]+$", "")
+        if tail:match("for example$") or tail:match("for instance$") or tail:match("like this$") or tail:match("like so$") or tail:match("%f[%a]e%.?g$") then return true end
+      end
       local marked = 0
       for _, l0 in ipairs(lines) do
         local l = l0:gsub("%*%*", ""):gsub("__", "")          -- "**Tone:** sarcastic"

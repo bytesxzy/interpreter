@@ -1,0 +1,523 @@
+{
+ "schema": "nlu.dataset_cases/1",
+ "note": "dev cases for statements that end on an introducer (the sample is in the text that follows); written after the user's own example form turned out not to be linked; tuned-on, not an independent estimate",
+ "cases": [
+  {
+   "id": "in001",
+   "category": "persona_sheet",
+   "note": "the user's own line, the loud sample in the next paragraph (no colon, no quotes); no 'kind' check: one persona paragraph among three fact paragraphs is persona_sheet or mixed depending on taste",
+   "files": [
+    {
+     "name": "bot.txt",
+     "text": "[AI model name] is... Supposed, to, talk like this - for example\n\nWOW!! THAT IS ABSOLUTELY THE MOST FASCINATING THING I HAVE EVER HEARD!!! TRULY INCREDIBLE!!!\n\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999.\n\nMount Everest is located in Nepal."
+    }
+   ],
+   "expect": {
+    "persona": {
+     "placeholder": "AI model name"
+    },
+    "descriptors": [
+     "all_caps",
+     "exclamatory",
+     "dramatic"
+    ],
+    "not_descriptors": [
+     "calm",
+     "lowercase"
+    ],
+    "not_facts": [
+     "FASCINATING",
+     "for example"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   },
+   "turns": [
+    {
+     "say": "What tone will you use?",
+     "expect": {
+      "descriptors": [
+       "all_caps",
+       "exclamatory",
+       "dramatic"
+      ],
+      "reply_contains": [
+       "caps"
+      ]
+     }
+    },
+    {
+     "say": "Use a calmer tone.",
+     "expect": {
+      "descriptors": [
+       "calm"
+      ],
+      "not_descriptors": [
+       "all_caps",
+       "dramatic"
+      ],
+      "answers": [
+       {
+        "q": "What is the capital of France?",
+        "status": "answerable",
+        "answer": "Paris"
+       },
+       {
+        "q": "Who founded Acme Corp?",
+        "status": "answerable",
+        "answer": "Whitcombe"
+       }
+      ]
+     }
+    },
+    {
+     "say": "Talk like the dataset again.",
+     "expect": {
+      "descriptors": [
+       "all_caps",
+       "exclamatory",
+       "dramatic"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "in002",
+   "category": "persona_sheet",
+   "note": "named persona, colon, sample in the next paragraph",
+   "files": [
+    {
+     "name": "aria.txt",
+     "text": "Aria should talk like this:\n\nWOW!! THAT IS ABSOLUTELY THE MOST FASCINATING THING I HAVE EVER HEARD!!! TRULY INCREDIBLE!!!\n\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999.\n\nMount Everest is located in Nepal."
+    }
+   ],
+   "expect": {
+    "persona": {
+     "name": "Aria"
+    },
+    "descriptors": [
+     "all_caps",
+     "exclamatory",
+     "dramatic"
+    ],
+    "not_facts": [
+     "FASCINATING"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   }
+  },
+  {
+   "id": "in003",
+   "category": "persona_sheet",
+   "note": "the introducer ends the line, the sample is the next line of the same paragraph, a fact follows on the line after",
+   "files": [
+    {
+     "name": "aria.txt",
+     "text": "Aria talks like this, for example\nWOW!! THAT IS ABSOLUTELY THE MOST FASCINATING THING I HAVE EVER HEARD!!! TRULY INCREDIBLE!!!\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999."
+    }
+   ],
+   "expect": {
+    "persona": {
+     "name": "Aria"
+    },
+    "descriptors": [
+     "all_caps",
+     "exclamatory",
+     "dramatic"
+    ],
+    "not_facts": [
+     "FASCINATING"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   }
+  },
+  {
+   "id": "in004",
+   "category": "persona_sheet",
+   "note": "everything on one line",
+   "files": [
+    {
+     "name": "aria.txt",
+     "text": "Aria talks like this, for example WOW THIS IS AMAZING!!! I LOVE IT SO MUCH!!!\n\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999.\n\nMount Everest is located in Nepal."
+    }
+   ],
+   "expect": {
+    "persona": {
+     "name": "Aria"
+    },
+    "descriptors": [
+     "all_caps",
+     "exclamatory"
+    ],
+    "not_facts": [
+     "AMAZING"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   }
+  },
+  {
+   "id": "in005",
+   "category": "example_not_fact",
+   "note": "the sample has the shape of a fact about an invented country; the statement points at it",
+   "files": [
+    {
+     "name": "aria.txt",
+     "text": "Aria should reply like this:\n\nThe capital of Zandria is Brelmont, dear traveler.\n\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999.\n\nMount Everest is located in Nepal."
+    }
+   ],
+   "expect": {
+    "persona": {
+     "name": "Aria"
+    },
+    "not_facts": [
+     "Zandria",
+     "Brelmont"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of Zandria?",
+      "status": "unsupported"
+     },
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   }
+  },
+  {
+   "id": "in006",
+   "category": "no_persona",
+   "note": "a task instruction that ends in a colon is no voice statement and must not swallow the record below it",
+   "files": [
+    {
+     "name": "tasks.txt",
+     "text": "The assistant should answer questions about the following countries:\n\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999.\n\nMount Everest is located in Nepal."
+    }
+   ],
+   "expect": {
+    "persona": null,
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ],
+    "not_descriptors": [
+     "voice:follows"
+    ]
+   }
+  },
+  {
+   "id": "in007",
+   "category": "no_persona",
+   "note": "'respond as follows' is no voice",
+   "files": [
+    {
+     "name": "tasks.txt",
+     "text": "Please respond to users as follows:\n\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999.\n\nMount Everest is located in Nepal."
+    }
+   ],
+   "expect": {
+    "not_descriptors": [
+     "voice:follows"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   }
+  },
+  {
+   "id": "in008",
+   "category": "persona_sheet",
+   "note": "a JSON system field: statement, blank line, sample",
+   "files": [
+    {
+     "name": "sys.jsonl",
+     "text": "{\"system\": \"You are Aria. Aria talks like this, for example:\\n\\nWOW!! THAT IS ABSOLUTELY THE MOST FASCINATING THING I HAVE EVER HEARD!!! TRULY INCREDIBLE!!!\"}\n{\"text\": \"Paris is the capital of France.\"}\n{\"text\": \"Acme Corp was founded by Dana Whitcombe in 1999.\"}"
+    }
+   ],
+   "expect": {
+    "persona": {
+     "name": "Aria"
+    },
+    "descriptors": [
+     "all_caps",
+     "exclamatory",
+     "dramatic"
+    ],
+    "not_facts": [
+     "FASCINATING"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   }
+  },
+  {
+   "id": "in009",
+   "category": "persona_sheet",
+   "note": "markdown sections: persona, sample, facts",
+   "files": [
+    {
+     "name": "bot.md",
+     "text": "# Persona\n\nAria talks like this, for example\n\n# Sample\n\nWOW!! THAT IS ABSOLUTELY THE MOST FASCINATING THING I HAVE EVER HEARD!!! TRULY INCREDIBLE!!!\n\n# Facts\n\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999.\n\nMount Everest is located in Nepal."
+    }
+   ],
+   "expect": {
+    "persona": {
+     "name": "Aria"
+    },
+    "descriptors": [
+     "all_caps",
+     "exclamatory",
+     "dramatic"
+    ],
+    "not_facts": [
+     "FASCINATING"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   }
+  },
+  {
+   "id": "in010",
+   "category": "persona_sheet",
+   "note": "the introducer is a sentence of its own, with a calm sample after it",
+   "files": [
+    {
+     "name": "bot.txt",
+     "text": "[assistant name] is supposed to talk like this. For example:\n\nGood evening, traveler. Please, sit by the fire and rest a while.\n\nParis is the capital of France.\n\nAcme Corp was founded by Dana Whitcombe in 1999.\n\nMount Everest is located in Nepal."
+    }
+   ],
+   "expect": {
+    "persona": {
+     "placeholder": "assistant name"
+    },
+    "not_facts": [
+     "sit by the fire"
+    ],
+    "not_descriptors": [
+     "all_caps",
+     "exclamatory"
+    ],
+    "facts": [
+     {
+      "rel": "capital",
+      "from": "France",
+      "to": "Paris"
+     },
+     {
+      "rel": "founder",
+      "from": "Acme",
+      "to": "Whitcombe"
+     }
+    ],
+    "answers": [
+     {
+      "q": "What is the capital of France?",
+      "status": "answerable",
+      "answer": "Paris"
+     },
+     {
+      "q": "Who founded Acme Corp?",
+      "status": "answerable",
+      "answer": "Whitcombe"
+     }
+    ]
+   }
+  }
+ ]
+}

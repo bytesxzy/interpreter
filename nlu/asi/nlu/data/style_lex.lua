@@ -163,12 +163,21 @@ L.supposed_forms = { "supposed", "meant", "designed", "programmed", "intended", 
   "loves", "prefers", "known", "type", "supposed to", "meant to", "is to", "are to", "can", "could", "may", "might", "never", "only", "just", "gotta", "gonna" }
 
 -- introducers of examples ("for example", "like this:", "e.g.")
-L.example_intros = { "for example", "for instance", "e.g.", "eg", "like this", "like so", "such as", "as in", "sample", "samples", "example", "examples", "here is an example",
+L.example_intros = { "for example", "for instance", "e.g.", "e.g", "eg", "like this", "like so", "such as", "as in", "sample", "samples", "example", "examples", "here is an example",
   "here's an example", "here are some examples", "something like", "goes like", "goes like this", "it goes", "it says", "he says", "she says", "they say", "sounds like",
   "would say", "might say", "will say", "says things like", "talks like this", "talk like this", "speaks like this", "responds like this", "replies like this", "answers like this",
   "as follows", "the following", "sample reply", "sample response", "sample answer", "example response", "example reply", "example answer", "example dialogue", "sample dialogue",
   "here is how", "here's how", "this is how", "that is how", "that's how", "in action", "demonstration", "demo", "illustration", "illustrates", "quote", "quotes", "catchphrase",
   "catchphrases", "signature line", "signature phrase", "tagline", "typical line", "typical lines", "typical reply", "typical response", "for sample" }
+
+-- introducers that point at a SAMPLE OF THE VOICE (as against "the following", "such as", "as follows", which may introduce anything): a statement that ends on one of
+-- these has its sample in the text that comes next
+L.sample_intros = { "for example", "for instance", "e.g.", "e.g", "eg", "like this", "like so", "this way", "in this way", "in this manner" }
+
+-- words after "like / as / in" that never begin a voice: "respond as follows", "write as needed", "reply as usual"
+L.not_voice_words = { "follows", "such", "usual", "needed", "appropriate", "necessary", "possible", "required", "shown", "stated", "described", "specified", "noted", "mentioned",
+  "listed", "instructed", "directed", "requested", "expected", "intended", "planned", "well", "much", "many", "few", "little", "least", "most", "long", "short", "quickly", "soon",
+  "before", "previously", "earlier", "now", "above", "below", "per", "otherwise", "normal", "normally", "usually" }
 
 -- "talk LIKE / AS / IN ..." connectors
 L.manner_words = { "like", "as", "in", "with", "using", "via", "through", "by" }

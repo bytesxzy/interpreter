@@ -67,6 +67,7 @@ lua5.4 tests/run_all.lua
 | `interpret-trace TEXT [--top N]` | show the competing hypotheses, their factor scores, vetoes and the winning explanation |
 | `interpret-memory [--turns FILE] [--ns NS --user U] [--save F] [--load F] [--ask TEXT]` | feed a conversation to the layered memory and query it; memories are namespaced and owner-checked |
 | `interpret-replay RECORD.json [--data F]...` | re-interpret the original input of a saved record and verify that the new record is identical |
+| `dataset-profile --data FILE [--say "Use a calmer tone."]... [--json]` | show what the engine makes of a dataset: its kind, which parts are facts / persona / style / examples / conversation turns / instructions, the voice it will use and why; each `--say` is applied in order like a user instruction |
 
 ### Host integration (`asi.nlu.hook`)
 
@@ -81,10 +82,31 @@ local out = Hook.prepare("Which company acquired the business I mentioned earlie
 
 The hook has no side effects other than updating the supplied memory object. It never routes text into any other interface of the host.
 
+### Reading a dataset: persona, tone, examples, facts (`asi.nlu.profile`, `persona`, `style`, `voice`, `override`)
+
+A dataset is rarely only facts. The engine works out from context clues (sentence structure, layout, column names, speaker labels, headings, the form of the text
+itself; no language model, no network) what each part is, tells the user which voice it will use and why, and keeps knowledge sorting exact whatever the voice:
+
+* `[AI model name] is... Supposed, to, talk like this - for example  WOW!! THAT IS ABSOLUTELY THE MOST FASCINATING THING!!!` declares a persona by placeholder, a style
+  specification and an example utterance. The persona is announced ("over-dramatic, ALL-CAPS, many exclamation marks", with the numbers measured from the example), and
+  the example sentence is **never** a fact. Facts written in a loud voice are still facts.
+* The user can read the data differently, in words: "use a calmer tone", "no caps", "ignore the personality", "treat the examples as facts", "play Bob instead",
+  "her name is Zed", "ignore the second paragraph"; and can ask "what tone will you use?" / "how did you read the dataset?". Instructions accumulate, reset and revoke;
+  text that talks about instructions, secrets or restrictions is never an override, and instructions found inside data are reported, never obeyed.
+
+```lua
+local out = Hook.prepare("What tone will you use?", { memory = m })
+-- out.voice  : the voice section (persona, descriptors with evidence, what was set aside, announcement, preview)
+-- out.reply  : the engine's own reply when the user asked about, or changed, the reading
+Hook.describe({ memory = m })   -- the announcement without a question
+```
+
+Design, clue table, limits and measurements: `reports/DATASET_READING.md`. Format of the dataset-reading cases: `data/eval/dataset/FORMAT.md`.
+
 ### Bundle and non-destructive injection
 
 ```
-lua5.4 tools/build_bundle.lua                                  # -> dist/asi_nlu_bundle.lua (46 modules, manifest + checksums, smoke-tested with package.path = "")
+lua5.4 tools/build_bundle.lua                                  # -> dist/asi_nlu_bundle.lua (54 modules, manifest + checksums, smoke-tested with package.path = "")
 lua5.4 tools/inject_bundle.lua --target HOST.lua --selfcheck   # writes HOST.asi.lua; HOST.lua is untouched
 lua5.4 tools/inject_bundle.lua --target HOST.lua --in-place    # writes a verified byte-exact HOST.lua.asi-backup first
 lua5.4 tools/inject_bundle.lua --target HOST.asi.lua --remove  # cuts the region out again
@@ -99,6 +121,7 @@ cutting the region out of its own output and comparing the SHA-256 with the orig
 
 ```
 lua5.4 tools/run_eval.lua --split dev|val|test          # gold cases; the test split is frozen by hash and meant to be run ONCE (reports/heldout_log.md)
+lua5.4 tools/run_dataset_eval.lua FILE.json             # dataset-reading cases (kind, persona, tone, what is / is not a fact, flagged text, user overrides); format: data/eval/dataset/FORMAT.md
 lua5.4 tools/manifest.lua check                         # verifies the SHA-256 manifest of the splits
 lua5.4 tools/run_noise.lua --split val --modes ...      # typo / filler / lower-case / dropped punctuation / dropped determiner variants
 lua5.4 tools/run_retrieval_bench.lua --vocab heldout3 --templates data/eval/heldout/retrieval_templates_heldout3.json --modes baseline,system

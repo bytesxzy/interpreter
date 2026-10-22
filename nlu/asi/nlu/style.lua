@@ -203,6 +203,16 @@ function Style.measure(text, opts)
   return f
 end
 
+-- does a short text read like something somebody SAYS in a voice (loud, exclamatory, emoji, interjections, first / second person, questions, trailing off, a quotation)?
+-- a descriptive cut-off on the measured form, used to decide which text under "talks like this:" is the sample
+function Style.utterance_like(text)
+  local f = Style.measure(text)
+  if (f.n_words or 0) == 0 or f.n_words > 90 then return false end
+  if text:find('^%s*["“«]') then return true end
+  return f.caps_ratio >= 0.3 or f.excl_per_sentence >= 0.5 or f.emoji >= 1 or f.interjection_rate >= 5 or f.first_person_rate >= 6 or f.second_person_rate >= 6
+    or f.question_ratio >= 0.5 or f.ellipsis_ratio >= 0.3
+end
+
 ---------------------------------------------------------------- descriptors supported by measured features
 local function sat(x, lo, hi) if hi == lo then return x >= hi and 1 or 0 end local v = (x - lo) / (hi - lo); return v < 0 and 0 or (v > 1 and 1 or v) end
 local function fmt(x) return string.format("%.2f", x) end

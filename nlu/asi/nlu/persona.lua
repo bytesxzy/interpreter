@@ -56,6 +56,12 @@ local ADDRESSEE = set_of({ "you", "your", "you're", "youre", "yourself", "you'll
 local IMPERATIVE_LEAD = set_of({ "please", "always", "never", "also", "then", "and", "just", "kindly", "do", "don't", "dont", "must", "should", "remember", "try", "make sure", "ensure" })
 
 local EXAMPLE_INTRO = Style.phrase_index(L.example_intros)
+local SAMPLE_INTRO = Style.phrase_index(L.sample_intros)
+local NOT_VOICE = set_of(L.not_voice_words)
+-- verbs of speaking that are also plain task verbs ("answer questions about ...:"): a colon after them is no evidence of a voice
+local TASK_VOICE_VERB = set_of({ "answer", "answers", "answered", "answering", "reply", "replies", "replied", "replying", "respond", "responds", "responded", "responding", "write", "writes", "wrote",
+  "writing", "say", "says", "said", "saying", "address", "addresses", "present", "presents", "perform", "performs", "deliver", "delivers", "put", "puts", "type", "types", "word", "words",
+  "phrase", "phrases", "express", "expresses", "communicate", "communicates", "greet", "greets", "react", "reacts" })
 local NEG_IDX = Style.phrase_index(L.negators)
 local BEHAVIOR = Style.phrase_index(L.behavior_cues)
 local STYLE_LABEL = set_of(L.style_labels)
@@ -292,6 +298,34 @@ local function intro_at(items, k)
   if len then return len, idxs[len] end
 end
 
+-- the same for introducers that point at a sample of the voice itself ("for example", "like this"): see L.sample_intros
+local function sample_at(items, k)
+  local ws, idxs = {}, {}
+  local z = k
+  while z <= #items and #ws < 4 do
+    local it = items[z]
+    if it.kind == "word" then ws[#ws + 1] = it.form; idxs[#idxs + 1] = z elseif it.kind == "quote" or it.kind == "placeholder" then break end
+    z = z + 1
+  end
+  local len = Style.match_at(SAMPLE_INTRO, ws, 1)
+  if len then return len, idxs[len] end
+end
+
+-- do the words that end at item k end on such an introducer? (", for example", "like this", "e.g."); floor = the first item that may belong to it
+local function ends_on_sample(items, k, floor)
+  local ws, z = {}, k
+  while z >= floor and #ws < 3 do
+    local it = items[z]
+    if it.kind == "word" then table.insert(ws, 1, it.form) elseif it.kind == "quote" or it.kind == "placeholder" then break end
+    z = z - 1
+  end
+  for i = 1, #ws do
+    local len = Style.match_at(SAMPLE_INTRO, ws, i)
+    if len and i + len - 1 == #ws then return true end
+  end
+  return false
+end
+
 -- a voice the text names without the taxonomy knowing it: "talks like a drill sergeant", "in the voice of a 1920s radio announcer", "as a pirate captain"
 -- k = index of the connective (like / as / in); returns the phrase (original case) and the index of its last word, or nil
 local FREE_STOP = set_of({ "and", "but", "or", "who", "that", "which", "when", "while", "would", "will", "should", "can", "could", "does", "do", "is", "was", "are", "were", "because", "if", "so", "then",
@@ -311,7 +345,7 @@ local function free_voice_after(items, k)
   local parts, last = {}, nil
   while items[j] and #parts < 5 do
     local x = items[j]
-    if x.kind ~= "word" or FREE_STOP[x.form] or (x.kind == "word" and intro_at(items, j)) then break end
+    if x.kind ~= "word" or FREE_STOP[x.form] or (x.kind == "word" and intro_at(items, j)) or (#parts == 0 and NOT_VOICE[x.form]) then break end
     parts[#parts + 1] = x.text
     last = j
     j = j + 1
@@ -453,7 +487,9 @@ function P.scan(text, opts)
       local manner_at
       for pos, k in ipairs(after) do
         local x = items[k]
-        if pos <= 3 and x.kind == "word" and MANNER[x.form] and not manner_at then manner_at = pos; cue(1.0, "manner:" .. x.form) end
+        -- "such as" introduces examples, it is no manner
+        local prev_f = pos > 1 and items[after[pos - 1]].form or nil
+        if pos <= 3 and x.kind == "word" and MANNER[x.form] and not manner_at and not (x.form == "as" and prev_f == "such") then manner_at = pos; cue(1.0, "manner:" .. x.form) end
       end
       if manner_at then
         local nxt = after[manner_at + 1]
@@ -523,11 +559,11 @@ function P.scan(text, opts)
       -- an event narrated in the past ("The senator spoke angrily at the hearing") is not a statement about how a persona talks
       if PAST_VOICE[it.form] and not mod then cue(-1.5, "past-tense narration") end
       -- example introducer after the verb
-      local intro_k
+      local intro_k, sample_intro
       for pos, k in ipairs(after) do
         if pos <= 8 and items[k].kind == "word" then
           local len, last_k = intro_at(items, k)
-          if len then intro_k = last_k; cue(1.0, "example_intro:" .. items[k].form); break end
+          if len then intro_k = last_k; sample_intro = sample_at(items, k) and true or false; cue(1.0, "example_intro:" .. items[k].form); break end
         end
       end
       -- a quotation after the verb (or after the following colon)
@@ -564,9 +600,11 @@ function P.scan(text, opts)
       end
       -- the voice verb alone is common ("answer the question", "write a report"): a subject or an imperative with a manner is needed
       local need = 3.0 - bonus
-      if score >= need and (subj or imperative) and (manner_at or #pos_decl > 0 or intro_k or quote_k or intro_before or colon_after or back_ref) then
+      -- a task verb ("answer questions about the following countries:") needs more than a colon or a vague introducer to be about a voice
+      local task_verb = TASK_VOICE_VERB[it.form]
+      if score >= need and (subj or imperative) and (manner_at or #pos_decl > 0 or (intro_k and (sample_intro or not task_verb)) or quote_k or intro_before or (colon_after and not task_verb) or back_ref) then
         local last_item = quote_k or intro_k or (after[#after]) or v
-        specs[#specs + 1] = { v = v, subject = subj, score = score, evidence = ev, descriptors = pos_decl, intro_k = intro_k, quote_k = quote_k, negated = negated, back_ref = back_ref or nil,
+        specs[#specs + 1] = { v = v, subject = subj, score = score, evidence = ev, descriptors = pos_decl, intro_k = intro_k, sample_intro = sample_intro, quote_k = quote_k, negated = negated, back_ref = back_ref or nil,
           imperative = imperative and not subj, s = items[first_item].s, last_item = last_item, manner_at = manner_at, mod = mod }
       end
     end
@@ -581,6 +619,61 @@ function P.scan(text, opts)
   end
   table.sort(kept, function(a, b) return a.v < b.v end)
 
+  -- "- for example WOW!!!": the first item of the example proper (an introducer at its start is not part of it, nor the marks after it) and the last item of its paragraph;
+  -- nil and that last item when the introducer stands alone: the sample is then the text that comes next
+  local function intro_body(z)
+    local zend = #items
+    for y = z + 1, #items do if items[y].nl and items[y].nl >= 2 then zend = y - 1; break end end
+    local zs = z
+    if items[z].kind == "word" then
+      local ilen, ilast = intro_at(items, z)
+      if ilen and ilast <= zend then
+        zs = ilast + 1
+        while zs <= zend and items[zs].kind == "punct" do zs = zs + 1 end
+      end
+    end
+    if zs > zend then return nil, zend end
+    return zs, zend
+  end
+
+  -- the sample that starts at item nz: with line breaks, its first line (always when `explicit`, otherwise when it reads like an utterance) and the lines after it while they do;
+  -- without line breaks, the same by sentences.  Returns the character range, or nil
+  local function take_sample(nz, explicit)
+    local s0 = items[nz].s
+    local limit_item = #items
+    for y = nz + 1, #items do if items[y].nl and items[y].nl >= 2 then limit_item = y - 1; break end end
+    local limit = items[limit_item].e
+    local units = {}
+    local first_nl = text:find("\n", s0, true)
+    if first_nl and first_nl <= limit then
+      local pos = s0
+      while pos <= limit do
+        local le = math.min((text:find("\n", pos, true) or (limit + 1)) - 1, limit)
+        if not text:sub(pos, le):match("^%s*$") then units[#units + 1] = { pos, le } end
+        pos = le + 2
+      end
+    else
+      local us = nz
+      for y = nz, limit_item do
+        local x = items[y]
+        if x.kind == "punct" and x.role == "sent_end" and not x.ellipsis and not (items[y + 1] and y + 1 <= limit_item and items[y + 1].kind == "punct" and items[y + 1].role == "sent_end") then
+          units[#units + 1] = { items[us].s, x.e }
+          us = y + 1
+        end
+      end
+      if us <= limit_item then units[#units + 1] = { items[us].s, items[limit_item].e } end
+    end
+    local e1
+    for i, u in ipairs(units) do
+      local chunk = U.trim(text:sub(u[1], u[2]))
+      if i == 1 then
+        if not (explicit or Style.utterance_like(chunk)) then return nil end
+      elseif not Style.utterance_like(chunk) then break end
+      e1 = u[2]
+    end
+    if e1 then return s0, e1 end
+  end
+
   for _, sp in ipairs(kept) do
     -- extent: from the subject to the end of the clause (before a quotation; through the introducer and a following colon / dash)
     local e_item = sp.v
@@ -588,6 +681,8 @@ function P.scan(text, opts)
     while k < #items do
       local x = items[k + 1]
       if x.kind == "quote" then break end
+      -- the introducer is in: a new line starts a new unit ("Aria talks like this, for example" / next line: the sample)
+      if sp.intro_k and k >= sp.intro_k and x.nl and x.kind ~= "punct" then break end
       if x.kind == "punct" and boundary_after(items, k + 1) and not (items[k + 2] and items[k + 2].kind == "quote") then break end
       if x.kind == "punct" and x.role == "sent_end" and not x.ellipsis then
         -- the sentence ends here; examples may still follow as lines
@@ -596,6 +691,39 @@ function P.scan(text, opts)
       if x.kind == "punct" and x.role == "colon" then e_item = k + 1; break end    -- "Aria talks:" -- the example follows
       k = k + 1
       e_item = k
+    end
+    -- "... talk like this. For example:" -- a following sentence that opens with an introducer belongs to the statement; the sample is what comes after it
+    local frag_at, frag_zs, frag_zend
+    do
+      local nx = e_item + 1
+      if items[nx] and items[nx].kind == "punct" and items[nx].role == "sent_end" and not items[nx].ellipsis then nx = nx + 1 end
+      local ei = items[e_item]
+      if items[nx] and items[nx].kind == "word" and not (items[nx].nl and items[nx].nl >= 2) and not (ei.kind == "punct" and ei.role == "colon") and sample_at(items, nx) then
+        frag_at = nx
+        frag_zs, frag_zend = intro_body(nx)
+        e_item = frag_zs and (frag_zs - 1) or frag_zend
+      end
+    end
+    -- "talks like this, for example WOW THIS IS AMAZING!!!": a sample introducer inside the clause with words after it and no colon / dash between -- the statement ends at the
+    -- introducer, the sample starts there (it must read like an utterance)
+    local inline_s, inline_e
+    if not sp.quote_k and not frag_at then
+      local lastw = e_item
+      while lastw > sp.v and items[lastw].kind == "punct" do lastw = lastw - 1 end
+      for j = lastw - 1, sp.v + 1, -1 do
+        if items[j].kind == "word" and ends_on_sample(items, j, sp.v) then
+          local nz, separated = j + 1, false
+          while items[nz] and items[nz].kind == "punct" do
+            if items[nz].role == "colon" or items[nz].role == "dash" then separated = true end
+            nz = nz + 1
+          end
+          if not separated and nz <= lastw then
+            local s0, e1 = take_sample(nz, false)
+            if s0 then inline_s, inline_e = s0, e1; e_item = nz - 1 end
+          end
+          break
+        end
+      end
     end
     local last = items[e_item]
     local spec_e = last.e
@@ -606,32 +734,64 @@ function P.scan(text, opts)
     -- the statement text without its quotations: the declared descriptors it carries
     add(it)
     for z = sp.subject and sp.subject.idx or sp.v, e_item do claimed[z] = true end
-    -- example: the quotation after the introducer, or the text after the colon / dash that follows it
+    -- example: the quotation after the introducer, the text after the colon / dash that follows it, or (when the statement ends on the introducer) the text that comes next
+    local function span_example(zs, zend, via)
+      local es, ee = items[zs].s, items[zend].e
+      local body = U.trim(text:sub(es, ee))
+      if body ~= "" then return { kind = "example", s = es, e = ee, text = body, via = via, spec = it, anti = sp.negated or nil } end
+    end
     local ex
+    local pointer, strong      -- pointer: the sample is the text that comes next; strong: the introducer names a sample of the voice itself ("for example", "like this")
+    local after_idx = e_item
     if sp.quote_k then
       local q = items[sp.quote_k]
       ex = { kind = "example", s = q.inner_s or q.s, e = q.inner_e or q.e, text = q.text, via = "quote", spec = it, anti = sp.negated or nil }
       claimed[sp.quote_k] = true
+    elseif inline_s then
+      ex = { kind = "example", s = inline_s, e = inline_e, text = U.trim(text:sub(inline_s, inline_e)), via = "after_introducer", spec = it, anti = sp.negated or nil }
     else
       -- "talk like this - OH MY GOODNESS!!!": what follows the last colon / dash after the introducer (to the end of the paragraph)
-      local k2 = e_item + 1
       local sep
       for z = sp.v, math.min(#items, e_item + 2) do
         if items[z].kind == "punct" and (items[z].role == "colon" or items[z].role == "dash") then sep = z end
       end
-      if sp.intro_k or sep then
+      if frag_at then
+        if frag_zs then ex = span_example(frag_zs, frag_zend, "after_separator") else pointer, strong = true, true end
+      elseif sp.intro_k or sep then
         local z = (sep or e_item) + 1
         if sep and z <= #items and items[z].kind ~= "punct" and not boundary_after(items, sep) then
-          local es = items[z].s
-          local ee = items[#items].e
-          -- until a blank-line paragraph break
-          for y = z + 1, #items do if items[y].nl and items[y].nl >= 2 then ee = items[y - 1].e; break end end
-          local body = U.trim(text:sub(es, ee))
-          if body ~= "" then ex = { kind = "example", s = es, e = ee, text = body, via = "after_separator", spec = it, anti = sp.negated or nil } end
+          local zs, zend = intro_body(z)
+          if zs then ex = span_example(zs, zend, "after_separator")
+          else pointer, strong, after_idx = true, (sp.sample_intro or sample_at(items, z)) and true or false, zend end
+        elseif sep and z > #items then
+          pointer, strong = true, sp.sample_intro and true or false
+        end
+      end
+      -- the statement ends on the introducer itself ("Aria talks like this", "... sounds like this:")
+      if not ex and not pointer and sp.intro_k then
+        local lastw = e_item
+        while lastw > sp.v and items[lastw].kind == "punct" do lastw = lastw - 1 end
+        if sp.intro_k >= lastw then pointer, strong = true, sp.sample_intro and true or false
+        elseif ends_on_sample(items, lastw, sp.v) then pointer, strong = true, true end
+      end
+      -- the sample is in the text that follows in this field: its first line (always when the introducer names a sample of the voice, otherwise when it reads like an utterance),
+      -- then more lines of the paragraph while they do; with nothing after it in this field, it is in the next record
+      if pointer and not ex then
+        local nz = after_idx + 1
+        while items[nz] and items[nz].kind == "punct" do nz = nz + 1 end
+        if items[nz] then
+          local s0, e1 = take_sample(nz, strong)
+          if s0 then ex = { kind = "example", s = s0, e = e1, text = U.trim(text:sub(s0, e1)), via = "after_introducer", spec = it, anti = sp.negated or nil } end
+        else
+          it.example_pending = { strong = strong and true or false }
         end
       end
     end
-    if ex then add(ex) end
+    if ex then
+      add(ex)
+      for y = 1, #items do if items[y].s >= ex.s and items[y].e <= ex.e then claimed[y] = true end end
+    end
+    it.example_follows = ex and true or nil
   end
 
   ---------------------------------------------------------------- imperative style directives: "Be dramatic.", "Stay calm and formal.", "Use lots of exclamation marks.", "Avoid caps."

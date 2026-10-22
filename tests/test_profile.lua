@@ -81,6 +81,50 @@ T.test("a named persona with an example: the example's loud words are caps empha
   T.ok(facts_of(kb):find("capital|country.france|city.paris", 1, true), "the real facts are kept")
 end)
 
+T.test("the sample may follow the statement in any layout; the words 'for example' are never the example", function()
+  local SAMPLE = "WOW!! THAT IS ABSOLUTELY THE MOST FASCINATING THING I HAVE EVER HEARD!!! TRULY INCREDIBLE!!!"
+  local layouts = {
+    { "next paragraph, dash and introducer", "[AI model name] is... Supposed, to, talk like this - for example\n\n" .. SAMPLE .. "\n\n" .. FACTS, "x.txt" },
+    { "next paragraph, colon", "Aria should talk like this:\n\n" .. SAMPLE .. "\n\n" .. FACTS, "x.txt" },
+    { "next paragraph, introducer after a comma", "Aria talks like this, for example\n\n" .. SAMPLE .. "\n\n" .. FACTS, "x.txt" },
+    { "introducer in brackets", "Aria is supposed to sound like this (for example)\n\n" .. SAMPLE .. "\n\n" .. FACTS, "x.txt" },
+    { "e.g.", "Aria sounds like this e.g.\n\n" .. SAMPLE .. "\n\n" .. FACTS, "x.txt" },
+    { "introducer in a sentence of its own", "Aria is supposed to talk like this. For example:\n\n" .. SAMPLE .. "\n\n" .. FACTS, "x.txt" },
+    { "next line of the same paragraph", "Aria talks like this, for example\n" .. SAMPLE .. "\n\n" .. FACTS, "x.txt" },
+    { "same line", "Aria talks like this, for example " .. SAMPLE .. "\n\n" .. FACTS, "x.txt" },
+    { "same paragraph, facts after the sample", "Aria talks like this, for example\n" .. SAMPLE .. "\nParis is the capital of France.\n\n" .. FACTS, "x.txt" },
+    { "a field of a JSON record", '{"system":"You are Aria. Aria talks like this, for example:\\n\\n' .. SAMPLE .. '"}\n{"text":"Paris is the capital of France."}', "x.jsonl" },
+    { "markdown sections", "# Persona\n\nAria talks like this, for example\n\n# Sample\n\n" .. SAMPLE .. "\n\n# Facts\n\n" .. FACTS, "x.md" },
+  }
+  for _, l in ipairs(layouts) do
+    local p = persona_of(l[2], l[3])
+    T.ok(p, l[1] .. ": a persona is found")
+    T.ok(p and #p.examples >= 1, l[1] .. ": the sample is linked to the statement")
+    local ids = ids_of(p)
+    T.ok(ids.all_caps and ids.exclamatory, l[1] .. ": shouting and exclamation marks are measured from the sample")
+    for _, ex in ipairs(p and p.examples or {}) do T.ok(#(ex.text or "") > 25, l[1] .. ": the example is the sample, not the introducer: " .. tostring(ex.text)) end
+    local kb = kb_of({ { l[3], l[2] } })
+    T.ok(facts_of(kb):find("capital|country.france|city.paris", 1, true), l[1] .. ": the real fact is kept")
+    for key, v in pairs(kb.vocab) do T.ok(not (v.text or key):upper():find("FASCINATING"), l[1] .. ": no entity from the sample: " .. key) end
+  end
+end)
+
+T.test("a sample in the plain voice is still the sample when the statement points at it; ordinary statements about answering are not voice statements", function()
+  -- the pointer ("like this:") makes the next record the sample even when it has the shape of a fact; it is then never a fact
+  local kb = kb_of({ { "z.txt", "Aria should reply like this:\n\nThe capital of Zandria is Brelmont, dear traveler.\n\n" .. FACTS } })
+  T.ok(not facts_of(kb):find("zandria", 1, true), "an example about an invented country is not a fact")
+  T.ok(facts_of(kb):find("capital|country.france|city.paris", 1, true), "the real facts are kept")
+  -- a task instruction that ends in a colon, or an 'as follows', is no voice
+  for _, t in ipairs({ "The assistant should answer questions about the following countries:", "Answer questions such as:", "Please respond to users as follows:" }) do
+    local p = persona_of(t .. "\n\nParis is the capital of France.", "t.txt")
+    local ids = ids_of(p)
+    T.ok(not (p and p.examples and #p.examples > 0), "'" .. t .. "' leaves no example behind")
+    T.ok(not ids["voice:follows"], "'as follows' is not a voice")
+    local kb2 = kb_of({ { "t.txt", t .. "\n\nParis is the capital of France." } })
+    T.ok(facts_of(kb2):find("capital|country.france|city.paris", 1, true), "'" .. t .. "' does not swallow the fact below it")
+  end
+end)
+
 ---------------------------------------------------------------- roles of the parts
 T.test("question / answer columns pair up in any column order and an answer in a loud voice is still the fact", function()
   local kb = kb_of({ { "qa.tsv", "question\tanswer\nWhat is the capital of Italy?\tROME!!!\nWho founded Acme Corp?\tDana Whitcombe" } })
