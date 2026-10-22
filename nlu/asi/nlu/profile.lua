@@ -677,9 +677,13 @@ function Pr.force_role(profile, rec, role)
   if not ra then return end
   local f = (rec.text_fields or {})[1] or "text"
   local text = rec.field_text[f] or rec.text or ""
-  ra.segs = { { field = f, s = 1, e = #text, role = role, via = "your instruction", text = text:sub(1, 400), forced = true } }
   ra.items = {}
-  if role == "style_example" then ra.items[1] = { kind = "example", s = 1, e = #text, text = text, via = "user_forced", field = f, rec = rec.id } end
+  if role == "knowledge" then
+    ra.segs = {}                       -- plain facts: nothing in the record is a persona, a style, an example or an instruction any more
+  else
+    ra.segs = { { field = f, s = 1, e = #text, role = role, via = "your instruction", text = text:sub(1, 400), forced = true } }
+    if role == "style_example" then ra.items[1] = { kind = "example", s = 1, e = #text, text = text, via = "user_forced", field = f, rec = rec.id } end
+  end
   profile.revision = profile.revision + 1
   profile.cache = nil
 end
@@ -696,7 +700,7 @@ end
 ---------------------------------------------------------------- what is not knowledge
 -- the segments that are never facts about the world, whatever their wording: instructions, examples, questions, descriptions of the dataset
 -- (behaviour directives are not in the list: the extractor flags the instruction-like sentences itself, keeps what they MENTION and extracts nothing from them)
-local NOT_KNOWLEDGE = set_of({ "style_spec", "style_example", "anti_example", "meta", "turn_user", "turn_other", "turn_system" })
+local NOT_KNOWLEDGE = set_of({ "style_spec", "style_example", "anti_example", "meta", "turn_user", "turn_other", "turn_system", "ignored" })
 
 -- is a segment of this role NOT read as knowledge?  (default rule, then the user's include / exclude)
 function Pr.excluded(sg, role, opts)

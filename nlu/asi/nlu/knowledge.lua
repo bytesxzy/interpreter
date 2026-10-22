@@ -452,7 +452,12 @@ function K:rebuild()
     self.profiles[did] = pr
     local pol = self:effective_policy(did)
     for id, action in pairs(pol.records) do
-      if action == "style_example" then Profile.force_role(pr, self:record(id), "style_example") end
+      local rec = self:record(id)
+      if rec then
+        if action == "style_example" then Profile.force_role(pr, rec, "style_example")
+        elseif action == "knowledge" then Profile.force_role(pr, rec, "knowledge")
+        elseif action == "ignore" then Profile.force_role(pr, rec, "ignored") end
+      end
     end
     for _, rec in ipairs(recs) do self:index_record(rec) end
   end
