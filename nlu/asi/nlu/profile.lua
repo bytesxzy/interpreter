@@ -104,7 +104,7 @@ for _, w in ipairs({ "dramatic", "dramatically", "theatrical", "melodramatic", "
   "lowercase", "exclamation", "emoji", "emojis", "grumpy", "pirate", "cowboy", "poetic", "robotic", "archaic", "uwu", "butler", "flamboyant", "sassy", "snarky", "cranky", "perky", "peppy", "upbeat", "hyper", "ellipsis", "ellipses",
   "stretches", "elongated", "terse", "verbose", "casual", "casually", "formally", "politely", "calmly", "friendly", "humorous", "playful", "whimsical", "stoic", "solemn", "gruff", "surly", "overdramatic", "over-dramatic" }) do STRONG_DESC[w] = true end
 
-local function needs_scan(text)
+local function needs_scan(text, persona_seen)
   local low = text:lower()
   -- placeholders and quotations
   local has_quote = low:find("[\"“”«]") ~= nil
@@ -155,6 +155,8 @@ local function needs_scan(text)
   if v and (sd or (d and i) or has_quote) then return true end
   -- a short statement about the assistant or an imperative with any declared descriptor ("the bot is in a good mood", "Be concise.", "no emojis pls"); scanning it costs next to nothing
   if n <= 40 and da and (v or k or imp) then return true end
+  -- once a persona is established, a record about "he" / "she" with any declared descriptor may describe it
+  if persona_seen and da and n <= 120 then return true end
   -- a statement that ends in a colon / dash leaves its example to the next record ("Here is how Aria talks:")
   if (v or k) and low:find("[:%-—]%s*$") then return true end
   if k and sd then return true end
@@ -369,7 +371,7 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     if before:find("example%s+dialog") or before:find("sample%s+dialog") or before:find("example%s+convers") or before:find("sample%s+convers") or before:find("example%s+chat")
       or before:find("sample%s+chat") or before:find("example%s+exchange") or before:find("<start>") or before:find("mes_example") or before:find("example%s+messages") then example_block = true end
   end
-  local res = needs_scan(text) and Persona.scan(text, { lex = ctx.lex, bonus = bonus }) or { items = {} }
+  local res = needs_scan(text, profile.persona_seen) and Persona.scan(text, { lex = ctx.lex, bonus = bonus }) or { items = {} }
   local scanned = res.items
   if example_block then
     -- the turns of the block are examples in their own right (below); the scanner's list of "example lines" for the same text is dropped

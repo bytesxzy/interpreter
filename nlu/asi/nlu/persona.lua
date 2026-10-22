@@ -63,6 +63,7 @@ local MACHINE_KIND = set_of({ "ai", "a.i.", "chatbot", "chat bot", "bot", "llm",
 local TASK_VOICE_VERB = set_of({ "answer", "answers", "answered", "answering", "reply", "replies", "replied", "replying", "respond", "responds", "responded", "responding", "write", "writes", "wrote",
   "writing", "say", "says", "said", "saying", "address", "addresses", "present", "presents", "perform", "performs", "deliver", "delivers", "put", "puts", "type", "types", "word", "words",
   "phrase", "phrases", "express", "expresses", "communicate", "communicates", "greet", "greets", "react", "reacts" })
+local RELATIVE = set_of({ "who", "that", "which", "whose", "with", "and", "but", "while", "although", "though", "because", "since", "so" })
 local NEG_IDX = Style.phrase_index(L.negators)
 local BEHAVIOR = Style.phrase_index(L.behavior_cues)
 local STYLE_LABEL = set_of(L.style_labels)
@@ -189,11 +190,30 @@ local function boundary_after(items, j)
 end
 
 ---------------------------------------------------------------- subject recognition
+-- a word the lexicon knows as a place, an organisation, a work or a language is no name for a persona ("Paris is the capital of France" is not about a character called Paris)
+local NOT_A_PERSONA = { "place", "organization", "creative_work", "language", "product", "publication" }
+local function known_non_person(lex, form)
+  if not lex or not lex.match_at then return false end
+  local ok, hits = pcall(lex.match_at, lex, { { form = form } }, 1)
+  if not ok then return false end
+  for _, hit in ipairs(hits) do
+    if hit.j == 1 then
+      for _, e in ipairs(hit.entries) do
+        if e.kind == "entity" and e.etype then
+          for _, base in ipairs(NOT_A_PERSONA) do if e.etype == base or lex:isa(e.etype, base) then return true end end
+        end
+      end
+    end
+  end
+  return false
+end
+
 local function name_candidate(it, lex)
   if it.kind ~= "word" or not it.cap or it.numeric then return false end
   if it.allcaps and (it.letters or 0) <= 2 then return false end
   if FUNCTION[it.form] or VOICE_VERB[it.form] and it.form ~= "voice" then return false end
   if PERSONA_KIND[it.form] then return false end
+  if known_non_person(lex, it.form) then return false end
   -- a sentence-initial habitual verb ("Loves complaining.", "Hates mornings.") is no name
   if SUPPOSED[it.form] or (#it.form > 3 and it.form:sub(-1) == "s" and (SUPPOSED[it.form:sub(1, -2)] or SUPPOSED[it.form:sub(1, -3)])) then return false end
   if lex then
@@ -276,13 +296,28 @@ local function word_forms(items, a, b)
   return ws
 end
 
+-- cue words that are also plain things a persona does ("I call everyone dearie", "we send hugs", "I open every answer with a joke"): in the first person, or as "call <someone> <name>",
+-- they describe the speaker instead of instructing the reader.  The dangerous cues (ignore, reveal, passwords, system prompt ...) are never exempt.
+local SOFT_CUE = set_of({ "call", "send", "email", "forward", "run", "open", "visit", "print", "output", "remove", "buy", "purchase", "pay", "fetch", "browse", "click", "download", "upload",
+  "transfer", "lie", "safety", "policy", "policies", "filters", "token", "admin", "root", "delete", "erase" })
+local CALL_OBJECT = set_of({ "me", "him", "her", "them", "us", "you", "everyone", "everybody", "people", "users", "folks", "customers", "guests", "visitors", "myself", "it", "anyone", "all" })
 local function behavior_cues_in(text)
   local ws = {}
   for w in text:lower():gsub("[%-_]", " "):gmatch("[%a'’]+") do ws[#ws + 1] = w end
   local cues, i = {}, 1
   while i <= #ws do
     local len, ph = Style.match_at(BEHAVIOR, ws, i)
-    if len then cues[#cues + 1] = table.concat(ph, " "); i = i + len else i = i + 1 end
+    if len then
+      local first = table.concat(ph, " ")
+      local skip = false
+      if len == 1 and SOFT_CUE[first] then
+        local prev = ws[i - 1]
+        if prev == "i" or prev == "we" or prev == "i'd" or prev == "i'll" or prev == "we'd" or prev == "we'll" then skip = true end
+        if first == "call" and ws[i + 1] and CALL_OBJECT[ws[i + 1]] then skip = true end
+      end
+      if not skip then cues[#cues + 1] = first end
+      i = i + len
+    else i = i + 1 end
   end
   return cues
 end
@@ -901,11 +936,25 @@ function P.scan(text, opts)
             if kind_found then
               local pk = table.concat(kind_words, " ")
               local strong = STRONG_KIND[pk:lower()] or false
-              local stmt = { kind = "persona_declaration", s = subj.s, e = kind_found.e, subject = subj, persona_kind = pk, via = "copula", score = strong and 3 or 1.5,
+              -- a relative clause or an apposition after the kind noun ("... robot who is obsessed with stickers", "..., a gloriously over-dramatic stage actor") belongs to the declaration
+              local e_end, z_end = kind_found.e, z
+              do
+                local nx = items[z + 1]
+                if nx and ((nx.kind == "word" and RELATIVE[nx.form]) or (nx.kind == "punct" and nx.role == "comma")) then
+                  local y = z + 1
+                  while items[y] and y - z <= 24 do
+                    local x = items[y]
+                    if x.kind == "quote" or (x.kind == "punct" and (x.role == "sent_end" or x.role == "colon")) or (x.nl and x.kind ~= "punct") then break end
+                    e_end, z_end = x.e, y
+                    y = y + 1
+                  end
+                end
+              end
+              local stmt = { kind = "persona_declaration", s = subj.s, e = e_end, subject = subj, persona_kind = pk, via = "copula", score = strong and 3 or 1.5,
                 evidence = { "copula:" .. f, "kind:" .. pk .. (strong and "" or " (ordinary noun: needs corroboration)") }, adjectives = descr, weak = (not strong) or nil }
-              stmt.descriptors = Style.declared(text:sub(items[det_k].s, kind_found.e))
+              stmt.descriptors = Style.declared(text:sub(items[det_k].s, e_end))
               add(stmt)
-              for y = subj.idx, z do claimed[y] = true end
+              for y = subj.idx, z_end do claimed[y] = true end
             end
           end
         end
@@ -1101,6 +1150,14 @@ function P.scan(text, opts)
         pos = le + 2
       end
     end
+    local function owner_subject(owner, abs_s, abs_e)
+      if not owner or owner == "" then return nil end
+      local ph = P.placeholders(owner)[1]
+      if ph then return { kind = "placeholder", text = ph.inner, form = ph.inner:lower(), s = abs_s, e = abs_e } end
+      local nm = owner:match("^([%u][%w'’%-]*)")
+      if nm and #nm == #owner and not FUNCTION[nm:lower()] and not PERSONA_KIND[nm:lower()] then return { kind = "name", text = nm, form = nm:lower(), s = abs_s, e = abs_e } end
+      return nil
+    end
     local li = 1
     while li <= #lines do
       local L0 = lines[li]
@@ -1116,9 +1173,15 @@ function P.scan(text, opts)
         local lab, vstart = line:match("^([%a][%a%-_ /]-)%s*:%s*()", body_st)
         -- "tone = sarcastic"
         if not lab then lab, vstart = line:match("^([%a][%a%-_ /]-)%s*=%s*()", body_st) end
+        -- "{{char}}'s personality: ...", "Aria's tone: ...", "the bot's voice = ..." : the owner names the persona
+        local owner
+        if not lab then
+          local o, l2, v2 = line:match("^([^:=]-)['’]s%s+([%a][%a%-_ ]-)%s*[:=]%s*()", body_st)
+          if o and #o <= 40 and #l2 <= 30 and known_label(norm_label(l2)) then lab, vstart, owner = l2, v2, U.trim(o) end
+        end
         if lab and #lab <= 30 then
           local nl = norm_label(lab)
-          if known_label(nl) then segs[#segs + 1] = { label = nl, from = st, vs = vstart } end
+          if known_label(nl) then segs[#segs + 1] = { label = nl, from = st, vs = vstart, owner = owner } end
         end
       end
       local consumed_next = 0
@@ -1209,7 +1272,7 @@ function P.scan(text, opts)
             elseif STYLE_LABEL[lab] then
               local cues = behavior_cues_in(value)
               add({ kind = "style_spec", s = L0.s + sg.from - 1, e = abs_e, via = "label", label = lab, value = value, descriptors = Style.declared(value), score = 3,
-                evidence = { "label:" .. lab }, behavior_cues = cues, presentational = #cues == 0 })
+                evidence = { "label:" .. lab }, behavior_cues = cues, presentational = #cues == 0, subject = owner_subject(sg.owner, abs_s, abs_e) })
             end
           end
         end
@@ -1246,6 +1309,95 @@ function P.scan(text, opts)
             local q = items[z]
             add({ kind = "example", s = q.inner_s or q.s, e = q.inner_e or q.e, text = q.text, via = "quote_after_intro", intro = items[k].form })
             claimed[z] = true
+          end
+        end
+      end
+    end
+  end
+
+  ---------------------------------------------------------------- fragments and "he / she" clauses that describe the persona named just before them
+  -- "Fizzwick is a washed-up scientist who is SO done with everyone. sarcastic. dry. rolls his eyes at every question."
+  -- "Reginald is a medieval knight. He talketh in olde english."      "Name: Count Dramatico" <next paragraph> "He is OVER-THE-TOP dramatic about EVERYTHING."
+  -- A sentence that is a fragment (few words, no subject of its own) or begins with he / she / they / his / her / "everything he says", carries a declared descriptor, and follows a
+  -- persona declaration or style statement (or an opening "NAME is ..." sentence) of the same paragraph -- or an established persona of the dataset -- is a style statement about it.
+  do
+    local PRON_SUBJ = set_of({ "he", "she", "they", "it", "his", "her", "their", "its", "he's", "she's", "they're", "it's", "everything", "always", "never", "often", "usually" })
+    -- units: the text cut at every terminal mark (whatever follows it: casual notes write "sarcastic. dry. rolls his eyes.") and at every line break
+    local sentences = {}
+    do
+      local first
+      for k, it in ipairs(items) do
+        first = first or k
+        local closes
+        if it.kind == "punct" and it.role == "sent_end" then closes = not (items[k + 1] and items[k + 1].kind == "punct" and items[k + 1].role == "sent_end")
+        elseif items[k + 1] and items[k + 1].nl and items[k + 1].nl >= 1 then closes = true
+        elseif k == #items then closes = true end
+        if closes then sentences[#sentences + 1] = { s = items[first].s, e = it.e, first = first, last = k }; first = nil end
+      end
+    end
+    local function overlapped(a, b)
+      for _, o in ipairs(out) do if o.s <= b and o.e >= a and o.kind ~= "behavior_directive" then return true end end
+      return false
+    end
+    -- the opening sentence "NAME is ..." (a name or a placeholder, then a copula) of a paragraph that no pass has claimed
+    local function opener(sen)
+      local fi = sen.first
+      local first = items[fi]
+      local subj, nxt
+      if first.kind == "placeholder" then subj, nxt = { kind = "placeholder", text = first.text, form = first.form, s = first.s, e = first.e }, fi + 1
+      elseif first.kind == "word" and first.cap and name_candidate(first, lex) and not first.allcaps then
+        local parts, last, z = { first.text }, first, fi + 1
+        while items[z] and items[z].kind == "word" and items[z].cap and name_candidate(items[z], lex) and not items[z].nl and not items[z].allcaps do parts[#parts + 1] = items[z].text; last = items[z]; z = z + 1 end
+        subj, nxt = { kind = "name", text = table.concat(parts, " "), form = table.concat(parts, " "):lower(), s = first.s, e = last.e }, z
+      end
+      if subj and items[nxt] and items[nxt].kind == "word" and (COPULA[items[nxt].form] or items[nxt].form == "'s") then return subj end
+    end
+    local anchor_subject, anchor_e, opener_sen = nil, nil, nil
+    for _, sen in ipairs(sentences) do
+      local st = text:sub(sen.s, sen.e)
+      local clean = st:gsub('"[^"]*"', " "):gsub("“[^”]*”", " ")
+      local nwords = select(2, clean:gsub("[%a][%w'’%-]*", ""))
+      -- the paragraph changes: the anchor goes
+      if anchor_e and text:sub(anchor_e + 1, sen.s - 1):find("\n%s*\n") then anchor_subject, anchor_e, opener_sen = nil, nil, nil end
+      local covered = overlapped(sen.s, sen.e)
+      if covered then
+        -- a persona declaration or a style statement of this sentence is the anchor for the sentences after it
+        for _, o in ipairs(out) do
+          if (o.kind == "persona_declaration" or o.kind == "style_spec") and o.presentational ~= false and o.s >= sen.s - 1 and o.s <= sen.e then
+            anchor_subject = o.subject or anchor_subject; anchor_e = sen.e; opener_sen = nil
+          end
+        end
+      else
+        local op = opener(sen)
+        if op and not anchor_e then
+          anchor_subject, anchor_e, opener_sen = op, sen.e, sen
+        elseif nwords >= 1 and nwords <= 14 then
+          local fw = clean:match("^%s*([%a][%w'’%-]*)")
+          local lead = fw and fw:lower()
+          local pronoun = lead and PRON_SUBJ[lead] or false
+          local fragment = nwords <= 6 and not pronoun and not clean:find("%d")
+          if fragment then
+            -- no capitalised word after the first (a named entity makes it a fact), no copula with a subject of its own
+            local k = 0
+            for w in clean:gmatch("[%a][%w'’%-]*") do
+              k = k + 1
+              if k > 1 and w:match("^%u") and not w:match("^%u+$") then fragment = false end
+            end
+          end
+          local established = bonus >= 0.8
+          if (pronoun or fragment) and (anchor_e or established) then
+            local decl = Style.declared(clean)
+            if #decl > 0 then
+              local cues = behavior_cues_in(clean)
+              if opener_sen then
+                add({ kind = "persona_declaration", s = opener_sen.s, e = opener_sen.e, subject = anchor_subject, via = "context", score = 3, evidence = { "named subject with descriptive sentences after it" },
+                  descriptors = Style.declared(text:sub(opener_sen.s, opener_sen.e):gsub('"[^"]*"', " ")), behavior_cues = {}, presentational = true })
+                opener_sen = nil
+              end
+              add({ kind = "style_spec", s = sen.s, e = sen.e, subject = anchor_subject, via = "context", score = 3.0, evidence = { (pronoun and "he / she clause" or "fragment") .. " after the persona's statement" },
+                descriptors = decl, behavior_cues = cues, presentational = #cues == 0 })
+              anchor_e = sen.e
+            end
           end
         end
       end
