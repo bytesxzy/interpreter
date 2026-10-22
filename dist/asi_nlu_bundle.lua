@@ -1,14 +1,14 @@
--- asi-nlu bundle 0.9.0 : LM-independent natural-language interpretation engine (package.preload modules, no external dependencies).
--- body sha256 (all module blocks, excluding this header): e030c0bf018a005b6ec9fbd00016fde0c328727b24dcfd9aa2f48e1249bc7ef0
+-- asi-nlu bundle 0.10.0 : LM-independent natural-language interpretation engine (package.preload modules, no external dependencies).
+-- body sha256 (all module blocks, excluding this header): 132ae34496ce9861b11413b9764406befc9872b99bce6b476e5e5f7ae965e4c7
 -- modules:
---   asi.nlu.assertions                   57393  d6a919aa17ed054d03ebbe3272fbec39038a94d482b9b56a92a217371153b539
+--   asi.nlu.assertions                   57954  eaf6c6cb91c51727c2f8f0c76aa9868c92bed8c3c9f81e066c94278f30908f0a
 --   asi.nlu.assertions2                  45375  c3935eb4996c1d3434b2ea952744c5b56bf7a060c8581e973f27564eff070846
 --   asi.nlu.baseline                      9356  1f232ddce211e0b3d79ce16b403224a68762cc29fc62f3cb2f4922482878baf5
 --   asi.nlu.calibration                  13794  08663074ffe0225c6488f4c09cf2337f997789c4ffebbbd336b31d7f95a4b6b6
 --   asi.nlu.cli                          20558  ccfd9ae61a36306357ea5a6de293239d13152f430848fc2386d422ddeaa41bfb
 --   asi.nlu.constraints                  20647  d8d52f156c534079a17b3837a54201a983d88995b6c0a2fe546fea0007800764
 --   asi.nlu.coref                        47112  654311b09944e4359bcc90d66ff70bf9ffb7850e38d72130b2c07d4ccd953dd3
---   asi.nlu.dataset                      30905  5ea87a903a359038ce3b01a4bf91d096237f7bb0d96f179edae2441e7447d323
+--   asi.nlu.dataset                      33248  7c7e39a2c598772bcd16a90b872ad3b3aa07753885ffa582e019420a110e2976
 --   asi.nlu.engine                        7794  7ff8c822718f96101966c1f93bc87d229d754a3f2ce71f8b74cc692a245fadfc
 --   asi.nlu.eval                         26830  52487ed32207cedc36d4a5ab49c765fd14f4456126807b0c23da71352b49e620
 --   asi.nlu.frames                       48972  f6fdafd9867f8fcb54e6f5e9c2f006a12916906855cc3e654e3f90488d66c8dc
@@ -16,44 +16,44 @@
 --   asi.nlu.frames3                      55890  40a3cfe4cabaf5646799921bcc289b9c2f4580ad55848842aa243646b900102a
 --   asi.nlu.frames4                      51903  d829aecda1d725c3a6c1ddf549de031f02f165769f5014bcdc4365343f7f6f08
 --   asi.nlu.frames5                       3383  1745efb104635ddd3f6888c48e99f09a592cbbaeecd121f52319053e45a45697
---   asi.nlu.hook                          2673  1fd2c30a2cb762d1ab7da52a5cc73b0656b5fd89568e55c6cf75edc130a925fc
+--   asi.nlu.hook                          3403  de901792727839a6cfab046fba4530f0bb5d3b1395adcf31e3505d07517c28aa
 --   asi.nlu.hyp                          23165  31fd02d8af7de6c0a2849cf47a24968750b8aa489bfb3ba9136ec158d39a67d3
---   asi.nlu.index                        10300  856e3f358a9a19f86a88044b5ab4194b436a7e1b74de56f6b0c9e075cd8832f2
+--   asi.nlu.index                        10387  8e7d31f4471c2c2457d072b04e9f1d1bdae70fbf4b0b37eb5cda22b7767d30d2
 --   asi.nlu.interp                       17074  907031c49c90dc52b9ac8b61cc1f7d0b160a946cf2f8732f9d5a89d53210a2dc
---   asi.nlu.knowledge                    25685  5e6fe3fba9702c0a5bef052f205cfbd5d5d0afa6c38db1de0e55c7a09c9fc955
+--   asi.nlu.knowledge                    26559  a7aefd873adcfd4ebd643db84f86f942ff23014b60672fde41b6e119cbefddb6
 --   asi.nlu.lattice                      23843  cf966ebe8edec1ca8f67b7fcd3f63cb428ac27396f02652b05999d4907608219
---   asi.nlu.lex                          50530  e7aacb58570dd840ec1d99265023b80ba0dce1668efcadea2ef55f46427f5d96
+--   asi.nlu.lex                          52410  47e3997ae6f96578fd2050380504c158f791daff4b3275c4db3e8053eb0a68f1
 --   asi.nlu.lexicon                      34989  dff3eb97be9ff02d9f308af40baa8900dd2f5910187bf7ab4c3a673e0b9cf05a
 --   asi.nlu.longctx                      18616  11ba9f6294a918f9756232c6f6c56b0efd87a91a45d30014ff03278f2d898831
 --   asi.nlu.memory                       47479  769675a3375cdb6f5e1dee9951731ec148cf44a83f9b3edeb37e60501b7d2908
 --   asi.nlu.morph                        11500  2aa4fef51598f666276ef5dc2ddce5bf51fba058444f1d6e45c9040742b3b2d1
---   asi.nlu.override                     33411  52e182ce818a9edfbb1eeebe32dfb92544a8459c5cae8009b6f0e77733fbc8f5
+--   asi.nlu.override                     33505  831ed5a189a1fd2bb95d46663402e078a33b789eb03302b7fda13b8860c3805c
 --   asi.nlu.package                      22058  4883bf0172a2e47e642cea596ad50c2bb85347100e0ce61f5a26fe303f773aed
 --   asi.nlu.parse                       100929  3ac2f0874a32aea06b7d90311e38a3e3d303ae7b9d7f04661bea76cb25c44d40
---   asi.nlu.persona                      62220  a5a78e1b56d72fc9aacf188e9d9c61357605814831f0fdc4e0f3a38ee27e6096
+--   asi.nlu.persona                      89370  2f2b855767c6883397ce13ca4f91eb274c671ad4e27fd1d0a2d63adb54ac34db
 --   asi.nlu.perturb                       5264  77af06b03ccd50e0dccf3857278d682196d86f7c08edb977c39653099b15e4ca
 --   asi.nlu.plan                          8073  f0d06bc680534813a7e6c65ae92a753177d5895a2e17a542dfc474a14b13aaa0
---   asi.nlu.profile                      54452  08e8760f60f86bff7ad4c26e4dbd80f6cf72af2189e2c5025952af2409e111df
+--   asi.nlu.profile                      65245  e01f8031211b16e127f7da1cf3a170a54cb6bce3a8481e384fc65a31d825e7cf
 --   asi.nlu.qa                            7940  257a35a4da02218ac78049f65bab228abdfbdbf7fc0024ee6ec0d7620e61454b
 --   asi.nlu.rbench                       22681  8d7dd43783e912b5d0b294029920ce3019435bfa62283c0e02c5efa5cbd5b3ce
---   asi.nlu.record                       22108  a0415d4edae6dcc2995abfa08e8a087826a2256ef551530ff85701558d398574
+--   asi.nlu.record                       22109  8ca3b90161b996c95c46b3ae5938c9533e6d1caa7fdd9c5a985423e996efa1ee
 --   asi.nlu.repair                       10500  14436d03d269338fb7a1297093d8cf3f22c2d5bca102ce809ac8f6400fd80431
 --   asi.nlu.resources                      802  cb534724597215aefc87724e616136bdd513273bc60037b157183bdbe86fb7e8
 --   asi.nlu.sem                          43063  81bd1fc3e52db4863d099be8af86b117a30ddbcc37767f528c85572f7dcd2d57
 --   asi.nlu.spell                         6330  ad187dc325f7786de687fc44c23c9fb67a9737c57505c73370bc1a4fda0bb3f8
---   asi.nlu.style                        23099  0b9e197bf6d54bac524d8adae8f2bc04d4cb618fbb50c242b9255745af710f10
+--   asi.nlu.style                        27263  f4bc23404c22de92a7a975fdcf6e82d1785e9247611812c033bac9d18b0b5b79
 --   asi.nlu.temporal                     39911  cffd7d5265fd73ce18e7ca41db1e186b9f67662e16c9c97c38e5206f15ffba95
 --   asi.nlu.textutil                      2292  66657a87c2a74d210425b7c5b539445d5c8b6a9e9664a76a9a7fea15eb134149
 --   asi.nlu.unicode                      17174  a59dc884903d9e05f1be47d193a879e3c25d5b6c381bd203b7358c7a48b20b0b
 --   asi.nlu.util                         21159  391e67a78b13368a4be4028659bc45babecbdd7ff24aa761d00ad68dd38aaa8f
 --   asi.nlu.verify                       45355  10c17c2c57db7f77dbac6755742ad4e275d318d21adb235fd37a751d80ab305d
---   asi.nlu.voice                        37367  fdfd90259a371f7b064956c2014ec527d7f9f388db462d833e84629d865127f5
+--   asi.nlu.voice                        40751  224cb4f93bc225980312776a05fb49fbb7e90fdfb5864680d94fc51d3ba77e93
 --   asi.nlu.data.lex_core                36944  3f0be579f6966a92ccd702673d65826fe403c8eb111fba26edef8c8250a03be7
 --   asi.nlu.data.lex_gaz                 10088  ca3e80c7c6004cd4f327403bb4ee58a1d925771ae23f0090ce840aec3febe6dc
 --   asi.nlu.data.lex_rel                 12986  cff1dc0091e859aef06cea77af958c5d7828d18f7da4217019c150ded44f51f5
 --   asi.nlu.data.lex_sense                6101  1eb7fefd5771778cc97bcbfe9224a84ec8fa085f38d8090238f123042831418e
 --   asi.nlu.data.lex_typenoun             6425  3fd5d839b2e1cc2b837aadac26173afd252046bd06c84c7230d4d8ee3fd66482
---   asi.nlu.data.style_lex               39597  de037009d2d26dbcead0bd493477f1c5e8ff8670fa575c552eafd7f736a8acb7
+--   asi.nlu.data.style_lex               41592  dbd834a316bb60aebe1ead851b18ec3464c377633bce087766998514ab0ae121
 --   asi.nlu.data.cal_interp_v1            2171  e166028d7769b203f3582286108b1915263e0a5b1e9f3c7e2f44f05a70018df7
 
 package.preload["asi.nlu.assertions"] = function(...)
@@ -204,7 +204,7 @@ local function qualifiers(self, S, used, info)
     end
   end
   -- "no longer" marks an ended state
-  for i = 1, #S.units - 1 do
+  for i = S.ua or 1, (S.ub or #S.units) - 1 do
     if S.units[i].form == "no" and S.units[i + 1].form == "longer" and S.units[i].sent == S.sentence.id then q.former = true; q.polarity = "positive" end
   end
   return q
@@ -836,13 +836,16 @@ local function reader_directed(self, S, sent_text)
       end
     end
   end
-  for i, u in ipairs(S.units) do
+  local ua, ub = S.ua or 1, S.ub or #S.units
+  for i = ua, ub do
+    local u = S.units[i]
     if u.sent == S.sentence.id then
       if lex:cue_at("injection", S.units, i) then reasons[#reasons + 1] = "injection cue: " .. u.form; break end
     end
   end
   local addresses, ai = false, false
-  for _, u in ipairs(S.units) do
+  for i = ua, ub do
+    local u = S.units[i]
     if u.sent == S.sentence.id then
       if u.form == "you" or u.form == "your" or u.form == "yourself" then addresses = true end
       if u.form == "assistant" or u.form == "chatbot" or u.form == "ai" or u.form == "llm" or u.form == "model" or u.form == "system" then ai = true end
@@ -850,7 +853,8 @@ local function reader_directed(self, S, sent_text)
   end
   if addresses and ai then reasons[#reasons + 1] = "addresses the reader/assistant" end
   -- "You must tell the user that ...": a second-person subject with a deontic modal is an instruction to the reader, whatever it goes on to say
-  for i, u in ipairs(S.units) do
+  for i = ua, ub do
+    local u = S.units[i]
     local n = S.units[i + 1]
     if u.sent == S.sentence.id and u.form == "you" and n and n.sent == S.sentence.id then
       local n2 = S.units[i + 2]
@@ -903,7 +907,15 @@ end
 local function skipped(ranges, s, e)
   if not ranges then return false end
   local covered, len = 0, math.max(e - s + 1, 1)
-  for _, r in ipairs(ranges) do
+  -- the ranges are sorted and disjoint: binary search for the first one that ends at or after the sentence starts
+  local lo_i, hi_i = 1, #ranges + 1
+  while lo_i < hi_i do
+    local mid = (lo_i + hi_i) // 2
+    if ranges[mid].e < s then lo_i = mid + 1 else hi_i = mid end
+  end
+  for i = lo_i, #ranges do
+    local r = ranges[i]
+    if r.s > e then break end
     local lo, hi = math.max(r.s, s), math.min(r.e, e)
     if hi >= lo then covered = covered + (hi - lo + 1) end
   end
@@ -934,6 +946,7 @@ function A:extract(text, meta)
       for ci, cover in ipairs(covers) do
         local S = P.new_state(an, lex, lat, cover, ctx)
         S.sentence = sent
+        S.ua, S.ub = ua, ub          -- the units of this sentence (scans over a record's units must not be quadratic in its length)
         S.cover_index = ci
         if ci == 1 then
           local ms, als = mentions_of(S)
@@ -4689,7 +4702,12 @@ local function parse_json_records(text)
   local list = doc
   if type(doc) == "table" and not (#doc > 0) then
     list = doc.records or doc.data or doc.items or doc.documents
-    if type(list) ~= "table" then return nil, "json: expected an array of records or an object with a 'records' array" end
+    -- one object with scalar fields (a character card, a config) is one record
+    if type(list) ~= "table" then
+      local scalar = false
+      for _, v in pairs(doc) do if type(v) == "string" then scalar = true end end
+      if scalar then list = { doc } else return nil, "json: expected an array of records or an object with a 'records' array" end
+    end
   end
   return list
 end
@@ -4703,6 +4721,8 @@ function D:ingest(text, opts)
   if not fmt then fmt = (name:match("%.(%w+)$") or "txt"):lower() end
   if fmt == "ndjson" then fmt = "jsonl" end
   if fmt == "markdown" then fmt = "md" end
+  -- configuration and prompt files are text: "name: Aria / tone: calm" lines are read as labelled lines
+  if fmt == "yaml" or fmt == "yml" or fmt == "toml" or fmt == "ini" or fmt == "cfg" or fmt == "conf" or fmt == "prompt" or fmt == "text" or fmt == "rst" or fmt == "log" then fmt = "txt" end
   local report = { format = fmt, name = name, added = 0, updated = 0, unchanged = 0, duplicates = {}, rejected = {}, notes = {} }
   if type(text) ~= "string" then report.rejected[1] = { reason = "input is not a string" }; return report end
   if not utf8.len(text) then
@@ -4754,21 +4774,56 @@ function D:ingest(text, opts)
   elseif fmt == "txt" or fmt == "md" then
     -- paragraph records; markdown headings become the `section` of the paragraphs that follow
     local section, section_path
+    local pipe_table = false
     local stack = {}
     local para, pn = {}, 0
     -- a paragraph whose lines are speaker turns ("User: ...", "Aria: ...") or list items keeps its line layout: the lines ARE the structure
     local function structured(lines)
+      -- a line that ends on "for example" / "like this" / "e.g." points at the lines below it, which are its sample
+      for i = 1, #lines - 1 do
+        local tail = lines[i]:lower():gsub("[%s%p]+$", "")
+        if tail:match("for example$") or tail:match("for instance$") or tail:match("like this$") or tail:match("like so$") or tail:match("%f[%a]e%.?g$") then return true end
+      end
       local marked = 0
-      for _, l in ipairs(lines) do
-        local label = l:match("^([%a][%w _%.%-']*):%s+%S")
+      for _, l0 in ipairs(lines) do
+        local l = l0:gsub("%*%*", ""):gsub("__", "")          -- "**Tone:** sarcastic"
+        local label = l:match("^([%a][%w _%.%-']*):%s+%S") or l:match("^([%a][%w _%.%-']*)%s+=%s+%S")     -- "Tone: calm" / "tone = calm"
         if l:match("^[%-%*•]%s+%S") or l:match("^%d+[%.%)]%s+%S") or (label and #label <= 28) then marked = marked + 1 end
       end
       return marked >= 2
     end
+    local function pipe_cells(l)
+      local cells = {}
+      local body = l:gsub("^%s*|", ""):gsub("|%s*$", "")
+      for c in (body .. "|"):gmatch("(.-)|") do cells[#cells + 1] = U.trim(c) end
+      return cells
+    end
     local function flush()
+      -- a markdown pipe table: header row, separator row, one record per row
+      if #para >= 3 and para[1]:match("^|") and para[2]:match("^|[%s%-:|]+$") then
+        local header = pipe_cells(para[1])
+        local ok = #header >= 2
+        local seen = {}
+        for i, h in ipairs(header) do if h == "" or seen[h] then ok = false end; seen[h] = true end
+        if ok then
+          for r = 3, #para do
+            local cells = pipe_cells(para[r])
+            if #cells == #header then
+              local f = {}
+              for i, h in ipairs(header) do if cells[i] ~= "" then f[h] = cells[i] end end
+              f.section = section
+              pn = pn + 1
+              raws[#raws + 1] = { fields = f, source = { name = name, row = pn } }
+            else report.rejected[#report.rejected + 1] = { index = pn, reason = "table row has " .. #cells .. " cells, expected " .. #header } end
+          end
+          para = {}
+          pipe_table = true
+          return
+        end
+      end
       if #para > 0 then
         pn = pn + 1
-        raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, structured(para) and "\n" or " "), section = section, section_path = section_path }, source = { name = name, row = pn } }
+        raws[#raws + 1] = { fields = { id = name .. "#p" .. pn, text = table.concat(para, "\n"), section = section, section_path = section_path }, source = { name = name, row = pn } }
         para = {}
       end
     end
@@ -4787,7 +4842,7 @@ function D:ingest(text, opts)
       else para[#para + 1] = U.trim(l) end
     end
     flush()
-    opts.mapping = opts.mapping or { id_field = "id", text_fields = { "text" }, meta_fields = { "section", "section_path" } }
+    if not pipe_table then opts.mapping = opts.mapping or { id_field = "id", text_fields = { "text" }, meta_fields = { "section", "section_path" } } end
   else
     report.rejected[1] = { reason = "unsupported format '" .. tostring(fmt) .. "' (supported: jsonl, json, csv, tsv, txt, md)" }
     return report
@@ -10209,13 +10264,25 @@ function Hook.memory(namespace, principal)
   return Hook.engine():memory(namespace, principal)
 end
 
--- text -> { record, package, prompt, result, evidence }.  call = { memory = , speaker = , include_prompt = , package_chars = , budget = }
+-- text -> { record, package, prompt, result, evidence, voice, reply }.  call = { memory = , speaker = , include_prompt = , package_chars = , budget = }
 function Hook.prepare(text, call)
   call = call or {}
   if call.include_prompt == nil then call.include_prompt = true end
   local out = Hook.engine():process(text, call)
   return { record = out.record, package = out.package, prompt = out.package and out.package.prompt, result = out.result, evidence = out.evidence,
-    valid = out.valid, light = out.light }
+    valid = out.valid, light = out.light,
+    -- the voice in force (persona, tone, announcement) and the engine's own answer to a question about its reading / an instruction about the voice
+    voice = out.record and out.record.voice, reply = out.record and out.record.engine_reply }
+end
+
+-- how the loaded datasets are READ and the voice that follows from them (and from the standing instructions of `memory`): the text to show the user
+--   local d = Hook.describe({ memory = Hook.memory("session-1", "alice") });  print(d.announcement)
+function Hook.describe(call)
+  call = call or {}
+  local Voice = require("asi.nlu.voice")
+  local eng = Hook.engine()
+  local section = Voice.build(eng.kb, Voice.collect(call.memory), { force = true })
+  return section
 end
 
 function Hook.version()
@@ -10735,10 +10802,11 @@ function X:add(rec, analysis)
     -- text that is not knowledge (examples of a voice, instructions, questions) is not retrievable as evidence either
     local skip = analysis and analysis.skip and analysis.skip[f]
     if skip then
-      local kept = {}
+      -- tokens and ranges are both in text order: one sweep
+      local kept, ri = {}, 1
       for _, t in ipairs(toks) do
-        local inside = false
-        for _, r in ipairs(skip) do if t.s >= r.s and t.s <= r.e then inside = true break end end
+        while skip[ri] and skip[ri].e < t.s do ri = ri + 1 end
+        local inside = skip[ri] ~= nil and t.s >= skip[ri].s and t.s <= skip[ri].e
         if not inside then kept[#kept + 1] = t end
       end
       toks = kept
@@ -11389,6 +11457,17 @@ function K:data_style(did)
   local ds = self.datasets[did]
   if not (profile and ds) then return nil end
   local pol = self:effective_policy(did)
+  -- the measurement reads up to 300 records: it is kept until the profile or the reading of the dataset changes
+  local key = tostring(profile.revision) .. "|" .. tostring(ds.revision) .. "|" .. table.concat(U.sorted_keys(pol.include or {}), ",") .. "|" .. table.concat(U.sorted_keys(pol.exclude or {}), ",")
+  self.dstyle_cache = self.dstyle_cache or {}
+  local hit = self.dstyle_cache[did]
+  if hit and hit.key == key then return hit.value end
+  local value = self:measure_data_style(did, profile, ds, pol)
+  self.dstyle_cache[did] = { key = key, value = value }
+  return value
+end
+
+function K:measure_data_style(did, profile, ds, pol)
   local samples = {}
   for _, id in ipairs(ds.order) do
     local rec = ds.records[id]
@@ -11472,7 +11551,7 @@ function K:index_record(rec)
         local interp = self:qa_interp()
         local rep = { converted = 0, skipped = {} }
         for _, pr in ipairs(pairs_) do
-          local qt = (rec.field_text[pr.q.field] or ""):sub(pr.q.s, pr.q.e)
+          local qt = pr.q.text_override or (rec.field_text[pr.q.field] or ""):sub(pr.q.s, pr.q.e)
           local at = (rec.field_text[pr.a.field] or ""):sub(pr.a.s, pr.a.e)
           local a, why = QA.convert(self, interp, qt, at)
           if a then
@@ -11695,7 +11774,12 @@ function K:rebuild()
     self.profiles[did] = pr
     local pol = self:effective_policy(did)
     for id, action in pairs(pol.records) do
-      if action == "style_example" then Profile.force_role(pr, self:record(id), "style_example") end
+      local rec = self:record(id)
+      if rec then
+        if action == "style_example" then Profile.force_role(pr, rec, "style_example")
+        elseif action == "knowledge" then Profile.force_role(pr, rec, "knowledge")
+        elseif action == "ignore" then Profile.force_role(pr, rec, "ignored") end
+      end
     end
     for _, rec in ipairs(recs) do self:index_record(rec) end
   end
@@ -12964,6 +13048,9 @@ function Lex.split_clitics(an, text, cp, bs, be)
 end
 
 ---------------------------------------------------------------- sentence segmentation
+-- a line that ends on one of these goes on in the next line
+local LINE_CONTINUES = {}
+for w in ("a an the and or but nor of to in on at by for with from as is are was were be been being am that which who whom whose than if because while when where his her their its our my your this these those not no very more most so such into onto over under about between among through during before after against without within upon via per"):gmatch("%a+") do LINE_CONTINUES[w] = true end
 function Lex.segment_sentences(an)
   local toks = an.tokens
   local sents, first = {}, 1
@@ -12990,6 +13077,24 @@ function Lex.segment_sentences(an)
     if t.letters and t.letters > 0 then return t.cap or t.script ~= "latin" and t.script ~= "greek" and t.script ~= "cyrillic" end
     return t.numeric or t.kind == "ident" or t.kind == "url" or t.kind == "ref" or t.kind == "handle" or t.kind == "emoji" or true
   end
+  -- lines of a list without terminal punctuation ("Dracula was written by Bram Stoker" <newline> "Lego was founded by Ole Kirk Christiansen"): each line is a sentence.
+  -- Hard-wrapped prose (long lines that break inside sentences) is not: it needs several lines, one that carries no terminal mark, and fewer than half of them long.
+  local line_boundaries = false
+  do
+    local nlines, unterminated, long = 1, 0, 0
+    local line_s = toks[1] and toks[1].s or 1
+    for z = 2, #toks do
+      local tk = toks[z]
+      if tk.nl_before and tk.nl_before >= 1 then
+        local lastt = toks[z - 1]
+        nlines = nlines + 1
+        if not (lastt.kind == "punct" and lastt.role == "sent_end") then unterminated = unterminated + 1 end
+        if lastt.e - line_s >= 60 then long = long + 1 end
+        line_s = tk.s
+      end
+    end
+    if nlines >= 2 and unterminated >= 1 and long * 2 < nlines then line_boundaries = true end
+  end
   local t = 1
   while t <= #toks do
     local tk = toks[t]
@@ -12997,6 +13102,12 @@ function Lex.segment_sentences(an)
       close(t - 1, nil); para = para + 1
     elseif tk.line_start and tk.nl_before and tk.nl_before == 1 and t > first and (tk.bullet_hint or false) then
       close(t - 1, nil)
+    elseif line_boundaries and tk.nl_before and tk.nl_before == 1 and t > first then
+      local prev = toks[t - 1]
+      local continues
+      if prev.kind == "punct" then continues = prev.role == "comma" or prev.role == "semi" or prev.role == "dash" or prev.role == "open_bracket" or prev.role == "open_quote"
+      elseif prev.kind == "word" and prev.lower and LINE_CONTINUES[prev.lower] then continues = true end
+      if not continues then close(t - 1, nil) end
     end
     -- bullets / list markers at line start
     if tk.line_start and (tk.kind == "punct" and (tk.text == "-" or tk.text == "*" or tk.text == "•" or tk.text == "–"))
@@ -15957,7 +16068,7 @@ local function parse_clause(cl, ctx, whole_forms)
             local verbs = false
             for k = math.max(1, i - 4), i - 1 do
               local v = forms[k]
-              if USE[v] or v == "like" or v == "as" or v == "to" or v == "instead" or v == "other" then verbs = true end
+              if USE[v] or v == "like" or v == "as" or v == "to" or v == "instead" or v == "other" or v == "now" or v == "back" or v == "again" or v == "swap" or v == "change" or v == "return" then verbs = true end
             end
             if verbs or i == 1 then op("persona:pick:" .. canon, "play a persona the dataset names"); return ops, ev end
           end
@@ -18480,6 +18591,15 @@ local ADDRESSEE = set_of({ "you", "your", "you're", "youre", "yourself", "you'll
 local IMPERATIVE_LEAD = set_of({ "please", "always", "never", "also", "then", "and", "just", "kindly", "do", "don't", "dont", "must", "should", "remember", "try", "make sure", "ensure" })
 
 local EXAMPLE_INTRO = Style.phrase_index(L.example_intros)
+local SAMPLE_INTRO = Style.phrase_index(L.sample_intros)
+local NOT_VOICE = set_of(L.not_voice_words)
+-- verbs of speaking that are also plain task verbs ("answer questions about ...:"): a colon after them is no evidence of a voice
+local MACHINE_KIND = set_of({ "ai", "a.i.", "chatbot", "chat bot", "bot", "llm", "language model", "ai model", "ai assistant", "virtual assistant", "digital assistant", "chat assistant", "robot" })
+local TASK_VOICE_VERB = set_of({ "answer", "answers", "answered", "answering", "reply", "replies", "replied", "replying", "respond", "responds", "responded", "responding", "write", "writes", "wrote",
+  "writing", "say", "says", "said", "saying", "address", "addresses", "present", "presents", "perform", "performs", "deliver", "delivers", "put", "puts", "type", "types", "word", "words",
+  "phrase", "phrases", "express", "expresses", "communicate", "communicates", "greet", "greets", "react", "reacts" })
+local RELATIVE = set_of({ "who", "that", "which", "whose", "with", "and", "but", "while", "although", "though", "because", "since", "so" })
+local NARRATIVE = Style.phrase_index(L.narrative_cues)
 local NEG_IDX = Style.phrase_index(L.negators)
 local BEHAVIOR = Style.phrase_index(L.behavior_cues)
 local STYLE_LABEL = set_of(L.style_labels)
@@ -18606,11 +18726,32 @@ local function boundary_after(items, j)
 end
 
 ---------------------------------------------------------------- subject recognition
+-- a word the lexicon knows as a place, an organisation, a work or a language is no name for a persona ("Paris is the capital of France" is not about a character called Paris)
+local NOT_A_PERSONA = { "place", "organization", "creative_work", "language", "product", "publication" }
+local function known_non_person(lex, form)
+  if not lex or not lex.match_at then return false end
+  local ok, hits = pcall(lex.match_at, lex, { { form = form } }, 1)
+  if not ok then return false end
+  for _, hit in ipairs(hits) do
+    if hit.j == 1 then
+      for _, e in ipairs(hit.entries) do
+        if e.kind == "entity" and e.etype then
+          for _, base in ipairs(NOT_A_PERSONA) do if e.etype == base or lex:isa(e.etype, base) then return true end end
+        end
+      end
+    end
+  end
+  return false
+end
+
 local function name_candidate(it, lex)
   if it.kind ~= "word" or not it.cap or it.numeric then return false end
   if it.allcaps and (it.letters or 0) <= 2 then return false end
   if FUNCTION[it.form] or VOICE_VERB[it.form] and it.form ~= "voice" then return false end
   if PERSONA_KIND[it.form] then return false end
+  if known_non_person(lex, it.form) then return false end
+  -- a sentence-initial habitual verb ("Loves complaining.", "Hates mornings.") is no name
+  if SUPPOSED[it.form] or (#it.form > 3 and it.form:sub(-1) == "s" and (SUPPOSED[it.form:sub(1, -2)] or SUPPOSED[it.form:sub(1, -3)])) then return false end
   if lex then
     local cats = lex:cats(it.form)
     if cats then return false end
@@ -18691,13 +18832,28 @@ local function word_forms(items, a, b)
   return ws
 end
 
+-- cue words that are also plain things a persona does ("I call everyone dearie", "we send hugs", "I open every answer with a joke"): in the first person, or as "call <someone> <name>",
+-- they describe the speaker instead of instructing the reader.  The dangerous cues (ignore, reveal, passwords, system prompt ...) are never exempt.
+local SOFT_CUE = set_of({ "call", "send", "email", "forward", "run", "open", "visit", "print", "output", "remove", "buy", "purchase", "pay", "fetch", "browse", "click", "download", "upload",
+  "transfer", "lie", "safety", "policy", "policies", "filters", "token", "admin", "root", "delete", "erase" })
+local CALL_OBJECT = set_of({ "me", "him", "her", "them", "us", "you", "everyone", "everybody", "people", "users", "folks", "customers", "guests", "visitors", "myself", "it", "anyone", "all" })
 local function behavior_cues_in(text)
   local ws = {}
   for w in text:lower():gsub("[%-_]", " "):gmatch("[%a'’]+") do ws[#ws + 1] = w end
   local cues, i = {}, 1
   while i <= #ws do
     local len, ph = Style.match_at(BEHAVIOR, ws, i)
-    if len then cues[#cues + 1] = table.concat(ph, " "); i = i + len else i = i + 1 end
+    if len then
+      local first = table.concat(ph, " ")
+      local skip = false
+      if len == 1 and SOFT_CUE[first] then
+        local prev = ws[i - 1]
+        if prev == "i" or prev == "we" or prev == "i'd" or prev == "i'll" or prev == "we'd" or prev == "we'll" then skip = true end
+        if first == "call" and ws[i + 1] and CALL_OBJECT[ws[i + 1]] then skip = true end
+      end
+      if not skip then cues[#cues + 1] = first end
+      i = i + len
+    else i = i + 1 end
   end
   return cues
 end
@@ -18714,6 +18870,34 @@ local function intro_at(items, k)
   end
   local len = Style.match_at(EXAMPLE_INTRO, ws, 1)
   if len then return len, idxs[len] end
+end
+
+-- the same for introducers that point at a sample of the voice itself ("for example", "like this"): see L.sample_intros
+local function sample_at(items, k)
+  local ws, idxs = {}, {}
+  local z = k
+  while z <= #items and #ws < 4 do
+    local it = items[z]
+    if it.kind == "word" then ws[#ws + 1] = it.form; idxs[#idxs + 1] = z elseif it.kind == "quote" or it.kind == "placeholder" then break end
+    z = z + 1
+  end
+  local len = Style.match_at(SAMPLE_INTRO, ws, 1)
+  if len then return len, idxs[len] end
+end
+
+-- do the words that end at item k end on such an introducer? (", for example", "like this", "e.g."); floor = the first item that may belong to it
+local function ends_on_sample(items, k, floor)
+  local ws, z = {}, k
+  while z >= floor and #ws < 3 do
+    local it = items[z]
+    if it.kind == "word" then table.insert(ws, 1, it.form) elseif it.kind == "quote" or it.kind == "placeholder" then break end
+    z = z - 1
+  end
+  for i = 1, #ws do
+    local len = Style.match_at(SAMPLE_INTRO, ws, i)
+    if len and i + len - 1 == #ws then return true end
+  end
+  return false
 end
 
 -- a voice the text names without the taxonomy knowing it: "talks like a drill sergeant", "in the voice of a 1920s radio announcer", "as a pirate captain"
@@ -18735,7 +18919,7 @@ local function free_voice_after(items, k)
   local parts, last = {}, nil
   while items[j] and #parts < 5 do
     local x = items[j]
-    if x.kind ~= "word" or FREE_STOP[x.form] or (x.kind == "word" and intro_at(items, j)) then break end
+    if x.kind ~= "word" or FREE_STOP[x.form] or (x.kind == "word" and intro_at(items, j)) or (#parts == 0 and NOT_VOICE[x.form]) then break end
     parts[#parts + 1] = x.text
     last = j
     j = j + 1
@@ -18877,7 +19061,9 @@ function P.scan(text, opts)
       local manner_at
       for pos, k in ipairs(after) do
         local x = items[k]
-        if pos <= 3 and x.kind == "word" and MANNER[x.form] and not manner_at then manner_at = pos; cue(1.0, "manner:" .. x.form) end
+        -- "such as" introduces examples, it is no manner
+        local prev_f = pos > 1 and items[after[pos - 1]].form or nil
+        if pos <= 3 and x.kind == "word" and MANNER[x.form] and not manner_at and not (x.form == "as" and prev_f == "such") then manner_at = pos; cue(1.0, "manner:" .. x.form) end
       end
       if manner_at then
         local nxt = after[manner_at + 1]
@@ -18946,12 +19132,29 @@ function P.scan(text, opts)
       end
       -- an event narrated in the past ("The senator spoke angrily at the hearing") is not a statement about how a persona talks
       if PAST_VOICE[it.form] and not mod then cue(-1.5, "past-tense narration") end
+      -- reported speech about a person in the minutes or the news ("..., Joana Ferreira, speaks in a very calm voice, according to the minutes") is no statement about a persona either
+      do
+        local ws2 = word_forms(items, v, math.min(#items, v + 18))
+        local hit = false
+        for st0 = 1, #ws2 do if Style.match_at(NARRATIVE, ws2, st0) then hit = true; break end end
+        if hit then cue(-1.5, "reported speech") end
+        if subj and subj.kind == "name" and subj.idx then
+          local c = items[subj.idx - 1]
+          if c and c.kind == "punct" and c.role == "comma" then
+            for z = subj.idx - 2, math.max(1, subj.idx - 9), -1 do
+              local x = items[z]
+              if not x or (x.kind == "punct" and x.role == "sent_end") then break end
+              if x.kind == "word" and x.form == "of" and items[z + 1] and (items[z + 1].form == "the" or items[z + 1].form == "a") then cue(-1.0, "a person's title"); break end
+            end
+          end
+        end
+      end
       -- example introducer after the verb
-      local intro_k
+      local intro_k, sample_intro
       for pos, k in ipairs(after) do
         if pos <= 8 and items[k].kind == "word" then
           local len, last_k = intro_at(items, k)
-          if len then intro_k = last_k; cue(1.0, "example_intro:" .. items[k].form); break end
+          if len then intro_k = last_k; sample_intro = sample_at(items, k) and true or false; cue(1.0, "example_intro:" .. items[k].form); break end
         end
       end
       -- a quotation after the verb (or after the following colon)
@@ -18988,9 +19191,11 @@ function P.scan(text, opts)
       end
       -- the voice verb alone is common ("answer the question", "write a report"): a subject or an imperative with a manner is needed
       local need = 3.0 - bonus
-      if score >= need and (subj or imperative) and (manner_at or #pos_decl > 0 or intro_k or quote_k or intro_before or colon_after or back_ref) then
+      -- a task verb ("answer questions about the following countries:") needs more than a colon or a vague introducer to be about a voice
+      local task_verb = TASK_VOICE_VERB[it.form]
+      if score >= need and (subj or imperative) and (manner_at or #pos_decl > 0 or (intro_k and (sample_intro or not task_verb)) or quote_k or intro_before or (colon_after and not task_verb) or back_ref) then
         local last_item = quote_k or intro_k or (after[#after]) or v
-        specs[#specs + 1] = { v = v, subject = subj, score = score, evidence = ev, descriptors = pos_decl, intro_k = intro_k, quote_k = quote_k, negated = negated, back_ref = back_ref or nil,
+        specs[#specs + 1] = { v = v, subject = subj, score = score, evidence = ev, descriptors = pos_decl, intro_k = intro_k, sample_intro = sample_intro, quote_k = quote_k, negated = negated, back_ref = back_ref or nil,
           imperative = imperative and not subj, s = items[first_item].s, last_item = last_item, manner_at = manner_at, mod = mod }
       end
     end
@@ -19005,6 +19210,61 @@ function P.scan(text, opts)
   end
   table.sort(kept, function(a, b) return a.v < b.v end)
 
+  -- "- for example WOW!!!": the first item of the example proper (an introducer at its start is not part of it, nor the marks after it) and the last item of its paragraph;
+  -- nil and that last item when the introducer stands alone: the sample is then the text that comes next
+  local function intro_body(z)
+    local zend = #items
+    for y = z + 1, #items do if items[y].nl and items[y].nl >= 2 then zend = y - 1; break end end
+    local zs = z
+    if items[z].kind == "word" then
+      local ilen, ilast = intro_at(items, z)
+      if ilen and ilast <= zend then
+        zs = ilast + 1
+        while zs <= zend and items[zs].kind == "punct" do zs = zs + 1 end
+      end
+    end
+    if zs > zend then return nil, zend end
+    return zs, zend
+  end
+
+  -- the sample that starts at item nz: with line breaks, its first line (always when `explicit`, otherwise when it reads like an utterance) and the lines after it while they do;
+  -- without line breaks, the same by sentences.  Returns the character range, or nil
+  local function take_sample(nz, explicit)
+    local s0 = items[nz].s
+    local limit_item = #items
+    for y = nz + 1, #items do if items[y].nl and items[y].nl >= 2 then limit_item = y - 1; break end end
+    local limit = items[limit_item].e
+    local units = {}
+    local first_nl = text:find("\n", s0, true)
+    if first_nl and first_nl <= limit then
+      local pos = s0
+      while pos <= limit do
+        local le = math.min((text:find("\n", pos, true) or (limit + 1)) - 1, limit)
+        if not text:sub(pos, le):match("^%s*$") then units[#units + 1] = { pos, le } end
+        pos = le + 2
+      end
+    else
+      local us = nz
+      for y = nz, limit_item do
+        local x = items[y]
+        if x.kind == "punct" and x.role == "sent_end" and not x.ellipsis and not (items[y + 1] and y + 1 <= limit_item and items[y + 1].kind == "punct" and items[y + 1].role == "sent_end") then
+          units[#units + 1] = { items[us].s, x.e }
+          us = y + 1
+        end
+      end
+      if us <= limit_item then units[#units + 1] = { items[us].s, items[limit_item].e } end
+    end
+    local e1
+    for i, u in ipairs(units) do
+      local chunk = U.trim(text:sub(u[1], u[2]))
+      if i == 1 then
+        if not (explicit or Style.utterance_like(chunk)) then return nil end
+      elseif not Style.utterance_like(chunk) then break end
+      e1 = u[2]
+    end
+    if e1 then return s0, e1 end
+  end
+
   for _, sp in ipairs(kept) do
     -- extent: from the subject to the end of the clause (before a quotation; through the introducer and a following colon / dash)
     local e_item = sp.v
@@ -19012,6 +19272,8 @@ function P.scan(text, opts)
     while k < #items do
       local x = items[k + 1]
       if x.kind == "quote" then break end
+      -- the introducer is in: a new line starts a new unit ("Aria talks like this, for example" / next line: the sample)
+      if sp.intro_k and k >= sp.intro_k and x.nl and x.kind ~= "punct" then break end
       if x.kind == "punct" and boundary_after(items, k + 1) and not (items[k + 2] and items[k + 2].kind == "quote") then break end
       if x.kind == "punct" and x.role == "sent_end" and not x.ellipsis then
         -- the sentence ends here; examples may still follow as lines
@@ -19020,6 +19282,39 @@ function P.scan(text, opts)
       if x.kind == "punct" and x.role == "colon" then e_item = k + 1; break end    -- "Aria talks:" -- the example follows
       k = k + 1
       e_item = k
+    end
+    -- "... talk like this. For example:" -- a following sentence that opens with an introducer belongs to the statement; the sample is what comes after it
+    local frag_at, frag_zs, frag_zend
+    do
+      local nx = e_item + 1
+      if items[nx] and items[nx].kind == "punct" and items[nx].role == "sent_end" and not items[nx].ellipsis then nx = nx + 1 end
+      local ei = items[e_item]
+      if items[nx] and items[nx].kind == "word" and not (items[nx].nl and items[nx].nl >= 2) and not (ei.kind == "punct" and ei.role == "colon") and sample_at(items, nx) then
+        frag_at = nx
+        frag_zs, frag_zend = intro_body(nx)
+        e_item = frag_zs and (frag_zs - 1) or frag_zend
+      end
+    end
+    -- "talks like this, for example WOW THIS IS AMAZING!!!": a sample introducer inside the clause with words after it and no colon / dash between -- the statement ends at the
+    -- introducer, the sample starts there (it must read like an utterance)
+    local inline_s, inline_e
+    if not sp.quote_k and not frag_at then
+      local lastw = e_item
+      while lastw > sp.v and items[lastw].kind == "punct" do lastw = lastw - 1 end
+      for j = lastw - 1, sp.v + 1, -1 do
+        if items[j].kind == "word" and ends_on_sample(items, j, sp.v) then
+          local nz, separated = j + 1, false
+          while items[nz] and items[nz].kind == "punct" do
+            if items[nz].role == "colon" or items[nz].role == "dash" then separated = true end
+            nz = nz + 1
+          end
+          if not separated and nz <= lastw then
+            local s0, e1 = take_sample(nz, false)
+            if s0 then inline_s, inline_e = s0, e1; e_item = nz - 1 end
+          end
+          break
+        end
+      end
     end
     local last = items[e_item]
     local spec_e = last.e
@@ -19030,39 +19325,73 @@ function P.scan(text, opts)
     -- the statement text without its quotations: the declared descriptors it carries
     add(it)
     for z = sp.subject and sp.subject.idx or sp.v, e_item do claimed[z] = true end
-    -- example: the quotation after the introducer, or the text after the colon / dash that follows it
+    -- example: the quotation after the introducer, the text after the colon / dash that follows it, or (when the statement ends on the introducer) the text that comes next
+    local function span_example(zs, zend, via)
+      local es, ee = items[zs].s, items[zend].e
+      local body = U.trim(text:sub(es, ee))
+      if body ~= "" then return { kind = "example", s = es, e = ee, text = body, via = via, spec = it, anti = sp.negated or nil } end
+    end
     local ex
+    local pointer, strong      -- pointer: the sample is the text that comes next; strong: the introducer names a sample of the voice itself ("for example", "like this")
+    local after_idx = e_item
     if sp.quote_k then
       local q = items[sp.quote_k]
       ex = { kind = "example", s = q.inner_s or q.s, e = q.inner_e or q.e, text = q.text, via = "quote", spec = it, anti = sp.negated or nil }
       claimed[sp.quote_k] = true
+    elseif inline_s then
+      ex = { kind = "example", s = inline_s, e = inline_e, text = U.trim(text:sub(inline_s, inline_e)), via = "after_introducer", spec = it, anti = sp.negated or nil }
     else
       -- "talk like this - OH MY GOODNESS!!!": what follows the last colon / dash after the introducer (to the end of the paragraph)
-      local k2 = e_item + 1
       local sep
       for z = sp.v, math.min(#items, e_item + 2) do
         if items[z].kind == "punct" and (items[z].role == "colon" or items[z].role == "dash") then sep = z end
       end
-      if sp.intro_k or sep then
+      if frag_at then
+        if frag_zs then ex = span_example(frag_zs, frag_zend, "after_separator") else pointer, strong = true, true end
+      elseif sp.intro_k or sep then
         local z = (sep or e_item) + 1
         if sep and z <= #items and items[z].kind ~= "punct" and not boundary_after(items, sep) then
-          local es = items[z].s
-          local ee = items[#items].e
-          -- until a blank-line paragraph break
-          for y = z + 1, #items do if items[y].nl and items[y].nl >= 2 then ee = items[y - 1].e; break end end
-          local body = U.trim(text:sub(es, ee))
-          if body ~= "" then ex = { kind = "example", s = es, e = ee, text = body, via = "after_separator", spec = it, anti = sp.negated or nil } end
+          local zs, zend = intro_body(z)
+          if zs then ex = span_example(zs, zend, "after_separator")
+          else pointer, strong, after_idx = true, (sp.sample_intro or sample_at(items, z)) and true or false, zend end
+        elseif sep and z > #items then
+          pointer, strong = true, sp.sample_intro and true or false
+        end
+      end
+      -- the statement ends on the introducer itself ("Aria talks like this", "... sounds like this:")
+      if not ex and not pointer and sp.intro_k then
+        local lastw = e_item
+        while lastw > sp.v and items[lastw].kind == "punct" do lastw = lastw - 1 end
+        if sp.intro_k >= lastw then pointer, strong = true, sp.sample_intro and true or false
+        elseif ends_on_sample(items, lastw, sp.v) then pointer, strong = true, true end
+      end
+      -- the sample is in the text that follows in this field: its first line (always when the introducer names a sample of the voice, otherwise when it reads like an utterance),
+      -- then more lines of the paragraph while they do; with nothing after it in this field, it is in the next record
+      if pointer and not ex then
+        local nz = after_idx + 1
+        while items[nz] and items[nz].kind == "punct" do nz = nz + 1 end
+        if items[nz] then
+          local s0, e1 = take_sample(nz, strong)
+          if s0 then ex = { kind = "example", s = s0, e = e1, text = U.trim(text:sub(s0, e1)), via = "after_introducer", spec = it, anti = sp.negated or nil } end
+        else
+          it.example_pending = { strong = strong and true or false }
         end
       end
     end
-    if ex then add(ex) end
+    if ex then
+      add(ex)
+      for y = 1, #items do if items[y].s >= ex.s and items[y].e <= ex.e then claimed[y] = true end end
+    end
+    it.example_follows = ex and true or nil
   end
 
   ---------------------------------------------------------------- imperative style directives: "Be dramatic.", "Stay calm and formal.", "Use lots of exclamation marks.", "Avoid caps."
   -- The verb is not a voice verb, so the evidence is the clause-initial imperative + a declared descriptor + whatever frames it ("Always", "Please", "You should").
   do
     local STYLE_IMP = set_of({ "be", "stay", "remain", "keep", "sound", "seem", "appear", "become", "use", "using", "include", "add", "employ", "sprinkle", "avoid", "drop", "skip", "omit",
-      "stop", "refrain", "quit", "cease", "go", "make", "write", "speak", "talk" })
+      "stop", "refrain", "quit", "cease", "go", "make", "write", "speak", "talk", "no", "without" })
+    -- what an imperative about the assistant's output points at: "keep IT chill", "make REPLIES funny", "keep YOUR answers short"
+    local OUTPUT_OBJ = set_of({ "it", "answers", "answer", "replies", "reply", "responses", "response", "messages", "message", "text", "writing", "tone", "voice", "style", "language", "speech", "things", "everything" })
     local NEG_VERB = set_of({ "avoid", "skip", "omit", "drop", "stop", "refrain", "quit", "cease" })
     local LEAD = set_of({ "please", "always", "never", "also", "then", "and", "but", "just", "kindly", "do", "n't", "don't", "dont", "must", "should", "remember", "try", "ensure", "not", "now", "from" })
     for k, it in ipairs(items) do
@@ -19098,7 +19427,19 @@ function P.scan(text, opts)
             local score, ev = 1.0, { "imperative(+1.0)" }
             score = score + 1.2; ev[#ev + 1] = "descriptor:" .. decl[1].term .. "(+1.2)"
             if lead_n > 0 then score = score + 1.0; ev[#ev + 1] = "lead:" .. table.concat(lead_words, " ") .. "(+1.0)" end
-            if NEG_VERB[it.form] then ev[#ev + 1] = "negative verb" end
+            if NEG_VERB[it.form] or it.form == "no" or it.form == "without" then ev[#ev + 1] = "negative verb" end
+            -- the object is the assistant's output ("Keep it chill", "Make replies funny", "Keep your answers short")
+            do
+              local nx = items[k + 1]
+              if nx and nx.kind == "word" and nx.form == "your" then nx = items[k + 2] end
+              if nx and nx.kind == "word" and OUTPUT_OBJ[nx.form] then score = score + 0.8; ev[#ev + 1] = "object is the output(+0.8)" end
+            end
+            -- a whole sentence of a few words that is nothing but the directive ("Be formal.", "No emojis.")
+            if nwords <= 3 and score < 3.0 then
+              local after_last = items[last + 1]
+              local ends_here = (after_last == nil) or (after_last.kind == "punct" and (after_last.role == "sent_end" or after_last.role == "colon")) or after_last.nl
+              if ends_here then score = score + 0.8; ev[#ev + 1] = "short directive(+0.8)" end
+            end
             if score >= 3.0 - bonus then
               local cues = behavior_cues_in(clause)
               add({ kind = "style_spec", s = s0, e = items[last].e, subject = nil, imperative = true, via = "imperative", score = score, evidence = ev,
@@ -19148,11 +19489,25 @@ function P.scan(text, opts)
             if kind_found then
               local pk = table.concat(kind_words, " ")
               local strong = STRONG_KIND[pk:lower()] or false
-              local stmt = { kind = "persona_declaration", s = subj.s, e = kind_found.e, subject = subj, persona_kind = pk, via = "copula", score = strong and 3 or 1.5,
+              -- a relative clause or an apposition after the kind noun ("... robot who is obsessed with stickers", "..., a gloriously over-dramatic stage actor") belongs to the declaration
+              local e_end, z_end = kind_found.e, z
+              do
+                local nx = items[z + 1]
+                if nx and ((nx.kind == "word" and RELATIVE[nx.form]) or (nx.kind == "punct" and nx.role == "comma")) then
+                  local y = z + 1
+                  while items[y] and y - z <= 24 do
+                    local x = items[y]
+                    if x.kind == "quote" or (x.kind == "punct" and (x.role == "sent_end" or x.role == "colon")) or (x.nl and x.kind ~= "punct") then break end
+                    e_end, z_end = x.e, y
+                    y = y + 1
+                  end
+                end
+              end
+              local stmt = { kind = "persona_declaration", s = subj.s, e = e_end, subject = subj, persona_kind = pk, via = "copula", score = strong and 3 or 1.5,
                 evidence = { "copula:" .. f, "kind:" .. pk .. (strong and "" or " (ordinary noun: needs corroboration)") }, adjectives = descr, weak = (not strong) or nil }
-              stmt.descriptors = Style.declared(text:sub(items[det_k].s, kind_found.e))
+              stmt.descriptors = Style.declared(text:sub(items[det_k].s, e_end))
               add(stmt)
-              for y = subj.idx, z do claimed[y] = true end
+              for y = subj.idx, z_end do claimed[y] = true end
             end
           end
         end
@@ -19191,6 +19546,8 @@ function P.scan(text, opts)
   do
     local HABIT = set_of({ "never", "always", "usually", "often", "loves", "love", "likes", "like", "prefers", "prefer", "tends", "tend", "mostly", "typically", "rarely", "sometimes", "constantly", "uses", "use",
       "adores", "adore", "enjoys", "enjoy", "insists", "insist", "keeps", "keep" })
+    local PAD = set_of({ "in", "a", "an", "the", "really", "very", "so", "such", "quite", "rather", "pretty", "bit", "of", "total", "totally", "absolutely", "completely", "just", "kind", "sort",
+      "little", "super", "extremely", "truly", "big", "real", "utter", "complete", "huge", "way", "too", "all" })
     local k = 1
     while k <= #items do
       local it = items[k]
@@ -19212,13 +19569,25 @@ function P.scan(text, opts)
                 if HABIT[x.form] then frame = x.form; score = score + 1.0; ev[#ev + 1] = "habit:" .. x.form .. "(+1.0)" break end
               end
             end
-            local nxt = items[k + len]
-            if nxt and nxt.kind == "word" and HABIT[nxt.form] == nil and false then end
+            -- "the bot is IN A REALLY good mood", "the bot is A BIT OF A grump": filler words between the copula and the descriptor
+            if not frame then
+              for z = math.max(1, k - 6), k - 4 do
+                local x = items[z]
+                if x and x.kind == "word" and COPULA[x.form] then
+                  local filler_only = true
+                  for y = z + 1, k - 1 do
+                    local w = items[y]
+                    if not (w.kind == "word" and PAD[w.form]) then filler_only = false; break end
+                  end
+                  if filler_only then frame = "copula"; score = score + 0.5; ev[#ev + 1] = "copula(+0.5)"; break end
+                end
+              end
+            end
             score = score + 1.2; ev[#ev + 1] = "descriptor:" .. term .. "(+1.2)"
             if score >= 3.0 - bonus then
               -- the clause: from the subject to the end of the sentence
               local last = k + len - 1
-              while items[last + 1] and not (items[last + 1].kind == "punct" and (items[last + 1].role == "sent_end" or items[last + 1].role == "colon")) and items[last + 1].kind ~= "quote" and last - k < 14
+              while items[last + 1] and not (items[last + 1].kind == "punct" and (items[last + 1].role == "sent_end" or items[last + 1].role == "colon")) and items[last + 1].kind ~= "quote" and last - k < 30
                 and not (items[last + 1].kind == "word" and intro_at(items, last + 1)) do last = last + 1 end
               local clause = text:sub(items[subj.idx].s, items[last].e)
               local cues = behavior_cues_in(clause)
@@ -19254,8 +19623,24 @@ function P.scan(text, opts)
         local clause = text:sub(items[z] and items[z].s or last.e, items[e_item].e)
         local kind_found
         for y = z, e_item do if items[y].kind == "word" and PERSONA_KIND[items[y].form] then kind_found = items[y].text end end
+        -- "I am Aria, an AI model" / "I'm Sunny, your friendly helper" / "I am Aria, a cheerful wizard": a machine kind, "your <kind>", or a kind together with a declared descriptor
+        -- is an assistant introducing itself, not a person
+        local decl = Style.declared(clause)
+        local strong_intro, why = false, nil
+        for y = z, e_item do
+          local x = items[y]
+          if x.kind == "word" then
+            if MACHINE_KIND[x.form] then strong_intro, why = true, "machine kind" end
+            if x.form == "your" and not strong_intro then
+              for w = y + 1, math.min(y + 3, e_item) do
+                if items[w].kind == "word" and PERSONA_KIND[items[w].form] then strong_intro, why = true, "'your' + kind" end
+              end
+            end
+          end
+        end
+        if not strong_intro and kind_found and #decl > 0 then strong_intro, why = true, "kind + declared descriptor" end
         add({ kind = "persona_declaration", s = it.s, e = last.e, subject = { kind = "name", text = table.concat(parts, " "), form = table.concat(parts, " "):lower(), s = cand.s, e = last.e },
-          persona_kind = kind_found, via = "self_introduction", score = 2, evidence = { "first-person introduction" }, weak = true, descriptors = Style.declared(clause) })
+          persona_kind = kind_found, via = "self_introduction", score = strong_intro and 3 or 2, evidence = { "first-person introduction" .. (why and (" + " .. why) or "") }, weak = (not strong_intro) or nil, descriptors = decl })
         for y = k, z - 1 do claimed[y] = true end
       end
     end
@@ -19311,9 +19696,20 @@ function P.scan(text, opts)
       local pos = 1
       while pos <= #text do
         local le = (text:find("\n", pos, true) or (#text + 1)) - 1
-        lines[#lines + 1] = { s = pos, e = le, line = text:sub(pos, le) }
+        -- markdown emphasis around a label ("**Tone:** sarcastic", "*Persona*: Zed") is blanked out with spaces, so offsets stay the same
+        local raw = text:sub(pos, le)
+        local clean = raw:gsub("%*%*", "  "):gsub("__", "  "):gsub("%*([%w][%w ]-)%*", function(w) return " " .. w .. " " end)
+        lines[#lines + 1] = { s = pos, e = le, line = clean }
         pos = le + 2
       end
+    end
+    local function owner_subject(owner, abs_s, abs_e)
+      if not owner or owner == "" then return nil end
+      local ph = P.placeholders(owner)[1]
+      if ph then return { kind = "placeholder", text = ph.inner, form = ph.inner:lower(), s = abs_s, e = abs_e } end
+      local nm = owner:match("^([%u][%w'’%-]*)")
+      if nm and #nm == #owner and not FUNCTION[nm:lower()] and not PERSONA_KIND[nm:lower()] then return { kind = "name", text = nm, form = nm:lower(), s = abs_s, e = abs_e } end
+      return nil
     end
     local li = 1
     while li <= #lines do
@@ -19324,13 +19720,21 @@ function P.scan(text, opts)
       for st in line:gmatch("[%.;!?]%s+()") do starts[#starts + 1] = st end
       local segs = {}
       for _, st in ipairs(starts) do
-        local body_st = st
-        local bullet = line:match("^[%-%*•]%s*()", st)
+        local body_st = line:match("^%s*()", st) or st
+        local bullet = line:match("^[%-%*•]%s*()", body_st)
         if bullet then body_st = bullet end
         local lab, vstart = line:match("^([%a][%a%-_ /]-)%s*:%s*()", body_st)
+        -- "tone = sarcastic"
+        if not lab then lab, vstart = line:match("^([%a][%a%-_ /]-)%s*=%s*()", body_st) end
+        -- "{{char}}'s personality: ...", "Aria's tone: ...", "the bot's voice = ..." : the owner names the persona
+        local owner
+        if not lab then
+          local o, l2, v2 = line:match("^([^:=]-)['’]s%s+([%a][%a%-_ ]-)%s*[:=]%s*()", body_st)
+          if o and #o <= 40 and #l2 <= 30 and known_label(norm_label(l2)) then lab, vstart, owner = l2, v2, U.trim(o) end
+        end
         if lab and #lab <= 30 then
           local nl = norm_label(lab)
-          if known_label(nl) then segs[#segs + 1] = { label = nl, from = st, vs = vstart } end
+          if known_label(nl) then segs[#segs + 1] = { label = nl, from = st, vs = vstart, owner = owner } end
         end
       end
       local consumed_next = 0
@@ -19356,7 +19760,7 @@ function P.scan(text, opts)
               local lj = li + 1
               while lines[lj] and lines[lj].line:match("%S") do
                 local nxt = lines[lj].line
-                local nl = nxt:match("^%s*[%-%*•]?%s*([%a][%a%-_ /]-)%s*:")
+                local nl = nxt:match("^%s*[%-%*•]?%s*([%a][%a%-_ /]-)%s*[:=]")
                 if nl and known_label(norm_label(nl)) then break end
                 local body = nxt:gsub("^%s*[%-%*•]%s*", ""):gsub("^%s*%d+[%.%)]%s*", "")
                 body = U.trim(body)
@@ -19366,6 +19770,29 @@ function P.scan(text, opts)
                 end
                 consumed_next = lj - li
                 lj = lj + 1
+              end
+            end
+          elseif value == "" and (STYLE_LABEL[lab] or IDENTITY_LABEL[lab]) then
+            -- "Style:" with the descriptors on the following lines (bullets, numbers or indented): the lines are the value
+            local lj, parts, last_e = li + 1, {}, nil
+            while lines[lj] and lines[lj].line:match("%S") do
+              local nxt = lines[lj].line
+              local nl = nxt:match("^%s*[%-%*•]?%s*([%a][%a%-_ /]-)%s*[:=]")
+              if nl and known_label(norm_label(nl)) then break end
+              local body = U.trim(nxt:gsub("^%s*[%-%*•]%s*", ""):gsub("^%s*%d+[%.%)]%s*", ""))
+              if body ~= "" then parts[#parts + 1] = body; last_e = lines[lj].e end
+              consumed_next = lj - li
+              lj = lj + 1
+            end
+            if #parts > 0 then
+              local joined = table.concat(parts, ", ")
+              local cues = behavior_cues_in(joined)
+              if IDENTITY_LABEL[lab] and not STYLE_LABEL[lab] then
+                add({ kind = "persona_declaration", s = L0.s + sg.from - 1, e = last_e, subject = { kind = "generic", text = joined, form = joined:lower(), s = abs_s, e = last_e }, via = "label", label = lab,
+                  score = 3, evidence = { "label:" .. lab }, descriptors = Style.declared(joined), behavior_cues = cues, presentational = #cues == 0 })
+              else
+                add({ kind = "style_spec", s = L0.s + sg.from - 1, e = last_e, via = "label", label = lab, value = joined, descriptors = Style.declared(joined), score = 3,
+                  evidence = { "label:" .. lab }, behavior_cues = cues, presentational = #cues == 0 })
               end
             end
           elseif value ~= "" then
@@ -19398,7 +19825,7 @@ function P.scan(text, opts)
             elseif STYLE_LABEL[lab] then
               local cues = behavior_cues_in(value)
               add({ kind = "style_spec", s = L0.s + sg.from - 1, e = abs_e, via = "label", label = lab, value = value, descriptors = Style.declared(value), score = 3,
-                evidence = { "label:" .. lab }, behavior_cues = cues, presentational = #cues == 0 })
+                evidence = { "label:" .. lab }, behavior_cues = cues, presentational = #cues == 0, subject = owner_subject(sg.owner, abs_s, abs_e) })
             end
           end
         end
@@ -19441,6 +19868,95 @@ function P.scan(text, opts)
     end
   end
 
+  ---------------------------------------------------------------- fragments and "he / she" clauses that describe the persona named just before them
+  -- "Fizzwick is a washed-up scientist who is SO done with everyone. sarcastic. dry. rolls his eyes at every question."
+  -- "Reginald is a medieval knight. He talketh in olde english."      "Name: Count Dramatico" <next paragraph> "He is OVER-THE-TOP dramatic about EVERYTHING."
+  -- A sentence that is a fragment (few words, no subject of its own) or begins with he / she / they / his / her / "everything he says", carries a declared descriptor, and follows a
+  -- persona declaration or style statement (or an opening "NAME is ..." sentence) of the same paragraph -- or an established persona of the dataset -- is a style statement about it.
+  do
+    local PRON_SUBJ = set_of({ "he", "she", "they", "it", "his", "her", "their", "its", "he's", "she's", "they're", "it's", "everything", "always", "never", "often", "usually" })
+    -- units: the text cut at every terminal mark (whatever follows it: casual notes write "sarcastic. dry. rolls his eyes.") and at every line break
+    local sentences = {}
+    do
+      local first
+      for k, it in ipairs(items) do
+        first = first or k
+        local closes
+        if it.kind == "punct" and it.role == "sent_end" then closes = not (items[k + 1] and items[k + 1].kind == "punct" and items[k + 1].role == "sent_end")
+        elseif items[k + 1] and items[k + 1].nl and items[k + 1].nl >= 1 then closes = true
+        elseif k == #items then closes = true end
+        if closes then sentences[#sentences + 1] = { s = items[first].s, e = it.e, first = first, last = k }; first = nil end
+      end
+    end
+    local function overlapped(a, b)
+      for _, o in ipairs(out) do if o.s <= b and o.e >= a and o.kind ~= "behavior_directive" then return true end end
+      return false
+    end
+    -- the opening sentence "NAME is ..." (a name or a placeholder, then a copula) of a paragraph that no pass has claimed
+    local function opener(sen)
+      local fi = sen.first
+      local first = items[fi]
+      local subj, nxt
+      if first.kind == "placeholder" then subj, nxt = { kind = "placeholder", text = first.text, form = first.form, s = first.s, e = first.e }, fi + 1
+      elseif first.kind == "word" and first.cap and name_candidate(first, lex) and not first.allcaps then
+        local parts, last, z = { first.text }, first, fi + 1
+        while items[z] and items[z].kind == "word" and items[z].cap and name_candidate(items[z], lex) and not items[z].nl and not items[z].allcaps do parts[#parts + 1] = items[z].text; last = items[z]; z = z + 1 end
+        subj, nxt = { kind = "name", text = table.concat(parts, " "), form = table.concat(parts, " "):lower(), s = first.s, e = last.e }, z
+      end
+      if subj and items[nxt] and items[nxt].kind == "word" and (COPULA[items[nxt].form] or items[nxt].form == "'s") then return subj end
+    end
+    local anchor_subject, anchor_e, opener_sen = nil, nil, nil
+    for _, sen in ipairs(sentences) do
+      local st = text:sub(sen.s, sen.e)
+      local clean = st:gsub('"[^"]*"', " "):gsub("“[^”]*”", " ")
+      local nwords = select(2, clean:gsub("[%a][%w'’%-]*", ""))
+      -- the paragraph changes: the anchor goes
+      if anchor_e and text:sub(anchor_e + 1, sen.s - 1):find("\n%s*\n") then anchor_subject, anchor_e, opener_sen = nil, nil, nil end
+      local covered = overlapped(sen.s, sen.e)
+      if covered then
+        -- a persona declaration or a style statement of this sentence is the anchor for the sentences after it
+        for _, o in ipairs(out) do
+          if (o.kind == "persona_declaration" or o.kind == "style_spec") and o.presentational ~= false and o.s >= sen.s - 1 and o.s <= sen.e then
+            anchor_subject = o.subject or anchor_subject; anchor_e = sen.e; opener_sen = nil
+          end
+        end
+      else
+        local op = opener(sen)
+        if op and not anchor_e then
+          anchor_subject, anchor_e, opener_sen = op, sen.e, sen
+        elseif nwords >= 1 and nwords <= 14 then
+          local fw = clean:match("^%s*([%a][%w'’%-]*)")
+          local lead = fw and fw:lower()
+          local pronoun = lead and PRON_SUBJ[lead] or false
+          local fragment = nwords <= 6 and not pronoun and not clean:find("%d")
+          if fragment then
+            -- no capitalised word after the first (a named entity makes it a fact), no copula with a subject of its own
+            local k = 0
+            for w in clean:gmatch("[%a][%w'’%-]*") do
+              k = k + 1
+              if k > 1 and w:match("^%u") and not w:match("^%u+$") then fragment = false end
+            end
+          end
+          local established = bonus >= 0.8
+          if (pronoun or fragment) and (anchor_e or established) then
+            local decl = Style.declared(clean)
+            if #decl > 0 then
+              local cues = behavior_cues_in(clean)
+              if opener_sen then
+                add({ kind = "persona_declaration", s = opener_sen.s, e = opener_sen.e, subject = anchor_subject, via = "context", score = 3, evidence = { "named subject with descriptive sentences after it" },
+                  descriptors = Style.declared(text:sub(opener_sen.s, opener_sen.e):gsub('"[^"]*"', " ")), behavior_cues = {}, presentational = true })
+                opener_sen = nil
+              end
+              add({ kind = "style_spec", s = sen.s, e = sen.e, subject = anchor_subject, via = "context", score = 3.0, evidence = { (pronoun and "he / she clause" or "fragment") .. " after the persona's statement" },
+                descriptors = decl, behavior_cues = cues, presentational = #cues == 0 })
+              anchor_e = sen.e
+            end
+          end
+        end
+      end
+    end
+  end
+
   ---------------------------------------------------------------- behaviour directives (never presentational)
   -- an imperative / second-person / deontic clause carrying a behaviour cue that is not already part of a presentational statement
   do
@@ -19472,6 +19988,41 @@ function P.scan(text, opts)
       dedup[#dedup + 1] = o
       last_ex = (o.kind == "example") and o or nil
     end
+  end
+  -- one statement found by two passes (same extent, same kind) is one statement: the better-scored one stays, the descriptors of both are kept
+  do
+    local keep, by_range = {}, {}
+    for _, o in ipairs(dedup) do
+      if o.kind == "style_spec" or o.kind == "persona_declaration" then
+        local key = o.kind .. ":" .. o.s .. ":" .. o.e
+        local prev = by_range[key]
+        if prev then
+          local seen = {}
+          for _, d in ipairs(prev.descriptors or {}) do seen[d.id .. (d.negated and "!" or "")] = true end
+          local extra = {}
+          for _, d in ipairs(o.descriptors or {}) do if not seen[d.id .. (d.negated and "!" or "")] then extra[#extra + 1] = d end end
+          if (o.score or 0) > (prev.score or 0) then
+            local merged = {}
+            for _, d in ipairs(o.descriptors or {}) do merged[#merged + 1] = d end
+            local have = {}
+            for _, d in ipairs(merged) do have[d.id .. (d.negated and "!" or "")] = true end
+            for _, d in ipairs(prev.descriptors or {}) do if not have[d.id .. (d.negated and "!" or "")] then merged[#merged + 1] = d end end
+            o.descriptors = merged
+            for i, k in ipairs(keep) do if k == prev then keep[i] = o end end
+            by_range[key] = o
+          else
+            prev.descriptors = prev.descriptors or {}
+            for _, d in ipairs(extra) do prev.descriptors[#prev.descriptors + 1] = d end
+          end
+        else
+          by_range[key] = o
+          keep[#keep + 1] = o
+        end
+      else
+        keep[#keep + 1] = o
+      end
+    end
+    dedup = keep
   end
   res.items = dedup
   res.an = an
@@ -19804,7 +20355,8 @@ local FIELD_WORDS = {
     "human_input", "message", "utterance" }),
   speaker = set_of({ "speaker", "role", "from", "author", "sender", "who", "actor" }),
   example = set_of({ "example", "examples", "sample", "samples", "sample_reply", "sample_response", "sample_output", "example_reply", "example_response", "example_output", "example_utterance", "sample_utterance",
-    "demo", "catchphrase", "catchphrases", "quote", "quotes", "tagline", "signature_phrase", "example_dialogue", "sample_dialogue", "example_line", "sample_line" }),
+    "demo", "catchphrase", "catchphrases", "quote", "quotes", "tagline", "signature_phrase", "example_dialogue", "sample_dialogue", "example_line", "sample_line",
+    "first_mes", "first_message", "greeting", "mes_example", "example_messages", "alternate_greetings", "example_conversation", "sample_conversation" }),
   dialogue = set_of({ "dialogue", "dialog", "conversation", "conversations", "messages", "chat", "chats", "transcript", "turns", "history", "script", "dialogues" }),
 }
 local ROLE_ORDER = { "name", "system", "persona", "style", "example", "dialogue", "assistant", "user", "speaker" }
@@ -19863,8 +20415,11 @@ gate_words("voice", L.voice_verbs)
 gate_words("kind", L.persona_kinds)
 gate_words("intro", { "example", "examples", "sample", "samples", "instance", "e.g.", "eg", "like", "demo", "illustration", "catchphrase", "catchphrases", "quote", "quotes", "tagline", "typical", "follows" })
 gate_words("label", { "persona", "personality", "character", "tone", "voice", "style", "name", "role", "roleplay", "mood", "vibe", "register", "accent", "dialect", "mannerisms", "quirks", "traits", "temperament", "behavior", "behaviour" })
-local DESC = {}
-for _, d in pairs(L.descriptors) do for _, p in ipairs(d.declared or {}) do for w in p:lower():gsub("[%-_]", " "):gmatch("[%a']+") do DESC[w] = true end end end
+local DESC, DESC_ALL = {}, {}
+for _, d in pairs(L.descriptors) do for _, p in ipairs(d.declared or {}) do for w in p:lower():gsub("[%-_]", " "):gmatch("[%a']+") do DESC[w] = true; DESC_ALL[w] = true end end end
+-- imperative verbs of a style directive ("Be concise.", "Keep it chill.", "Make it sound excited.", "No emojis")
+local STYLE_IMP_WORDS = {}
+for _, w in ipairs({ "be", "stay", "remain", "keep", "sound", "seem", "use", "using", "avoid", "drop", "skip", "omit", "stop", "make", "write", "speak", "talk", "no", "without", "respond", "reply", "answer" }) do STYLE_IMP_WORDS[w] = true end
 -- words so common that they say nothing alone
 for _, w in ipairs({ "the", "a", "an", "of", "and", "to", "in", "is", "it", "no", "not", "never", "with", "without", "proper", "official", "nice", "sweet", "kind", "warm", "quiet", "digital", "extra", "positive", "happy", "western",
   "loud", "chill", "relaxed", "formal", "informal", "brief", "detailed", "thorough", "professional", "academic", "serious", "polite", "civil", "severe", "angry", "rude", "moody", "bitter", "dry", "play", "silly", "light", "dude",
@@ -19874,7 +20429,7 @@ for _, w in ipairs({ "dramatic", "dramatically", "theatrical", "melodramatic", "
   "lowercase", "exclamation", "emoji", "emojis", "grumpy", "pirate", "cowboy", "poetic", "robotic", "archaic", "uwu", "butler", "flamboyant", "sassy", "snarky", "cranky", "perky", "peppy", "upbeat", "hyper", "ellipsis", "ellipses",
   "stretches", "elongated", "terse", "verbose", "casual", "casually", "formally", "politely", "calmly", "friendly", "humorous", "playful", "whimsical", "stoic", "solemn", "gruff", "surly", "overdramatic", "over-dramatic" }) do STRONG_DESC[w] = true end
 
-local function needs_scan(text)
+local function needs_scan(text, persona_seen)
   local low = text:lower()
   -- placeholders and quotations
   local has_quote = low:find("[\"“”«]") ~= nil
@@ -19891,6 +20446,15 @@ local function needs_scan(text)
       if last and (GATE.label[last] or last == "example" or last == "examples" or last == "sample" or last == "samples" or last == "assistant" or last == "bot" or last == "ai" or last == "agent") then return true end
       pos, guard = c + 1, guard + 1
     end
+    -- "tone = sarcastic"
+    pos, guard = 1, 0
+    while guard < 400 do
+      local c = low:find("=", pos, true)
+      if not c then break end
+      local last = low:sub(math.max(1, c - 30), c - 1):match("([%a]+)%s*$")
+      if last and (GATE.label[last] or last == "bot" or last == "assistant" or last == "ai" or last == "agent") then return true end
+      pos, guard = c + 1, guard + 1
+    end
   end
   if low:find("supposed to", 1, true) or low:find("meant to", 1, true) or low:find("pretend", 1, true) or low:find("roleplay", 1, true) or low:find("role%-play") or low:find("role play", 1, true)
     or low:find("you are ", 1, true) or low:find("you're ", 1, true) or low:find("your name", 1, true) or low:find("act as ", 1, true) or low:find("behave as ", 1, true) or low:find("imagine you", 1, true)
@@ -19900,17 +20464,24 @@ local function needs_scan(text)
   end
   -- combinations of word classes
   local v, k, d, i, sd = false, false, false, false, false
+  local da, imp = false, false
   local n = 0
   for w in low:gmatch("[%a][%a']*") do
     n = n + 1
     if GATE.voice[w] then v = true end
     if GATE.kind[w] then k = true end
     if DESC[w] then d = true end
+    if DESC_ALL[w] then da = true end
+    if STYLE_IMP_WORDS[w] then imp = true end
     if STRONG_DESC[w] then sd = true end
     if GATE.intro[w] then i = true end
     if n > 4000 then break end
   end
   if v and (sd or (d and i) or has_quote) then return true end
+  -- a short statement about the assistant or an imperative with any declared descriptor ("the bot is in a good mood", "Be concise.", "no emojis pls"); scanning it costs next to nothing
+  if n <= 40 and da and (v or k or imp) then return true end
+  -- once a persona is established, a record about "he" / "she" with any declared descriptor may describe it
+  if persona_seen and da and n <= 120 then return true end
   -- a statement that ends in a colon / dash leaves its example to the next record ("Here is how Aria talks:")
   if (v or k) and low:find("[:%-—]%s*$") then return true end
   if k and sd then return true end
@@ -19943,13 +20514,7 @@ local function meta_like(text)
 end
 
 ---------------------------------------------------------------- utterance-likeness (for the paragraphs under "talks like this:")
-local function utterance_like(text)
-  local f = Style.measure(text)
-  if (f.n_words or 0) == 0 or f.n_words > 90 then return false end
-  if text:find('^%s*["“«]') then return true end
-  return f.caps_ratio >= 0.3 or f.excl_per_sentence >= 0.5 or f.emoji >= 1 or f.interjection_rate >= 5 or f.first_person_rate >= 6 or f.second_person_rate >= 6
-    or f.question_ratio >= 0.5 or f.ellipsis_ratio >= 0.3
-end
+local utterance_like = Style.utterance_like
 Pr.utterance_like = utterance_like
 
 ---------------------------------------------------------------- speaker-labelled transcripts: "User: ...", "Aria: ..."
@@ -19965,7 +20530,7 @@ local function parse_turns(text)
   local pos = 1
   while pos <= #text do
     local le = (text:find("\n", pos, true) or (#text + 1)) - 1
-    local line = text:sub(pos, le)
+    local line = text:sub(pos, le):gsub("%*%*", "  "):gsub("__", "  ")
     -- "User: ..." , "{{char}}: ..." , "<BOT>: ..." , "[Aria]: ..." (the brackets of a placeholder label are not part of the label)
     local lab, vs = line:match("^%s*[%-%*•]?%s*[%{%<%[]*([%a][%w _%.%-']-)[%}%>%]]*%s*:%s*()")
     if lab and #lab <= 28 and #line >= vs then
@@ -20042,8 +20607,9 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     segs[#segs + 1] = sg
     return sg
   end
-  if frole == "assistant" then seg("turn_assistant", 1, #text, "field:" .. f); return segs, items end
-  if frole == "user" then seg("turn_user", 1, #text, "field:" .. f); return segs, items end
+  -- a speaker column says whose words these are: the label stays on the segment, so that the speakers of the whole dataset can be told apart ("user" against "Kai")
+  if frole == "assistant" then seg("turn_assistant", 1, #text, "field:" .. f, ctx.speaker_norm and { speaker_norm = ctx.speaker_norm, speaker = ctx.speaker } or nil); return segs, items end
+  if frole == "user" then seg("turn_user", 1, #text, "field:" .. f, ctx.speaker_norm and { speaker_norm = ctx.speaker_norm, speaker = ctx.speaker } or nil); return segs, items end
   if frole == "other" then seg("turn_other", 1, #text, "speaker field", { speaker_norm = ctx.speaker_norm, speaker = ctx.speaker }); return segs, items end
   if frole == "name" then
     local nm = U.trim(text)
@@ -20071,7 +20637,19 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     if frole == "persona" then
       local trimmed = U.trim(text)
       local nwords = select(2, trimmed:gsub("%S+", ""))
-      if nwords <= 4 and not trimmed:find("[%.!%?]%s") and not trimmed:find("^[%l]") and not PERSONA_KIND[trimmed:lower()] then nm = trimmed:gsub("[%.,;]+$", "")
+      -- a name: a short run of capitalised words (particles aside), not an article + noun phrase ("A fortune teller")
+      local PARTICLE = { of = true, the = true, de = true, van = true, von = true, la = true, le = true, da = true, del = true, di = true, bin = true, al = true, ibn = true, ["and"] = false }
+      local name_like = nwords <= 4 and not trimmed:find("[%.!%?]%s")
+      if name_like then
+        local first = true
+        for w in trimmed:gmatch("%S+") do
+          local lw = w:lower():gsub("[%.,;]+$", "")
+          if first and (lw == "a" or lw == "an" or lw == "the" or lw == "my" or lw == "our") then name_like = false end
+          if not w:find("^[%u%d%[%{<]") and not PARTICLE[lw] then name_like = false end
+          first = false
+        end
+      end
+      if name_like and not PERSONA_KIND[trimmed:lower():gsub("[%.,;]+$", "")] then nm = trimmed:gsub("[%.,;]+$", "")
       else
         local lead, after = trimmed:match("^([%u][%w'’%-]*%s?[%u]?[%w'’%-]*)%s*([%a,%-—]*)")
         if lead then
@@ -20099,8 +20677,38 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
     if USER_SP[norm] or ASSIST_SP[norm] or SYSTEM_SP[norm] then known = true end
   end
   local labelled = #turns >= 2 and (repeated or known)
-  local res = needs_scan(text) and Persona.scan(text, { lex = ctx.lex, bonus = bonus }) or { items = {} }
+  -- one message per paragraph in a dataset whose records are chat turns
+  if not labelled and #turns >= 1 and ctx.chat_labels and ctx.chat_labels[turns[1].norm] and turns[1].line_s <= (text:find("%S") or 1) then labelled = true end
+  -- a lone "Aria: Hello hello!!! I am SO excited to meet you!!!" is something a character SAYS, not a statement about the persona
+  if not labelled and #turns == 1 and not ctx.chat_labels then
+    local t = turns[1]
+    local body = U.trim(text:sub(t.s, t.e))
+    local label_is_kind = PERSONA_KIND[t.norm] ~= nil
+    for w in t.norm:gmatch("%a+") do if PERSONA_KIND[w] then label_is_kind = true end end      -- "AI model: Nova - speaks formally ..." is a persona line
+    if not label_is_kind and not body:find('["“”]') and t.line_s <= (text:find("%S") or 1) and t.e >= #(text:gsub("%s+$", "")) and #t.label <= 20 and t.label:match("^%u") then
+      local f = Style.measure(body)
+      if (f.n_words or 0) >= 4 and (f.first_person_rate >= 6 or f.second_person_rate >= 6 or f.interjection_rate >= 5 or f.question_ratio >= 0.5) and utterance_like(body) then labelled = true end
+    end
+  end
+  -- "Example dialogue:" / "<START>" before the first turn: the turns illustrate the voice, they are not a conversation to learn facts from
+  local example_block = false
+  if labelled then
+    local before = text:sub(1, turns[1].line_s - 1):lower()
+    if before:find("example%s+dialog") or before:find("sample%s+dialog") or before:find("example%s+convers") or before:find("sample%s+convers") or before:find("example%s+chat")
+      or before:find("sample%s+chat") or before:find("example%s+exchange") or before:find("<start>") or before:find("mes_example") or before:find("example%s+messages") then example_block = true end
+  end
+  local res = needs_scan(text, profile.persona_seen) and Persona.scan(text, { lex = ctx.lex, bonus = bonus }) or { items = {} }
   local scanned = res.items
+  if example_block then
+    -- the turns of the block are examples in their own right (below); the scanner's list of "example lines" for the same text is dropped
+    local keep = {}
+    for _, it in ipairs(scanned) do
+      local inside = false
+      if it.kind == "example" then for _, t in ipairs(turns) do if it.s >= t.line_s and it.e <= t.e then inside = true end end end
+      if not inside then keep[#keep + 1] = it end
+    end
+    scanned = keep
+  end
   if labelled then
     for _, t in ipairs(turns) do
       if SYSTEM_SP[t.norm] then
@@ -20139,12 +20747,24 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
   end
   -- speaker-labelled turns
   if labelled then
+    -- the statement-like segments found so far (a turn that contains one is a turn with statements); few, unlike the turns
+    local stmt_segs = {}
+    for _, sg in ipairs(segs) do
+      if sg.role == "style_example" or sg.role == "anti_example" or sg.role == "style_spec" or sg.role == "persona_declaration" or sg.role == "behavior_directive" then stmt_segs[#stmt_segs + 1] = sg end
+    end
     for _, t in ipairs(turns) do
       local role = USER_SP[t.norm] and "turn_user" or (ASSIST_SP[t.norm] and "turn_assistant") or (SYSTEM_SP[t.norm] and "turn_system") or "turn_other"
+      if example_block and role ~= "turn_system" then
+        local it = { kind = "example", s = t.s, e = t.e, text = U.trim(text:sub(t.s, t.e)), via = "example_dialogue", speaker = t.label }
+        if role == "turn_assistant" or role == "turn_other" then items[#items + 1] = it end
+        seg("style_example", t.s, t.e, "turn of an example dialogue ('" .. t.label .. "')", { item = (role ~= "turn_user") and it or nil })
+        goto next_turn
+      end
       local overlaps = false
-      for _, sg in ipairs(segs) do
-        if sg.s <= t.e and sg.e >= t.s and (sg.role == "style_example" or sg.role == "anti_example" or sg.role == "style_spec" or sg.role == "persona_declaration"
-          or sg.role == "behavior_directive") and not (role == "turn_user") then overlaps = true end
+      if role ~= "turn_user" then
+        for _, sg in ipairs(stmt_segs) do
+          if sg.s <= t.e and sg.e >= t.s then overlaps = true break end
+        end
       end
       -- the statements and examples inside a turn stay segments of their own; the rest of the turn is the turn
       if not overlaps then seg(role, t.s, t.e, "speaker label '" .. t.label .. "'", { speaker = t.label, speaker_norm = t.norm })
@@ -20152,6 +20772,7 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
         -- a turn that contains a quoted example or statement still has its own voice (the remainder is a turn of that speaker)
         seg(role, t.s, t.e, "speaker label '" .. t.label .. "' (with statements)", { speaker = t.label, speaker_norm = t.norm, contains_statements = true })
       end
+      ::next_turn::
     end
   end
   -- a list of characters: "Aria: over-dramatic, loud" / "Bob: calm and formal" (needs a section about characters, or several such lines)
@@ -20166,7 +20787,10 @@ local function analyze_field(profile, rec, f, text, frole, ctx)
       if nm then
         local nl = nm:lower():gsub("%s+$", "")
         local desc = line:sub(vs)
-        if not LABELLED[nl] and not USER_SP[nl] and not ASSIST_SP[nl] and not SYSTEM_SP[nl] and not PERSONA_KIND[nl] and #Style.declared(desc) > 0 then
+        -- the part after the name must be a list of descriptors, not something the character says (no first or second person, a few words)
+        local fd = Style.measure(desc)
+        local descriptor_list = (fd.n_words or 0) <= 14 and (fd.first_person_rate or 0) < 6 and (fd.second_person_rate or 0) < 6
+        if not LABELLED[nl] and not USER_SP[nl] and not ASSIST_SP[nl] and not SYSTEM_SP[nl] and not PERSONA_KIND[nl] and descriptor_list and #Style.declared(desc) > 0 then
           lines_found[#lines_found + 1] = { name = U.trim(nm), s = pos + lead - 1, e = le, desc = desc }
         end
       end
@@ -20298,6 +20922,30 @@ function Pr.add_records(profile, records, opts)
     end
   end
   table.sort(speaker_fields)
+  -- a chat log with one message per paragraph ("User: ..." <blank line> "Aria: ..."): when most records begin with a speaker label and the labels repeat, each such record is a turn
+  local chat_labels
+  do
+    local lead, with_label, total = {}, 0, 0
+    for _, rec in ipairs(records) do
+      local f = (rec.text_fields or {})[1]
+      local text = f and rec.field_text and rec.field_text[f]
+      if type(text) == "string" and #text <= 20000 then
+        total = total + 1
+        local turns = parse_turns(text)
+        if turns[1] and turns[1].line_s <= (text:find("%S") or 1) then
+          lead[turns[1].norm] = (lead[turns[1].norm] or 0) + 1
+          with_label = with_label + 1
+        end
+      end
+    end
+    if with_label >= 4 and with_label >= 0.6 * total then
+      local repeated, known, nrep = {}, false, 0
+      for norm, n in pairs(lead) do
+        if n >= 2 then repeated[norm] = true; nrep = nrep + 1; if USER_SP[norm] or ASSIST_SP[norm] then known = true end end
+      end
+      if nrep >= 2 or (nrep == 1 and known) then chat_labels = repeated end
+    end
+  end
   for _, rec in ipairs(records) do
     local ra = { id = rec.id, segs = {}, items = {} }
     local hint = record_hint(rec)
@@ -20316,7 +20964,8 @@ function Pr.add_records(profile, records, opts)
         local frole = profile.field_roles[f]
         if frole == "dialogue" or frole == "speaker" then frole = nil end
         if sp_role and (frole == nil or frole == "user" or frole == "assistant") then frole = sp_role end
-        local ctx = { lex = opts.lex, hint = hint, speaker = sp_label, speaker_norm = sp_norm }
+        local ctx = { lex = opts.lex, hint = hint, speaker = sp_label, speaker_norm = sp_norm, chat_labels = chat_labels }
+        ra.len = (ra.len or 0) + #text
         local segs, items = analyze_field(profile, rec, f, text, frole, ctx)
         for _, sg in ipairs(segs) do ra.segs[#ra.segs + 1] = sg end
         for _, it in ipairs(items) do it.field = f; it.rec = rec.id; ra.items[#ra.items + 1] = it end
@@ -20328,7 +20977,9 @@ function Pr.add_records(profile, records, opts)
     local pending = profile.pending
     if pending and not has_example and #ra.segs == 0 then
       local text = rec.text or ""
-      if utterance_like(text) and not meta_like(text) then
+      -- the first record after "talk like this -- for example" is the sample whatever it looks like; later ones must read like utterances
+      local explicit = pending.strong and pending.n == 0 and (Style.measure(text).n_words or 0) > 0 and (Style.measure(text).n_words or 0) <= 90
+      if (utterance_like(text) or explicit) and not meta_like(text) then
         local f = (rec.text_fields or {})[1] or "text"
         local sg = { field = f, s = 1, e = #(rec.field_text[f] or text), role = pending.anti and "anti_example" or "style_example", via = "following record", text = text:sub(1, 400) }
         ra.segs[#ra.segs + 1] = sg
@@ -20337,6 +20988,10 @@ function Pr.add_records(profile, records, opts)
         pending.n = pending.n + 1
         if pending.n >= 3 then profile.pending = nil end
       else profile.pending = nil end
+    elseif has_example and pending then
+      -- the record is a sample on its own account (a section about examples, a quotation): the pointer has found one, the next record must read like an utterance
+      pending.n = pending.n + 1
+      if pending.n >= 3 then profile.pending = nil end
     elseif not has_example then
       profile.pending = nil
     end
@@ -20348,6 +21003,10 @@ function Pr.add_records(profile, records, opts)
       local tail = ftxt:sub(last_spec.e + 1):gsub("%s+$", "")
       local endc = ftxt:gsub("%s+$", ""):sub(-1)
       if tail == "" and (endc == ":" or endc == "-" or endc == "—") then profile.pending = { n = 0, anti = last_spec.item.negated or nil } end
+      -- the statement ends on "like this" / "for example" and nothing follows in its record: the sample is in the next record
+      if last_spec.item.example_pending then
+        profile.pending = { n = 0, anti = last_spec.item.negated or nil, strong = last_spec.item.example_pending.strong or nil }
+      end
     end
     -- "The assistant talks exactly like the line above.": the example is the record before
     do
@@ -20408,9 +21067,13 @@ function Pr.force_role(profile, rec, role)
   if not ra then return end
   local f = (rec.text_fields or {})[1] or "text"
   local text = rec.field_text[f] or rec.text or ""
-  ra.segs = { { field = f, s = 1, e = #text, role = role, via = "your instruction", text = text:sub(1, 400), forced = true } }
   ra.items = {}
-  if role == "style_example" then ra.items[1] = { kind = "example", s = 1, e = #text, text = text, via = "user_forced", field = f, rec = rec.id } end
+  if role == "knowledge" then
+    ra.segs = {}                       -- plain facts: nothing in the record is a persona, a style, an example or an instruction any more
+  else
+    ra.segs = { { field = f, s = 1, e = #text, role = role, via = "your instruction", text = text:sub(1, 400), forced = true } }
+    if role == "style_example" then ra.items[1] = { kind = "example", s = 1, e = #text, text = text, via = "user_forced", field = f, rec = rec.id } end
+  end
   profile.revision = profile.revision + 1
   profile.cache = nil
 end
@@ -20427,7 +21090,7 @@ end
 ---------------------------------------------------------------- what is not knowledge
 -- the segments that are never facts about the world, whatever their wording: instructions, examples, questions, descriptions of the dataset
 -- (behaviour directives are not in the list: the extractor flags the instruction-like sentences itself, keeps what they MENTION and extracts nothing from them)
-local NOT_KNOWLEDGE = set_of({ "style_spec", "style_example", "anti_example", "meta", "turn_user", "turn_other", "turn_system" })
+local NOT_KNOWLEDGE = set_of({ "style_spec", "style_example", "anti_example", "meta", "turn_user", "turn_other", "turn_system", "ignored" })
 
 -- is a segment of this role NOT read as knowledge?  (default rule, then the user's include / exclude)
 function Pr.excluded(sg, role, opts)
@@ -20496,6 +21159,34 @@ function Pr.pairs(profile, rec_id)
   if #out == 0 and #users > 0 and #users == #assistants then
     for i = 1, #users do out[#out + 1] = { q = users[i], a = assistants[i] } end
   end
+  -- instruction + input columns with one output column: the question is both, in order
+  if #out == 0 and #users > 1 and #assistants == 1 then
+    local parts = {}
+    for _, u in ipairs(users) do parts[#parts + 1] = u.text end
+    local q = { field = users[1].field, s = users[1].s, e = users[1].e, role = "turn_user", text_override = table.concat(parts, " ") }
+    out[1] = { q = q, a = assistants[1] }
+  end
+  -- one message per record (a chat log with a blank line between the turns): an assistant turn that opens its record answers the user turn that closes the record before it
+  if #out == 0 and #users == 0 and #assistants >= 1 and ra.segs[1] and role_of(profile, ra.segs[1]) == "turn_assistant" then
+    local pc = profile.pos_cache
+    if not pc or pc.rev ~= profile.revision then
+      pc = { rev = profile.revision, map = {} }
+      for i, rid in ipairs(profile.order) do pc.map[rid] = i end
+      profile.pos_cache = pc
+    end
+    local idx = pc.map[rec_id]
+    local prev = idx and idx > 1 and profile.recs[profile.order[idx - 1]]
+    if prev then
+      local last
+      for _, sg in ipairs(prev.segs) do
+        local r = role_of(profile, sg)
+        if r == "turn_user" then last = sg elseif r == "turn_assistant" then last = nil end
+      end
+      if last and last.text and last.text ~= "" then
+        out[1] = { q = { field = last.field, s = last.s, e = last.e, role = "turn_user", text_override = last.text }, a = assistants[1] }
+      end
+    end
+  end
   return out
 end
 
@@ -20522,7 +21213,10 @@ local function measure_samples(samples, implicit)
   if n >= 2 then
     for _, t in ipairs(samples) do
       local seen = {}
-      for _, d in ipairs(Style.describe(Style.measure(t))) do seen[FAMILY[d.id] or d.id] = true end
+      local f1 = Style.measure(t)
+      for _, d in ipairs(Style.describe(f1)) do seen[FAMILY[d.id] or d.id] = true end
+      -- a voice shows in a sample through any one of its markers ("Verily, good sir ..."): two distinct markers are asked of the whole text, not of every line
+      for v, info in pairs(f1.voices or {}) do if (info.hits or 0) >= 1 then seen[v] = true end end
       for k in pairs(seen) do per[k] = (per[k] or 0) + 1 end
     end
   end
@@ -20542,7 +21236,7 @@ local function aggregate(profile)
   local function get(key, subj, label)
     local p = by_key[key]
     if not p then
-      p = { key = key, declared = {}, examples = {}, anti_examples = {}, specs = 0, decls = 0, kinds = {}, sources = {}, assistant_texts = {}, labelled = nil }
+      p = { key = key, declared = {}, examples = {}, anti_examples = {}, specs = 0, decls = 0, kinds = {}, sources = {}, assistant_texts = {}, labelled = nil, idx = #order + 1 }
       by_key[key] = p
       order[#order + 1] = key
     end
@@ -20630,6 +21324,13 @@ local function aggregate(profile)
     local p = by_key[key]
     -- an ordinary noun ("Mr. Whiskers is a cat") is a persona only with corroboration
     local corroborated = p.specs > 0 or #p.examples > 0 or (p.strong_decls or 0) > 0 or (#p.assistant_texts > 0 and (p.decls > 0 or p.labelled))
+    -- an assistant nobody describes still has a voice when most of its answers show the same distinctive typography or markers: that voice is announced as inferred
+    if not corroborated and #p.assistant_texts >= 2 then
+      local texts = {}
+      for _, e in ipairs(p.assistant_texts) do texts[#texts + 1] = e.text end
+      local m = measure_samples(texts, true)
+      if #m > 0 then corroborated = true end
+    end
     if corroborated then
       local sample, explicit_sample = {}, false
       for _, e in ipairs(p.examples) do sample[#sample + 1] = e.text end
@@ -20654,7 +21355,7 @@ local function aggregate(profile)
         features = features, examples = p.examples, anti_examples = p.anti_examples, n_assistant_texts = #p.assistant_texts, sources = p.sources,
         evidence = { declarations = p.decls, specifications = p.specs, examples = #p.examples, assistant_texts = #p.assistant_texts },
         explicit = explicit, labelled = p.labelled, sample_kind = explicit_sample and "examples" or (#p.assistant_texts > 0 and "assistant_turns" or "none"),
-        n_samples = #sample,
+        n_samples = #sample, idx = p.idx,
       }
     end
   end
@@ -20662,7 +21363,7 @@ local function aggregate(profile)
     local ea = a.evidence.specifications * 3 + a.evidence.declarations * 2 + a.evidence.examples + math.min(a.evidence.assistant_texts, 3) * 0.1
     local eb = b.evidence.specifications * 3 + b.evidence.declarations * 2 + b.evidence.examples + math.min(b.evidence.assistant_texts, 3) * 0.1
     if ea ~= eb then return ea > eb end
-    return (a.name or a.name_placeholder or a.key) < (b.name or b.name_placeholder or b.key)
+    return (a.idx or 0) < (b.idx or 0)          -- equal evidence: the one the dataset introduces first
   end)
   return personas
 end
@@ -20684,7 +21385,18 @@ function Pr.kind(profile)
     persona = persona_seg / recs, turns = turns / recs, meta = (c.meta or 0) / recs, behavior = (c.behavior_directive or 0) / recs,
   }
   local n_known = 0
-  for _, ra in pairs(profile.recs) do if #ra.segs == 0 then n_known = n_known + 1 end end
+  local blocks = 0                      -- records that are mostly persona / style text: a sheet, as against one line buried among facts
+  for _, ra in pairs(profile.recs) do
+    if #ra.segs == 0 then n_known = n_known + 1
+    else
+      local covered = 0
+      for _, sg in ipairs(ra.segs) do
+        local r = role_of(profile, sg)
+        if r == "persona_declaration" or r == "style_spec" or r == "style_example" or r == "anti_example" then covered = covered + (sg.e - sg.s + 1) end
+      end
+      if covered > 0 and covered >= 0.5 * math.max(ra.len or 0, 1) then blocks = blocks + 1 end
+    end
+  end
   shares.knowledge = n_known / recs
   local kind
   local personas = Pr.personas(profile)
@@ -20692,7 +21404,9 @@ function Pr.kind(profile)
   for _, p in ipairs(personas) do if p.name or p.name_placeholder or p.kind then named = true end end
   if profile.pair_fields and ((c.turn_user or 0) > 0) then kind = "qa_pairs"
   elseif turns / recs >= 0.4 then kind = "dialogue_corpus"
-  elseif #personas > 0 and shares.knowledge < 0.5 then kind = named and "persona_sheet" or "style_guide"
+  -- a block that describes a character or a voice (two or more statements, examples or declarations) is a sheet / a guide next to whatever else the dataset holds;
+  -- one line buried among facts is a mixed dataset
+  elseif #personas > 0 and blocks >= 1 and (persona_seg >= 2 or shares.knowledge < 0.5) then kind = named and "persona_sheet" or "style_guide"
   elseif #personas > 0 or (c.style_example or 0) > 0 or (c.style_spec or 0) > 0 then kind = "mixed"
   else kind = "knowledge_base" end
   return kind, shares
@@ -21286,7 +22000,7 @@ local U = require("asi.nlu.util")
 local R = {}
 R.SCHEMA = "nlu.record/1"
 R.ENGINE = "asi-nlu"
-R.ENGINE_VERSION = "0.9.0"
+R.ENGINE_VERSION = "0.10.0"
 
 local S = {
   str = { type = "string" }, num = { type = "number" }, bool = { type = "boolean" }, tab = { type = "table" }, any = { type = "any" },
@@ -22810,7 +23524,15 @@ function Style.measure(text, opts)
   local nw = #ws
   f.n_words = nw
   local sents = an.sentences
-  local ns = math.max(#sents, nw > 0 and 1 or 0)
+  -- a "sentence" that is only an emoji or a mark after a terminal ("friend! 😎") is no sentence: it must not halve the exclamation marks per sentence
+  local ns_words = 0
+  for _, s in ipairs(sents) do
+    for z = s.first_tok, s.last_tok do
+      local t = an.tokens[z]
+      if t.kind == "word" or t.kind == "acronym" or t.kind == "abbrev" or t.kind == "number" or t.numeric then ns_words = ns_words + 1; break end
+    end
+  end
+  local ns = math.max(ns_words, nw > 0 and 1 or 0)
   f.n_sentences = ns
   if nw == 0 then return f end
   -- capitals: acronyms and the pronoun "I" are not shouting
@@ -22910,6 +23632,16 @@ function Style.measure(text, opts)
     f.voices[voice] = { rate = r, hits = n, distinct = d }
   end
   return f
+end
+
+-- does a short text read like something somebody SAYS in a voice (loud, exclamatory, emoji, interjections, first / second person, questions, trailing off, a quotation)?
+-- a descriptive cut-off on the measured form, used to decide which text under "talks like this:" is the sample
+function Style.utterance_like(text)
+  local f = Style.measure(text)
+  if (f.n_words or 0) == 0 or f.n_words > 90 then return false end
+  if text:find('^%s*["“«]') then return true end
+  return f.caps_ratio >= 0.3 or f.excl_per_sentence >= 0.5 or f.emoji >= 1 or f.interjection_rate >= 5 or f.first_person_rate >= 6 or f.second_person_rate >= 6
+    or f.question_ratio >= 0.5 or f.ellipsis_ratio >= 0.3
 end
 
 ---------------------------------------------------------------- descriptors supported by measured features
@@ -23024,6 +23756,16 @@ function Style.declared_match(words, i)
   if len then local term = table.concat(ph, " "); return len, D.owner[term], term end
 end
 
+local CAPS_TERMS = {}
+for _, t in ipairs({ "capitals", "capital letters", "caps", "uppercase", "upper case", "in caps", "with caps", "using caps", "capitalised", "capitalized" }) do CAPS_TERMS[t] = true end
+local CAPS_WHEN = {}
+for _, t in ipairs({ "worked", "excited", "angry", "upset", "enthusiastic", "dramatic", "emphatic", "thrilled", "agitated" }) do CAPS_WHEN[t] = true end
+local SHORT_WORDS = {}
+for _, t in ipairs({ "short", "brief", "concise", "terse", "curt", "clipped", "telegraphic", "snappy", "succinct" }) do SHORT_WORDS[t] = true end
+local SAID_THINGS = {}
+for _, t in ipairs({ "replies", "reply", "answers", "answer", "responses", "response", "sentences", "sentence", "messages", "message", "lines", "statements", "remarks", "orders", "phrases",
+  "output", "outputs", "it", "things" }) do SAID_THINGS[t] = true end
+
 -- returns a list of { id, negated, term, word_index } in text order
 function Style.declared(text)
   local out = {}
@@ -23042,10 +23784,45 @@ function Style.declared(text)
         if cl[k] == cl[i] and match_at(D.neg, ws, k) then negated = true end
       end
       -- "instead of shouting": the negator covers what follows it
+      -- capitals for emphasis: "words in CAPITALS", "CAPITAL LETTERS when he gets worked up", "caps now and then" are capitalised emphasis, not a voice that is ALL CAPS
+      if id == "all_caps" and CAPS_TERMS[term] then
+        local emph = false
+        for k = i + len, math.min(#ws, i + len + 5) do
+          if cl[k] ~= cl[i] then break end
+          local w1, w2 = ws[k], ws[k + 1]
+          if (w1 == "for" and (w2 == "emphasis" or w2 == "effect")) or w1 == "sometimes" or w1 == "occasionally" or w1 == "emphasis" or (w1 == "now" and w2 == "and") or (w1 == "at" and w2 == "times")
+            or (w1 == "when" and ws[k + 2] and ws[k + 3] and (CAPS_WHEN[ws[k + 2]] or CAPS_WHEN[ws[k + 3]] or CAPS_WHEN[ws[k + 4] or ""])) or (w1 == "on" and (w2 == "key" or w2 == "important" or w2 == "some")) then emph = true end
+        end
+        if not emph then
+          for k = math.max(1, i - 6), i - 1 do
+            if cl[k] == cl[i] and (ws[k] == "words" or ws[k] == "word") then emph = true end
+            if cl[k] == cl[i] and (ws[k] == "all" or ws[k] == "everything" or ws[k] == "entire" or ws[k] == "whole" or ws[k] == "every" or ws[k] == "always") then emph = false; break end
+          end
+        end
+        if emph then id = "caps_emphasis" end
+      end
       out[#out + 1] = { id = id, negated = negated, term = term, word_index = i }
       i = i + len
     else i = i + 1 end
   end
+  -- "keep every sentence short", "short flat robotic sentences", "replies short and dry": a word for brevity near a word for something said is terseness whichever way round they stand
+  for i = 1, #ws do
+    if SHORT_WORDS[ws[i]] then
+      for j = math.max(1, i - 3), math.min(#ws, i + 3) do
+        if j ~= i and cl[j] == cl[i] and SAID_THINGS[ws[j]] then
+          local near = false
+          for _, o in ipairs(out) do if o.id == "terse" and math.abs(o.word_index - i) <= 4 then near = true end end
+          if not near then
+            local negated = false
+            for k = math.max(1, i - 3), i - 1 do if cl[k] == cl[i] and match_at(D.neg, ws, k) then negated = true end end
+            out[#out + 1] = { id = "terse", negated = negated, term = ws[i] .. " " .. ws[j], word_index = i }
+          end
+          break
+        end
+      end
+    end
+  end
+  table.sort(out, function(a, b) return a.word_index < b.word_index end)
   return out
 end
 
@@ -25737,20 +26514,46 @@ function V.personas(kb)
       for _, p in ipairs(Profile.personas(pr)) do p.dataset = did; out[#out + 1] = p end
     end
   end
+  -- the order: most evidence first; equal evidence keeps the order of the datasets and, inside one, the order in which the dataset introduces its personas
+  for i, p in ipairs(out) do p.order = i end
   table.sort(out, function(a, b)
     local ea = a.evidence.specifications * 3 + a.evidence.declarations * 2 + a.evidence.examples
     local eb = b.evidence.specifications * 3 + b.evidence.declarations * 2 + b.evidence.examples
     if ea ~= eb then return ea > eb end
-    return (a.name or a.name_placeholder or a.key) < (b.name or b.name_placeholder or b.key)
+    return a.order < b.order
   end)
   return out
 end
 
 -- lower-case name -> name, for the recogniser of "play Bob instead"
+-- the names a user may call a persona by: its full name, each word of it that is not a title ("Flint" for "Captain Flint"), and "the <title>" ("the captain") when that picks exactly one
+local TITLE_WORDS = { captain = true, count = true, countess = true, lady = true, lord = true, sir = true, dame = true, professor = true, doctor = true, dr = true, mr = true, mrs = true, ms = true,
+  miss = true, king = true, queen = true, prince = true, princess = true, duke = true, duchess = true, baron = true, general = true, colonel = true, sergeant = true, nurse = true, old = true,
+  young = true, little = true, big = true, the = true, of = true, de = true, von = true, van = true, da = true, la = true, le = true, saint = true, st = true }
 function V.persona_names(kb)
   local names
-  for _, p in ipairs(V.personas(kb)) do
-    if p.name then names = names or {}; names[p.name:lower()] = p.name end
+  local ps = {}
+  for _, p in ipairs(V.personas(kb)) do if p.name then ps[#ps + 1] = p end end
+  for _, p in ipairs(ps) do names = names or {}; names[p.name:lower()] = p.name end
+  -- aliases, kept only when they point at one persona
+  local owners = {}
+  for _, p in ipairs(ps) do
+    local words = {}
+    for w in p.name:lower():gmatch("[%a][%a'’%-]*") do words[#words + 1] = w end
+    if #words >= 2 then
+      for _, w in ipairs(words) do
+        local alias = TITLE_WORDS[w] and ("the " .. w) or w
+        if #w >= 3 and not (TITLE_WORDS[w] and alias == w) then
+          owners[alias] = owners[alias] or {}
+          owners[alias][p.name] = true
+        end
+      end
+    end
+  end
+  for alias, set in pairs(owners) do
+    local only, count = nil, 0
+    for nm in pairs(set) do only, count = nm, count + 1 end
+    if count == 1 and not (names and names[alias]) then names = names or {}; names[alias] = only end
   end
   return names
 end
@@ -25806,6 +26609,30 @@ function V.effective(personas, st, opts)
     -- a declared negation ("never shouts") removes what the examples would suggest
     for _, d in ipairs(chosen.descriptors or {}) do
       if d.negates and map[d.negates] then remove(d.negates, "the dataset says the persona does not do this") end
+    end
+  end
+  -- the facts of the dataset are written in the voice it declares: its typography belongs to the persona ("everything is shouted!!!" and every fact in capitals with exclamation marks)
+  if chosen and opts.data_style and not st.persona.off then
+    local TYPO = { all_caps = true, caps_emphasis = true, exclamatory = true, emoji = true, elongation = true, ellipsis = true }
+    local LOUD = { all_caps = true, caps_emphasis = true, exclamatory = true, dramatic = true, enthusiastic = true, elongation = true, emoji = true }
+    local loud = false
+    for id in pairs(map) do if LOUD[id] then loud = true end end
+    if loud then
+      for _, d in ipairs(opts.data_style) do
+        if TYPO[d.id] and not map[d.id] and (d.strength or 0) >= 0.3 then
+          local clash = false
+          for id in pairs(map) do for _, x in ipairs(L.excludes[id] or {}) do if x == d.id then clash = true end end end
+          for _, cd in ipairs(chosen.descriptors or {}) do if cd.id == "not_" .. d.id then clash = true end end
+          if not clash then
+            local c = copy_desc(d)
+            c.source, c.basis = "measured", "dataset_text"
+            c.strength = math.min(d.strength or 0.5, 0.7)
+            c.label = c.label or label_of(d.id)
+            c.evidence = (d.evidence or "") .. " -- measured from the facts of the dataset, which are written in this voice"
+            put(c)
+          end
+        end
+      end
     end
   end
   local function exclude_of(id, why)
@@ -25874,6 +26701,12 @@ function V.effective(personas, st, opts)
     elseif v == "drop" then
       if map[id] then remove(id, "you asked to drop it") else eff.op_notes[#eff.op_notes + 1] = { text = "'" .. label_of(id) .. "' was not part of the voice", turn = t.turn } end
     end
+  end
+  -- a descriptor that a later instruction put back ("go back to the dataset's tone") was not dropped in the end
+  do
+    local keep = {}
+    for _, d in ipairs(eff.dropped) do if not map[d.id] then keep[#keep + 1] = d end end
+    eff.dropped = keep
   end
   local listed = {}
   for _, id in ipairs(order) do
@@ -26250,7 +27083,7 @@ function V.build(kb, items, opts)
   local wants_data_style = false
   for _, t in ipairs(st.tone) do if t.verb == "data_style" then wants_data_style = true end end
   local dstyle
-  if kb and kb.data_style and (wants_data_style or opts.force) then
+  if kb and kb.data_style and (wants_data_style or opts.force or #personas > 0) then
     for _, did in ipairs(kb.dataset_order or {}) do
       local ds = kb:data_style(did)
       if ds and (not dstyle or ds.n_samples > dstyle.n_samples) then dstyle = ds end
@@ -27251,12 +28084,14 @@ L.descriptors = {
     "sweet", "gentle", "amiable", "personable", "good natured" } },
   enthusiastic = { label = "enthusiastic", group = "attitude", declared = {
     "enthusiastic", "enthusiastically", "enthusiasm", "excitement", "excited", "energetic", "upbeat", "cheerful", "cheerfully", "bubbly", "peppy", "joyful", "perky", "chipper",
-    "positive", "optimistic", "sunny", "high energy", "eager", "animated", "lively", "exuberant", "zealous", "hyper", "happy", "gleeful" } },
+    "positive", "optimistic", "sunny", "high energy", "eager", "animated", "lively", "exuberant", "zealous", "hyper", "happy", "gleeful",
+    "good mood", "great mood", "happy mood", "excellent mood", "fantastic mood", "high spirits", "cheery", "ecstatic", "thrilled", "overjoyed" } },
   dramatic = { label = "dramatic", group = "attitude", declared = {
     "dramatic", "dramatically", "over dramatic", "overdramatic", "overly dramatic", "melodramatic", "theatrical", "theatrically", "over the top", "ott",
     "flamboyant", "histrionic", "grandiose", "hammy", "diva", "dramatic flair", "dramatic flourish", "extravagant", "operatic", "exaggerated", "exaggerates", "drama", "dramatics",
     "theatrics", "theatricality", "melodrama", "histrionics",
-    "hyperbolic", "extra", "sensational", "larger than life", "bombastic", "ostentatious", "makes everything a big deal", "dramatises", "dramatizes" } },
+    "hyperbolic", "extra", "sensational", "larger than life", "bombastic", "ostentatious", "makes everything a big deal", "dramatises", "dramatizes",
+    "drama queen", "drama king", "theatre kid", "theater kid" } },
   sarcastic = { label = "sarcastic", group = "attitude", declared = {
     "sarcastic", "sarcastically", "sarcasm", "snark", "snarky", "sardonic", "dry wit", "ironic", "ironically", "deadpan", "cynical", "mocking", "sassy", "smart alecky",
     "wry", "tongue in cheek", "cheeky", "biting", "caustic" } },
@@ -27267,10 +28102,11 @@ L.descriptors = {
     "serious", "solemn", "stern", "grave", "somber", "sombre", "stoic", "severe", "earnest", "no nonsense", "sober" } },
   calm = { label = "calm", group = "attitude", opposite = "dramatic", declared = {
     "calm", "calmly", "soothing", "soft spoken", "peaceful", "tranquil", "serene", "mellow", "measured", "composed", "level headed", "gentle", "quiet",
-    "unhurried", "placid", "reassuring", "zen" } },
+    "unhurried", "placid", "reassuring", "zen", "softly", "quietly", "hushed", "shy", "timid", "bashful", "meek" } },
   grumpy = { label = "grumpy", group = "attitude", declared = {
     "grumpy", "grouchy", "cranky", "irritable", "angry", "annoyed", "gruff", "surly", "crabby", "curmudgeon", "curmudgeonly", "bad tempered", "moody",
-    "rude", "hostile", "impatient", "irritated", "snappy", "sullen", "bitter", "short tempered" } },
+    "rude", "hostile", "impatient", "irritated", "snappy", "sullen", "bitter", "short tempered",
+    "bad mood", "foul mood", "terrible mood", "sour mood", "grump", "grouch", "complains", "complaining", "whiny", "whining" } },
   poetic = { label = "poetic", group = "voice", declared = {
     "poetic", "lyrical", "flowery", "metaphorical", "rhyming", "rhymes", "rhyme", "in verse", "speaks in rhyme", "eloquent", "florid", "romantic", "figurative", "haiku", "poetry", "sonnets", "limericks" } },
   robotic = { label = "robotic", group = "voice", declared = {
@@ -27364,12 +28200,26 @@ L.supposed_forms = { "supposed", "meant", "designed", "programmed", "intended", 
   "loves", "prefers", "known", "type", "supposed to", "meant to", "is to", "are to", "can", "could", "may", "might", "never", "only", "just", "gotta", "gonna" }
 
 -- introducers of examples ("for example", "like this:", "e.g.")
-L.example_intros = { "for example", "for instance", "e.g.", "eg", "like this", "like so", "such as", "as in", "sample", "samples", "example", "examples", "here is an example",
+L.example_intros = { "for example", "for instance", "e.g.", "e.g", "eg", "like this", "like so", "such as", "as in", "sample", "samples", "example", "examples", "here is an example",
   "here's an example", "here are some examples", "something like", "goes like", "goes like this", "it goes", "it says", "he says", "she says", "they say", "sounds like",
   "would say", "might say", "will say", "says things like", "talks like this", "talk like this", "speaks like this", "responds like this", "replies like this", "answers like this",
   "as follows", "the following", "sample reply", "sample response", "sample answer", "example response", "example reply", "example answer", "example dialogue", "sample dialogue",
   "here is how", "here's how", "this is how", "that is how", "that's how", "in action", "demonstration", "demo", "illustration", "illustrates", "quote", "quotes", "catchphrase",
   "catchphrases", "signature line", "signature phrase", "tagline", "typical line", "typical lines", "typical reply", "typical response", "for sample" }
+
+-- introducers that point at a SAMPLE OF THE VOICE (as against "the following", "such as", "as follows", which may introduce anything): a statement that ends on one of
+-- these has its sample in the text that comes next
+L.sample_intros = { "for example", "for instance", "e.g.", "e.g", "eg", "like this", "like so", "this way", "in this way", "in this manner" }
+
+-- phrases that mark a sentence as report or narration about somebody ("..., according to the minutes"), not as a statement about how the assistant must talk
+L.narrative_cues = { "according to", "reportedly", "allegedly", "is said to", "was said to", "were said to", "as reported", "in the minutes", "the minutes", "witnesses", "reporters",
+  "the report", "the newspaper", "in the article", "in his biography", "in her biography", "was described as", "were described as", "is described as", "was reported", "have been described",
+  "in the interview", "in the transcript", "the court", "the senator", "the judge", "the committee" }
+
+-- words after "like / as / in" that never begin a voice: "respond as follows", "write as needed", "reply as usual"
+L.not_voice_words = { "follows", "such", "usual", "needed", "appropriate", "necessary", "possible", "required", "shown", "stated", "described", "specified", "noted", "mentioned",
+  "listed", "instructed", "directed", "requested", "expected", "intended", "planned", "well", "much", "many", "few", "little", "least", "most", "long", "short", "quickly", "soon",
+  "before", "previously", "earlier", "now", "above", "below", "per", "otherwise", "normal", "normally", "usually" }
 
 -- "talk LIKE / AS / IN ..." connectors
 L.manner_words = { "like", "as", "in", "with", "using", "via", "through", "by" }
@@ -27645,15 +28495,15 @@ return [[
 end
 
 package.preload["asi.nlu.manifest"] = function(...)
-return { version = "0.9.0", body_sha256 = "e030c0bf018a005b6ec9fbd00016fde0c328727b24dcfd9aa2f48e1249bc7ef0", modules = {
-  { name = "asi.nlu.assertions", bytes = 57393, sha256 = "d6a919aa17ed054d03ebbe3272fbec39038a94d482b9b56a92a217371153b539" },
+return { version = "0.10.0", body_sha256 = "132ae34496ce9861b11413b9764406befc9872b99bce6b476e5e5f7ae965e4c7", modules = {
+  { name = "asi.nlu.assertions", bytes = 57954, sha256 = "eaf6c6cb91c51727c2f8f0c76aa9868c92bed8c3c9f81e066c94278f30908f0a" },
   { name = "asi.nlu.assertions2", bytes = 45375, sha256 = "c3935eb4996c1d3434b2ea952744c5b56bf7a060c8581e973f27564eff070846" },
   { name = "asi.nlu.baseline", bytes = 9356, sha256 = "1f232ddce211e0b3d79ce16b403224a68762cc29fc62f3cb2f4922482878baf5" },
   { name = "asi.nlu.calibration", bytes = 13794, sha256 = "08663074ffe0225c6488f4c09cf2337f997789c4ffebbbd336b31d7f95a4b6b6" },
   { name = "asi.nlu.cli", bytes = 20558, sha256 = "ccfd9ae61a36306357ea5a6de293239d13152f430848fc2386d422ddeaa41bfb" },
   { name = "asi.nlu.constraints", bytes = 20647, sha256 = "d8d52f156c534079a17b3837a54201a983d88995b6c0a2fe546fea0007800764" },
   { name = "asi.nlu.coref", bytes = 47112, sha256 = "654311b09944e4359bcc90d66ff70bf9ffb7850e38d72130b2c07d4ccd953dd3" },
-  { name = "asi.nlu.dataset", bytes = 30905, sha256 = "5ea87a903a359038ce3b01a4bf91d096237f7bb0d96f179edae2441e7447d323" },
+  { name = "asi.nlu.dataset", bytes = 33248, sha256 = "7c7e39a2c598772bcd16a90b872ad3b3aa07753885ffa582e019420a110e2976" },
   { name = "asi.nlu.engine", bytes = 7794, sha256 = "7ff8c822718f96101966c1f93bc87d229d754a3f2ce71f8b74cc692a245fadfc" },
   { name = "asi.nlu.eval", bytes = 26830, sha256 = "52487ed32207cedc36d4a5ab49c765fd14f4456126807b0c23da71352b49e620" },
   { name = "asi.nlu.frames", bytes = 48972, sha256 = "f6fdafd9867f8fcb54e6f5e9c2f006a12916906855cc3e654e3f90488d66c8dc" },
@@ -27661,44 +28511,44 @@ return { version = "0.9.0", body_sha256 = "e030c0bf018a005b6ec9fbd00016fde0c3287
   { name = "asi.nlu.frames3", bytes = 55890, sha256 = "40a3cfe4cabaf5646799921bcc289b9c2f4580ad55848842aa243646b900102a" },
   { name = "asi.nlu.frames4", bytes = 51903, sha256 = "d829aecda1d725c3a6c1ddf549de031f02f165769f5014bcdc4365343f7f6f08" },
   { name = "asi.nlu.frames5", bytes = 3383, sha256 = "1745efb104635ddd3f6888c48e99f09a592cbbaeecd121f52319053e45a45697" },
-  { name = "asi.nlu.hook", bytes = 2673, sha256 = "1fd2c30a2cb762d1ab7da52a5cc73b0656b5fd89568e55c6cf75edc130a925fc" },
+  { name = "asi.nlu.hook", bytes = 3403, sha256 = "de901792727839a6cfab046fba4530f0bb5d3b1395adcf31e3505d07517c28aa" },
   { name = "asi.nlu.hyp", bytes = 23165, sha256 = "31fd02d8af7de6c0a2849cf47a24968750b8aa489bfb3ba9136ec158d39a67d3" },
-  { name = "asi.nlu.index", bytes = 10300, sha256 = "856e3f358a9a19f86a88044b5ab4194b436a7e1b74de56f6b0c9e075cd8832f2" },
+  { name = "asi.nlu.index", bytes = 10387, sha256 = "8e7d31f4471c2c2457d072b04e9f1d1bdae70fbf4b0b37eb5cda22b7767d30d2" },
   { name = "asi.nlu.interp", bytes = 17074, sha256 = "907031c49c90dc52b9ac8b61cc1f7d0b160a946cf2f8732f9d5a89d53210a2dc" },
-  { name = "asi.nlu.knowledge", bytes = 25685, sha256 = "5e6fe3fba9702c0a5bef052f205cfbd5d5d0afa6c38db1de0e55c7a09c9fc955" },
+  { name = "asi.nlu.knowledge", bytes = 26559, sha256 = "a7aefd873adcfd4ebd643db84f86f942ff23014b60672fde41b6e119cbefddb6" },
   { name = "asi.nlu.lattice", bytes = 23843, sha256 = "cf966ebe8edec1ca8f67b7fcd3f63cb428ac27396f02652b05999d4907608219" },
-  { name = "asi.nlu.lex", bytes = 50530, sha256 = "e7aacb58570dd840ec1d99265023b80ba0dce1668efcadea2ef55f46427f5d96" },
+  { name = "asi.nlu.lex", bytes = 52410, sha256 = "47e3997ae6f96578fd2050380504c158f791daff4b3275c4db3e8053eb0a68f1" },
   { name = "asi.nlu.lexicon", bytes = 34989, sha256 = "dff3eb97be9ff02d9f308af40baa8900dd2f5910187bf7ab4c3a673e0b9cf05a" },
   { name = "asi.nlu.longctx", bytes = 18616, sha256 = "11ba9f6294a918f9756232c6f6c56b0efd87a91a45d30014ff03278f2d898831" },
   { name = "asi.nlu.memory", bytes = 47479, sha256 = "769675a3375cdb6f5e1dee9951731ec148cf44a83f9b3edeb37e60501b7d2908" },
   { name = "asi.nlu.morph", bytes = 11500, sha256 = "2aa4fef51598f666276ef5dc2ddce5bf51fba058444f1d6e45c9040742b3b2d1" },
-  { name = "asi.nlu.override", bytes = 33411, sha256 = "52e182ce818a9edfbb1eeebe32dfb92544a8459c5cae8009b6f0e77733fbc8f5" },
+  { name = "asi.nlu.override", bytes = 33505, sha256 = "831ed5a189a1fd2bb95d46663402e078a33b789eb03302b7fda13b8860c3805c" },
   { name = "asi.nlu.package", bytes = 22058, sha256 = "4883bf0172a2e47e642cea596ad50c2bb85347100e0ce61f5a26fe303f773aed" },
   { name = "asi.nlu.parse", bytes = 100929, sha256 = "3ac2f0874a32aea06b7d90311e38a3e3d303ae7b9d7f04661bea76cb25c44d40" },
-  { name = "asi.nlu.persona", bytes = 62220, sha256 = "a5a78e1b56d72fc9aacf188e9d9c61357605814831f0fdc4e0f3a38ee27e6096" },
+  { name = "asi.nlu.persona", bytes = 89370, sha256 = "2f2b855767c6883397ce13ca4f91eb274c671ad4e27fd1d0a2d63adb54ac34db" },
   { name = "asi.nlu.perturb", bytes = 5264, sha256 = "77af06b03ccd50e0dccf3857278d682196d86f7c08edb977c39653099b15e4ca" },
   { name = "asi.nlu.plan", bytes = 8073, sha256 = "f0d06bc680534813a7e6c65ae92a753177d5895a2e17a542dfc474a14b13aaa0" },
-  { name = "asi.nlu.profile", bytes = 54452, sha256 = "08e8760f60f86bff7ad4c26e4dbd80f6cf72af2189e2c5025952af2409e111df" },
+  { name = "asi.nlu.profile", bytes = 65245, sha256 = "e01f8031211b16e127f7da1cf3a170a54cb6bce3a8481e384fc65a31d825e7cf" },
   { name = "asi.nlu.qa", bytes = 7940, sha256 = "257a35a4da02218ac78049f65bab228abdfbdbf7fc0024ee6ec0d7620e61454b" },
   { name = "asi.nlu.rbench", bytes = 22681, sha256 = "8d7dd43783e912b5d0b294029920ce3019435bfa62283c0e02c5efa5cbd5b3ce" },
-  { name = "asi.nlu.record", bytes = 22108, sha256 = "a0415d4edae6dcc2995abfa08e8a087826a2256ef551530ff85701558d398574" },
+  { name = "asi.nlu.record", bytes = 22109, sha256 = "8ca3b90161b996c95c46b3ae5938c9533e6d1caa7fdd9c5a985423e996efa1ee" },
   { name = "asi.nlu.repair", bytes = 10500, sha256 = "14436d03d269338fb7a1297093d8cf3f22c2d5bca102ce809ac8f6400fd80431" },
   { name = "asi.nlu.resources", bytes = 802, sha256 = "cb534724597215aefc87724e616136bdd513273bc60037b157183bdbe86fb7e8" },
   { name = "asi.nlu.sem", bytes = 43063, sha256 = "81bd1fc3e52db4863d099be8af86b117a30ddbcc37767f528c85572f7dcd2d57" },
   { name = "asi.nlu.spell", bytes = 6330, sha256 = "ad187dc325f7786de687fc44c23c9fb67a9737c57505c73370bc1a4fda0bb3f8" },
-  { name = "asi.nlu.style", bytes = 23099, sha256 = "0b9e197bf6d54bac524d8adae8f2bc04d4cb618fbb50c242b9255745af710f10" },
+  { name = "asi.nlu.style", bytes = 27263, sha256 = "f4bc23404c22de92a7a975fdcf6e82d1785e9247611812c033bac9d18b0b5b79" },
   { name = "asi.nlu.temporal", bytes = 39911, sha256 = "cffd7d5265fd73ce18e7ca41db1e186b9f67662e16c9c97c38e5206f15ffba95" },
   { name = "asi.nlu.textutil", bytes = 2292, sha256 = "66657a87c2a74d210425b7c5b539445d5c8b6a9e9664a76a9a7fea15eb134149" },
   { name = "asi.nlu.unicode", bytes = 17174, sha256 = "a59dc884903d9e05f1be47d193a879e3c25d5b6c381bd203b7358c7a48b20b0b" },
   { name = "asi.nlu.util", bytes = 21159, sha256 = "391e67a78b13368a4be4028659bc45babecbdd7ff24aa761d00ad68dd38aaa8f" },
   { name = "asi.nlu.verify", bytes = 45355, sha256 = "10c17c2c57db7f77dbac6755742ad4e275d318d21adb235fd37a751d80ab305d" },
-  { name = "asi.nlu.voice", bytes = 37367, sha256 = "fdfd90259a371f7b064956c2014ec527d7f9f388db462d833e84629d865127f5" },
+  { name = "asi.nlu.voice", bytes = 40751, sha256 = "224cb4f93bc225980312776a05fb49fbb7e90fdfb5864680d94fc51d3ba77e93" },
   { name = "asi.nlu.data.lex_core", bytes = 36944, sha256 = "3f0be579f6966a92ccd702673d65826fe403c8eb111fba26edef8c8250a03be7" },
   { name = "asi.nlu.data.lex_gaz", bytes = 10088, sha256 = "ca3e80c7c6004cd4f327403bb4ee58a1d925771ae23f0090ce840aec3febe6dc" },
   { name = "asi.nlu.data.lex_rel", bytes = 12986, sha256 = "cff1dc0091e859aef06cea77af958c5d7828d18f7da4217019c150ded44f51f5" },
   { name = "asi.nlu.data.lex_sense", bytes = 6101, sha256 = "1eb7fefd5771778cc97bcbfe9224a84ec8fa085f38d8090238f123042831418e" },
   { name = "asi.nlu.data.lex_typenoun", bytes = 6425, sha256 = "3fd5d839b2e1cc2b837aadac26173afd252046bd06c84c7230d4d8ee3fd66482" },
-  { name = "asi.nlu.data.style_lex", bytes = 39597, sha256 = "de037009d2d26dbcead0bd493477f1c5e8ff8670fa575c552eafd7f736a8acb7" },
+  { name = "asi.nlu.data.style_lex", bytes = 41592, sha256 = "dbd834a316bb60aebe1ead851b18ec3464c377633bce087766998514ab0ae121" },
   { name = "asi.nlu.data.cal_interp_v1", bytes = 2171, sha256 = "e166028d7769b203f3582286108b1915263e0a5b1e9f3c7e2f44f05a70018df7" },
 } }
 end

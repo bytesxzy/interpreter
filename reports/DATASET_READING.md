@@ -93,7 +93,7 @@ never made facts ("count the instructions as facts" is refused and said so).
 
 Status vocabulary: *Verified* = a passing automated test; *Measured* = a number with its source; *Unproven* = no independent evidence.
 
-**Verified.** `lua5.4 tests/run_all.lua`: 144 tests, 0 failed (24 of them in `tests/test_profile.lua`: the user's own example in eleven layouts, casual phrasings, chat logs with one message
+**Verified.** `lua5.4 tests/run_all.lua`: 144 tests, 0 failed (23 of them in `tests/test_profile.lua`: the user's own example in eleven layouts, casual phrasings, chat logs with one message
 per paragraph, decoys that must not become personas, invariance of the facts across personas / voices / formats, overrides in order, hostile records, fuzz, scale). The gold sets of the
 earlier work (`--split dev`, `--split val`, regression A-J, the burned blind sets) give the same results before and after every change of this work.
 
