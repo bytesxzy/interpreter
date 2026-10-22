@@ -1,0 +1,97 @@
+dataset cases: n=40  all-checks accuracy=0.325 [0.201,0.480]
+  answers                 94/109 = 0.862 [0.785,0.915]
+  descriptor_exclusion    66/70  = 0.943 [0.862,0.978]
+  descriptor_recall       44/55  = 0.800 [0.676,0.884]
+  facts                  103/129 = 0.798 [0.721,0.859]
+  flagged                  6/7   = 0.857 [0.487,0.974]
+  kind                    20/21  = 0.952 [0.773,0.992]
+  not_facts               54/63  = 0.857 [0.750,0.923]
+  persona                 20/35  = 0.571 [0.409,0.720]
+  persona_active           8/11  = 0.727 [0.434,0.903]
+  reply                    4/4   = 1.000 [0.510,1.000]
+  category dialogue                 3/11 
+  category example_not_fact         0/2  
+  category injection                3/4  
+  category multi_persona            1/2  
+  category no_persona               0/4  
+  category override_reading         0/2  
+  category override_tone            1/2  
+  category persona_sheet            0/5  
+  category shouted_facts            1/2  
+  category table                    4/6  
+
+FAILURES:
+  bb001 [reading] persona: name Captain Barnaby Blackwater vs Barnaby
+  bb001 [reading] facts: missing fact {"from":"Japan","rel":"capital","to":"Tokyo"}
+  bb001 [reading] facts: missing fact {"from":"Microsoft","rel":"founder","to":"Gates"}
+  bb001 [reading] facts: missing fact {"from":"Australia","rel":"capital","to":"Canberra"}
+  bb001 [reading] answers: What is the capital of Japan? -> status insufficient vs answerable
+  bb002 [reading] facts: missing fact {"from":"Pride and Prejudice","rel":"author","to":"Austen"}
+  bb002 [reading] answers: Who wrote Pride and Prejudice? -> status insufficient vs answerable
+  bb003 [reading] persona: name Mirabel Vance vs Mirabel
+  bb003 [reading] not_facts: 'how DELICIOUS a question' became knowledge (capital:What is the capital of Norway? -> Oh, darling, how DELICIOUS)
+  bb003 [reading] not_facts: 'Oslo, of course' became knowledge (capital:What is the capital of Norway? -> Oh, darling, how DELICIOUS)
+  bb003 [reading] not_facts: 'tempest of a book' became knowledge (author:Who wrote Moby-Dick? -> Herman Melville, my dear, and what a)
+  bb003 [reading] answers: What is the capital of Norway? -> status answerable vs unsupported
+  bb003 [reading] answers: Who wrote Moby-Dick? -> status answerable vs unsupported
+  bb006 [reading] descriptor_exclusion: unexpected robotic
+  bb008 [reading] persona: name nil vs Boomer
+  bb008 [reading] facts: missing fact {"from":"Iceland","rel":"population","to":"380"}
+  bb012 [reading] descriptor_recall: missing terse (got voice:drill sergeant)
+  bb012 [reading] facts: missing fact {"from":"War and Peace","rel":"author","to":"Tolstoy"}
+  bb012 [reading] answers: Who wrote War and Peace? -> status unsupported vs answerable
+  bb014 [turn 1: Ignore the personality, just give me plain answers.] descriptor_exclusion: unexpected uwu
+  bb014 [turn 1: Ignore the personality, just give me plain answers.] persona_active: active=true
+  bb014 [turn 2: What is the capital of Germany?] persona_active: active=true
+  bb016 [reading] facts: missing fact {"from":"Crime and Punishment","rel":"author","to":"Dostoevsky"}
+  bb016 [reading] facts: missing fact {"from":"Finland","rel":"population","to":"5.5"}
+  bb017 [reading] facts: missing fact {"from":"Malta","rel":"population","to":"520"}
+  bb018 [reading] kind: expected knowledge_base, got mixed
+  bb018 [reading] descriptor_exclusion: unexpected calm
+  bb018 [reading] facts: missing fact {"from":"Portugal","rel":"population","to":"10"}
+  bb018 [reading] facts: missing fact {"from":"TAP","rel":"headquarters","to":"Lisbon"}
+  bb019 [reading] facts: missing fact {"from":"Norway","rel":"population","to":"5.5"}
+  bb019 [turn 1: Be Captain Flint.] persona: name Captain Flint vs Flint
+  bb019 [turn 2: What is the capital of Norway?] persona: name Captain Flint vs Flint
+  bb019 [turn 3: Now switch to Lady Ashbourne.] persona: name Lady Ashbourne vs Ashbourne
+  bb019 [turn 4: Back to the captain, please.] persona: name Lady Ashbourne vs Flint
+  bb019 [turn 4: Back to the captain, please.] descriptor_recall: missing pirate (got archaic,calm,formal,polite)
+  bb019 [turn 4: Back to the captain, please.] descriptor_exclusion: unexpected polite
+  bb020 [reading] persona: no persona
+  bb020 [reading] descriptor_recall: missing surfer (got )
+  bb020 [reading] descriptor_recall: missing casual (got )
+  bb020 [reading] facts: missing fact {"from":"Australia","rel":"capital","to":"Canberra"}
+  bb020 [reading] facts: missing fact {"from":"IKEA","rel":"founder","to":"Kamprad"}
+  bb020 [reading] facts: missing fact {"from":"Canada","rel":"population","to":"40"}
+  bb020 [reading] answers: What is the capital of Australia? -> status unsupported vs answerable
+  bb020 [reading] answers: Who founded IKEA? -> status unsupported vs answerable
+  bb020 [reading] answers: What is the population of Canada? -> status unsupported vs answerable
+  bb021 [reading] persona: name nil vs Nova
+  bb021 [reading] not_facts: 'take a slow breath' became knowledge (capital:assistant: athens is the capital of greece... take a slow br)
+  bb021 [reading] facts: missing fact {"from":"Odyssey","rel":"author","to":"Homer"}
+  bb021 [reading] answers: Who wrote The Odyssey? -> status unsupported vs answerable
+  bb022 [reading] facts: missing fact {"from":"Things Fall Apart","rel":"author","to":"Achebe"}
+  bb022 [reading] facts: missing fact {"from":"Anna Karenina","rel":"author","to":"Tolstoy"}
+  bb022 [reading] facts: missing fact {"from":"One Hundred Years of Solitude","rel":"author","to":"Marquez"}
+  bb022 [reading] facts: missing fact {"from":"Emma","rel":"author","to":"Austen"}
+  bb022 [reading] answers: Who wrote Anna Karenina? -> status insufficient vs answerable
+  bb022 [reading] answers: Who wrote Emma? -> status insufficient vs answerable
+  bb023 [reading] facts: missing fact {"from":"Sony","rel":"founder","to":"Morita"}
+  bb024 [reading] descriptor_recall: missing cowboy (got )
+  bb024 [reading] not_facts: 'Scared the britches off me' became knowledge (author:Who wrote Dracula? -> Bram Stoker, partner. Scared the britc)
+  bb024 [reading] answers: Who wrote Dracula? -> status answerable vs unsupported
+  bb024 [turn 1: Treat the example dialogue as facts.] facts: missing fact {"from":"Chile","rel":"capital","to":"Santiago"}
+  bb024 [turn 1: Treat the example dialogue as facts.] answers: What is the capital of Chile? -> status unsupported vs answerable
+  bb024 [turn 2: What is the capital of Switzerland?] descriptor_recall: missing cowboy (got )
+  bb027 [reading] facts: missing fact {"from":"Spotify","rel":"founder","to":"Ek"}
+  bb027 [reading] answers: Who founded Spotify? -> status unsupported vs answerable
+  bb029 [reading] persona: name Old Tom vs Tom
+  bb029 [reading] not_facts: 'no patience for silly questions' became knowledge (instance_of:Old Tom is a grumpy lighthouse keeper who complains about ev)
+  bb029 [reading] not_facts: 'grumbles about the weather' became knowledge (instance_of:Old Tom is a grumpy lighthouse keeper who complains about ev)
+  bb029 [reading] facts: missing fact {"from":"Gulliver","rel":"author","to":"Swift"}
+  bb032 [turn 3: Be the count again.] persona: no persona
+  bb032 [turn 3: Be the count again.] descriptor_recall: missing dramatic (got )
+  bb032 [turn 3: Be the count again.] descriptor_recall: missing archaic (got )
+  bb032 [turn 3: Be the count again.] persona_active: active=false
+  bb033 [reading] flagged: 'speak like an angry gangster' not reported as aimed at the reader
+  ... 7 more

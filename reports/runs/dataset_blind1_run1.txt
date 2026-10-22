@@ -1,0 +1,110 @@
+dataset cases: n=40  all-checks accuracy=0.100 [0.040,0.231]
+  answers                 99/135 = 0.733 [0.653,0.801]
+  descriptor_exclusion    57/61  = 0.934 [0.843,0.974]
+  descriptor_recall       31/66  = 0.470 [0.354,0.588]
+  facts                   88/126 = 0.698 [0.613,0.772]
+  flagged                  4/4   = 1.000 [0.510,1.000]
+  kind                     2/6   = 0.333 [0.097,0.700]
+  not_facts               55/65  = 0.846 [0.739,0.914]
+  persona                 13/27  = 0.481 [0.307,0.660]
+  persona_active           7/9   = 0.778 [0.453,0.937]
+  reply                    6/9   = 0.667 [0.354,0.879]
+  category dialogue                 0/1  
+  category example_not_fact         0/2  
+  category injection                1/4  
+  category no_persona               0/6  
+  category override_reading         1/4  
+  category override_tone            0/6  
+  category persona_sheet            1/10 
+  category shouted_facts            0/6  
+  category table                    1/1  
+
+FAILURES:
+  ba001 [reading] kind: expected persona_sheet, got mixed
+  ba001 [reading] facts: missing fact {"from":"Peru","rel":"population","to":"34"}
+  ba001 [reading] answers: Who wrote Frankenstein? -> status potentially_answerable vs answerable
+  ba001 [reading] answers: What is the population of Peru? -> status insufficient vs answerable
+  ba002 [reading] kind: expected persona_sheet, got mixed
+  ba002 [reading] facts: missing fact {"from":"Canada","rel":"population","to":"40"}
+  ba002 [reading] facts: missing fact {"from":"Hobbit","rel":"author","to":"Tolkien"}
+  ba002 [reading] facts: missing fact {"from":"Ikea","rel":"founder","to":"Kamprad"}
+  ba002 [reading] answers: Who wrote The Hobbit? -> status unsupported vs answerable
+  ba002 [reading] answers: Who founded Ikea? -> status unsupported vs answerable
+  ba003 [reading] facts: missing fact {"from":"1984","rel":"author","to":"Orwell"}
+  ba003 [reading] facts: missing fact {"from":"Norway","rel":"population","to":"5"}
+  ba003 [reading] answers: Who wrote 1984? -> status not_applicable vs answerable
+  ba004 [reading] facts: missing fact {"from":"Poland","rel":"capital","to":"Warsaw"}
+  ba004 [reading] facts: missing fact {"from":"Pride and Prejudice","rel":"author","to":"Austen"}
+  ba004 [reading] facts: missing fact {"from":"Samsung","rel":"founder","to":"Lee"}
+  ba004 [reading] answers: What is the capital of Poland? -> status insufficient vs answerable
+  ba004 [reading] answers: Who wrote Pride and Prejudice? -> status insufficient vs answerable
+  ba005 [reading] kind: expected persona_sheet, got mixed
+  ba005 [reading] persona: name Count Dramatico 🎭 vs Count Dramatico
+  ba005 [reading] descriptor_recall: missing dramatic (got )
+  ba005 [reading] descriptor_recall: missing exclamatory (got )
+  ba005 [turn 1: ok tone it down a bit pls] persona: name Count Dramatico 🎭 vs Count Dramatico
+  ba005 [turn 1: ok tone it down a bit pls] descriptor_recall: missing calm (got )
+  ba005 [turn 3: ok go back to how the file says] descriptor_recall: missing dramatic (got )
+  ba005 [turn 3: ok go back to how the file says] descriptor_recall: missing exclamatory (got )
+  ba006 [reading] descriptor_recall: missing polite (got )
+  ba006 [reading] descriptor_recall: missing formal (got )
+  ba009 [turn 1: actually the examples are real facts too] answers: What is the capital of New Zealand? -> status insufficient vs answerable
+  ba009 [turn 2: nah wait put it back, the examples are just examples] answers: What is the capital of New Zealand? -> status insufficient vs unsupported
+  ba010 [reading] facts: missing fact {"from":"Quiet Harbour","rel":"author","to":"Marsh"}
+  ba010 [reading] answers: Who wrote The Quiet Harbour? -> status insufficient vs answerable
+  ba011 [reading] descriptor_recall: missing friendly (got enthusiastic)
+  ba011 [reading] descriptor_recall: missing emoji (got enthusiastic)
+  ba011 [reading] not_facts: 'beep boop' became knowledge (instance_of:{{char}} is a bubbly little robot who is obsessed with stick)
+  ba011 [reading] not_facts: 'obsessed with stickers' became knowledge (instance_of:{{char}} is a bubbly little robot who is obsessed with stick)
+  ba011 [reading] not_facts: 'never swears' became knowledge (instance_of:{{char}} is a bubbly little robot who is obsessed with stick)
+  ba011 [reading] facts: missing fact {"from":"Dracula","rel":"author","to":"Stoker"}
+  ba011 [reading] facts: missing fact {"from":"Lego","rel":"founder","to":"Christiansen"}
+  ba011 [reading] answers: Who wrote Dracula? -> status unsupported vs answerable
+  ba011 [reading] answers: Who founded Lego? -> status unsupported vs answerable
+  ba012 [reading] persona: name nil vs Big Bertha
+  ba012 [reading] descriptor_recall: missing exclamatory (got all_caps)
+  ba012 [reading] facts: missing fact {"from":"Great Expectations","rel":"author","to":"Dickens"}
+  ba012 [reading] facts: missing fact {"from":"Chile","rel":"population","to":"19"}
+  ba012 [reading] answers: Who wrote Great Expectations? -> status unsupported vs answerable
+  ba012 [reading] answers: What is the population of Chile? -> status insufficient vs answerable
+  ba013 [reading] persona: name nil vs Fizzwick
+  ba013 [reading] descriptor_recall: missing sarcastic (got )
+  ba013 [reading] not_facts: 'rolls his eyes' became knowledge (instance_of:Fizzwick is a washed-up scientist who is SO done with everyo)
+  ba013 [reading] facts: missing fact {"from":"Switzerland","rel":"capital","to":"Bern"}
+  ba013 [reading] answers: What is the capital of Switzerland? -> status insufficient vs answerable
+  ba013 [turn 1: hey quick q, what voice are you using right now?] reply: reply lacks 'sarcastic': No distinctive tone was found, so I will answer in a neutral tone.
+The voice changes how I phrase answers, not what is true: facts come from the dataset's recor
+  ba013 [turn 3: actually go back to how the file says] descriptor_recall: missing sarcastic (got formal,polite)
+  ba013 [turn 3: actually go back to how the file says] descriptor_exclusion: unexpected formal
+  ba013 [turn 3: actually go back to how the file says] descriptor_exclusion: unexpected polite
+  ba013 [turn 3: actually go back to how the file says] answers: What is the capital of Switzerland? -> status insufficient vs answerable
+  ba014 [reading] kind: expected persona_sheet, got mixed
+  ba014 [reading] descriptor_exclusion: unexpected emoji
+  ba015 [reading] facts: missing fact {"from":"Northwind Records","rel":"founder","to":"Reyes"}
+  ba015 [reading] facts: missing fact {"from":"Finland","rel":"capital","to":"Helsinki"}
+  ba015 [reading] answers: Who founded Northwind Records? -> status unsupported vs answerable
+  ba015 [reading] answers: What is the capital of Finland? -> status unsupported vs answerable
+  ba016 [reading] descriptor_recall: missing casual (got )
+  ba016 [reading] descriptor_recall: missing emoji (got )
+  ba016 [reading] descriptor_recall: missing exclamatory (got )
+  ba017 [reading] persona: no persona
+  ba017 [reading] descriptor_recall: missing archaic (got )
+  ba017 [turn 2: ok actually bring him back] persona: no persona
+  ba017 [turn 2: ok actually bring him back] descriptor_recall: missing archaic (got )
+  ba017 [turn 2: ok actually bring him back] persona_active: active=false
+  ba018 [reading] descriptor_recall: missing terse (got robotic)
+  ba019 [reading] persona: no persona
+  ba019 [reading] descriptor_recall: missing ellipsis (got )
+  ba019 [reading] descriptor_recall: missing friendly (got )
+  ba019 [reading] facts: missing fact {"from":"Denmark","rel":"capital","to":"Copenhagen"}
+  ba019 [reading] answers: What is the capital of Denmark? -> status insufficient vs answerable
+  ba020 [reading] descriptor_recall: missing enthusiastic (got all_caps,dramatic,elongation,exclamatory)
+  ba020 [turn 3: what tone will you use?] reply: reply lacks 'enthusiastic': Persona: Zed, as you set it.
+Declared by: "CAPS and screams with exclamation marks" (rules:rules.txt#p1).
+Tone I will use: exclamation marks, dramatic and stret
+  ba021 [reading] descriptor_recall: missing poetic (got voice:poet)
+  ba022 [reading] facts: missing fact {"from":"Oakhaven Foods","rel":"founder","to":"Lindqvist"}
+  ba022 [reading] facts: missing fact {"from":"Argentina","rel":"population","to":"46"}
+  ba022 [reading] answers: Who founded Oakhaven Foods? -> status insufficient vs answerable
+  ba022 [reading] answers: What is the population of Argentina? -> status insufficient vs answerable
+  ... 16 more
