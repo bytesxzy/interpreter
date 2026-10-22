@@ -269,6 +269,10 @@ T.test("a conversation: calmer tone, no caps, ignore the personality, treat as f
   T.ok(o1.record.engine_reply.text:find("Aria", 1, true))
   local o2 = say("Use a calmer tone.")
   T.ok(has(o2, "calm") and not has(o2, "dramatic") and not has(o2, "all_caps"), "calmer tone replaces the drama")
+  local o2b = say("Go back to the dataset's tone.")
+  T.ok(has(o2b, "dramatic") and has(o2b, "all_caps") and not has(o2b, "calm"), "the dataset's tone is back")
+  for _, d in ipairs(o2b.record.voice.dropped or {}) do T.ok(not has(o2b, d.id), "a descriptor that is in force again is not listed as dropped: " .. d.id) end
+  say("Use a calmer tone.")
   local o3 = say("Ignore the personality.")
   T.ok(o3.record.voice.persona == nil or o3.record.voice.persona.authority == "user" or not o3.record.voice.persona.name, "the persona is off")
   local o4 = say("What is the capital of Atlantis?")

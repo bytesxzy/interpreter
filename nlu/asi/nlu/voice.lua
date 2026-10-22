@@ -243,6 +243,12 @@ function V.effective(personas, st, opts)
       if map[id] then remove(id, "you asked to drop it") else eff.op_notes[#eff.op_notes + 1] = { text = "'" .. label_of(id) .. "' was not part of the voice", turn = t.turn } end
     end
   end
+  -- a descriptor that a later instruction put back ("go back to the dataset's tone") was not dropped in the end
+  do
+    local keep = {}
+    for _, d in ipairs(eff.dropped) do if not map[d.id] then keep[#keep + 1] = d end end
+    eff.dropped = keep
+  end
   local listed = {}
   for _, id in ipairs(order) do
     local d = map[id]
