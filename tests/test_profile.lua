@@ -181,6 +181,23 @@ T.test("a chat log with one message per paragraph is a conversation; a lone line
   T.ok(facts_of(kb_of({ { "lone.txt", "Aria: Hello hello!!! I am SO excited to meet you!!!\n\nParis is the capital of France." } })):find("capital|country.france|city.paris", 1, true))
 end)
 
+T.test("a persona can be picked by a part of its name or by its title", function()
+  local kb = kb_of({ { "voices.tsv", "character\ttone\tdescription\nCaptain Flint\tgruff\tA gruff pirate who says arr and matey a lot.\nLady Ashbourne\trefined, polite\tA refined lady who speaks formally." } })
+  local names = Voice.persona_names(kb)
+  T.ok(names, "the dataset names its personas")
+  T.eq(names["flint"], "Captain Flint")
+  T.eq(names["the captain"], "Captain Flint")
+  T.eq(names["ashbourne"], "Lady Ashbourne")
+  for _, c in ipairs({ { "Be Captain Flint.", "persona:pick:Captain Flint" }, { "Now Ashbourne please.", "persona:pick:Lady Ashbourne" }, { "Back to the captain, please.", "persona:pick:Captain Flint" },
+    { "Switch to Lady Ashbourne.", "persona:pick:Lady Ashbourne" } }) do
+    local r = Override.parse(c[1], { names = names })
+    local ops = {}
+    for _, it in ipairs(r.items or r) do for _, o in ipairs(it.ops or {}) do ops[#ops + 1] = o end end
+    T.eq(table.concat(ops, ";"), c[2])
+  end
+  T.eq(#((Override.parse("What is the capital of Norway?", { names = names }).items) or {}), 0)
+end)
+
 ---------------------------------------------------------------- roles of the parts
 T.test("question / answer columns pair up in any column order and an answer in a loud voice is still the fact", function()
   local kb = kb_of({ { "qa.tsv", "question\tanswer\nWhat is the capital of Italy?\tROME!!!\nWho founded Acme Corp?\tDana Whitcombe" } })

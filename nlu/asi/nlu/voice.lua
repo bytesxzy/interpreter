@@ -115,10 +115,34 @@ function V.personas(kb)
 end
 
 -- lower-case name -> name, for the recogniser of "play Bob instead"
+-- the names a user may call a persona by: its full name, each word of it that is not a title ("Flint" for "Captain Flint"), and "the <title>" ("the captain") when that picks exactly one
+local TITLE_WORDS = { captain = true, count = true, countess = true, lady = true, lord = true, sir = true, dame = true, professor = true, doctor = true, dr = true, mr = true, mrs = true, ms = true,
+  miss = true, king = true, queen = true, prince = true, princess = true, duke = true, duchess = true, baron = true, general = true, colonel = true, sergeant = true, nurse = true, old = true,
+  young = true, little = true, big = true, the = true, of = true, de = true, von = true, van = true, da = true, la = true, le = true, saint = true, st = true }
 function V.persona_names(kb)
   local names
-  for _, p in ipairs(V.personas(kb)) do
-    if p.name then names = names or {}; names[p.name:lower()] = p.name end
+  local ps = {}
+  for _, p in ipairs(V.personas(kb)) do if p.name then ps[#ps + 1] = p end end
+  for _, p in ipairs(ps) do names = names or {}; names[p.name:lower()] = p.name end
+  -- aliases, kept only when they point at one persona
+  local owners = {}
+  for _, p in ipairs(ps) do
+    local words = {}
+    for w in p.name:lower():gmatch("[%a][%a'’%-]*") do words[#words + 1] = w end
+    if #words >= 2 then
+      for _, w in ipairs(words) do
+        local alias = TITLE_WORDS[w] and ("the " .. w) or w
+        if #w >= 3 and not (TITLE_WORDS[w] and alias == w) then
+          owners[alias] = owners[alias] or {}
+          owners[alias][p.name] = true
+        end
+      end
+    end
+  end
+  for alias, set in pairs(owners) do
+    local only, count = nil, 0
+    for nm in pairs(set) do only, count = nm, count + 1 end
+    if count == 1 and not (names and names[alias]) then names = names or {}; names[alias] = only end
   end
   return names
 end

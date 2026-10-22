@@ -143,3 +143,15 @@ lua5.4 asi_nlu.lua inject --target HOST.lua --selfcheck       # writes HOST.asi.
 lua5.4 asi_nlu.lua extract DIR                                # write every embedded source / data / test / report file into DIR
 lua5.4 asi_nlu.lua verify                                     # SHA-256 integrity of every embedded file
 ```
+
+## 9. Addendum: reading datasets (persona, tone, examples, facts)
+
+Added after the sections above; design, clue table, limits and all numbers are in `reports/DATASET_READING.md`.  The engine now works out from basic context clues what a dataset contains
+(facts, persona statements, style statements, example utterances, conversation turns, instructions aimed at the reader), picks up the persona and tone (declared and measured), announces the tone
+with its evidence, keeps knowledge sorting exact whatever the voice, and lets the user read the data differently ("use a calmer tone", "no caps", "ignore the personality", "treat the examples as facts",
+"play Bob instead", "what tone will you use?").  It is deterministic Lua with no language model and no network.
+
+* **Verified:** 144 unit tests pass; the gold sets of this report are unchanged by the work.
+* **Measured, independent, first run:** on 120 cases written by three sub-agents without access to the implementation, every check of a case passed in 4/40, 13/40 and 5/40 cases; per check, persona 0.47-0.57,
+  tone words 0.47-0.80, facts 0.70-0.85, answers 0.73-0.86.  The reader is **not reliable on unseen phrasings**; my own cases (57 + 10, tuned on) pass 100 % and say nothing about that.
+* **Unproven:** the host regression (the host bundle was not available), larger datasets than the scale tests, other languages.

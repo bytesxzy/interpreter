@@ -381,7 +381,7 @@ local function parse_clause(cl, ctx, whole_forms)
             local verbs = false
             for k = math.max(1, i - 4), i - 1 do
               local v = forms[k]
-              if USE[v] or v == "like" or v == "as" or v == "to" or v == "instead" or v == "other" then verbs = true end
+              if USE[v] or v == "like" or v == "as" or v == "to" or v == "instead" or v == "other" or v == "now" or v == "back" or v == "again" or v == "swap" or v == "change" or v == "return" then verbs = true end
             end
             if verbs or i == 1 then op("persona:pick:" .. canon, "play a persona the dataset names"); return ops, ev end
           end
